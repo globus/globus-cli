@@ -4,6 +4,7 @@ from globus_cli.parsing.case_insensitive_choice import CaseInsensitiveChoice
 from globus_cli.parsing.endpoint_plus_path import (
     EndpointPlusPath, ENDPOINT_PLUS_OPTPATH, ENDPOINT_PLUS_REQPATH)
 from globus_cli.parsing.hidden_option import HiddenOption
+from globus_cli.parsing.aliases import AliasCommand
 
 from globus_cli.parsing.shared_options import (
     common_options,
@@ -18,6 +19,7 @@ __all__ = [
     'CaseInsensitiveChoice',
     'EndpointPlusPath', 'ENDPOINT_PLUS_OPTPATH', 'ENDPOINT_PLUS_REQPATH',
     'HiddenOption',
+    'AliasCommand',
 
     'common_options',
     # Transfer options
