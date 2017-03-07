@@ -90,19 +90,24 @@ def endpoint_create_and_update_params(*args, **kwargs):
     Usage:
 
     >>> @endpoint_create_and_update_params
-    >>> def command_func(display_name, description, organization, department,
-    >>>                  keywords, contact_email, contact_info, info_link,
-    >>>                  public, default_directory, force_encryption,
-    >>>                  oauth_server, myproxy_server, myproxy_dn):
+    >>> def endpoint_create(endpoint_id, display_name, description,
+    >>>                     organization, department, keywords, contact_email,
+    >>>                     contact_info, info_link, public, default_directory,
+    >>>                     force_encryption, oauth_server, myproxy_server,
+    >>>                     myproxy_dn, network_use, custom_concurrency,
+    >>>                     custom_parallelism, location_automatic, location,
+    >>>                     disable_verify):
     >>>     ...
-
     or
 
     >>> @endpoint_create_and_update_params(create=False)
-    >>> def command_func(display_name, description, organization, department,
-    >>>                  keywords, contact_email, contact_info, info_link,
-    >>>                  public, default_directory, force_encryption,
-    >>>                  oauth_server, myproxy_server, myproxy_dn):
+    >>> def endpoint_update(endpoint_id, display_name, description,
+    >>>                     organization, department, keywords, contact_email,
+    >>>                     contact_info, info_link, public, default_directory,
+    >>>                     force_encryption, oauth_server, myproxy_server,
+    >>>                     myproxy_dn, network_use, custom_concurrency,
+    >>>                     custom_parallelism, location_automatic, location,
+    >>>                     disable_verify):
     >>>     ...
 
     or
@@ -133,6 +138,29 @@ def endpoint_create_and_update_params(*args, **kwargs):
         f = click.option(
             '--public/--private', 'public', default=None,
             help='Set the Endpoint to be public or private')(f)
+        f = click.option(
+            "--network-use", default=None,
+            type=click.Choice(["normal", "minimal", "aggressive", "custom"]),
+            help=("Set the endpoint's network use level. If using custom, "
+                  "--custom-concurrency and --custom-parallelism must be used"
+                  "(Managed endpoints only)"))(f)
+        f = click.option(
+            "--custom-concurrency", nargs=2, type=int,
+            help=("Set the endpoint's max and preferred concurrency "
+                  "(Managed endpoints only)"))(f)
+        f = click.option(
+            "--custom-parallelism", nargs=2, type=int,
+            help=("Set the endpoint's max and preferred parallelism "
+                  "(Managed endpoints only) (Non S3 endpoints only)"))(f)
+        f = click.option(
+            "--location-automatic", is_flag=True,
+            help="Set the endpoint to automatically get its location")(f)
+        f = click.option(
+            "--location", nargs=2, type=float, default=None,
+            help="Set the endpoint's latitude and longitude")(f)
+        f = click.option(
+            "--disable-verify", is_flag=True,
+            help="Set the endpoint to not use checksum verification")(f)
 
         return f
 
