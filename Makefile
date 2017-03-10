@@ -37,12 +37,14 @@ upload: $(VIRTUALENV)/bin/twine build
 	$(VIRTUALENV)/bin/twine upload dist/*
 
 
-testreqs: localdev test-requirements.txt
+$(VIRTUALENV)/bin/flake8 $(VIRTUALENV)/bin/nose2: test-requirements.txt $(VIRTUALENV)
 	$(VIRTUALENV)/bin/pip install -r test-requirements.txt
+	touch $(VIRTUALENV)/bin/flake8
+	touch $(VIRTUALENV)/bin/nose2t
 
-test: testreqs
+test: $(VIRTUALENV)/bin/flake8 $(VIRTUALENV)/bin/nose2
 	$(VIRTUALENV)/bin/flake8
-	. $(VIRTUALENV)/bin/activate && ./basic_tests.sh
+	$(VIRTUALENV)/bin/nose2 --verbose
 
 
 # docs needs full localdev install because sphinx will actually try to do

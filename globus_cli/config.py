@@ -3,7 +3,6 @@ import os
 from configobj import ConfigObj
 
 import globus_sdk
-import globus_sdk.config
 
 from globus_cli import version
 
@@ -87,8 +86,14 @@ def get_config_obj(system=False):
 
 
 def lookup_option(option, section='cli', environment=None):
-    p = globus_sdk.config._get_parser()
-    return p.get(option, section=section, environment=environment)
+    conf = get_config_obj()
+    try:
+        if environment:
+            return conf["environment " + environment][option]
+        else:
+            return conf[section][option]
+    except KeyError:
+        return None
 
 
 def remove_option(option, section='cli', system=False):
