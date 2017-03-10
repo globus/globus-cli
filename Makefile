@@ -42,7 +42,7 @@ $(VIRTUALENV)/bin/flake8 $(VIRTUALENV)/bin/nose2: test-requirements.txt $(VIRTUA
 	touch $(VIRTUALENV)/bin/flake8
 	touch $(VIRTUALENV)/bin/nose2t
 
-test: $(VIRTUALENV)/bin/flake8 $(VIRTUALENV)/bin/nose2
+test: $(VIRTUALENV)/bin/flake8 $(VIRTUALENV)/bin/nose2 localdev
 	$(VIRTUALENV)/bin/flake8
 	$(VIRTUALENV)/bin/nose2 --verbose
 
