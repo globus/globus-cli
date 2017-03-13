@@ -2,7 +2,8 @@ import click
 
 from globus_cli.safeio import safeprint
 from globus_cli.parsing import (
-    common_options, endpoint_id_arg, endpoint_create_and_update_params)
+    common_options, endpoint_id_arg, endpoint_create_and_update_params,
+    endpoint_create_and_update_validate_params)
 from globus_cli.helpers import outformat_is_json, print_json_response
 
 from globus_cli.services.transfer import get_client, assemble_generic_doc
@@ -21,37 +22,12 @@ def endpoint_update(endpoint_id, display_name, description, organization,
     """
     Executor for `globus endpoint update`
     """
-    # require custom_concurrency and custom_parallelism for custom network_use
-    if network_use == "custom" and (not custom_concurrency or
-                                    not custom_parallelism):
-        raise click.UsageError(
-            "custom network_use level requires --custom-concurrency and "
-            "--custom-parallelism to be set")
-
-    # set max and preferred concurrency and parallelism based on args
-    if custom_concurrency:
-        max_concurrency, preferred_concurrency = custom_concurrency
-    else:
-        max_concurrency = None
-        preferred_concurrency = None
-    if custom_parallelism:
-        max_parallelism, preferred_parallelism = custom_parallelism
-    else:
-        max_parallelism = None
-        preferred_parallelism = None
-
-    # location cannot be automatic and user defined
-    if location_automatic and location:
-        raise click.UsageError(
-            "cannot combine --location and --location-automatic")
-
-    # set location based on args
-    if location_automatic:
-        location = "Automatic"
-    elif location:
-        location = "{},{}".format(location[0], location[1])
-    else:
-        location = None
+    # validate/parse args
+    validated = endpoint_create_and_update_validate_params(
+        network_use, custom_concurrency, custom_parallelism, location,
+        location_automatic)
+    (max_concurrency, preferred_concurrency,
+     max_parallelism, preferred_parallelism, location_value) = validated
 
     ep_doc = assemble_generic_doc(
         'endpoint',
@@ -65,7 +41,7 @@ def endpoint_update(endpoint_id, display_name, description, organization,
         preferred_concurrency=preferred_concurrency,
         max_parallelism=max_parallelism,
         preferred_parallelism=preferred_parallelism,
-        disable_verify=disable_verify, location=location)
+        disable_verify=disable_verify, location=location_value)
 
     client = get_client()
     res = client.update_endpoint(endpoint_id, ep_doc)

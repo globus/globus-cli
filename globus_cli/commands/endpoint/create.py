@@ -1,7 +1,8 @@
 import click
 
 from globus_cli.parsing import (
-    common_options, endpoint_create_and_update_params)
+    common_options, endpoint_create_and_update_params,
+    endpoint_create_and_update_validate_params)
 from globus_cli.helpers import (
     outformat_is_json, print_json_response, colon_formatted_print)
 
@@ -35,37 +36,12 @@ def endpoint_create(endpoint_type, display_name, description, organization,
     """
     Executor for `globus endpoint create`
     """
-    # require custom_concurrency and custom_parallelism for custom network_use
-    if network_use == "custom" and (not custom_concurrency or
-                                    not custom_parallelism):
-        raise click.UsageError(
-            "custom network_use level requires --custom-concurrency and "
-            "--custom-parallelism to be set")
-
-    # set max and preferred concurrency and parallelism based on args
-    if custom_concurrency:
-        max_concurrency, preferred_concurrency = custom_concurrency
-    else:
-        max_concurrency = None
-        preferred_concurrency = None
-    if custom_parallelism:
-        max_parallelism, preferred_parallelism = custom_parallelism
-    else:
-        max_parallelism = None
-        preferred_parallelism = None
-
-    # location cannot be automatic and user defined
-    if location_automatic and location:
-        raise click.UsageError(
-            "cannot combine --location and --location-automatic")
-
-    # set location based on args
-    if location_automatic:
-        location = "Automatic"
-    elif location:
-        location = "{},{}".format(location[0], location[1])
-    else:
-        location = None
+    # validate/parse args
+    validated = endpoint_create_and_update_validate_params(
+        network_use, custom_concurrency, custom_parallelism, location,
+        location_automatic)
+    (max_concurrency, preferred_concurrency,
+     max_parallelism, preferred_parallelism, location_value) = validated
 
     # omit the `is_globus_connect` key if not GCP, otherwise include as `True`
     is_globus_connect = endpoint_type == 'personal' or None
@@ -84,7 +60,7 @@ def endpoint_create(endpoint_type, display_name, description, organization,
         preferred_concurrency=preferred_concurrency,
         max_parallelism=max_parallelism,
         preferred_parallelism=preferred_parallelism,
-        disable_verify=disable_verify, location=location)
+        disable_verify=disable_verify, location=location_value)
 
     client = get_client()
     res = client.create_endpoint(ep_doc)

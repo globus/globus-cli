@@ -212,6 +212,51 @@ def endpoint_create_and_update_params(*args, **kwargs):
     return detect_and_decorate(inner_decorator, args, kwargs)
 
 
+def endpoint_create_and_update_validate_params(network_use, custom_concurrency,
+                                               custom_parallelism, location,
+                                               location_automatic):
+    """
+    Given the values of the custom_concurrency, custom_parallelism,
+    location and location_automatic options for endpoint create / update
+    Returns a tuple of (max_concurrency, preferred_concurrency,
+    max_parallelism, preferred_parallelism, location_value)
+    """
+    # require custom_concurrency and custom_parallelism for custom network_use
+    if network_use == "custom" and (not custom_concurrency or
+                                    not custom_parallelism):
+        raise click.UsageError(
+            "custom network_use level requires --custom-concurrency and "
+            "--custom-parallelism to be set")
+
+    # set max and preferred concurrency and parallelism based on args
+    if custom_concurrency:
+        max_concurrency, preferred_concurrency = custom_concurrency
+    else:
+        max_concurrency = None
+        preferred_concurrency = None
+    if custom_parallelism:
+        max_parallelism, preferred_parallelism = custom_parallelism
+    else:
+        max_parallelism = None
+        preferred_parallelism = None
+
+    # location cannot be automatic and user defined
+    if location_automatic and location:
+        raise click.UsageError(
+            "cannot combine --location and --location-automatic")
+
+    # set location based on args
+    if location_automatic:
+        location_value = "Automatic"
+    elif location:
+        location_value = "{},{}".format(location[0], location[1])
+    else:
+        location_value = None
+
+    return (max_concurrency, preferred_concurrency,
+            max_parallelism, preferred_parallelism, location_value)
+
+
 def task_id_arg(*args, **kwargs):
     """
     This is the `TASK_ID` argument consumed by many Transfer Task operations.
