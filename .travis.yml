@@ -1,5 +1,4 @@
 sudo: false
-dist: trusty
 language: python
 python:
   - "2.7"
@@ -7,14 +6,16 @@ python:
   - "3.4"
   - "3.5"
   - "3.6"
+  # allow failures on CPython dev and pypy
+  # we want to be warned about these, but they aen't critical
   - "3.6-dev"
+  - "pypy"
+  - "pypy3"
 matrix:
   allow_failures:
     - python: "3.6-dev"
-install:
-  - pip install .
-  - pip install -r test-requirements.txt
+    - python: "pypy"
+    - python: "pypy3"
 cache: pip
 script:
-  - flake8
-  - bash basic_tests.sh
+  - make test

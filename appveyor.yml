@@ -1,0 +1,25 @@
+environment:
+  matrix:
+    # Appveyor may upgrade python to new point releases
+    # See: http://www.appveyor.com/docs/installed-software#python
+    - PYTHON: "C:\\Python27"
+    - PYTHON: "C:\\Python27-x64"
+    - PYTHON: "C:\\Python33-x64"
+    - PYTHON: "C:\\Python34-x64"
+    - PYTHON: "C:\\Python35-x64"
+    - PYTHON: "C:\\Python36-x64"
+
+install:
+  # invoke python explicitly, and wrap it in build.cmd so that compilation of
+  # C-extensions uses the correct python
+  # for reference: https://packaging.python.org/appveyor/
+  - "build.cmd %PYTHON%\\python.exe -m pip install ."
+  - "build.cmd %PYTHON%\\python.exe -m pip install -r test-requirements.txt"
+
+test_script:
+  # explicitly invoke under the build environment's python
+  - "%PYTHON%\\python.exe -m flake8"
+  - "%PYTHON%\\python.exe -m nose2"
+
+build: off
+deploy: off
