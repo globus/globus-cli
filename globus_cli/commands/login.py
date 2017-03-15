@@ -1,9 +1,12 @@
 import platform
+import webbrowser
+import socket
 
 import click
 
 from globus_sdk import AuthClient, AccessTokenAuthorizer
 
+from globus_cli.helpers import start_local_server, is_remote_session
 from globus_cli.safeio import safeprint
 from globus_cli.parsing import common_options
 from globus_cli.config import (
@@ -46,11 +49,23 @@ You may force a new login with
 @common_options(no_format_option=True, no_map_http_status_option=True)
 @click.option('--force', is_flag=True,
               help=('Do a fresh login, ignoring any existing credentials'))
-def login_command(force):
+@click.option("--local-server", is_flag=True,
+              help=("Use your web browser to login. "
+                    "Unavailable for remote sessions"))
+def login_command(force, local_server):
+    # if not forcing, stop if user already logged in
     if not force and check_logged_in():
         safeprint(_LOGGED_IN_RESPONSE)
+        return
 
-    if force or not check_logged_in():
+    # local_server cannot be used on remotes sessions
+    if local_server and is_remote_session():
+        raise click.usageError("Cannot use --local-server on a remote session")
+
+    # do the login flow
+    if local_server:  # local http server login flow
+        do_local_server_login_flow()
+    else:  # normal login flow using a link and copy and pasted auth_code
         do_login_flow()
 
 
@@ -77,10 +92,13 @@ def check_logged_in():
 
 
 def do_login_flow():
-    # build the NativeApp client object
+    """
+    Prompts the user with a link to authorize the CLI to act on their behalf.
+    """
+    # get the NativeApp client object
     native_client = internal_auth_client()
 
-    # and do the Native App Grant flow, prefilling the
+    # start the Native App Grant flow, prefilling the
     # named grant label on the consent page if we can get a
     # hostname for the local system
     label = platform.node() or None
@@ -97,7 +115,50 @@ def do_login_flow():
     auth_code = click.prompt(
         'Enter the resulting Authorization Code here').strip()
 
-    # exchange, done!
+    # finish login flow
+    exchange_code_and_store_config(native_client, auth_code)
+
+
+def do_local_server_login_flow():
+    """
+    Starts a local http server, opens a browser to have the user login,
+    and gets the code redirected to the server (no copy and pasting required)
+    """
+    # start local server and create matching redirect_uri
+    for port in range(8000, 8999):
+        try:
+            server_address = ('127.0.0.1', port)
+            server = start_local_server(listen=server_address)
+            redirect_uri = "http://localhost:{}".format(port)
+            break
+        except socket.error:
+            continue
+
+    # get the NativeApp client object and start a flow
+    # if available, use the system-name to prefill the grant
+    label = platform.node() or None
+    native_client = internal_auth_client()
+    native_client.oauth2_start_flow(
+        refresh_tokens=True, prefill_named_grant=label,
+        redirect_uri=redirect_uri)
+    url = native_client.oauth2_get_authorize_url()
+
+    # open web-browser for user to log in, get auth code, then shut server down
+    webbrowser.open(url, new=1)
+    auth_code = server.wait_for_code()
+    server.shutdown()
+
+    # finish login flow
+    exchange_code_and_store_config(native_client, auth_code)
+
+
+def exchange_code_and_store_config(native_client, auth_code):
+    """
+    Finishes login flow after code is gotten from command line or local server.
+    Exchanges code for tokens and gets user info from auth.
+    Stores tokens and user info in config.
+    """
+    # do a token exchange with the given code
     tkn = native_client.oauth2_exchange_code_for_tokens(auth_code)
     tkn = tkn.by_resource_server
 
