@@ -1,6 +1,5 @@
 import platform
 import webbrowser
-import socket
 
 import click
 
@@ -125,14 +124,9 @@ def do_local_server_login_flow():
     and gets the code redirected to the server (no copy and pasting required)
     """
     # start local server and create matching redirect_uri
-    for port in range(8000, 8999):
-        try:
-            server_address = ('127.0.0.1', port)
-            server = start_local_server(listen=server_address)
-            redirect_uri = "http://localhost:{}".format(port)
-            break
-        except socket.error:
-            continue
+    server = start_local_server(listen=('127.0.0.1', 0))
+    _, port = server.socket.getsockname()
+    redirect_uri = 'http://localhost:{}'.format(port)
 
     # get the NativeApp client object and start a flow
     # if available, use the system-name to prefill the grant
