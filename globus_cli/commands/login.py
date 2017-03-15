@@ -60,7 +60,7 @@ def login_command(force, local_server):
 
     # local_server cannot be used on remotes sessions
     if local_server and is_remote_session():
-        raise click.usageError("Cannot use --local-server on a remote session")
+        raise click.UsageError("Cannot use --local-server on a remote session")
 
     # do the login flow
     if local_server:  # local http server login flow
