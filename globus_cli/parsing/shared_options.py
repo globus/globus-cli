@@ -81,104 +81,80 @@ def endpoint_id_arg(*args, **kwargs):
 def endpoint_create_and_update_params(*args, **kwargs):
     """
     Collection of options consumed by Transfer endpoint create and update
-    operations -- in addition to shared endpoint create and update.
-    It accepts toggles regarding create vs. update and shared EP vs. normal EP
-
-    Importantly, when given `shared_ep=True`, the options it applies are more
-    limited -- so the signature of the decorated function is different.
+    operations -- accepts toggle regarding create vs. update that makes
+    display_name required vs. optional.
 
     Usage:
 
-    >>> @endpoint_create_and_update_params
+    >>> @endpoint_create_and_update_params(create=True)
     >>> def command_func(display_name, description, organization, department,
     >>>                  keywords, contact_email, contact_info, info_link,
     >>>                  public, default_directory, force_encryption,
     >>>                  oauth_server, myproxy_server, myproxy_dn):
-    >>>     ...
-
-    or
-
-    >>> @endpoint_create_and_update_params(create=False)
-    >>> def command_func(display_name, description, organization, department,
-    >>>                  keywords, contact_email, contact_info, info_link,
-    >>>                  public, default_directory, force_encryption,
-    >>>                  oauth_server, myproxy_server, myproxy_dn):
-    >>>     ...
-
-    or
-
-    >>> @endpoint_create_and_update_params(shared_ep=True)
-    >>> def command_func(display_name, description, organization, department,
-    >>>                  keywords, contact_email, contact_info, info_link,
-    >>>                  public):
     >>>     ...
     """
-    def apply_non_shared_params(f):
-        f = click.option(
-            '--myproxy-dn',
-            help='Set the MyProxy Server DN (Globus Connect Server only)')(f)
-        f = click.option(
-            '--myproxy-server',
-            help='Set the MyProxy Server URI (Globus Connect Server only)')(f)
-        f = click.option(
-            '--oauth-server',
-            help='Set the OAuth Server URI (Globus Connect Server only)')(f)
-        f = click.option(
-            '--force-encryption/--no-force-encryption', default=None,
-            help=('(Un)Force transfers to use encryption '
-                  '(Globus Connect Server only)'))(f)
-        f = click.option(
-            '--default-directory',
-            help='Set the default directory (Globus Connect Server only)')(f)
-        f = click.option(
-            '--public/--private', 'public', default=None,
-            help='Set the Endpoint to be public or private')(f)
-
-        return f
-
-    def inner_decorator(f, create=False, shared_ep=False):
+    def inner_decorator(f, create=False):
         update_help_prefix = (not create and 'New ') or ''
 
-        ep_or_share = 'Share'
-        if not shared_ep:
-            ep_or_share = 'Endpoint'
-            f = apply_non_shared_params(f)
+        f = click.option(
+            "--myproxy-dn",
+            help=("Set the MyProxy Server DN "
+                  "(Non shared only) (Globus Connect Server only)"))(f)
+        f = click.option(
+            "--myproxy-server",
+            help=("Set the MyProxy Server URI "
+                  "(Non shared only) (Globus Connect Server only)"))(f)
+        f = click.option(
+            "--oauth-server",
+            help=("Set the OAuth Server URI "
+                  "(Non shared only) (Globus Connect Server only)"))(f)
+        f = click.option(
+            '--force-encryption/--no-force-encryption', default=None,
+            help=("(Un)Force transfers to use encryption "
+                  "(Non shared only) (Globus Connect Server only)"))(f)
+        f = click.option(
+            "--default-directory",
+            help=("Set the default directory "
+                  "(Non shared only) (Globus Connect Server only)"))(f)
+        f = click.option(
+            "--public/--private", "public", default=None,
+            help=("Set the Endpoint to be public or private "
+                  "(Non shared only)"))(f)
         f = click.option(
             '--info-link',
             help=(update_help_prefix +
-                  'Link for Info about the {0}'.format(ep_or_share)))(f)
+                  'Link for Info about the endpoint'))(f)
         f = click.option(
             '--contact-info',
             help=(update_help_prefix +
-                  'Contact Info for the {0}'.format(ep_or_share)))(f)
+                  'Contact Info for the endpoint'))(f)
         f = click.option(
             '--contact-email',
             help=(update_help_prefix +
-                  'Contact Email for the {0}'.format(ep_or_share)))(f)
+                  'Contact Email for the endpoint'))(f)
         f = click.option(
             '--organization',
             help=(update_help_prefix +
-                  'Organization for the {0}'.format(ep_or_share)))(f)
+                  'Organization for the endpoint'))(f)
         f = click.option(
             '--description',
             help=(update_help_prefix +
-                  'Description for the {0}'.format(ep_or_share)))(f)
+                  'Description for the endpoint'))(f)
         f = click.option(
             '--department',
             help=(update_help_prefix +
-                  'Department which operates the {0}'.format(ep_or_share)))(f)
+                  'Department which operates the endpoint'))(f)
         f = click.option(
             '--keywords',
             help=(update_help_prefix +
-                  'Keywords to help searches for the {0}'
-                  .format(ep_or_share)))(f)
+                  'Keywords to help searches for the endpoint'))(f)
         if create:
             f = click.argument('display_name')(f)
         else:
             f = click.option(
                 '--display-name',
                 help=(update_help_prefix +
-                      'Name for the {0}'.format(ep_or_share)))(f)
+                      'Name for the endpoint'))(f)
         return f
 
     return detect_and_decorate(inner_decorator, args, kwargs)

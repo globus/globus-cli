@@ -9,7 +9,6 @@ from globus_cli.commands.endpoint.show import endpoint_show
 from globus_cli.commands.endpoint.create import endpoint_create
 from globus_cli.commands.endpoint.update import endpoint_update
 from globus_cli.commands.endpoint.delete import endpoint_delete
-from globus_cli.commands.endpoint.share import endpoint_create_share
 from globus_cli.commands.endpoint.is_activated import endpoint_is_activated
 from globus_cli.commands.endpoint.deactivate import endpoint_deactivate
 from globus_cli.commands.endpoint.my_shared_endpoint_list import (
@@ -30,7 +29,6 @@ endpoint_command.add_command(server_command)
 endpoint_command.add_command(endpoint_search)
 endpoint_command.add_command(endpoint_show)
 endpoint_command.add_command(endpoint_create)
-endpoint_command.add_command(endpoint_create_share)
 endpoint_command.add_command(endpoint_update)
 endpoint_command.add_command(endpoint_delete)
 
