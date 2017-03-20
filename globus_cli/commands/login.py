@@ -48,24 +48,21 @@ You may force a new login with
 @common_options(no_format_option=True, no_map_http_status_option=True)
 @click.option('--force', is_flag=True,
               help=('Do a fresh login, ignoring any existing credentials'))
-@click.option("--local-server", is_flag=True,
-              help=("Use your web browser to login. "
-                    "Unavailable for remote sessions"))
-def login_command(force, local_server):
+@click.option("--no-local-server", is_flag=True,
+              help=("Manual login by copying and pasting an auth code. "
+                    "This will be implied if using a remote connection."))
+def login_command(force, no_local_server):
     # if not forcing, stop if user already logged in
     if not force and check_logged_in():
         safeprint(_LOGGED_IN_RESPONSE)
         return
 
-    # local_server cannot be used on remotes sessions
-    if local_server and is_remote_session():
-        raise click.UsageError("Cannot use --local-server on a remote session")
-
-    # do the login flow
-    if local_server:  # local http server login flow
+    # use a link login if remote session or user requested
+    if no_local_server or is_remote_session():
+        do_link_login_flow()
+    # otherwise default to a local server login flow
+    else:
         do_local_server_login_flow()
-    else:  # normal login flow using a link and copy and pasted auth_code
-        do_login_flow()
 
 
 def check_logged_in():
@@ -90,7 +87,7 @@ def check_logged_in():
     return True
 
 
-def do_login_flow():
+def do_link_login_flow():
     """
     Prompts the user with a link to authorize the CLI to act on their behalf.
     """
