@@ -21,8 +21,25 @@ def endpoint_show(endpoint_id):
     if outformat_is_json():
         print_json_response(res)
     else:
-        fields = (('Display Name', 'display_name'), ('ID', 'id'),
-                  ('Owner', 'owner_string'), ('Activated', 'activated'),
-                  ('Shareable', 'shareable'),
-                  ('Department', 'department'), ('Keywords', 'keywords'))
+
+        def _managed_endpoint(x):
+            """ Helper for converting subscription_id into managed_endpoint """
+            return bool(x["subscription_id"])
+
+        fields = (("Display Name", "display_name"), ("ID", "id"),
+                  ("Owner", "owner_string"), ("Activated", "activated"),
+                  ("Shareable", "shareable"),
+                  ("Department", "department"), ("Keywords", "keywords"),
+                  ("Endpoint Info Link", "info_link"),
+                  ("Contact E-mail", "contact_email"),
+                  ("Organization", "organization"),
+                  ("Department", "department"),
+                  ("Other Contact Info", "contact_info"),
+                  ("Visibility", "public"),
+                  ("Default Directory", "default_directory"),
+                  ("Force Encryption", "force_encryption"),
+                  ("Managed Endpoint", _managed_endpoint),
+                  ("Subscription ID", "subscription_id"),
+                  ("Legacy Name", "canonical_name"),
+                  ("Local User Info Available", "local_user_info_available"))
         colon_formatted_print(res, fields)

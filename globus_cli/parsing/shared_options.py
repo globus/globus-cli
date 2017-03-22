@@ -1,7 +1,7 @@
 import click
 
 from globus_cli.parsing.command_state import (
-    format_option, debug_option, map_http_status_option)
+    format_option, debug_option, map_http_status_option, verbose_option)
 from globus_cli.parsing.version_option import version_option
 from globus_cli.parsing.case_insensitive_choice import CaseInsensitiveChoice
 from globus_cli.parsing.detect_and_decorate import detect_and_decorate
@@ -32,6 +32,7 @@ def common_options(*args, **kwargs):
         """
         f = version_option(f)
         f = debug_option(f)
+        f = verbose_option(f)
         f = click.help_option('-h', '--help')(f)
 
         # if the format option is being allowed, it needs to be applied to `f`

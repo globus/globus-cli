@@ -4,7 +4,7 @@ from globus_sdk import GlobusResponse
 from globus_cli.safeio import safeprint
 from globus_cli.parsing import common_options
 from globus_cli.helpers import (
-    print_json_response, outformat_is_json, colon_formatted_print)
+    print_json_response, outformat_is_json, is_verbose, colon_formatted_print)
 from globus_cli.config import (
     WHOAMI_ID_OPTNAME, WHOAMI_USERNAME_OPTNAME,
     WHOAMI_EMAIL_OPTNAME, WHOAMI_NAME_OPTNAME,
@@ -14,8 +14,7 @@ from globus_cli.config import (
 @click.command('whoami',
                help=('Show the currently logged-in identity.'))
 @common_options(no_map_http_status_option=True)
-@click.option('--verbose', '-v', is_flag=True, default=False)
-def whoami_command(verbose):
+def whoami_command():
     """
     Executor for `globus whoami`
     """
@@ -27,7 +26,7 @@ def whoami_command(verbose):
                   'logging in again.', write_to_stderr=True)
         click.get_current_context().exit(1)
 
-    if verbose or outformat_is_json():
+    if is_verbose() or outformat_is_json():
         fields = tuple((x, x) for x in ('Username', 'Name', 'ID', 'Email'))
         user_doc = {
             'Username': username,

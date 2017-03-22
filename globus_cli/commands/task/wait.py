@@ -3,6 +3,7 @@ import sys
 
 from globus_cli.safeio import safeprint
 from globus_cli.parsing import HiddenOption, common_options, task_id_arg
+from globus_cli.helpers import outformat_is_json, print_json_response
 
 from globus_cli.services.transfer import get_client
 
@@ -38,11 +39,11 @@ def task_wait(meow, heartbeat, polling_interval, timeout, task_id):
             return waited_time >= timeout
 
     def check_completed():
-        completed = client.task_wait(task_id, timeout=1,
+        completed = client.task_wait(task_id, timeout=polling_interval,
                                      polling_interval=polling_interval)
         if completed:
             if heartbeat:
-                safeprint('')
+                safeprint('', write_to_stderr=True)
             # meowing tasks wake up!
             if meow:
                 safeprint("""\
@@ -51,11 +52,15 @@ def task_wait(meow, heartbeat, polling_interval, timeout, task_id):
  ( a a )-.___...-'/
  ==._.==         ;
       \ i _..._ /,
-      {_;/   {_//""")
+      {_;/   {_//""", write_to_stderr=True)
 
             # TODO: possibly update TransferClient.task_wait so that we don't
             # need to do an extra fetch to get the task status after completion
-            status = client.get_task(task_id)['status']
+            res = client.get_task(task_id)
+            if outformat_is_json():
+                print_json_response(res)
+
+            status = res['status']
             if status == 'SUCCEEDED':
                 click.get_current_context().exit(0)
             else:
@@ -69,19 +74,24 @@ def task_wait(meow, heartbeat, polling_interval, timeout, task_id):
    |\      _,,,---,,_
    /,`.-'`'    -.  ;-;;,_
   |,4-  ) )-,_..;\ (  `'-'
- '---''(_/--'  `-'\_)""")
+ '---''(_/--'  `-'\_)""", write_to_stderr=True)
 
     waited_time = 0
     while (not timed_out(waited_time) and
            not check_completed()):
         if heartbeat:
-            safeprint('.', newline=False)
-            sys.stdout.flush()
+            safeprint('.', write_to_stderr=True, newline=False)
+            sys.stderr.flush()
 
         waited_time += polling_interval
 
     # add a trailing newline to heartbeats if we fail
     if heartbeat:
-        safeprint('')
+        safeprint('', write_to_stderr=True)
+
+    # output json
+    if outformat_is_json():
+        res = client.get_task(task_id)
+        print_json_response(res)
 
     click.get_current_context().exit(1)

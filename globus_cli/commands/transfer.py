@@ -86,6 +86,9 @@ from globus_cli.services.transfer import get_client, autoactivate
               help=('Verify checksum after transfer.'))
 @click.option('--encrypt', is_flag=True, default=False,
               help=('Encrypt data sent through the network.'))
+@click.option('--delete', is_flag=True, default=False,
+              help=('Delete extraneous files in the destination directory. '
+                    'Only applies to recursive directory transfers.'))
 @click.option('--batch', is_flag=True,
               help=('Accept a batch of source/dest path pairs on stdin (i.e. '
                     'run in batchmode). '
@@ -98,7 +101,7 @@ from globus_cli.services.transfer import get_client, autoactivate
                 type=ENDPOINT_PLUS_OPTPATH)
 def transfer_command(batch, sync_level, recursive, destination, source, label,
                      preserve_mtime, verify_checksum, encrypt, submission_id,
-                     dry_run):
+                     dry_run, delete):
     """
     Executor for `globus transfer`
     """
@@ -121,7 +124,7 @@ def transfer_command(batch, sync_level, recursive, destination, source, label,
         client, source_endpoint, dest_endpoint,
         label=label, sync_level=sync_level, verify_checksum=verify_checksum,
         preserve_timestamp=preserve_mtime, encrypt_data=encrypt,
-        submission_id=submission_id)
+        submission_id=submission_id, delete_destination_extra=delete)
 
     if batch:
         @click.command()

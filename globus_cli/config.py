@@ -3,7 +3,6 @@ import os
 from configobj import ConfigObj
 
 import globus_sdk
-import globus_sdk.config
 
 from globus_cli import version
 
@@ -87,8 +86,14 @@ def get_config_obj(system=False):
 
 
 def lookup_option(option, section='cli', environment=None):
-    p = globus_sdk.config._get_parser()
-    return p.get(option, section=section, environment=environment)
+    conf = get_config_obj()
+    try:
+        if environment:
+            return conf["environment " + environment][option]
+        else:
+            return conf[section][option]
+    except KeyError:
+        return None
 
 
 def remove_option(option, section='cli', system=False):
@@ -180,7 +185,7 @@ def internal_auth_client():
     return globus_sdk.NativeAppAuthClient(client_id, app_name=version.app_name)
 
 
-def setup_debug_logging():
+def setup_logging(level="DEBUG"):
     conf = {
         'version': 1,
         'formatters': {
@@ -192,13 +197,13 @@ def setup_debug_logging():
         'handlers': {
             'console': {
                 'class': 'logging.StreamHandler',
-                'level': 'DEBUG',
+                'level': level,
                 'formatter': 'basic'
             }
         },
         'loggers': {
             'globus_sdk': {
-                'level': 'DEBUG',
+                'level': level,
                 'handlers': ['console']
             }
         }

@@ -1,11 +1,18 @@
 import json
 import six
 
+from globus_sdk import GlobusHTTPResponse
+
 from globus_cli.safeio import safeprint
 
 
 def print_json_response(res):
-    safeprint(json.dumps(res.data, indent=2))
+    if isinstance(res, GlobusHTTPResponse):
+        safeprint(json.dumps(res.data, indent=2))
+    elif isinstance(res, dict):
+        safeprint(json.dumps(res, indent=2))
+    else:
+        safeprint(res)
 
 
 def _key_to_keyfunc(k):

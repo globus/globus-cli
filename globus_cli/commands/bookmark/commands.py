@@ -5,7 +5,6 @@ from globus_cli.commands.bookmark.create import bookmark_create
 from globus_cli.commands.bookmark.delete import bookmark_delete
 from globus_cli.commands.bookmark.rename import bookmark_rename
 from globus_cli.commands.bookmark.show import bookmark_show
-from globus_cli.commands.bookmark.locate import bookmark_locate
 
 
 @globus_group(name='bookmark', help='Manage Endpoint Bookmarks')
@@ -18,4 +17,3 @@ bookmark_command.add_command(bookmark_create)
 bookmark_command.add_command(bookmark_delete)
 bookmark_command.add_command(bookmark_rename)
 bookmark_command.add_command(bookmark_show)
-bookmark_command.add_command(bookmark_locate)
