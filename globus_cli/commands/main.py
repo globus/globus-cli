@@ -7,6 +7,7 @@ from globus_cli.commands.config import config_command
 from globus_cli.commands.login import login_command
 from globus_cli.commands.logout import logout_command
 from globus_cli.commands.whoami import whoami_command
+from globus_cli.commands.who import who_command
 
 from globus_cli.commands.get_identities import get_identities_command
 from globus_cli.commands.ls import ls_command
@@ -32,6 +33,7 @@ main.add_command(config_command)
 main.add_command(login_command)
 main.add_command(logout_command)
 main.add_command(whoami_command)
+main.add_command(who_command)
 
 main.add_command(get_identities_command)
 main.add_command(ls_command)

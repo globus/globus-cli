@@ -3,8 +3,6 @@ import uuid
 
 import click
 
-from globus_sdk import GlobusResponse
-
 from globus_cli.parsing import common_options, HiddenOption
 from globus_cli.helpers import (
     print_json_response, outformat_is_json, print_table)
@@ -24,7 +22,8 @@ def _b32_decode(v):
     return str(uuid.UUID(bytes=base64.b32decode(v)))
 
 
-@click.command('get-identities', help='Lookup Globus Auth Identities')
+@click.command('get-identities',
+               help=("Lookup Globus Auth Identities by username and/or UUID."))
 @common_options
 @click.option('--globus-transfer-decode', 'lookup_style', cls=HiddenOption,
               flag_value=_HIDDEN_TRANSFER_STYLE)
@@ -35,33 +34,47 @@ def get_identities_command(values, lookup_style):
     """
     client = get_auth_client()
 
+    # since get_identites cannot take mixed ids/usernames,
+    # we split values into ids and usernames
+    ids = []
+    usernames = []
+    for val in values:
+        try:
+            uuid.UUID(val)
+            ids.append(val)
+        except ValueError:
+            usernames.append(val)
+
     # set commandline params if passed
     if lookup_style == _HIDDEN_TRANSFER_STYLE:
         res = client.get_identities(
             ids=','.join(_b32_decode(v) for v in values))
+
+    # make two requests then combine them into one response without duplicates
     else:
-        params = dict(ids=[], usernames=[])
-        for val in values:
-            try:
-                uuid.UUID(val)
-                params['ids'].append(val)
-            except ValueError:
-                params['usernames'].append(val)
+        identities_by_id = {}  # dict keyed by ID for preventing duplicates
 
-        results = []
-        for k, v in params.items():
-            if not v:
-                continue
-            results = results + \
-                client.get_identities(**{k: ','.join(v)}).data['identities']
-        res = GlobusResponse({'identities': results})
+        if len(ids):
+            id_res = client.get_identities(ids=ids)
+            for identity in id_res["identities"]:
+                identities_by_id[identity["id"]] = identity
 
+        if len(usernames):
+            username_res = client.get_identities(usernames=usernames)
+            for identity in username_res["identities"]:
+                identities_by_id[identity["id"]] = identity
+
+        # convert dict formed from two lists back to one combined list
+        res = {"identities":
+               [identities_by_id[key] for key in identities_by_id]}
+
+    # json output
     if outformat_is_json():
         print_json_response(res)
-    else:
-        ids = res['identities']
 
-        print_table(ids, [('ID', 'id'), ('Username', 'username'),
-                          ('Full Name', 'name'),
-                          ('Organization', 'organization'),
-                          ('Email Address', 'email')])
+    # text output is a table made out of response data
+    else:
+        print_table(res["identities"],
+                    [('ID', 'id'), ('Username', 'username'),
+                     ('Full Name', 'name'), ('Organization', 'organization'),
+                     ('Email Address', 'email')])
