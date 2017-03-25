@@ -1,8 +1,7 @@
 import click
 
-from globus_cli.safeio import safeprint
 from globus_cli.parsing import common_options, ENDPOINT_PLUS_REQPATH
-from globus_cli.helpers import outformat_is_json, print_json_response
+from globus_cli.output_formatter import OutputFormatter
 
 from globus_cli.services.transfer import get_client
 
@@ -26,8 +25,5 @@ def bookmark_create(endpoint_plus_path, bookmark_name):
     }
 
     res = client.create_bookmark(submit_data)
-
-    if outformat_is_json():
-        print_json_response(res)
-    else:
-        safeprint('Bookmark ID: {}'.format(res['id']))
+    OutputFormatter().print_response(
+        res, simple_text='Bookmark ID: {}'.format(res['id']))

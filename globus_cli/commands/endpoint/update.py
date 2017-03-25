@@ -1,9 +1,8 @@
 import click
 
-from globus_cli.safeio import safeprint
 from globus_cli.parsing import (
     common_options, endpoint_id_arg, endpoint_create_and_update_params)
-from globus_cli.helpers import outformat_is_json, print_json_response
+from globus_cli.output_formatter import OutputFormatter
 
 from globus_cli.services.transfer import get_client, assemble_generic_doc
 
@@ -31,8 +30,5 @@ def endpoint_update(endpoint_id, display_name, description, organization,
         myproxy_dn=myproxy_dn, oauth_server=oauth_server)
 
     res = client.update_endpoint(endpoint_id, ep_doc)
-
-    if outformat_is_json():
-        print_json_response(res)
-    else:
-        safeprint(res['message'])
+    OutputFormatter(text_format='text_raw', response_key='message'
+                    ).print_response(res)

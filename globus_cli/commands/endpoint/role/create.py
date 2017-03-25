@@ -1,10 +1,9 @@
 import click
 
-from globus_cli.safeio import safeprint
 from globus_cli.parsing import (
     CaseInsensitiveChoice, common_options, endpoint_id_arg,
     security_principal_opts)
-from globus_cli.helpers import outformat_is_json, print_json_response
+from globus_cli.output_formatter import OutputFormatter
 
 from globus_cli.services.auth import maybe_lookup_identity_id
 
@@ -36,8 +35,5 @@ def role_create(role, principal, endpoint_id):
         role=role)
 
     res = client.add_endpoint_role(endpoint_id, role_doc)
-
-    if outformat_is_json():
-        print_json_response(res)
-    else:
-        safeprint('ID: ' + res['id'])
+    OutputFormatter().print_response(
+        res, simple_text='ID: {}'.format(res['id']))

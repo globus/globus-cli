@@ -1,9 +1,9 @@
 import click
 
 from globus_cli.parsing import common_options, task_id_arg
-from globus_cli.helpers import outformat_is_json, print_table
+from globus_cli.output_formatter import OutputFormatter
 
-from globus_cli.services.transfer import print_json_from_iterator, get_client
+from globus_cli.services.transfer import iterable_response_to_dict, get_client
 
 
 @click.command('event-list', help='List Events for a given Task')
@@ -31,9 +31,7 @@ def task_event_list(task_id, limit, filter_errors, filter_non_errors):
     event_iterator = client.task_event_list(
         task_id, num_results=limit, filter=filter_string)
 
-    if outformat_is_json():
-        print_json_from_iterator(event_iterator)
-    else:
-        print_table(event_iterator, [
-            ('Time', 'time'), ('Code', 'code'), ('Is Error', 'is_error'),
-            ('Details', 'details')])
+    OutputFormatter(fields=(('Time', 'time'), ('Code', 'code'),
+                            ('Is Error', 'is_error'), ('Details', 'details'))
+                    ).print_response(
+        event_iterator, json_converter=iterable_response_to_dict)

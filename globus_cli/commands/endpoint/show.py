@@ -1,8 +1,7 @@
 import click
 
 from globus_cli.parsing import common_options, endpoint_id_arg
-from globus_cli.helpers import (
-    outformat_is_json, print_json_response, colon_formatted_print)
+from globus_cli.output_formatter import OutputFormatter
 
 from globus_cli.services.transfer import get_client
 
@@ -18,28 +17,23 @@ def endpoint_show(endpoint_id):
 
     res = client.get_endpoint(endpoint_id)
 
-    if outformat_is_json():
-        print_json_response(res)
-    else:
-
-        def _managed_endpoint(x):
-            """ Helper for converting subscription_id into managed_endpoint """
-            return bool(x["subscription_id"])
-
-        fields = (("Display Name", "display_name"), ("ID", "id"),
-                  ("Owner", "owner_string"), ("Activated", "activated"),
-                  ("Shareable", "shareable"),
-                  ("Department", "department"), ("Keywords", "keywords"),
-                  ("Endpoint Info Link", "info_link"),
-                  ("Contact E-mail", "contact_email"),
-                  ("Organization", "organization"),
-                  ("Department", "department"),
-                  ("Other Contact Info", "contact_info"),
-                  ("Visibility", "public"),
-                  ("Default Directory", "default_directory"),
-                  ("Force Encryption", "force_encryption"),
-                  ("Managed Endpoint", _managed_endpoint),
-                  ("Subscription ID", "subscription_id"),
-                  ("Legacy Name", "canonical_name"),
-                  ("Local User Info Available", "local_user_info_available"))
-        colon_formatted_print(res, fields)
+    def _managed_endpoint(x):
+        """ Helper for converting subscription_id into managed_endpoint """
+        return bool(x["subscription_id"])
+    OutputFormatter(
+        text_format='text_record',
+        fields=(("Display Name", "display_name"), ("ID", "id"),
+                ("Owner", "owner_string"), ("Activated", "activated"),
+                ("Shareable", "shareable"), ("Department", "department"),
+                ("Keywords", "keywords"), ("Endpoint Info Link", "info_link"),
+                ("Contact E-mail", "contact_email"),
+                ("Organization", "organization"), ("Department", "department"),
+                ("Other Contact Info", "contact_info"),
+                ("Visibility", "public"),
+                ("Default Directory", "default_directory"),
+                ("Force Encryption", "force_encryption"),
+                ("Managed Endpoint", _managed_endpoint),
+                ("Subscription ID", "subscription_id"),
+                ("Legacy Name", "canonical_name"),
+                ("Local User Info Available", "local_user_info_available"))
+        ).print_response(res)

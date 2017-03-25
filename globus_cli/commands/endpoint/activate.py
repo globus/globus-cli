@@ -1,9 +1,8 @@
 import click
 import webbrowser
 
-from globus_cli.safeio import safeprint
 from globus_cli.parsing import common_options, endpoint_id_arg, HiddenOption
-from globus_cli.helpers import outformat_is_json, print_json_response
+from globus_cli.output_formatter import OutputFormatter
 from globus_cli.config import lookup_option, MYPROXY_USERNAME_OPTNAME
 from globus_cli.services.transfer import get_client
 from globus_cli.helpers import is_remote_session
@@ -87,11 +86,9 @@ def endpoint_activate(endpoint_id, myproxy, myproxy_username, myproxy_password,
         res = client.endpoint_autoactivate(endpoint_id, if_expires_in=60)
 
         if "AlreadyActivated" == res["code"]:
-            if outformat_is_json():
-                print_json_response(res)
-            else:
-                safeprint(("Endpoint is already activated. Activation "
-                           "expires at {}".format(res["expire_time"])))
+            OutputFormatter().print_response(res, simple_text=(
+                "Endpoint is already activated. Activation "
+                "expires at {}".format(res["expire_time"])))
             return
 
     # attempt autoactivation unless --no-autoactivate
@@ -100,11 +97,9 @@ def endpoint_activate(endpoint_id, myproxy, myproxy_username, myproxy_password,
         res = client.endpoint_autoactivate(endpoint_id)
 
         if "AutoActivated" in res["code"]:
-            if outformat_is_json():
-                print_json_response(res)
-            else:
-                safeprint("Autoactivation succeeded with message: {}".format(
-                    res["message"]))
+            OutputFormatter().print_response(res, simple_text=(
+                "Autoactivation succeeded with message: {}".format(
+                    res["message"])))
             return
 
         # override potentially confusing autoactivation failure response
@@ -154,7 +149,5 @@ def endpoint_activate(endpoint_id, myproxy, myproxy_username, myproxy_password,
                    "url": url}
 
     # output
-    if outformat_is_json():
-        print_json_response(res)
-    else:
-        safeprint(res["message"])
+    OutputFormatter(text_format='text_raw', response_key='message'
+                    ).print_response(res)

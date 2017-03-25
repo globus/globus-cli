@@ -1,8 +1,7 @@
 import click
 
-from globus_cli.safeio import safeprint
 from globus_cli.parsing import common_options, ENDPOINT_PLUS_REQPATH
-from globus_cli.helpers import outformat_is_json, print_json_response
+from globus_cli.output_formatter import OutputFormatter
 
 from globus_cli.services.transfer import get_client, autoactivate
 
@@ -31,8 +30,5 @@ def rename_command(source, destination):
 
     res = client.operation_rename(endpoint_id, oldpath=source_path,
                                   newpath=dest_path)
-
-    if outformat_is_json():
-        print_json_response(res)
-    else:
-        safeprint(res['message'])
+    formatter = OutputFormatter(response_key='message', text_format='text_raw')
+    formatter.print_response(res)

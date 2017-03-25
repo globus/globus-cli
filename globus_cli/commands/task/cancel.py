@@ -1,9 +1,8 @@
-import json
 import click
 
 from globus_cli.safeio import safeprint
 from globus_cli.parsing import common_options, task_id_arg
-from globus_cli.helpers import outformat_is_json, print_json_response
+from globus_cli.output_formatter import OutputFormatter
 
 from globus_cli.services.transfer import get_client
 
@@ -37,30 +36,35 @@ def cancel_task(all, task_id):
             )
         ]
 
+        task_count = len(task_ids)
+
         if not task_ids:
             raise click.ClickException('You have no in-progress tasks.')
 
-        if outformat_is_json():
-            safeprint(json.dumps(
-                {
-                    'results': [client.cancel_task(i).data for i in task_ids],
-                    'task_ids': task_ids,
-                },
-                indent=2,
-            ))
+        def cancellation_iterator():
+            for i in task_ids:
+                yield (i, client.cancel_task(i).data)
 
-        else:
-            task_count = len(task_ids)
-            safeprint('Canceling all tasks ({} total)...'.format(task_count))
-            for task_number, task_id in enumerate(task_ids, start=1):
-                safeprint('{} ({} of {}): {}'.
-                          format(task_id, task_number, task_count,
-                                 client.cancel_task(task_id)['message']))
+        def json_converter(res):
+            return {
+                'results': [x for i, x in cancellation_iterator()],
+                'task_ids': task_ids
+            }
+
+        def _custom_text(res):
+            for (i, (task_id, data)) in enumerate(cancellation_iterator(),
+                                                  start=1):
+                safeprint('{} ({} of {}): {}'
+                          .format(task_id, i, task_count, data['message']))
+
+        # FIXME: this is kind of an abuse of the OutputFormatter because the
+        # text format and json converter are doing their own thing, not really
+        # interacting with the "response data" (None). Is there a better way of
+        # handling this?
+        OutputFormatter(text_format=_custom_text).print_response(
+            None, json_converter=json_converter)
 
     else:
         res = client.cancel_task(task_id)
-
-        if outformat_is_json():
-            print_json_response(res)
-        else:
-            safeprint(res['message'])
+        OutputFormatter(text_format='text_raw', response_key='message'
+                        ).print_response(res)

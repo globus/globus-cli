@@ -2,9 +2,9 @@ import click
 import six
 
 from globus_cli.parsing import common_options, ISOTimeType
-from globus_cli.helpers import outformat_is_json, print_table
+from globus_cli.output_formatter import OutputFormatter
 
-from globus_cli.services.transfer import print_json_from_iterator, get_client
+from globus_cli.services.transfer import iterable_response_to_dict, get_client
 
 
 @click.command('list', help='List Tasks for the current user')
@@ -90,11 +90,9 @@ def task_list(limit, filter_task_id, filter_status, filter_type,
         num_results=limit,
         filter=filter_string[:-1])  # ignore trailing /
 
-    if outformat_is_json():
-        print_json_from_iterator(task_iterator)
-    else:
-        print_table(task_iterator, [
-            ('Task ID', 'task_id'), ('Status', 'status'), ('Type', 'type'),
-            ('Source Display Name', 'source_endpoint_display_name'),
-            ('Dest Display Name', 'destination_endpoint_display_name'),
-            ('Label', 'label')])
+    fields = [('Task ID', 'task_id'), ('Status', 'status'), ('Type', 'type'),
+              ('Source Display Name', 'source_endpoint_display_name'),
+              ('Dest Display Name', 'destination_endpoint_display_name'),
+              ('Label', 'label')]
+    OutputFormatter(fields=fields).print_response(
+        task_iterator, json_converter=iterable_response_to_dict)

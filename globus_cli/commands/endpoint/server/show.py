@@ -1,8 +1,7 @@
 import click
 
 from globus_cli.parsing import common_options, endpoint_id_arg, server_id_arg
-from globus_cli.helpers import (
-    print_json_response, outformat_is_json, colon_formatted_print)
+from globus_cli.output_formatter import OutputFormatter
 
 from globus_cli.services.transfer import get_client
 
@@ -18,15 +17,9 @@ def server_show(endpoint_id, server_id):
     client = get_client()
 
     server_doc = client.get_endpoint_server(endpoint_id, server_id)
-
-    if outformat_is_json():
-        print_json_response(server_doc)
-
-    elif not server_doc['uri']:  # GCP endpoint server
+    if not server_doc['uri']:  # GCP endpoint server
         fields = (('ID', 'id'), ('Is Connected', 'is_connected'),
                   ('Is Paused (macOS only)', 'is_paused'))
-        colon_formatted_print(server_doc, fields)
-
     else:
         def advertised_port_summary(server):
             def get_range_summary(start, end):
@@ -43,4 +36,6 @@ def server_show(endpoint_id, server_id):
 
         fields = (('ID', 'id'), ('URI', 'uri'), ('Subject', 'subject'),
                   ('Data Ports', advertised_port_summary))
-        colon_formatted_print(server_doc, fields)
+
+    OutputFormatter(text_format='text_record', fields=fields
+                    ).print_response(server_doc)

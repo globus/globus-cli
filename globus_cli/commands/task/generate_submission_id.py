@@ -1,8 +1,7 @@
 import click
 
-from globus_cli.safeio import safeprint
 from globus_cli.parsing import common_options
-from globus_cli.helpers import outformat_is_json, print_json_response
+from globus_cli.output_formatter import OutputFormatter
 
 from globus_cli.services.transfer import get_client
 
@@ -23,8 +22,5 @@ def generate_submission_id():
     client = get_client()
 
     res = client.get_submission_id()
-
-    if outformat_is_json():
-        print_json_response(res)
-    else:
-        safeprint(res['value'])
+    OutputFormatter(text_format='text_raw', response_key='value'
+                    ).print_response(res)

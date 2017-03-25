@@ -1,10 +1,10 @@
 import click
 
 from globus_cli.parsing import common_options, endpoint_id_arg
-from globus_cli.helpers import outformat_is_json
+from globus_cli.output_formatter import OutputFormatter
 
 from globus_cli.services.transfer import (
-    get_client, print_json_from_iterator, endpoint_list_to_text)
+    ENDPOINT_LIST_FIELDS, get_client)
 
 
 @click.command(
@@ -17,10 +17,7 @@ def my_shared_endpoint_list(endpoint_id):
     Executor for `globus endpoint my-shared-endpoint-list`
     """
     client = get_client()
-
     ep_iterator = client.my_shared_endpoint_list(endpoint_id)
 
-    if outformat_is_json():
-        print_json_from_iterator(ep_iterator)
-    else:
-        endpoint_list_to_text(ep_iterator)
+    OutputFormatter(fields=ENDPOINT_LIST_FIELDS
+                    ).print_response(ep_iterator)

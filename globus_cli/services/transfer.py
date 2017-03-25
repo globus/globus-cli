@@ -1,5 +1,4 @@
 import uuid
-import json
 import random
 import time
 
@@ -9,8 +8,6 @@ from globus_sdk.exc import NetworkError
 from globus_cli import version
 from globus_cli.config import (
     get_transfer_tokens, internal_auth_client, set_transfer_access_token)
-from globus_cli.safeio import safeprint
-from globus_cli.helpers import print_table
 
 
 class RetryingTransferClient(TransferClient):
@@ -79,21 +76,16 @@ def display_name_or_cname(ep_doc):
     return ep_doc['display_name'] or ep_doc['canonical_name']
 
 
-def print_json_from_iterator(iterator):
-    json_output_dict = {'DATA': []}
+def iterable_response_to_dict(iterator):
+    output_dict = {'DATA': []}
     for item in iterator:
         dat = item
         try:
             dat = item.data
         except AttributeError:
             pass
-        json_output_dict['DATA'].append(dat)
-    safeprint(json.dumps(json_output_dict, indent=2))
-
-
-def endpoint_list_to_text(iterator):
-    print_table(iterator, [('ID', 'id'), ('Owner', 'owner_string'),
-                           ('Display Name', display_name_or_cname)])
+        output_dict['DATA'].append(dat)
+    return output_dict
 
 
 def assemble_generic_doc(datatype, **kwargs):
@@ -112,3 +104,7 @@ def autoactivate(client, endpoint_id, if_expires_in=None):
         kwargs['if_expires_in'] = if_expires_in
 
     return client.endpoint_autoactivate(endpoint_id, **kwargs)
+
+
+ENDPOINT_LIST_FIELDS = (('ID', 'id'), ('Owner', 'owner_string'),
+                        ('Display Name', display_name_or_cname))

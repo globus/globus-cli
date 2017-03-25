@@ -1,12 +1,12 @@
 import click
 
 from globus_cli.parsing import CaseInsensitiveChoice, common_options
-from globus_cli.helpers import outformat_is_json
+from globus_cli.output_formatter import OutputFormatter
 
 from globus_cli.services.auth import maybe_lookup_identity_id
 
 from globus_cli.services.transfer import (
-    print_json_from_iterator, endpoint_list_to_text, get_client)
+    ENDPOINT_LIST_FIELDS, get_client)
 
 
 @click.command('search', help='Search for Globus Endpoints')
@@ -43,7 +43,5 @@ def endpoint_search(filter_fulltext, filter_owner_id, filter_scope):
         filter_fulltext=filter_fulltext, filter_scope=filter_scope,
         filter_owner_id=owner_id)
 
-    if outformat_is_json():
-        print_json_from_iterator(search_iterator)
-    else:
-        endpoint_list_to_text(search_iterator)
+    OutputFormatter(fields=ENDPOINT_LIST_FIELDS
+                    ).print_response(search_iterator)

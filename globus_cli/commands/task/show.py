@@ -1,10 +1,9 @@
 import click
 
 from globus_cli.parsing import common_options, task_id_arg
-from globus_cli.helpers import (
-    outformat_is_json, print_json_response, colon_formatted_print, print_table)
+from globus_cli.output_formatter import OutputFormatter
 
-from globus_cli.services.transfer import get_client, print_json_from_iterator
+from globus_cli.services.transfer import get_client, iterable_response_to_dict
 
 
 COMMON_FIELDS = [
@@ -43,23 +42,17 @@ SUCCESSFULL_TRANSFER_FIELDS = [
 
 def print_successful_transfers(client, task_id):
     res = client.task_successful_transfers(task_id, num_results=None)
-
-    if outformat_is_json():
-        print_json_from_iterator(res)
-    else:
-        print_table(res, SUCCESSFULL_TRANSFER_FIELDS)
+    OutputFormatter(fields=SUCCESSFULL_TRANSFER_FIELDS).print_response(
+        iterable_response_to_dict(res))
 
 
 def print_task_detail(client, task_id):
     res = client.get_task(task_id)
-
-    if outformat_is_json():
-        print_json_response(res)
-    else:
-        fields = COMMON_FIELDS + \
-            (COMPLETED_FIELDS if res['completion_time'] else ACTIVE_FIELDS) + \
-            (DELETE_FIELDS if res['type'] == 'DELETE' else TRANSFER_FIELDS)
-        colon_formatted_print(res, fields)
+    OutputFormatter(text_format='text_record', fields=(
+        COMMON_FIELDS +
+        (COMPLETED_FIELDS if res['completion_time'] else ACTIVE_FIELDS) +
+        (DELETE_FIELDS if res['type'] == 'DELETE' else TRANSFER_FIELDS))
+        ).print_response(res)
 
 
 @click.command('show', help='Show detailed information about a specific Task')

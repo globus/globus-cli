@@ -1,9 +1,7 @@
 import click
 
-from globus_cli.safeio import safeprint
 from globus_cli.parsing import common_options, ENDPOINT_PLUS_OPTPATH
-from globus_cli.helpers import (
-    outformat_is_json, print_json_response, print_table)
+from globus_cli.output_formatter import OutputFormatter
 
 from globus_cli.services.transfer import get_client, autoactivate
 
@@ -14,7 +12,7 @@ class DummyLSIterable(dict):
     IterableTransferResponse item. Important for returning a
     (GlobusResponse|DummyLSIterable) from a (maybe) recursive listing.
     Also has the `.data` property which is itself, which is all that's
-    required for `globus_cli.helpers.print_json_response` to consume it
+    required for `OutputFormatter` to consume it
     """
     def __iter__(self):
         return iter(self['DATA'])
@@ -112,14 +110,10 @@ def ls_command(endpoint_plus_path, recursive_depth_limit,
         return item['name'] + ('/' if item['type'] == 'dir' else '')
 
     # and then print it, per formatting rules
-    if outformat_is_json():
-        print_json_response(res)
-    elif long:
-        print_table(res, [('Permissions', 'permissions'), ('User', 'user'),
-                          ('Group', 'group'), ('Size', 'size'),
-                          ('Last Modified', 'last_modified'),
-                          ('File Type', 'type'),
-                          ('Filename', cleaned_item_name)])
-    else:
-        for item in res:
-            safeprint(cleaned_item_name(item))
+    OutputFormatter(fields=[('Permissions', 'permissions'), ('User', 'user'),
+                            ('Group', 'group'), ('Size', 'size'),
+                            ('Last Modified', 'last_modified'),
+                            ('File Type', 'type'),
+                            ('Filename', cleaned_item_name)]).print_response(
+        res, simple_text=(None if long else
+                          "\n".join(cleaned_item_name(x) for x in res)))
