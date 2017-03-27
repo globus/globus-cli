@@ -2,7 +2,7 @@ import click
 
 from globus_cli.parsing import (
     common_options, endpoint_create_and_update_params)
-from globus_cli.output_formatter import OutputFormatter
+from globus_cli.safeio import OutputFormatter
 
 from globus_cli.services.transfer import get_client, assemble_generic_doc
 
@@ -52,4 +52,5 @@ def endpoint_create(endpoint_type, display_name, description, organization,
     OutputFormatter(fields=(COMMON_FIELDS + GCP_FIELDS
                             if is_globus_connect else
                             COMMON_FIELDS),
-                    text_format='text_record').print_response(res)
+                    text_format=OutputFormatter.FORMAT_TEXT_RECORD
+                    ).print_response(res)

@@ -2,7 +2,7 @@ import click
 
 from globus_cli.parsing import (
     common_options, endpoint_id_arg, endpoint_create_and_update_params)
-from globus_cli.output_formatter import OutputFormatter
+from globus_cli.safeio import OutputFormatter
 
 from globus_cli.services.transfer import get_client, assemble_generic_doc
 
@@ -30,5 +30,5 @@ def endpoint_update(endpoint_id, display_name, description, organization,
         myproxy_dn=myproxy_dn, oauth_server=oauth_server)
 
     res = client.update_endpoint(endpoint_id, ep_doc)
-    OutputFormatter(text_format='text_raw', response_key='message'
-                    ).print_response(res)
+    OutputFormatter(text_format=OutputFormatter.FORMAT_TEXT_RAW,
+                    response_key='message').print_response(res)

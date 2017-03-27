@@ -2,7 +2,7 @@ import click
 
 from globus_cli.parsing import (
     common_options, endpoint_create_and_update_params, ENDPOINT_PLUS_REQPATH)
-from globus_cli.output_formatter import OutputFormatter
+from globus_cli.safeio import OutputFormatter
 from globus_cli.services.transfer import (
     autoactivate, get_client, assemble_generic_doc)
 
@@ -32,6 +32,6 @@ def endpoint_create_share(endpoint_plus_path, display_name, description,
     autoactivate(client, endpoint_id, if_expires_in=60)
     res = client.create_shared_endpoint(ep_doc)
 
-    OutputFormatter(text_format='text_record',
+    OutputFormatter(text_format=OutputFormatter.FORMAT_TEXT_RECORD,
                     fields=[('Message', 'message'), ('Endpoint ID', 'id')]
                     ).print_response(res)

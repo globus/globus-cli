@@ -1,7 +1,7 @@
 import click
 
 from globus_cli.parsing import CaseInsensitiveChoice, common_options
-from globus_cli.output_formatter import OutputFormatter
+from globus_cli.safeio import OutputFormatter
 
 from globus_cli.services.auth import maybe_lookup_identity_id
 

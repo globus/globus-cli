@@ -5,7 +5,7 @@ from globus_sdk import TransferData
 from globus_cli.parsing import (
     CaseInsensitiveChoice, common_options, submission_id_option,
     TaskPath, ENDPOINT_PLUS_OPTPATH, shlex_process_stdin)
-from globus_cli.output_formatter import OutputFormatter
+from globus_cli.safeio import OutputFormatter
 
 from globus_cli.services.transfer import get_client, autoactivate
 
@@ -161,5 +161,5 @@ def transfer_command(batch, sync_level, recursive, destination, source, label,
     res = client.submit_transfer(transfer_data)
     formatter = OutputFormatter(
         fields=(('Message', 'message'), ('Task ID', 'task_id')),
-        text_format='text_record')
+        text_format=OutputFormatter.FORMAT_TEXT_RECORD)
     formatter.print_response(res)

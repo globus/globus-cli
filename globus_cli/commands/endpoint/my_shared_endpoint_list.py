@@ -1,7 +1,7 @@
 import click
 
 from globus_cli.parsing import common_options, endpoint_id_arg
-from globus_cli.output_formatter import OutputFormatter
+from globus_cli.safeio import OutputFormatter
 
 from globus_cli.services.transfer import (
     ENDPOINT_LIST_FIELDS, get_client)

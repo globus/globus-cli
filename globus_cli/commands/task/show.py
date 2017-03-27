@@ -1,7 +1,7 @@
 import click
 
 from globus_cli.parsing import common_options, task_id_arg
-from globus_cli.output_formatter import OutputFormatter
+from globus_cli.safeio import OutputFormatter
 
 from globus_cli.services.transfer import get_client, iterable_response_to_dict
 
@@ -48,7 +48,7 @@ def print_successful_transfers(client, task_id):
 
 def print_task_detail(client, task_id):
     res = client.get_task(task_id)
-    OutputFormatter(text_format='text_record', fields=(
+    OutputFormatter(text_format=OutputFormatter.FORMAT_TEXT_RECORD, fields=(
         COMMON_FIELDS +
         (COMPLETED_FIELDS if res['completion_time'] else ACTIVE_FIELDS) +
         (DELETE_FIELDS if res['type'] == 'DELETE' else TRANSFER_FIELDS))

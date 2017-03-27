@@ -1,7 +1,7 @@
 import click
 
 from globus_cli.parsing import common_options, ENDPOINT_PLUS_REQPATH
-from globus_cli.output_formatter import OutputFormatter
+from globus_cli.safeio import OutputFormatter
 
 from globus_cli.services.transfer import get_client, autoactivate
 
@@ -30,5 +30,6 @@ def rename_command(source, destination):
 
     res = client.operation_rename(endpoint_id, oldpath=source_path,
                                   newpath=dest_path)
-    formatter = OutputFormatter(response_key='message', text_format='text_raw')
+    formatter = OutputFormatter(response_key='message',
+                                text_format=OutputFormatter.FORMAT_TEXT_RAW)
     formatter.print_response(res)

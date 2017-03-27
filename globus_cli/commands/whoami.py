@@ -2,7 +2,7 @@ import click
 
 from globus_cli.safeio import safeprint
 from globus_cli.parsing import common_options
-from globus_cli.output_formatter import OutputFormatter
+from globus_cli.safeio import OutputFormatter
 from globus_cli.helpers import is_verbose
 from globus_cli.config import (
     WHOAMI_ID_OPTNAME, WHOAMI_USERNAME_OPTNAME,
@@ -28,7 +28,9 @@ def whoami_command():
     fields = tuple((x, x) for x in ('Username', 'Name', 'ID', 'Email'))
     formatter = OutputFormatter(
         fields=fields,
-        text_format='text_record' if is_verbose() else 'text_raw',
+        text_format=(OutputFormatter.FORMAT_TEXT_RECORD
+                     if is_verbose() else
+                     OutputFormatter.FORMAT_TEXT_RAW),
         response_key=None if is_verbose() else 'Username')
     formatter.print_response(
         {

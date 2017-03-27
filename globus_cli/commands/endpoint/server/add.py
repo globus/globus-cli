@@ -2,7 +2,7 @@ import click
 
 from globus_cli.parsing import (
     common_options, endpoint_id_arg, server_add_and_update_opts)
-from globus_cli.output_formatter import OutputFormatter
+from globus_cli.safeio import OutputFormatter
 
 from globus_cli.services.transfer import get_client, assemble_generic_doc
 
@@ -32,5 +32,5 @@ def server_add(endpoint_id, subject, port, scheme, hostname,
                           outgoing_data_port_end=outgoing_data_ports[1])
 
     res = client.add_endpoint_server(endpoint_id, server_doc)
-    OutputFormatter(text_format='text_raw', response_key='message'
-                    ).print_response(res)
+    OutputFormatter(text_format=OutputFormatter.FORMAT_TEXT_RAW,
+                    response_key='message').print_response(res)

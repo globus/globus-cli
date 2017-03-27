@@ -1,7 +1,7 @@
 import click
 
 from globus_cli.parsing import common_options
-from globus_cli.output_formatter import OutputFormatter
+from globus_cli.safeio import OutputFormatter
 
 from globus_cli.services.transfer import get_client
 
@@ -16,5 +16,5 @@ def bookmark_delete(bookmark_id):
     client = get_client()
 
     res = client.delete_bookmark(bookmark_id)
-    OutputFormatter(text_format='text_raw', response_key='message'
-                    ).print_response(res)
+    OutputFormatter(text_format=OutputFormatter.FORMAT_TEXT_RAW,
+                    response_key='message').print_response(res)

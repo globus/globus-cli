@@ -1,7 +1,7 @@
 import click
 
 from globus_cli.parsing import common_options
-from globus_cli.output_formatter import OutputFormatter
+from globus_cli.safeio import OutputFormatter
 
 from globus_cli.services.transfer import (
     iterable_response_to_dict, get_client, display_name_or_cname)

@@ -2,7 +2,7 @@ import click
 import webbrowser
 
 from globus_cli.parsing import common_options, endpoint_id_arg, HiddenOption
-from globus_cli.output_formatter import OutputFormatter
+from globus_cli.safeio import OutputFormatter
 from globus_cli.config import lookup_option, MYPROXY_USERNAME_OPTNAME
 from globus_cli.services.transfer import get_client
 from globus_cli.helpers import is_remote_session
@@ -149,5 +149,5 @@ def endpoint_activate(endpoint_id, myproxy, myproxy_username, myproxy_password,
                    "url": url}
 
     # output
-    OutputFormatter(text_format='text_raw', response_key='message'
-                    ).print_response(res)
+    OutputFormatter(text_format=OutputFormatter.FORMAT_TEXT_RAW,
+                    response_key='message').print_response(res)

@@ -1,7 +1,7 @@
 import click
 
 from globus_cli.parsing import common_options, ENDPOINT_PLUS_OPTPATH
-from globus_cli.output_formatter import OutputFormatter
+from globus_cli.safeio import OutputFormatter
 
 from globus_cli.services.transfer import get_client, autoactivate
 

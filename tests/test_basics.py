@@ -104,7 +104,7 @@ class BasicTests(CliTestCase):
         Dry-runs a transfer in batchmode, confirms batchmode inputs received
         """
         batch_input = "abc /def\n/xyz p/q/r\n"
-        output = self.run_line("globus transfer --batch --dry-run " +
+        output = self.run_line("globus transfer -F json --batch --dry-run " +
                                str(GO_EP1_ID) + " " + str(GO_EP2_ID),
                                batch_input=batch_input)
         self.assertIn('"source_path": "abc"', output)

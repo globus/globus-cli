@@ -1,7 +1,7 @@
 import click
 
 from globus_cli.parsing import common_options
-from globus_cli.output_formatter import OutputFormatter
+from globus_cli.safeio import OutputFormatter
 from globus_cli.helpers import is_verbose
 
 from globus_cli.services.transfer import get_client
@@ -19,7 +19,8 @@ def bookmark_show(bookmark_id_or_name):
     """
     client = get_client()
     res = resolve_id_or_name(client, bookmark_id_or_name)
-    OutputFormatter(text_format='text_record').print_response(
+    OutputFormatter(text_format=OutputFormatter.FORMAT_TEXT_RECORD
+                    ).print_response(
         res, simple_text=(
             # standard output is endpoint:path format
             '{}:{}'.format(res['endpoint_id'], res['path'])

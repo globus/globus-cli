@@ -8,7 +8,7 @@ from globus_cli.helpers import outformat_is_json
 
 # make sure this is a tuple
 # if it's a list, pylint will freak out
-__all__ = ('OutputFormatter', 'StreamingOutputFormatter')
+__all__ = ('OutputFormatter')
 
 
 def _key_to_keyfunc(k):
@@ -107,14 +107,22 @@ class OutputFormatter(object):
     printing, it must get an iterable out, and when used with raw printing, it
     gets a string. Necessary for certain formats (e.g. text table)
     """
-    def __init__(self, fields=(), response_key=None, text_format='text_table'):
+    FORMAT_SILENT = 'silent'
+    FORMAT_JSON = 'json'
+    FORMAT_TEXT_TABLE = 'text_table'
+    FORMAT_TEXT_RECORD = 'text_record'
+    FORMAT_TEXT_RAW = 'text_raw'
+    FORMAT_TEXT_CUSTOM = 'text_custom'
+
+    def __init__(self, fields=(), response_key=None,
+                 text_format=FORMAT_TEXT_TABLE):
         self.format = None
 
         if isinstance(text_format, six.string_types):
             self.text_format = text_format
             self._custom_text_formatter = None
         else:
-            self.text_format = 'text_custom'
+            self.text_format = self.FORMAT_TEXT_CUSTOM
             self._custom_text_formatter = text_format
 
         self.fields = fields
@@ -122,10 +130,13 @@ class OutputFormatter(object):
 
     def detect_format(self):
         if outformat_is_json():
-            self.format = 'json'
+            self.format = self.FORMAT_JSON
         else:
             self.format = self.text_format
         return self.format
+
+    def format_is_text(self):
+        return self.format.startswith('text_')
 
     def _print_response_text(
             self, response_data, simple_text, text_preamble, text_epilog):
@@ -143,13 +154,13 @@ class OutputFormatter(object):
             response_data = response_data[self.response_key]
 
         #  do the various kinds of printing
-        if self.format == 'text_table':
+        if self.format == self.FORMAT_TEXT_TABLE:
             print_table(response_data, self.fields)
-        elif self.format == 'text_record':
+        elif self.format == self.FORMAT_TEXT_RECORD:
             colon_formatted_print(response_data, self.fields)
-        elif self.format == 'text_raw':
+        elif self.format == self.FORMAT_TEXT_RAW:
             safeprint(response_data)
-        elif self.format == 'text_custom':
+        elif self.format == self.FORMAT_TEXT_CUSTOM:
             self._custom_text_formatter(response_data)
 
         # if there's an epilog, print it after any text
@@ -167,15 +178,15 @@ class OutputFormatter(object):
         self.detect_format()
 
         # silent does nothing
-        if self.format == 'silent':
+        if self.format == self.FORMAT_SILENT:
             return
 
         # json prints json
-        elif self.format == 'json':
+        elif self.format == self.FORMAT_JSON:
             self._print_response_json(response_data, json_converter)
 
         # text formats are where the fun is at
-        elif self.format.startswith('text_'):
+        elif self.format_is_text():
             self._print_response_text(response_data, simple_text,
                                       text_preamble, text_epilog)
         else:

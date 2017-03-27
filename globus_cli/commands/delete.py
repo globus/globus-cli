@@ -7,8 +7,7 @@ from globus_sdk import DeleteData
 from globus_cli.parsing import (
     common_options, submission_id_option, TaskPath, ENDPOINT_PLUS_OPTPATH,
     shlex_process_stdin)
-from globus_cli.output_formatter import OutputFormatter
-from globus_cli.safeio import safeprint
+from globus_cli.safeio import safeprint, OutputFormatter
 
 from globus_cli.services.transfer import get_client, autoactivate
 
@@ -79,5 +78,5 @@ def delete_command(batch, ignore_missing, recursive, endpoint_plus_path,
     res = client.submit_delete(delete_data)
     formatter = OutputFormatter(
         fields=(('Message', 'message'), ('Task ID', 'task_id')),
-        text_format='text_record')
+        text_format=OutputFormatter.FORMAT_TEXT_RECORD)
     formatter.print_response(res)

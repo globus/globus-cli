@@ -4,10 +4,9 @@ import click
 
 from globus_sdk import GlobusResponse
 
-from globus_cli.safeio import safeprint
+from globus_cli.safeio import safeprint, OutputFormatter
 from globus_cli.parsing import common_options, HiddenOption
 from globus_cli.helpers import is_verbose
-from globus_cli.output_formatter import OutputFormatter
 
 from globus_cli.services.auth import get_auth_client
 

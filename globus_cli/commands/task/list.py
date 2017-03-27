@@ -2,7 +2,7 @@ import click
 import six
 
 from globus_cli.parsing import common_options, ISOTimeType
-from globus_cli.output_formatter import OutputFormatter
+from globus_cli.safeio import OutputFormatter
 
 from globus_cli.services.transfer import iterable_response_to_dict, get_client
 

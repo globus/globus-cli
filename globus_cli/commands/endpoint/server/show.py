@@ -1,7 +1,7 @@
 import click
 
 from globus_cli.parsing import common_options, endpoint_id_arg, server_id_arg
-from globus_cli.output_formatter import OutputFormatter
+from globus_cli.safeio import OutputFormatter
 
 from globus_cli.services.transfer import get_client
 
@@ -37,5 +37,5 @@ def server_show(endpoint_id, server_id):
         fields = (('ID', 'id'), ('URI', 'uri'), ('Subject', 'subject'),
                   ('Data Ports', advertised_port_summary))
 
-    OutputFormatter(text_format='text_record', fields=fields
-                    ).print_response(server_doc)
+    OutputFormatter(text_format=OutputFormatter.FORMAT_TEXT_RECORD,
+                    fields=fields).print_response(server_doc)

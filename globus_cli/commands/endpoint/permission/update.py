@@ -2,7 +2,7 @@ import click
 
 from globus_cli.parsing import (
     CaseInsensitiveChoice, common_options, endpoint_id_arg)
-from globus_cli.output_formatter import OutputFormatter
+from globus_cli.safeio import OutputFormatter
 
 from globus_cli.services.transfer import get_client, assemble_generic_doc
 
@@ -23,5 +23,5 @@ def update_command(permissions, rule_id, endpoint_id):
 
     rule_data = assemble_generic_doc('access', permissions=permissions)
     res = client.update_endpoint_acl_rule(endpoint_id, rule_id, rule_data)
-    OutputFormatter(text_format='text_raw', response_key='message'
-                    ).print_response(res)
+    OutputFormatter(text_format=OutputFormatter.FORMAT_TEXT_RAW,
+                    response_key='message').print_response(res)
