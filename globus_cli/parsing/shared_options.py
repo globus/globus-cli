@@ -91,19 +91,24 @@ def endpoint_create_and_update_params(*args, **kwargs):
     Usage:
 
     >>> @endpoint_create_and_update_params
-    >>> def command_func(display_name, description, organization, department,
-    >>>                  keywords, contact_email, contact_info, info_link,
-    >>>                  public, default_directory, force_encryption,
-    >>>                  oauth_server, myproxy_server, myproxy_dn):
+    >>> def endpoint_create(endpoint_id, display_name, description,
+    >>>                     organization, department, keywords, contact_email,
+    >>>                     contact_info, info_link, public, default_directory,
+    >>>                     force_encryption, oauth_server, myproxy_server,
+    >>>                     myproxy_dn, network_use, custom_concurrency,
+    >>>                     custom_parallelism, location_automatic, location,
+    >>>                     disable_verify):
     >>>     ...
-
     or
 
     >>> @endpoint_create_and_update_params(create=False)
-    >>> def command_func(display_name, description, organization, department,
-    >>>                  keywords, contact_email, contact_info, info_link,
-    >>>                  public, default_directory, force_encryption,
-    >>>                  oauth_server, myproxy_server, myproxy_dn):
+    >>> def endpoint_update(endpoint_id, display_name, description,
+    >>>                     organization, department, keywords, contact_email,
+    >>>                     contact_info, info_link, public, default_directory,
+    >>>                     force_encryption, oauth_server, myproxy_server,
+    >>>                     myproxy_dn, network_use, custom_concurrency,
+    >>>                     custom_parallelism, location_automatic, location,
+    >>>                     disable_verify):
     >>>     ...
 
     or
@@ -134,6 +139,29 @@ def endpoint_create_and_update_params(*args, **kwargs):
         f = click.option(
             '--public/--private', 'public', default=None,
             help='Set the Endpoint to be public or private')(f)
+        f = click.option(
+            "--network-use", default=None,
+            type=click.Choice(["normal", "minimal", "aggressive", "custom"]),
+            help=("Set the endpoint's network use level. If using custom, "
+                  "--custom-concurrency and --custom-parallelism must be used"
+                  "(Managed endpoints only)"))(f)
+        f = click.option(
+            "--custom-concurrency", nargs=2, type=int,
+            help=("Set the endpoint's max and preferred concurrency "
+                  "(Managed endpoints only)"))(f)
+        f = click.option(
+            "--custom-parallelism", nargs=2, type=int,
+            help=("Set the endpoint's max and preferred parallelism "
+                  "(Managed endpoints only) (Non S3 endpoints only)"))(f)
+        f = click.option(
+            "--location-automatic", is_flag=True,
+            help="Set the endpoint to automatically get its location")(f)
+        f = click.option(
+            "--location", nargs=2, type=float, default=None,
+            help="Set the endpoint's latitude and longitude")(f)
+        f = click.option(
+            "--disable-verify", is_flag=True,
+            help="Set the endpoint to not use checksum verification")(f)
 
         return f
 
@@ -183,6 +211,51 @@ def endpoint_create_and_update_params(*args, **kwargs):
         return f
 
     return detect_and_decorate(inner_decorator, args, kwargs)
+
+
+def endpoint_create_and_update_validate_params(network_use, custom_concurrency,
+                                               custom_parallelism, location,
+                                               location_automatic):
+    """
+    Given the values of the custom_concurrency, custom_parallelism,
+    location and location_automatic options for endpoint create / update
+    Returns a tuple of (max_concurrency, preferred_concurrency,
+    max_parallelism, preferred_parallelism, location_value)
+    """
+    # require custom_concurrency and custom_parallelism for custom network_use
+    if network_use == "custom" and (not custom_concurrency or
+                                    not custom_parallelism):
+        raise click.UsageError(
+            "custom network_use level requires --custom-concurrency and "
+            "--custom-parallelism to be set")
+
+    # set max and preferred concurrency and parallelism based on args
+    if custom_concurrency:
+        max_concurrency, preferred_concurrency = custom_concurrency
+    else:
+        max_concurrency = None
+        preferred_concurrency = None
+    if custom_parallelism:
+        max_parallelism, preferred_parallelism = custom_parallelism
+    else:
+        max_parallelism = None
+        preferred_parallelism = None
+
+    # location cannot be automatic and user defined
+    if location_automatic and location:
+        raise click.UsageError(
+            "cannot combine --location and --location-automatic")
+
+    # set location based on args
+    if location_automatic:
+        location_value = "Automatic"
+    elif location:
+        location_value = "{},{}".format(location[0], location[1])
+    else:
+        location_value = None
+
+    return (max_concurrency, preferred_concurrency,
+            max_parallelism, preferred_parallelism, location_value)
 
 
 def task_id_arg(*args, **kwargs):
