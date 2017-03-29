@@ -122,7 +122,7 @@ def formatted_print(response_data,
 
                     json_converter=None,
 
-                    fields=(), response_key=None):
+                    fields=None, response_key=None):
     """
     A generic output formatter. Consumes the following pieces of data:
 
@@ -152,6 +152,12 @@ def formatted_print(response_data,
     gets a string. Necessary for certain formats like text table (text output
     only)
     """
+    def _assert_fields():
+        if fields is None:
+            raise ValueError(
+                'Internal Error! Output format requires fields; none given. '
+                'You can workaround this error by using `--format JSON`')
+
     def _print_as_json():
         print_json_response(json_converter(response_data)
                             if json_converter else response_data)
@@ -173,8 +179,10 @@ def formatted_print(response_data,
 
         #  do the various kinds of printing
         if text_format == FORMAT_TEXT_TABLE:
+            _assert_fields()
             print_table(data, fields)
         elif text_format == FORMAT_TEXT_RECORD:
+            _assert_fields()
             colon_formatted_print(data, fields)
         elif text_format == FORMAT_TEXT_RAW:
             safeprint(data)
