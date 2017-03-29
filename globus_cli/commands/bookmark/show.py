@@ -21,6 +21,8 @@ def bookmark_show(bookmark_id_or_name):
     res = resolve_id_or_name(client, bookmark_id_or_name)
     formatted_print(
         res, text_format=FORMAT_TEXT_RECORD,
+        fields=(('ID', 'id'), ('Name', 'name'),
+                ('Endpoint ID', 'endpoint_id'), ('Path', 'path')),
         simple_text=(
             # standard output is endpoint:path format
             '{}:{}'.format(res['endpoint_id'], res['path'])
