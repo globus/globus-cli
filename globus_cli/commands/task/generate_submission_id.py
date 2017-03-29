@@ -1,7 +1,7 @@
 import click
 
 from globus_cli.parsing import common_options
-from globus_cli.safeio import OutputFormatter
+from globus_cli.safeio import formatted_print, FORMAT_TEXT_RAW
 
 from globus_cli.services.transfer import get_client
 
@@ -22,5 +22,4 @@ def generate_submission_id():
     client = get_client()
 
     res = client.get_submission_id()
-    OutputFormatter(text_format=OutputFormatter.FORMAT_TEXT_RAW,
-                    response_key='value').print_response(res)
+    formatted_print(res, text_format=FORMAT_TEXT_RAW, response_key='value')

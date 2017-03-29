@@ -1,7 +1,7 @@
 import click
 
 from globus_cli.parsing import common_options, endpoint_id_arg
-from globus_cli.safeio import OutputFormatter
+from globus_cli.safeio import formatted_print
 
 from globus_cli.services.auth import lookup_identity_name
 
@@ -25,6 +25,6 @@ def role_list(endpoint_id):
     client = get_client()
     roles = client.endpoint_role_list(endpoint_id)
 
-    OutputFormatter(fields=[('Principal Type', 'principal_type'),
-                            ('Role ID', 'id'), ('Principal', principal_str),
-                            ('Role', 'role')]).print_response(roles)
+    formatted_print(roles, fields=[
+        ('Principal Type', 'principal_type'), ('Role ID', 'id'),
+        ('Principal', principal_str), ('Role', 'role')])

@@ -1,7 +1,7 @@
 import click
 
 from globus_cli.parsing import common_options
-from globus_cli.safeio import OutputFormatter
+from globus_cli.safeio import formatted_print
 
 from globus_cli.services.transfer import (
     iterable_response_to_dict, get_client, display_name_or_cname)
@@ -22,8 +22,9 @@ def bookmark_list():
         ep_doc = client.get_endpoint(ep_id)
         return display_name_or_cname(ep_doc)
 
-    OutputFormatter(
+    formatted_print(
+        bookmark_iterator,
         fields=[('Name', 'name'), ('Bookmark ID', 'id'),
                 ('Endpoint ID', 'endpoint_id'), ('Endpoint Name', get_ep_name),
-                ('Path', 'path')], response_key='DATA').print_response(
-        bookmark_iterator, json_converter=iterable_response_to_dict)
+                ('Path', 'path')],
+        response_key='DATA', json_converter=iterable_response_to_dict)

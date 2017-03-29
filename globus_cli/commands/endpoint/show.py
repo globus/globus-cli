@@ -1,7 +1,7 @@
 import click
 
 from globus_cli.parsing import common_options, endpoint_id_arg
-from globus_cli.safeio import OutputFormatter
+from globus_cli.safeio import formatted_print, FORMAT_TEXT_RECORD
 
 from globus_cli.services.transfer import get_client
 
@@ -20,8 +20,8 @@ def endpoint_show(endpoint_id):
     def _managed_endpoint(x):
         """ Helper for converting subscription_id into managed_endpoint """
         return bool(x["subscription_id"])
-    OutputFormatter(
-        text_format=OutputFormatter.FORMAT_TEXT_RECORD,
+    formatted_print(
+        res, text_format=FORMAT_TEXT_RECORD,
         fields=(("Display Name", "display_name"), ("ID", "id"),
                 ("Owner", "owner_string"), ("Activated", "activated"),
                 ("Shareable", "shareable"), ("Department", "department"),
@@ -36,4 +36,4 @@ def endpoint_show(endpoint_id):
                 ("Subscription ID", "subscription_id"),
                 ("Legacy Name", "canonical_name"),
                 ("Local User Info Available", "local_user_info_available"))
-        ).print_response(res)
+        )

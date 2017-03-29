@@ -1,7 +1,7 @@
 import click
 
 from globus_cli.parsing import common_options, endpoint_id_arg
-from globus_cli.safeio import OutputFormatter
+from globus_cli.safeio import formatted_print
 from globus_cli.services.auth import lookup_identity_name
 from globus_cli.services.transfer import get_client
 
@@ -27,6 +27,6 @@ def list_command(endpoint_id):
         else:
             principal = rule['principal_type']
         return principal
-    OutputFormatter(fields=[('Rule ID', 'id'), ('Permissions', 'permissions'),
-                            ('Shared With', principal_str), ('Path', 'path')]
-                    ).print_response(rules)
+    formatted_print(
+        rules, fields=[('Rule ID', 'id'), ('Permissions', 'permissions'),
+                       ('Shared With', principal_str), ('Path', 'path')])

@@ -2,7 +2,8 @@ from textwrap import dedent
 import click
 
 from globus_cli.parsing import common_options, endpoint_id_arg
-from globus_cli.safeio import OutputFormatter
+from globus_cli.safeio import (
+    formatted_print, FORMAT_TEXT_RECORD, FORMAT_TEXT_TABLE)
 from globus_cli.services.transfer import (display_name_or_cname, get_client)
 
 
@@ -31,12 +32,12 @@ def server_list(endpoint_id):
     if endpoint['s3_url']:  # not GCS -- this is an S3 endpoint
         res = {'s3_url': endpoint['s3_url']}
         fields = [("S3 URL", 's3_url')]
-        text_format = OutputFormatter.FORMAT_TEXT_RECORD
+        text_format = FORMAT_TEXT_RECORD
     else:
         # regular GCS host endpoint; use Transfer's server list API
         res = client.endpoint_server_list(endpoint_id)
         fields = (('ID', 'id'),
                   ('URI', lambda s: (s['uri'] or
                                      "none (Globus Connect Personal)")))
-        text_format = OutputFormatter.FORMAT_TEXT_TABLE
-    OutputFormatter(text_format=text_format, fields=fields).print_response(res)
+        text_format = FORMAT_TEXT_TABLE
+    formatted_print(res, text_format=text_format, fields=fields)

@@ -2,7 +2,7 @@ import click
 import six
 
 from globus_cli.parsing import common_options, ISOTimeType
-from globus_cli.safeio import OutputFormatter
+from globus_cli.safeio import formatted_print
 
 from globus_cli.services.transfer import iterable_response_to_dict, get_client
 
@@ -94,5 +94,5 @@ def task_list(limit, filter_task_id, filter_status, filter_type,
               ('Source Display Name', 'source_endpoint_display_name'),
               ('Dest Display Name', 'destination_endpoint_display_name'),
               ('Label', 'label')]
-    OutputFormatter(fields=fields).print_response(
-        task_iterator, json_converter=iterable_response_to_dict)
+    formatted_print(task_iterator, fields=fields,
+                    json_converter=iterable_response_to_dict)

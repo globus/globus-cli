@@ -1,7 +1,7 @@
 import click
 
 from globus_cli.parsing import common_options, task_id_arg
-from globus_cli.safeio import OutputFormatter
+from globus_cli.safeio import formatted_print, FORMAT_TEXT_RECORD
 
 from globus_cli.services.transfer import get_client
 
@@ -59,16 +59,15 @@ def task_pause_info(task_id):
                 'Task {} is not paused.'.format(task_id))
 
         if explicit_pauses:
-            formatter = OutputFormatter(
-                fields=explicit_pauses,
-                text_format=OutputFormatter.FORMAT_TEXT_RECORD)
-            formatter.print_response(
-                res, text_preamble='This task has been explicitly paused.\n',
+            formatted_print(
+                res, fields=explicit_pauses, text_format=FORMAT_TEXT_RECORD,
+                text_preamble='This task has been explicitly paused.\n',
                 text_epilog='\n' if effective_pause_rules else None)
 
         if effective_pause_rules:
-            formatter = OutputFormatter(fields=PAUSE_RULE_DISPLAY_FIELDS)
-            formatter.print_response(effective_pause_rules, text_preamble=(
-                'The following pause rules are effective on this task:\n'))
+            formatted_print(
+                effective_pause_rules, fields=PAUSE_RULE_DISPLAY_FIELDS,
+                text_preamble=(
+                    'The following pause rules are effective on this task:\n'))
 
-    OutputFormatter(text_format=_custom_text_format).print_response(res)
+    formatted_print(res, text_format=_custom_text_format)

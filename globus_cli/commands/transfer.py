@@ -5,7 +5,7 @@ from globus_sdk import TransferData
 from globus_cli.parsing import (
     CaseInsensitiveChoice, common_options, submission_id_option,
     TaskPath, ENDPOINT_PLUS_OPTPATH, shlex_process_stdin)
-from globus_cli.safeio import OutputFormatter
+from globus_cli.safeio import formatted_print, FORMAT_TEXT_RECORD
 
 from globus_cli.services.transfer import get_client, autoactivate
 
@@ -145,12 +145,11 @@ def transfer_command(batch, sync_level, recursive, destination, source, label,
                                recursive=recursive)
 
     if dry_run:
-        formatter = OutputFormatter(
-            response_key='DATA',
+        formatted_print(
+            transfer_data, response_key='DATA',
             fields=(('Source Path', 'source_path'),
                     ('Dest Path', 'destination_path'),
                     ('Recursive', 'recursive')))
-        formatter.print_response(transfer_data)
         # exit safely
         return
 
@@ -159,7 +158,5 @@ def transfer_command(batch, sync_level, recursive, destination, source, label,
     autoactivate(client, dest_endpoint, if_expires_in=60)
 
     res = client.submit_transfer(transfer_data)
-    formatter = OutputFormatter(
-        fields=(('Message', 'message'), ('Task ID', 'task_id')),
-        text_format=OutputFormatter.FORMAT_TEXT_RECORD)
-    formatter.print_response(res)
+    formatted_print(res, text_format=FORMAT_TEXT_RECORD,
+                    fields=(('Message', 'message'), ('Task ID', 'task_id')))

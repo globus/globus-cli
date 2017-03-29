@@ -3,7 +3,7 @@ import click
 from globus_cli.parsing import (
     common_options, endpoint_id_arg,
     server_add_and_update_opts, server_id_arg)
-from globus_cli.safeio import OutputFormatter
+from globus_cli.safeio import formatted_print, FORMAT_TEXT_RAW
 
 from globus_cli.services.transfer import get_client, assemble_generic_doc
 
@@ -34,5 +34,4 @@ def server_update(endpoint_id, server_id, subject, port, scheme, hostname,
                           outgoing_data_port_end=outgoing_data_ports[1])
 
     res = client.update_endpoint_server(endpoint_id, server_id, server_doc)
-    OutputFormatter(text_format=OutputFormatter.FORMAT_TEXT_RAW,
-                    response_key='message').print_response(res)
+    formatted_print(res, text_format=FORMAT_TEXT_RAW, response_key='message')

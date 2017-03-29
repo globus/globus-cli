@@ -3,7 +3,7 @@ import click
 from globus_cli.parsing import (
     CaseInsensitiveChoice, common_options, endpoint_id_arg,
     security_principal_opts)
-from globus_cli.safeio import OutputFormatter
+from globus_cli.safeio import formatted_print
 
 from globus_cli.services.auth import maybe_lookup_identity_id
 
@@ -35,5 +35,4 @@ def role_create(role, principal, endpoint_id):
         role=role)
 
     res = client.add_endpoint_role(endpoint_id, role_doc)
-    OutputFormatter().print_response(
-        res, simple_text='ID: {}'.format(res['id']))
+    formatted_print(res, simple_text='ID: {}'.format(res['id']))

@@ -8,7 +8,26 @@ from globus_cli.helpers import outformat_is_json
 
 # make sure this is a tuple
 # if it's a list, pylint will freak out
-__all__ = ('OutputFormatter')
+__all__ = (
+    'formatted_print',
+
+    'FORMAT_SILENT',
+    'FORMAT_JSON',
+    'FORMAT_TEXT_TABLE',
+    'FORMAT_TEXT_RECORD',
+    'FORMAT_TEXT_RAW'
+    # NOTE: we don't export FORMAT_TEXT_CUSTOM as actually passing it is
+    # incorrect usage -- it's used internally, but similarly to the other
+    # format constants
+)
+
+
+FORMAT_SILENT = 'silent'
+FORMAT_JSON = 'json'
+FORMAT_TEXT_TABLE = 'text_table'
+FORMAT_TEXT_RECORD = 'text_record'
+FORMAT_TEXT_RAW = 'text_raw'
+FORMAT_TEXT_CUSTOM = 'text_custom'
 
 
 def _key_to_keyfunc(k):
@@ -96,50 +115,48 @@ def print_table(iterable, headers_and_keys, print_headers=True):
         safeprint(format_str.format(*[none_to_null(kf(i)) for kf in keyfuncs]))
 
 
-class OutputFormatter(object):
+def formatted_print(response_data,
+
+                    simple_text=None, text_preamble=None, text_epilog=None,
+                    text_format=FORMAT_TEXT_TABLE,
+
+                    json_converter=None,
+
+                    fields=(), response_key=None):
     """
     A generic output formatter. Consumes the following pieces of data:
 
+    ``response_data`` is a dict or GlobusResponse object. It contains either an
+    API response or synthesized data for printing.
+
+    ``simple_text`` is a text override -- normal printing is skipped and this
+    string is printed instead (text output only)
+    ``text_preamble`` is text which prints before normal printing (text output
+    only)
+    ``text_epilog`` is text which prints after normal printing (text output
+    only)
+    ``text_format`` is one of the FORMAT_TEXT_* constants OR a callable which
+    takes ``response_data`` and prints output. Note that when a callable is
+    given, it does the actual printing
+
+    ``json_converter`` is a callable that does preprocessing of JSON output. It
+    must take ``response_data`` and produce another dict or dict-like object
+    (json output only)
+
     ``fields`` is an iterable of (fieldname, keyfunc) tuples. When keyfunc is
-    a string, it is implicitly converted to `lambda x: x[keyfunc]`
+    a string, it is implicitly converted to `lambda x: x[keyfunc]` (text output
+    only)
 
     ``response_key`` is a key into the data to print. When used with table
     printing, it must get an iterable out, and when used with raw printing, it
-    gets a string. Necessary for certain formats (e.g. text table)
+    gets a string. Necessary for certain formats like text table (text output
+    only)
     """
-    FORMAT_SILENT = 'silent'
-    FORMAT_JSON = 'json'
-    FORMAT_TEXT_TABLE = 'text_table'
-    FORMAT_TEXT_RECORD = 'text_record'
-    FORMAT_TEXT_RAW = 'text_raw'
-    FORMAT_TEXT_CUSTOM = 'text_custom'
+    def _print_as_json():
+        print_json_response(json_converter(response_data)
+                            if json_converter else response_data)
 
-    def __init__(self, fields=(), response_key=None,
-                 text_format=FORMAT_TEXT_TABLE):
-        self.format = None
-
-        if isinstance(text_format, six.string_types):
-            self.text_format = text_format
-            self._custom_text_formatter = None
-        else:
-            self.text_format = self.FORMAT_TEXT_CUSTOM
-            self._custom_text_formatter = text_format
-
-        self.fields = fields
-        self.response_key = response_key
-
-    def detect_format(self):
-        if outformat_is_json():
-            self.format = self.FORMAT_JSON
-        else:
-            self.format = self.text_format
-        return self.format
-
-    def format_is_text(self):
-        return self.format.startswith('text_')
-
-    def _print_response_text(
-            self, response_data, simple_text, text_preamble, text_epilog):
+    def _print_as_text():
         # if we're given simple text, print that and exit
         if simple_text is not None:
             safeprint(simple_text)
@@ -150,44 +167,35 @@ class OutputFormatter(object):
             safeprint(text_preamble)
 
         # if there's a response key, key into it
-        if self.response_key is not None:
-            response_data = response_data[self.response_key]
+        data = (response_data
+                if response_key is None else
+                response_data[response_key])
 
         #  do the various kinds of printing
-        if self.format == self.FORMAT_TEXT_TABLE:
-            print_table(response_data, self.fields)
-        elif self.format == self.FORMAT_TEXT_RECORD:
-            colon_formatted_print(response_data, self.fields)
-        elif self.format == self.FORMAT_TEXT_RAW:
-            safeprint(response_data)
-        elif self.format == self.FORMAT_TEXT_CUSTOM:
-            self._custom_text_formatter(response_data)
+        if text_format == FORMAT_TEXT_TABLE:
+            print_table(data, fields)
+        elif text_format == FORMAT_TEXT_RECORD:
+            colon_formatted_print(data, fields)
+        elif text_format == FORMAT_TEXT_RAW:
+            safeprint(data)
+        elif text_format == FORMAT_TEXT_CUSTOM:
+            _custom_text_formatter(data)
 
         # if there's an epilog, print it after any text
         if text_epilog is not None:
             safeprint(text_epilog)
 
-    def _print_response_json(self, response_data, json_converter):
-        if json_converter:
-            response_data = json_converter(response_data)
-        print_json_response(response_data)
+    if isinstance(text_format, six.string_types):
+        text_format = text_format
+        _custom_text_formatter = None
+    else:
+        _custom_text_formatter = text_format
+        text_format = FORMAT_TEXT_CUSTOM
 
-    def print_response(self, response_data, simple_text=None,
-                       text_preamble=None, text_epilog=None,
-                       json_converter=None):
-        self.detect_format()
-
+    if outformat_is_json():
+        _print_as_json()
+    else:
         # silent does nothing
-        if self.format == self.FORMAT_SILENT:
+        if text_format == FORMAT_SILENT:
             return
-
-        # json prints json
-        elif self.format == self.FORMAT_JSON:
-            self._print_response_json(response_data, json_converter)
-
-        # text formats are where the fun is at
-        elif self.format_is_text():
-            self._print_response_text(response_data, simple_text,
-                                      text_preamble, text_epilog)
-        else:
-            raise ValueError("Can't output in format '{}'".format(self.format))
+        _print_as_text()

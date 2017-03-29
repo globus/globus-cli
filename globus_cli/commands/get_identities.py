@@ -4,7 +4,7 @@ import click
 
 from globus_sdk import GlobusResponse
 
-from globus_cli.safeio import safeprint, OutputFormatter
+from globus_cli.safeio import safeprint, formatted_print, FORMAT_TEXT_TABLE
 from globus_cli.parsing import common_options, HiddenOption
 from globus_cli.helpers import is_verbose
 
@@ -85,14 +85,13 @@ def get_identities_command(values, lookup_style):
         for val in values:
             safeprint(resolve_identity(val))
 
-    formatter = OutputFormatter(
+    formatted_print(
+        res, response_key='identities',
         fields=[('ID', 'id'), ('Username', 'username'),
                 ('Full Name', 'name'), ('Organization', 'organization'),
                 ('Email Address', 'email')],
-        response_key='identities',
         # verbose output is a table. Order not guaranteed, may contain
         # duplicates
-        text_format=(OutputFormatter.FORMAT_TEXT_TABLE
+        text_format=(FORMAT_TEXT_TABLE
                      if is_verbose() else
                      _custom_text_format))
-    formatter.print_response(res)

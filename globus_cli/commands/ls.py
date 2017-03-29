@@ -1,7 +1,7 @@
 import click
 
 from globus_cli.parsing import common_options, ENDPOINT_PLUS_OPTPATH
-from globus_cli.safeio import OutputFormatter
+from globus_cli.safeio import formatted_print
 
 from globus_cli.services.transfer import get_client, autoactivate
 
@@ -12,7 +12,7 @@ class DummyLSIterable(dict):
     IterableTransferResponse item. Important for returning a
     (GlobusResponse|DummyLSIterable) from a (maybe) recursive listing.
     Also has the `.data` property which is itself, which is all that's
-    required for `OutputFormatter` to consume it
+    required for `formatted_print` to consume it
     """
     def __iter__(self):
         return iter(self['DATA'])
@@ -110,10 +110,10 @@ def ls_command(endpoint_plus_path, recursive_depth_limit,
         return item['name'] + ('/' if item['type'] == 'dir' else '')
 
     # and then print it, per formatting rules
-    OutputFormatter(fields=[('Permissions', 'permissions'), ('User', 'user'),
-                            ('Group', 'group'), ('Size', 'size'),
-                            ('Last Modified', 'last_modified'),
-                            ('File Type', 'type'),
-                            ('Filename', cleaned_item_name)]).print_response(
-        res, simple_text=(None if long else
-                          "\n".join(cleaned_item_name(x) for x in res)))
+    formatted_print(
+        res, fields=[('Permissions', 'permissions'), ('User', 'user'),
+                     ('Group', 'group'), ('Size', 'size'),
+                     ('Last Modified', 'last_modified'), ('File Type', 'type'),
+                     ('Filename', cleaned_item_name)],
+        simple_text=(None if long else
+                     "\n".join(cleaned_item_name(x) for x in res)))

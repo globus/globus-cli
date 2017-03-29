@@ -1,12 +1,12 @@
 import click
 
 from globus_cli.parsing import CaseInsensitiveChoice, common_options
-from globus_cli.safeio import OutputFormatter
+from globus_cli.safeio import formatted_print
 
 from globus_cli.services.auth import maybe_lookup_identity_id
 
 from globus_cli.services.transfer import (
-    ENDPOINT_LIST_FIELDS, get_client)
+    ENDPOINT_LIST_FIELDS, get_client, iterable_response_to_dict)
 
 
 @click.command('search', help='Search for Globus Endpoints')
@@ -43,5 +43,5 @@ def endpoint_search(filter_fulltext, filter_owner_id, filter_scope):
         filter_fulltext=filter_fulltext, filter_scope=filter_scope,
         filter_owner_id=owner_id)
 
-    OutputFormatter(fields=ENDPOINT_LIST_FIELDS
-                    ).print_response(search_iterator)
+    formatted_print(search_iterator, fields=ENDPOINT_LIST_FIELDS,
+                    json_converter=iterable_response_to_dict)

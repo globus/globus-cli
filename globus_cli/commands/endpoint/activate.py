@@ -2,7 +2,7 @@ import click
 import webbrowser
 
 from globus_cli.parsing import common_options, endpoint_id_arg, HiddenOption
-from globus_cli.safeio import OutputFormatter
+from globus_cli.safeio import formatted_print, FORMAT_TEXT_RAW
 from globus_cli.config import lookup_option, MYPROXY_USERNAME_OPTNAME
 from globus_cli.services.transfer import get_client
 from globus_cli.helpers import is_remote_session
@@ -86,7 +86,7 @@ def endpoint_activate(endpoint_id, myproxy, myproxy_username, myproxy_password,
         res = client.endpoint_autoactivate(endpoint_id, if_expires_in=60)
 
         if "AlreadyActivated" == res["code"]:
-            OutputFormatter().print_response(res, simple_text=(
+            formatted_print(res, simple_text=(
                 "Endpoint is already activated. Activation "
                 "expires at {}".format(res["expire_time"])))
             return
@@ -97,7 +97,7 @@ def endpoint_activate(endpoint_id, myproxy, myproxy_username, myproxy_password,
         res = client.endpoint_autoactivate(endpoint_id)
 
         if "AutoActivated" in res["code"]:
-            OutputFormatter().print_response(res, simple_text=(
+            formatted_print(res, simple_text=(
                 "Autoactivation succeeded with message: {}".format(
                     res["message"])))
             return
@@ -149,5 +149,4 @@ def endpoint_activate(endpoint_id, myproxy, myproxy_username, myproxy_password,
                    "url": url}
 
     # output
-    OutputFormatter(text_format=OutputFormatter.FORMAT_TEXT_RAW,
-                    response_key='message').print_response(res)
+    formatted_print(res, text_format=FORMAT_TEXT_RAW, response_key='message')

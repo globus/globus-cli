@@ -2,7 +2,7 @@ import click
 
 from globus_cli.parsing import common_options, endpoint_id_arg
 from globus_cli.services.transfer import get_client
-from globus_cli.safeio import OutputFormatter
+from globus_cli.safeio import formatted_print
 
 
 @click.command('is-activated', short_help='Check if an Endpoint is activated',
@@ -25,14 +25,13 @@ def endpoint_is_activated(endpoint_id, until, absolute_time):
     """
     client = get_client()
     res = client.endpoint_get_activation_requirements(endpoint_id)
-    formatter = OutputFormatter()
 
     def fail(deadline=None):
         exp_string = ''
         if deadline is not None:
             exp_string = ' or will expire before {}'.format(deadline)
 
-        formatter.print_response(
+        formatted_print(
             res, simple_text=(
                 '{0} is not activated{1}\n'
                 'To activate, please go to the following page:\n\n'
@@ -41,7 +40,7 @@ def endpoint_is_activated(endpoint_id, until, absolute_time):
         click.get_current_context().exit(1)
 
     def success(msg, *format_params):
-        formatter.print_response(
+        formatted_print(
             res, simple_text=(msg.format(endpoint_id, *format_params)))
         click.get_current_context().exit(0)
 

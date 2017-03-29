@@ -1,8 +1,7 @@
 import click
 
-from globus_cli.safeio import safeprint
+from globus_cli.safeio import formatted_print, safeprint, FORMAT_TEXT_RAW
 from globus_cli.parsing import common_options, task_id_arg
-from globus_cli.safeio import OutputFormatter
 
 from globus_cli.services.transfer import get_client
 
@@ -57,14 +56,14 @@ def cancel_task(all, task_id):
                 safeprint('{} ({} of {}): {}'
                           .format(task_id, i, task_count, data['message']))
 
-        # FIXME: this is kind of an abuse of the OutputFormatter because the
+        # FIXME: this is kind of an abuse of formatted_print because the
         # text format and json converter are doing their own thing, not really
         # interacting with the "response data" (None). Is there a better way of
         # handling this?
-        OutputFormatter(text_format=_custom_text).print_response(
-            None, json_converter=json_converter)
+        formatted_print(None, text_format=_custom_text,
+                        json_converter=json_converter)
 
     else:
         res = client.cancel_task(task_id)
-        OutputFormatter(text_format=OutputFormatter.FORMAT_TEXT_RAW,
-                        response_key='message').print_response(res)
+        formatted_print(res, text_format=FORMAT_TEXT_RAW,
+                        response_key='message')

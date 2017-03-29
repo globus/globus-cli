@@ -1,7 +1,7 @@
 import click
 
 from globus_cli.parsing import common_options
-from globus_cli.safeio import OutputFormatter
+from globus_cli.safeio import formatted_print
 
 from globus_cli.services.transfer import get_client
 
@@ -21,4 +21,4 @@ def bookmark_rename(bookmark_id, new_bookmark_name):
     }
 
     res = client.update_bookmark(bookmark_id, submit_data)
-    OutputFormatter().print_response(res, simple_text='Success')
+    formatted_print(res, simple_text='Success')

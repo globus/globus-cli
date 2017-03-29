@@ -1,7 +1,7 @@
 import click
 
 from globus_cli.parsing import common_options, endpoint_id_arg
-from globus_cli.safeio import OutputFormatter
+from globus_cli.safeio import formatted_print
 
 from globus_cli.services.transfer import (
     ENDPOINT_LIST_FIELDS, get_client)
@@ -19,5 +19,4 @@ def my_shared_endpoint_list(endpoint_id):
     client = get_client()
     ep_iterator = client.my_shared_endpoint_list(endpoint_id)
 
-    OutputFormatter(fields=ENDPOINT_LIST_FIELDS
-                    ).print_response(ep_iterator)
+    formatted_print(ep_iterator, fields=ENDPOINT_LIST_FIELDS)

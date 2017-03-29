@@ -1,7 +1,7 @@
 import click
 
 from globus_cli.parsing import common_options, task_id_arg
-from globus_cli.safeio import OutputFormatter
+from globus_cli.safeio import formatted_print, FORMAT_TEXT_RECORD
 
 from globus_cli.services.transfer import get_client, iterable_response_to_dict
 
@@ -42,17 +42,16 @@ SUCCESSFULL_TRANSFER_FIELDS = [
 
 def print_successful_transfers(client, task_id):
     res = client.task_successful_transfers(task_id, num_results=None)
-    OutputFormatter(fields=SUCCESSFULL_TRANSFER_FIELDS).print_response(
-        iterable_response_to_dict(res))
+    formatted_print(res, fields=SUCCESSFULL_TRANSFER_FIELDS,
+                    json_converter=iterable_response_to_dict)
 
 
 def print_task_detail(client, task_id):
     res = client.get_task(task_id)
-    OutputFormatter(text_format=OutputFormatter.FORMAT_TEXT_RECORD, fields=(
+    formatted_print(res, text_format=FORMAT_TEXT_RECORD, fields=(
         COMMON_FIELDS +
         (COMPLETED_FIELDS if res['completion_time'] else ACTIVE_FIELDS) +
-        (DELETE_FIELDS if res['type'] == 'DELETE' else TRANSFER_FIELDS))
-        ).print_response(res)
+        (DELETE_FIELDS if res['type'] == 'DELETE' else TRANSFER_FIELDS)))
 
 
 @click.command('show', help='Show detailed information about a specific Task')

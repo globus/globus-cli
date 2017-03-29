@@ -1,7 +1,7 @@
 import click
 
 from globus_cli.parsing import common_options, task_id_arg
-from globus_cli.safeio import OutputFormatter
+from globus_cli.safeio import formatted_print
 
 from globus_cli.services.transfer import get_client, assemble_generic_doc
 
@@ -22,4 +22,4 @@ def update_task(deadline, label, task_id):
         'task', label=label, deadline=deadline)
 
     res = client.update_task(task_id, task_doc)
-    OutputFormatter().print_response(res, simple_text='Success')
+    formatted_print(res, simple_text='Success')

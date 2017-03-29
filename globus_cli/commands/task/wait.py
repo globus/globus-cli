@@ -3,7 +3,7 @@ import sys
 
 from globus_cli.safeio import safeprint
 from globus_cli.parsing import HiddenOption, common_options, task_id_arg
-from globus_cli.safeio import OutputFormatter
+from globus_cli.safeio import formatted_print, FORMAT_SILENT
 
 from globus_cli.services.transfer import get_client
 
@@ -57,8 +57,7 @@ def task_wait(meow, heartbeat, polling_interval, timeout, task_id):
             # TODO: possibly update TransferClient.task_wait so that we don't
             # need to do an extra fetch to get the task status after completion
             res = client.get_task(task_id)
-            OutputFormatter(text_format=OutputFormatter.FORMAT_SILENT
-                            ).print_response(res)
+            formatted_print(res, text_format=FORMAT_SILENT)
 
             status = res['status']
             if status == 'SUCCEEDED':
@@ -91,7 +90,6 @@ def task_wait(meow, heartbeat, polling_interval, timeout, task_id):
 
     # output json if requested, but nothing for text mode
     res = client.get_task(task_id)
-    OutputFormatter(text_format=OutputFormatter.FORMAT_SILENT
-                    ).print_response(res)
+    formatted_print(res, text_format=FORMAT_SILENT)
 
     click.get_current_context().exit(1)

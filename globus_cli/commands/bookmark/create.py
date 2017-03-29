@@ -1,7 +1,7 @@
 import click
 
 from globus_cli.parsing import common_options, ENDPOINT_PLUS_REQPATH
-from globus_cli.safeio import OutputFormatter
+from globus_cli.safeio import formatted_print
 
 from globus_cli.services.transfer import get_client
 
@@ -25,5 +25,4 @@ def bookmark_create(endpoint_plus_path, bookmark_name):
     }
 
     res = client.create_bookmark(submit_data)
-    OutputFormatter().print_response(
-        res, simple_text='Bookmark ID: {}'.format(res['id']))
+    formatted_print(res, simple_text='Bookmark ID: {}'.format(res['id']))
