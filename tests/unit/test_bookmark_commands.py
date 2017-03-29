@@ -16,10 +16,6 @@ class BookmarkTests(CliTestCase):
     """
     Tests bookmark commands
     """
-    def __init__(self, *args, **kwargs):
-        super(BookmarkTests, self).__init__(*args, **kwargs)
-        self.tc = get_client()
-
     def _clean(self):
         """
         delete all bookmarks on the class, catching 404s (and a host of other
@@ -47,19 +43,25 @@ class BookmarkTests(CliTestCase):
         return bmname
 
     def setUp(self):
+        super(BookmarkTests, self).setUp()
+
+        self.tc = get_client()
         self.created_bookmark_names = set()
 
-        # use addCleanup to ensure that this runs even if
-        # - setUp crashes
-        # - the test crashes uncleanly
-        # - gremlins
-        self.addCleanup(self._clean)
+        # use try-catch to ensure that cleanup this runs even if setUp crashes
+        try:
+            res = self.tc.create_bookmark(
+                {'endpoint_id': GO_EP1_ID,
+                 'path': '/home/',
+                 'name': self.gen_bookmark_name(name='bm1')})
+            self.bm1id = res['id']
+        except:
+            self._clean()
+            raise
 
-        res = self.tc.create_bookmark(
-            {'endpoint_id': GO_EP1_ID,
-             'path': '/home/',
-             'name': self.gen_bookmark_name(name='bm1')})
-        self.bm1id = res['id']
+    def tearDown(self):
+        self._clean()
+        super(BookmarkTests, self).tearDown()
 
     def test_bookmark_create(self):
         """
