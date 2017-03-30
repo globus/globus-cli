@@ -4,7 +4,7 @@ import six
 from globus_sdk import GlobusResponse
 
 from globus_cli.safeio import safeprint
-from globus_cli.helpers import outformat_is_json
+from globus_cli.helpers import outformat_is_json, get_jmespath_expression
 
 # make sure this is a tuple
 # if it's a list, pylint will freak out
@@ -50,10 +50,17 @@ def _key_to_keyfunc(k):
 
 
 def print_json_response(res):
+    jmespath_expr = get_jmespath_expression()
+
+    def _print(data):
+        if jmespath_expr is not None:
+            data = jmespath_expr.search(data)
+        safeprint(json.dumps(data, indent=2))
+
     if isinstance(res, GlobusResponse):
-        safeprint(json.dumps(res.data, indent=2))
+        _print(res.data)
     elif isinstance(res, dict):
-        safeprint(json.dumps(res, indent=2))
+        _print(res)
     else:
         safeprint(res)
 

@@ -1,5 +1,6 @@
 import warnings
 import click
+import jmespath
 
 from globus_cli import config
 from globus_cli.parsing.case_insensitive_choice import CaseInsensitiveChoice
@@ -16,6 +17,8 @@ class CommandState(object):
     def __init__(self):
         # default is config value, or TEXT if it's not set
         self.output_format = config.get_output_format() or TEXT_FORMAT
+        # a jmespath expression to process on the json output
+        self.jmespath_expr = None
         # default is always False
         self.debug = False
         # default is 0
@@ -36,17 +39,35 @@ class CommandState(object):
 def format_option(f):
     def callback(ctx, param, value):
         state = ctx.ensure_object(CommandState)
-        # need to do an OR check here because this is invoked with value=None
-        # everywhere that the `-F`/`--format` option is omitted (each level of
-        # the command tree)
-        state.output_format = (value or state.output_format).lower()
+        # only set a new format if there is no stored jmespath expression
+        # otherwise, it must remain JSON
+        if state.jmespath_expr is None:
+            # need to do an OR check here because this is invoked with
+            # value=None everywhere that the `-F`/`--format` option is
+            # omitted (each level of the command tree)
+            state.output_format = (value or state.output_format).lower()
         return state.output_format
 
-    return click.option(
+    def jmespath_callback(ctx, param, value):
+        if value is None:
+            return
+        state = ctx.ensure_object(CommandState)
+        state.output_format = 'json'
+        state.jmespath_expr = jmespath.compile(value)
+        return state.jmespath_expr
+
+    f = click.option(
         '-F', '--format',
         type=CaseInsensitiveChoice([JSON_FORMAT, TEXT_FORMAT]),
         help='Output format for stdout. Defaults to text',
         expose_value=False, callback=callback)(f)
+    f = click.option(
+        "--jmespath",
+        help=("A JMESPath expression to apply to json output. "
+              "Takes precedence over any specified '--format' and forces "
+              "the format to be json processed by this expression"),
+        expose_value=False, callback=jmespath_callback)(f)
+    return f
 
 
 def debug_option(f):
