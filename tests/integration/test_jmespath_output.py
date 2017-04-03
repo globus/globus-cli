@@ -55,6 +55,11 @@ class JMESPathTests(CliTestCase):
                                assert_exit_code=2)
         self.assertIn('Error: --jmespath option requires an argument', output)
 
+        # and the error says `--jq` if you use the `--jq` form
+        output = self.run_line("globus endpoint search 'Tutorial' --jq",
+                               assert_exit_code=2)
+        self.assertIn('Error: --jq option requires an argument', output)
+
     def test_jmespath_invalid_expression_error(self):
         """
         Intentionally misuse `--jmespath` with a malformed expression. Confirm

@@ -62,7 +62,7 @@ def format_option(f):
         help='Output format for stdout. Defaults to text',
         expose_value=False, callback=callback)(f)
     f = click.option(
-        "--jmespath",
+        "--jmespath", "--jq",
         help=("A JMESPath expression to apply to json output. "
               "Takes precedence over any specified '--format' and forces "
               "the format to be json processed by this expression"),
