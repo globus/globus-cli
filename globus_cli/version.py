@@ -19,7 +19,7 @@ from distutils.version import LooseVersion
 #       2.4.6.1.2   -- no additional point versions
 #       0.1.0.0     -- no special rules for things like this
 #       1.4.6.0     -- differing major version, obviously wrong
-__version__ = "0.6.0.0"
+__version__ = "0.7.1.0"
 
 # app name to send as part of SDK requests
 app_name = 'Globus CLI v{} - Beta'.format(__version__)

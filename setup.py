@@ -12,7 +12,7 @@ setup(
     version=version,
     packages=find_packages(),
     install_requires=[
-        'globus-sdk==0.6.0',
+        'globus-sdk==0.7.1',
         'click>=6.6,<7.0',
         'jmespath==0.9.2',
         'configobj>=5.0.6,<6.0.0',
