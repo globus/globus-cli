@@ -25,6 +25,8 @@ class CommandState(object):
         self.verbosity = 0
         # by default, empty dict
         self.http_status_map = {}
+        # by default, empty list
+        self.output_fields = []
 
     def outformat_is_text(self):
         return self.output_format == TEXT_FORMAT
@@ -171,3 +173,20 @@ def map_http_status_option(f):
         help=('Map HTTP statuses to any of these exit codes: 0,1,50-99. '
               'e.g. "404=50,403=51"'),
         expose_value=False, callback=callback, multiple=True)(f)
+
+
+def fields_option(f):
+    def callback(ctx, param, value):
+        """
+        Split the comma separated list of fields into a list of fields.
+        """
+        state = ctx.ensure_object(CommandState)
+
+        # allow caps and spaces, but force them into field names
+        # this assumes all json fields use only lower case and have no spaces.
+        if value:
+            state.output_fields = value.split(",")
+
+    return click.option(
+        "--fields", expose_value=False, callback=callback,
+        help="Comma separated list of fields to output")(f)

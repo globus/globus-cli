@@ -2,7 +2,7 @@ import click
 
 from globus_cli.parsing.command_state import (
     format_option, debug_option, map_http_status_option,
-    verbose_option, HiddenOption)
+    verbose_option, fields_option, HiddenOption)
 from globus_cli.parsing.version_option import version_option
 from globus_cli.parsing.case_insensitive_choice import CaseInsensitiveChoice
 from globus_cli.parsing.detect_and_decorate import detect_and_decorate
@@ -45,6 +45,10 @@ def common_options(*args, **kwargs):
         # if the --map-http-status option is being allowed, ...
         if not kwargs.get('no_map_http_status_option'):
             f = map_http_status_option(f)
+
+        # if the fields option is being allowed, ...
+        if not kwargs.get("no_fields_option"):
+            f = fields_option(f)
 
         return f
 

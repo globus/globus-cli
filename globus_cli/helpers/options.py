@@ -46,3 +46,12 @@ def is_verbose():
     ctx = click.get_current_context()
     state = ctx.ensure_object(CommandState)
     return state.is_verbose()
+
+
+def get_output_fields():
+    """
+    Only safe to call within a click context.
+    """
+    ctx = click.get_current_context()
+    state = ctx.ensure_object(CommandState)
+    return state.output_fields

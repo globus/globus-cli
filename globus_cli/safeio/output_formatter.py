@@ -1,10 +1,12 @@
 import json
 import six
+import click
 
 from globus_sdk import GlobusResponse
 
 from globus_cli.safeio import safeprint
-from globus_cli.helpers import outformat_is_json, get_jmespath_expression
+from globus_cli.helpers import (
+    outformat_is_json, get_jmespath_expression, get_output_fields)
 
 # make sure this is a tuple
 # if it's a list, pylint will freak out
@@ -42,7 +44,15 @@ def _key_to_keyfunc(k):
     # operation -- return that
     if isinstance(k, six.string_types):
         def lookup(x):
-            return x[k]
+            try:
+                return x[k]
+            except KeyError as err:
+                if get_output_fields():
+                    raise click.ClickException(
+                        ("invalid value passed to --fields: {} is not a valid "
+                         "field name or json key".format(k)))
+                else:
+                    raise err
         return lookup
     # otherwise, the key must be a function which is executed on the item
     # to produce a value -- return it verbatim
@@ -66,6 +76,7 @@ def print_json_response(res):
 
 
 def colon_formatted_print(data, named_fields):
+
     maxlen = max(len(n) for n, f in named_fields) + 1
     for name, field in named_fields:
         field_keyfunc = _key_to_keyfunc(field)
@@ -159,11 +170,32 @@ def formatted_print(response_data,
     gets a string. Necessary for certain formats like text table (text output
     only)
     """
-    def _assert_fields():
+    def _assemble_fields():
+        """
+        Either validates formats and returns the fields passed with --fields,
+        or returns the default fields specified when this function was called.
+        """
         if fields is None:
             raise ValueError(
                 'Internal Error! Output format requires fields; none given. '
                 'You can workaround this error by using `--format JSON`')
+
+        if get_output_fields():
+            ret = []
+
+            for output_field in get_output_fields():
+                # check if this is a field-name in the default fields
+                for default_field in fields:
+                    if default_field[0] == output_field:
+                        ret.append(default_field)
+                        break
+                else:
+                    # otherwise use the field as both the field-name and key
+                    ret.append((output_field, output_field))
+
+            return ret
+        else:
+            return fields
 
     def _print_as_json():
         print_json_response(json_converter(response_data)
@@ -186,11 +218,9 @@ def formatted_print(response_data,
 
         #  do the various kinds of printing
         if text_format == FORMAT_TEXT_TABLE:
-            _assert_fields()
-            print_table(data, fields)
+            print_table(data, _assemble_fields())
         elif text_format == FORMAT_TEXT_RECORD:
-            _assert_fields()
-            colon_formatted_print(data, fields)
+            colon_formatted_print(data, _assemble_fields())
         elif text_format == FORMAT_TEXT_RAW:
             safeprint(data)
         elif text_format == FORMAT_TEXT_CUSTOM:
