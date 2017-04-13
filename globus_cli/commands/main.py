@@ -12,6 +12,7 @@ from globus_cli.commands.whoami import whoami_command
 from globus_cli.commands.get_identities import get_identities_command
 from globus_cli.commands.ls import ls_command
 from globus_cli.commands.delete import delete_command
+from globus_cli.commands.rm import rm_command
 from globus_cli.commands.transfer import transfer_command
 from globus_cli.commands.mkdir import mkdir_command
 from globus_cli.commands.rename import rename_command
@@ -40,6 +41,7 @@ main.add_command(ls_command)
 main.add_command(mkdir_command)
 main.add_command(rename_command)
 main.add_command(delete_command)
+main.add_command(rm_command)
 main.add_command(transfer_command)
 
 main.add_command(endpoint_command)
