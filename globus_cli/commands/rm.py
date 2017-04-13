@@ -14,7 +14,9 @@ from globus_cli.services.transfer import get_client, autoactivate
 @click.command("rm", short_help="Remove files or directories",
                help=("Remove a file or directory from an endpoint as a "
                      "synchronous task. Similar to `globus delete`, but waits "
-                     "for the delete task to finish before exiting."))
+                     "for the delete task to finish before exiting. "
+                     "Allows for bash style globbing with `*`, `?`, `[`, and "
+                     "`]`."))
 @common_options
 @task_submission_options
 @click.option(
@@ -43,7 +45,8 @@ def rm_command(ignore_missing, recursive, endpoint_plus_path,
                              recursive=recursive,
                              ignore_missing=ignore_missing,
                              submission_id=submission_id,
-                             deadline=deadline)
+                             deadline=deadline,
+                             interpret_globs=True)
     delete_data.add_item(path)
 
     if dry_run:
