@@ -22,7 +22,8 @@ class DummyLSIterable(dict):
         return self
 
 
-def _get_ls_res(client, path, endpoint_id, recursive, depth, show_hidden):
+def _get_ls_res(client, path, endpoint_id,
+                recursive, depth, show_hidden, orderby):
     """
     Do recursive or non-recursive listing, and either return the GlobusResponse
     that we got back, or an artificial DummyLSIterable, formatted to look like
@@ -32,7 +33,8 @@ def _get_ls_res(client, path, endpoint_id, recursive, depth, show_hidden):
     item names never have leading slashes, we can just string concat.
     """
     ls_kwargs = {
-        'show_hidden': int(show_hidden)
+        'show_hidden': int(show_hidden),
+        'orderby': orderby
     }
     if path is not None:
         ls_kwargs.update({'path': path})
@@ -60,7 +62,7 @@ def _get_ls_res(client, path, endpoint_id, recursive, depth, show_hidden):
             # do a recursive ls on each dir
             nested_res = _get_ls_res(
                 client, path + item['name'], endpoint_id, True, depth - 1,
-                show_hidden)
+                show_hidden, orderby)
 
             # walk the recursive ls results from this dir
             for nested_item in nested_res:
@@ -89,12 +91,27 @@ def _get_ls_res(client, path, endpoint_id, recursive, depth, show_hidden):
               help=('Limit to number of directories to traverse in '
                     '`--recursive` listings. A value of 0 indicates that '
                     'this should behave like a non-recursive `ls`'))
+@click.option("--orderby", metavar="FIELD",
+              help=("Order results by the given field in ascending order. "
+                    "Field name may be as displayed in long output, or a "
+                    "json key."))
 def ls_command(endpoint_plus_path, recursive_depth_limit,
-               recursive, long, all):
+               recursive, long, all, orderby):
     """
     Executor for `globus ls`
     """
     endpoint_id, path = endpoint_plus_path
+
+    def cleaned_item_name(item):
+        return item['name'] + ('/' if item['type'] == 'dir' else '')
+
+    # if user passes in field name from text output, map it to a json key
+    names_to_keys = {"Permissions": "permissions", "User": "user",
+                     "Group": "group", "Size": "size",
+                     "Last Modified": "last_modified", "File Type": "type",
+                     "Filename": "name"}
+    if orderby in names_to_keys:
+        orderby = names_to_keys[orderby]
 
     # do autoactivation before the `ls` call so that recursive invocations
     # won't do this repeatedly, and won't have to instantiate new clients
@@ -104,10 +121,7 @@ def ls_command(endpoint_plus_path, recursive_depth_limit,
     # get the `ls` result
     # note that `path` can be None
     res = _get_ls_res(client, path, endpoint_id, recursive,
-                      recursive_depth_limit, all)
-
-    def cleaned_item_name(item):
-        return item['name'] + ('/' if item['type'] == 'dir' else '')
+                      recursive_depth_limit, all, orderby)
 
     # and then print it, per formatting rules
     formatted_print(
