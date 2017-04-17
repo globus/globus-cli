@@ -23,7 +23,7 @@ class DummyLSIterable(dict):
 
 
 def _get_ls_res(client, path, endpoint_id,
-                recursive, depth, show_hidden, orderby):
+                recursive, depth, show_hidden, orderby, glob):
     """
     Do recursive or non-recursive listing, and either return the GlobusResponse
     that we got back, or an artificial DummyLSIterable, formatted to look like
@@ -38,6 +38,8 @@ def _get_ls_res(client, path, endpoint_id,
     }
     if path is not None:
         ls_kwargs.update({'path': path})
+    if glob:
+        ls_kwargs.update({"filter": "name:~" + glob})
 
     # non-recursive ls is simple -- just make the call and return the result
     if not recursive:
@@ -60,9 +62,10 @@ def _get_ls_res(client, path, endpoint_id,
         # walk over dir entries
         for item in [i for i in res if i['type'] == 'dir']:
             # do a recursive ls on each dir
+            # glob is set to None to match behavior of ls -R
             nested_res = _get_ls_res(
                 client, path + item['name'], endpoint_id, True, depth - 1,
-                show_hidden, orderby)
+                show_hidden, orderby, None)
 
             # walk the recursive ls results from this dir
             for nested_item in nested_res:
@@ -73,8 +76,13 @@ def _get_ls_res(client, path, endpoint_id,
     return result_doc
 
 
-@click.command('ls', help='List the contents of a directory on an endpoint',
-               short_help='List endpoint directory contents')
+@click.command('ls', short_help='List endpoint directory contents',
+               help=("List the contents of a directory on an endpoint. "
+                     "If no PATH is given, the directory will be the "
+                     "the default directory on the target endpoint. By "
+                     "default, the final component of the PATH will treat "
+                     "`*` and `?` characters as wild-cards for POSIX style "
+                     "globbing."))
 @common_options
 @click.argument('endpoint_plus_path', metavar=ENDPOINT_PLUS_OPTPATH.metavar,
                 type=ENDPOINT_PLUS_OPTPATH)
@@ -95,15 +103,27 @@ def _get_ls_res(client, path, endpoint_id,
               help=("Order results by the given field in ascending order. "
                     "Field name may be as displayed in long output, or a "
                     "json key."))
+@click.option("--no-globbing", is_flag=True,
+              help=("Treat any `*` or `?` characters in the final component "
+                    "of the PATH as literal characters."))
 def ls_command(endpoint_plus_path, recursive_depth_limit,
-               recursive, long, all, orderby):
+               recursive, long, all, orderby, no_globbing):
     """
     Executor for `globus ls`
     """
     endpoint_id, path = endpoint_plus_path
 
-    def cleaned_item_name(item):
-        return item['name'] + ('/' if item['type'] == 'dir' else '')
+    # determine if we are using globbing by checking the final component
+    # of the path for wild-card characters * or ?
+    # if we are globbing, remove that component to pass as a filter param.
+    glob = None
+    if path and not no_globbing:
+        components = [x for x in path.split("/") if x]
+        if len(components):
+            final_component = components[len(components)-1]
+            if "*" in final_component or "?" in final_component:
+                glob = final_component
+                path = "/" + "/".join(components[:-1])
 
     # if user passes in field name from text output, map it to a json key
     names_to_keys = {"Permissions": "permissions", "User": "user",
@@ -121,7 +141,10 @@ def ls_command(endpoint_plus_path, recursive_depth_limit,
     # get the `ls` result
     # note that `path` can be None
     res = _get_ls_res(client, path, endpoint_id, recursive,
-                      recursive_depth_limit, all, orderby)
+                      recursive_depth_limit, all, orderby, glob)
+
+    def cleaned_item_name(item):
+        return item['name'] + ('/' if item['type'] == 'dir' else '')
 
     # and then print it, per formatting rules
     formatted_print(
