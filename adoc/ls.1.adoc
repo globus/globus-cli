@@ -14,9 +14,10 @@ globus ls - List endpoint directory contents
 The *globus ls* command lists files and subdirectories on an endpoint. If no
 path is given, the default directory on that endpoint will be used.
 
-If using text output files and directories are printed with one entry per
-line in alphabetical order.  Directories are always displayed with a
-trailing '/'.
+POSIX style globbing using the wildcard characters ? (matches any single
+character) and * (matches any string, including the empty string) is allowed
+in the final component of the PATH. If you want to use literall * or ?
+characters, the --no-globbing option disables this feature.
 
 include::include/cli_autoactivate.adoc[]
 
@@ -38,12 +39,40 @@ the --recursive-depth-limit. Note that this can quickly become a very expensive
 operation and may take a significant amount of time to complete or even fail on
 rate limits.
 
-*--recursive-depth-limit*::
+*--recursive-depth-limit* INTEGER::
 
 Set the depth limit when using the --recursive option. Defaults to 3 if not
 given.
 
+*--orderby* FIELD::
+
+Order results by the given field name in ascending order. The field name
+may either be as shown with --long output (see OUTPUT), or a json key.
+
+*--no-globbing*::
+
+Disable globbing in the final component of the PATH, allowing * and ? to be
+used as literal characters instead of wildcards.
+
 include::include/common_options.adoc[]
+
+
+== OUTPUT
+
+If using text output files and directories are printed with one entry per
+line in alphabetical order.  Directories are always displayed with a
+trailing '/'.
+
+If using --long text output a table is shown with the following fields, any of
+which can be used as an argument to --orderby:
+
+- 'Permissions'
+- 'User'
+- 'Group'
+- 'Size'
+- 'Last Modified'
+- 'File Type'
+- 'Filename'
 
 
 == EXAMPLES
