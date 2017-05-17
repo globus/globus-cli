@@ -13,6 +13,7 @@ class EndpointPlusPath(click.ParamType):
     def __init__(self, *args, **kwargs):
         # path requirement defaults to True, but can be tweaked by a kwarg
         self.path_required = kwargs.pop('path_required', True)
+        self.prefix = kwargs.pop("prefix", "")
 
         super(EndpointPlusPath, self).__init__(*args, **kwargs)
 
@@ -31,9 +32,9 @@ class EndpointPlusPath(click.ParamType):
         https://github.com/pallets/click/issues/674
         """
         if self.path_required:
-            return "ENDPOINT_ID:PATH"
+            return "{}ENDPOINT_ID:{}PATH".format(self.prefix, self.prefix)
         else:
-            return "ENDPOINT_ID[:PATH]"
+            return "{}ENDPOINT_ID[:{}PATH]".format(self.prefix, self.prefix)
 
     def convert(self, value, param, ctx):
         """

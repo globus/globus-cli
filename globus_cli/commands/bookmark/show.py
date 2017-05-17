@@ -4,8 +4,7 @@ from globus_cli.parsing import common_options
 from globus_cli.safeio import formatted_print, FORMAT_TEXT_RECORD
 from globus_cli.helpers import is_verbose
 
-from globus_cli.services.transfer import get_client
-from globus_cli.commands.bookmark.helpers import resolve_id_or_name
+from globus_cli.helpers import resolve_bookmark_id_or_name
 
 
 @click.command(
@@ -17,8 +16,7 @@ def bookmark_show(bookmark_id_or_name):
     """
     Executor for `globus bookmark show`
     """
-    client = get_client()
-    res = resolve_id_or_name(client, bookmark_id_or_name)
+    res = resolve_bookmark_id_or_name(bookmark_id_or_name)
     formatted_print(
         res, text_format=FORMAT_TEXT_RECORD,
         fields=(('ID', 'id'), ('Name', 'name'),

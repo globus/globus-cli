@@ -4,6 +4,7 @@ from globus_cli.helpers.options import (
 from globus_cli.helpers.version import print_version
 from globus_cli.helpers.local_server import (
     start_local_server, is_remote_session, LocalServerError)
+from globus_cli.helpers.resolve_bookmark import resolve_bookmark_id_or_name
 from globus_cli.helpers.delegate_proxy import (
     fill_delegate_proxy_activation_requirements)
 
@@ -15,6 +16,7 @@ __all__ = [
     'get_jmespath_expression',
 
     "verbosity", "is_verbose",
+    "resolve_bookmark_id_or_name",
 
     'start_local_server', 'is_remote_session', 'LocalServerError',
 

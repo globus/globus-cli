@@ -1,5 +1,8 @@
 import click
 
+from globus_sdk.base import slash_join
+
+from globus_cli.helpers import resolve_bookmark_id_or_name
 from globus_cli.parsing.command_state import (
     format_option, debug_option, map_http_status_option,
     verbose_option, HiddenOption)
@@ -8,6 +11,7 @@ from globus_cli.parsing.case_insensitive_choice import CaseInsensitiveChoice
 from globus_cli.parsing.detect_and_decorate import detect_and_decorate
 from globus_cli.parsing.location import LocationType
 from globus_cli.parsing.iso_time import ISOTimeType
+from globus_cli.parsing.endpoint_plus_path import EndpointPlusPath
 
 
 def common_options(*args, **kwargs):
@@ -33,6 +37,7 @@ def common_options(*args, **kwargs):
         Work of actually decorating a function -- wrapped in here because we
         want to dispatch depending on how `common_options` is invoked
         """
+
         f = version_option(f)
         f = debug_option(f)
         f = verbose_option(f)
@@ -80,6 +85,112 @@ def endpoint_id_arg(*args, **kwargs):
         return f
 
     return detect_and_decorate(decorate, args, kwargs)
+
+
+def endpoint_plus_path_options(*args, **kwargs):
+    """
+    Adds the click options needed for an endpoint plus path.
+    Passes "path_required" in kwargs to the EndpointPlusPath object.
+    Takes a "prefix" in kwargs to differentiate between multiple inputs
+    """
+
+    def inner_decorator(f, **kwargs):
+        """
+        Adds an endpoint_plus_path of type EndpointPlusPath argument
+        and a mutually exclusive --bookmark / -b option.
+        Mutual exclusion handled in parse_endpoint_plus_path
+        """
+        path_required = kwargs.pop("path_required", False)
+        prefix = kwargs.pop("prefix", "")
+        EPP = EndpointPlusPath(path_required=path_required,
+                               prefix=prefix.upper() + "_" if prefix else "")
+
+        f = click.argument(
+                "{}endpoint_plus_path".format(prefix + "_" if prefix else ""),
+                required=False, type=EPP, metavar=EPP.metavar)(f)
+        f = click.option("-b" if not prefix else "--{}b".format(prefix[0]),
+                         "--{}bookmark".format(prefix + "-" if prefix else ""),
+                         metavar="BOOKMARK_ID_OR_NAME[:PATH]", help=(
+            "Give a bookmark ID or name to resolve to an endpoint and path "
+            "instead of passing the {} argument. Any additional PATH will be "
+            "relative to the bookmark's path.".format(EPP.metavar)))(f)
+
+        return f
+
+    return detect_and_decorate(inner_decorator, args, kwargs)
+
+
+def parse_endpoint_plus_path(endpoint_plus_path, bookmark,
+                             path_required=False, prefix=""):
+    """
+    Takes the values from the endpoint_plus_path_options and returns
+    a tuple of endpoint_id and path. Enforces mutually exclusive options.
+    """
+    metavar = EndpointPlusPath(
+        path_required=path_required,
+        prefix=prefix.upper() + "_" if prefix else "").metavar
+
+    # only one method of passing an endpoint plus path is allowed
+    if bookmark and endpoint_plus_path:
+        raise click.UsageError(
+            "Cannot use both the {} argument and the --{}bookmark option to "
+            "resolve an endpoint and path."
+            .format(metavar, prefix + "-" if prefix else ""))
+
+    elif endpoint_plus_path:
+        return endpoint_plus_path
+
+    elif bookmark:
+        splitval = bookmark.split(':', 1)
+        res = resolve_bookmark_id_or_name(splitval[0])
+        try:
+            extra_path = splitval[1]
+        except IndexError:
+            extra_path = ""
+
+        return (res["endpoint_id"], slash_join(res["path"], extra_path))
+
+    else:
+        raise click.UsageError(
+            "{}endpoint{} required, either give the {} argument, or use "
+            "the --{}bookmark option to resolve a bookmark."
+            .format(prefix + " " if prefix else "",
+                    " and path" if path_required else "", metavar,
+                    prefix + "-" if prefix else ""))
+
+
+def parse_source_and_dest_endpoint_plus_path(source_ep_pp, source_bookmark,
+                                             dest_ep_pp, dest_bookmark,
+                                             source_prefix="source",
+                                             dest_prefix="destination",
+                                             path_required=False):
+    """
+    Takes the values from two endpoint_plus_path_options with different
+    prefixes, and returns a tuple of two endpoint_ids and two paths.
+    Enforces mutually exclusive options, and handles logic for ambiguous
+    source/destination endpoint_plus_path arguments.
+    """
+    # the source_ep_pp is just the first endpoint_plus_path so if we have a
+    # source_ep_pp and a source_bookmark, but no destination_ep_pp or
+    # destination_bookmark, then the source_epp_pp is actually the dest_ep_pp
+    if source_ep_pp and source_bookmark and not (dest_ep_pp or dest_bookmark):
+
+        source_ep, source_path = parse_endpoint_plus_path(
+            None, source_bookmark, path_required=path_required,
+            prefix=source_prefix)
+        dest_ep, dest_path = parse_endpoint_plus_path(
+            source_ep_pp, dest_bookmark,
+            path_required=False, prefix=dest_prefix)
+
+    else:  # normal parsing
+        source_ep, source_path = parse_endpoint_plus_path(
+            source_ep_pp, source_bookmark,
+            path_required=False, prefix=source_prefix)
+        dest_ep, dest_path = parse_endpoint_plus_path(
+            dest_ep_pp, dest_bookmark,
+            path_required=False, prefix=dest_prefix)
+
+    return (source_ep, source_path, dest_ep, dest_path)
 
 
 def endpoint_create_and_update_params(*args, **kwargs):

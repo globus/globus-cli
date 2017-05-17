@@ -2,14 +2,15 @@ from uuid import UUID
 
 import click
 from globus_sdk.exc import TransferAPIError
-
+from globus_cli.services.transfer import get_client
 from globus_cli.safeio import safeprint
 
 
-def resolve_id_or_name(client, bookmark_id_or_name):
+def resolve_bookmark_id_or_name(bookmark_id_or_name):
     # leading/trailing whitespace doesn't make sense for UUIDs and the Transfer
     # service outright forbids it for bookmark names, so we can strip it off
     bookmark_id_or_name = bookmark_id_or_name.strip()
+    client = get_client()
 
     res = None
     try:
