@@ -4,7 +4,8 @@ from globus_sdk import TransferData
 
 from globus_cli.parsing import (
     CaseInsensitiveChoice, common_options, task_submission_options,
-    TaskPath, ENDPOINT_PLUS_OPTPATH, shlex_process_stdin)
+    TaskPath, shlex_process_stdin, endpoint_plus_path_options,
+    parse_source_and_dest_endpoint_plus_path)
 from globus_cli.safeio import formatted_print, FORMAT_TEXT_RECORD
 
 from globus_cli.services.transfer import get_client, autoactivate
@@ -88,18 +89,20 @@ from globus_cli.services.transfer import get_client, autoactivate
                     'Uses SOURCE_ENDPOINT_ID and DEST_ENDPOINT_ID as passed '
                     'on the commandline. Commandline paths are still allowed '
                     'and are used as prefixes to the batchmode inputs.'))
-@click.argument('source', metavar='SOURCE_ENDPOINT_ID[:SOURCE_PATH]',
-                type=ENDPOINT_PLUS_OPTPATH)
-@click.argument('destination', metavar='DEST_ENDPOINT_ID[:DEST_PATH]',
-                type=ENDPOINT_PLUS_OPTPATH)
-def transfer_command(batch, sync_level, recursive, destination, source, label,
+@endpoint_plus_path_options(path_required=False, prefix="source")
+@endpoint_plus_path_options(path_required=False, prefix="destination")
+def transfer_command(batch, sync_level, recursive, label,
+                     source_endpoint_plus_path, source_bookmark,
+                     destination_endpoint_plus_path, destination_bookmark,
                      preserve_mtime, verify_checksum, encrypt, submission_id,
                      dry_run, delete, deadline):
     """
     Executor for `globus transfer`
     """
-    source_endpoint, cmd_source_path = source
-    dest_endpoint, cmd_dest_path = destination
+    source_endpoint, cmd_source_path, dest_endpoint, cmd_dest_path = (
+        parse_source_and_dest_endpoint_plus_path(
+            source_endpoint_plus_path, source_bookmark,
+            destination_endpoint_plus_path, destination_bookmark))
 
     if recursive and batch:
         raise click.UsageError(

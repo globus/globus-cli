@@ -4,8 +4,8 @@ from globus_sdk import DeleteData
 
 
 from globus_cli.parsing import (
-    common_options, task_submission_options, TaskPath, ENDPOINT_PLUS_OPTPATH,
-    shlex_process_stdin)
+    common_options, task_submission_options, TaskPath, shlex_process_stdin,
+    endpoint_plus_path_options, parse_endpoint_plus_path)
 from globus_cli.safeio import formatted_print, FORMAT_TEXT_RECORD
 
 from globus_cli.services.transfer import get_client, autoactivate
@@ -25,14 +25,15 @@ from globus_cli.services.transfer import get_client, autoactivate
                     'batchmode). Uses ENDPOINT_ID as passed on the '
                     'commandline. Any commandline PATH given will be used as '
                     'a prefix to all paths given'))
-@click.argument('endpoint_plus_path', metavar=ENDPOINT_PLUS_OPTPATH.metavar,
-                type=ENDPOINT_PLUS_OPTPATH)
+@endpoint_plus_path_options(path_required=False)
 def delete_command(batch, ignore_missing, recursive, endpoint_plus_path,
-                   label, submission_id, dry_run, deadline):
+                   bookmark, label, submission_id, dry_run, deadline):
     """
     Executor for `globus delete`
     """
-    endpoint_id, path = endpoint_plus_path
+    endpoint_id, path = parse_endpoint_plus_path(
+        endpoint_plus_path, bookmark, path_required=False)
+
     if path is None and (not batch):
         raise click.UsageError(
             'delete requires either a PATH OR --batch')
