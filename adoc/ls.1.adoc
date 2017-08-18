@@ -45,6 +45,11 @@ given.
 
 include::include/common_options.adoc[]
 
+*--follow-symlinks*::
+
+During recursive listings follow symlinks to directories and continue
+the recursive listing within the linked directory. If links form a cycle
+the cycle will be followed until the recursive-depth-limit is reached.
 
 == EXAMPLES
 

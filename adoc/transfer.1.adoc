@@ -70,6 +70,22 @@ of all files and directories inside of the source directory to the destination
 directory. Note that for batch input, each directory must be marked as
 recursive individually unlike 'globus delete'.
 
+*--symlink*::
+
+Keep the symlink at SOURCE_PATH as a symlink, and create it on the destination
+endpoint. Mutually exclusive with --recursive.
+
+*--recursive-symlinks [keep|copy|ignore]*::
+
+Choose how transfer task will handle symlinks on source endpoint
+during recursive transfers. Defaults to ignore.
++
+*keep* will create symlinks on the destination.
++
+*copy* will copy all data symlinks point to to the destination endpoint.
++
+*ignore* will skip all symlinks.
+
 *-s, --sync-level [exists|size|mtime|checksum]*::
 
 Set the level at which the transfer task will decide to replace a file at the
@@ -145,5 +161,23 @@ $ globus transfer $source_ep $dest_ep --batch
 <EOF>
 ----
 
+Transfer the symlink at /path/to/symlink as a symlink rather than transferring
+the contents of the directory it links to.
+
+----
+$ source_ep=ddb59aef-6d04-11e5-ba46-22000b92c6ec
+$ dest_ep=ddb59af0-6d04-11e5-ba46-22000b92c6ec
+$ globus transfer $source_ep:/path/to/symlink $dest_ep:~/symlink --symlink
+----
+
+Recursively transfer the contents of the directory linked to by the symlink
+at /path/to/symlink to the destination endpoint's home directory while keeping
+any further symlinks as symlinks on the destination endpoint.
+
+----
+$ source_ep=ddb59aef-6d04-11e5-ba46-22000b92c6ec
+$ dest_ep=ddb59af0-6d04-11e5-ba46-22000b92c6ec
+$ globus transfer $source_ep:/path/to/symlink $dest_ep:~/ --recursive --recursive-symlinks keep
+----
 
 include::include/exit_status.adoc[]

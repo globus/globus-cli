@@ -1,0 +1,37 @@
+= GLOBUS SYMLINK(1)
+
+== NAME
+
+globus symlink - Create a symlink on target endpoint
+
+== SYNOPSIS
+
+*globus symlink* ['OPTIONS'] 'ENDPOINT_ID:TARGET_PATH' 'ENDPOINT_ID:LINK_PATH'
+
+== DESCRIPTION
+
+The *globus symlink* command creates a symbolic link at a given target path
+to a given link path on an endpoint.
+
+If no file or directory exists at the link path the symlink will still be
+created at the target path, but it will be an invalid symlink.
+
+The target path must not yet exist, and both paths must be on the same file
+system.
+
+The endpoint must be entered twice for the sake of path syntax consistency.
+
+== OPTIONS
+
+include::include/common_options.adoc[]
+
+== EXAMPLES
+
+Create a symlink to /share in the user's home directory:
+
+----
+$ ep_id=ddb59aef-6d04-11e5-ba46-22000b92c6ec
+$ globus symlink $ep_id:~/link $ep_id:/share
+----
+
+include::include/exit_status.adoc[]
