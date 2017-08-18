@@ -24,7 +24,7 @@ class RecursiveLsResponse(PaginatedResource):
     Rate limits calls to prevent getting back connection errors.
     """
     def __init__(self, client, endpoint_id,
-                 max_depth, filter_after_first, ls_params):
+                 max_depth, follow_symlinks, filter_after_first, ls_params):
         """
         **Parameters**
           ``client``
@@ -49,6 +49,7 @@ class RecursiveLsResponse(PaginatedResource):
         self.ls_params = ls_params
         self.max_depth = max_depth
         self.filter_after_first = filter_after_first
+        self.follow_symlinks = follow_symlinks
         self.filtering = True
         self.ls_count = 0
 
@@ -116,14 +117,22 @@ class RecursiveLsResponse(PaginatedResource):
 
             # if we aren't at the depth limit, add dir entries to the queue.
             # including the dir's name in the absolute and relative paths
-            # and increase the depth by one.
+            # and increasing the depth by one.
             # data is reversed to maintain any "orderby" ordering
+            # syminks to dirs are ignored unless follow_symlinks is true
             if depth < self.max_depth:
-                self.queue.extend(
-                    [(res["path"] + item["name"],
-                      (rel_path + "/" if rel_path else "") + item["name"],
-                      depth + 1)
-                     for item in reversed(res_data) if item["type"] == "dir"])
+
+                for item in reversed(res_data):
+
+                    if item["type"] == "dir" and (
+                            self.follow_symlinks or not item["link_target"]):
+
+                        next_abs_path = res["path"] + item["name"]
+                        next_rel_path = (
+                            rel_path + "/" if rel_path else "") + item["name"]
+
+                        self.queue.append((
+                            next_abs_path, next_rel_path, depth + 1))
 
             # for each item in the response data update the item's name with
             # the relative path popped from the queue, and yield the item

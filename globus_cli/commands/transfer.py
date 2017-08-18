@@ -65,8 +65,13 @@ from globus_cli.services.transfer import get_client, autoactivate
 @common_options
 @task_submission_options
 @click.option('--recursive', '-r', is_flag=True,
-              help=('SOURCE_PATH and DEST_PATH are both directories, do a '
-                    'recursive dir transfer'))
+              help=('if SOURCE_PATH and DEST_PATH are both directories, do a '
+                    'recursive dir transfer. Mutually exclusive with '
+                    '--symlink'))
+@click.option("--symlink", is_flag=True,
+              help=("Transfer SOURCE_PATH as a symlink, rather than as the "
+                    "target of a symlink. Mutually exclusive with "
+                    "--recursive."))
 @click.option('--sync-level', '-s', default=None, show_default=True,
               type=CaseInsensitiveChoice(
                   ("exists", "size", "mtime", "checksum")),
@@ -82,6 +87,12 @@ from globus_cli.services.transfer import get_client, autoactivate
 @click.option('--delete', is_flag=True, default=False,
               help=('Delete extraneous files in the destination directory. '
                     'Only applies to recursive directory transfers.'))
+@click.option("--recursive-symlinks", default="ignore",
+              type=click.Choice(["keep", "copy", "ignore"]),
+              help=("Choose how to handle symlinks during recursive "
+                    "transfers. `keep` will create symlinks on the "
+                    "destination. `copy` will copy the data symlinks point "
+                    "to. ignore will skip all symlinks."))
 @click.option('--batch', is_flag=True,
               help=('Accept a batch of source/dest path pairs on stdin (i.e. '
                     'run in batchmode). '
@@ -94,7 +105,7 @@ from globus_cli.services.transfer import get_client, autoactivate
                 type=ENDPOINT_PLUS_OPTPATH)
 def transfer_command(batch, sync_level, recursive, destination, source, label,
                      preserve_mtime, verify_checksum, encrypt, submission_id,
-                     dry_run, delete, deadline):
+                     dry_run, delete, deadline, symlink, recursive_symlinks):
     """
     Executor for `globus transfer`
     """
@@ -105,7 +116,17 @@ def transfer_command(batch, sync_level, recursive, destination, source, label,
         raise click.UsageError(
             ('You cannot use --recursive in addition to --batch. '
              'Instead, use --recursive on lines of --batch input '
-             'which need it'))
+             'which need it.'))
+
+    if symlink and batch:
+        raise click.UsageError(
+            ("You cannot use --symlink in addition to --batch. "
+             "Instead, use --symlink on lines of --batch input "
+             "which need it."))
+
+    if symlink and recursive:
+        raise click.UsageError(
+            "--symlink and --recursive are mutually exclusive.")
 
     if (cmd_source_path is None or cmd_dest_path is None) and (not batch):
         raise click.UsageError(
@@ -118,35 +139,54 @@ def transfer_command(batch, sync_level, recursive, destination, source, label,
         label=label, sync_level=sync_level, verify_checksum=verify_checksum,
         preserve_timestamp=preserve_mtime, encrypt_data=encrypt,
         submission_id=submission_id, delete_destination_extra=delete,
-        deadline=deadline)
+        deadline=deadline, recursive_symlinks=recursive_symlinks)
 
     if batch:
         @click.command()
         @click.option('--recursive', '-r', is_flag=True)
+        @click.option("--symlink", is_flag=True)
         @click.argument('source_path', type=TaskPath(base_dir=cmd_source_path))
         @click.argument('dest_path', type=TaskPath(base_dir=cmd_dest_path))
-        def process_batch_line(dest_path, source_path, recursive):
+        def process_batch_line(dest_path, source_path, recursive, symlink):
             """
             Parse a line of batch input and turn it into a transfer submission
             item.
             """
-            transfer_data.add_item(str(source_path), str(dest_path),
-                                   recursive=recursive)
+            if symlink and recursive:
+                raise click.UsageError(
+                    "--symlink and --recursive are mutually exclusive.")
+            if symlink:
+                transfer_data.add_symlink_item(str(source_path),
+                                               str(dest_path))
+            else:
+                transfer_data.add_item(str(source_path), str(dest_path),
+                                       recursive=recursive)
 
         shlex_process_stdin(
             process_batch_line,
             ('Enter transfers, line by line, as\n\n'
              '    [--recursive] SOURCE_PATH DEST_PATH\n'))
+    elif symlink:
+        transfer_data.add_symlink_item(cmd_source_path, cmd_dest_path)
     else:
         transfer_data.add_item(cmd_source_path, cmd_dest_path,
                                recursive=recursive)
+
+    # not all items are guaranteed to have a recursive field
+    def _recursive(item):
+        return str(bool(item.get("recursive")))
+
+    # determine if symlink based on DATA_TYPE
+    def _is_symlink(item):
+        return str(item["DATA_TYPE"] == "transfer_symlink_item")
 
     if dry_run:
         formatted_print(
             transfer_data, response_key='DATA',
             fields=(('Source Path', 'source_path'),
                     ('Dest Path', 'destination_path'),
-                    ('Recursive', 'recursive')))
+                    ('Recursive', _recursive),
+                    ('Symlink', _is_symlink)))
         # exit safely
         return
 

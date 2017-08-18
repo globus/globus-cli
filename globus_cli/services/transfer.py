@@ -64,7 +64,8 @@ class RetryingTransferClient(TransferClient):
 
     # TDOD: Remove this function when endpoints natively support recursive ls
     def recursive_operation_ls(self, endpoint_id,
-                               depth=3, filter_after_first=True, **params):
+                               depth=3, follow_symlinks=False,
+                               filter_after_first=True, **params):
         """
         Makes recursive calls to ``GET /operation/endpoint/<endpoint_id>/ls``
         Does not preserve access to top level operation_ls fields, but
@@ -98,8 +99,8 @@ class RetryingTransferClient(TransferClient):
         endpoint_id = safe_stringify(endpoint_id)
         self.logger.info("TransferClient.recursive_operation_ls({}, {}, {})"
                          .format(endpoint_id, depth, params))
-        return RecursiveLsResponse(self, endpoint_id,
-                                   depth, filter_after_first, params)
+        return RecursiveLsResponse(self, endpoint_id, depth, follow_symlinks,
+                                   filter_after_first, params)
 
 
 def _update_access_tokens(token_response):

@@ -15,6 +15,7 @@ from globus_cli.commands.delete import delete_command
 from globus_cli.commands.transfer import transfer_command
 from globus_cli.commands.mkdir import mkdir_command
 from globus_cli.commands.rename import rename_command
+from globus_cli.commands.symlink import symlink_command
 
 from globus_cli.commands.endpoint import endpoint_command
 from globus_cli.commands.bookmark import bookmark_command
@@ -41,6 +42,7 @@ main.add_command(mkdir_command)
 main.add_command(rename_command)
 main.add_command(delete_command)
 main.add_command(transfer_command)
+main.add_command(symlink_command)
 
 main.add_command(endpoint_command)
 main.add_command(bookmark_command)

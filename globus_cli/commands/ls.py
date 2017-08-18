@@ -25,11 +25,18 @@ from globus_cli.services.transfer import (
               help=('Limit to number of directories to traverse in '
                     '`--recursive` listings. A value of 0 indicates that '
                     'this should behave like a non-recursive `ls`'))
+@click.option("--follow-symlinks", is_flag=True, show_default=True,
+              help="Follow directory symlinks during recursive listings.")
 def ls_command(endpoint_plus_path, recursive_depth_limit,
-               recursive, long, all):
+               recursive, long, all, follow_symlinks):
     """
     Executor for `globus ls`
     """
+    # validate options
+    if follow_symlinks and not recursive:
+        raise click.UsageError(("Cannot --follow-symlinks during "
+                                "non --recursive listings"))
+
     endpoint_id, path = endpoint_plus_path
 
     # do autoactivation before the `ls` call so that recursive invocations
@@ -45,9 +52,22 @@ def ls_command(endpoint_plus_path, recursive_depth_limit,
     # get the `ls` result
     if recursive:
         res = client.recursive_operation_ls(
-            endpoint_id, depth=recursive_depth_limit, **ls_params)
+            endpoint_id, depth=recursive_depth_limit,
+            follow_symlinks=follow_symlinks, **ls_params)
     else:
         res = client.operation_ls(endpoint_id, **ls_params)
+
+    def long_item_name(item):
+        if item["link_target"]:
+            return cleaned_item_name(item) + " -> " + item["link_target"]
+        else:
+            return cleaned_item_name(item)
+
+    def long_item_type(item):
+        if item["link_target"] and item["type"] != "invalid_symlink":
+            return item["type"] + " (symlink)"
+        else:
+            return item["type"]
 
     def cleaned_item_name(item):
         return item['name'] + ('/' if item['type'] == 'dir' else '')
@@ -56,8 +76,9 @@ def ls_command(endpoint_plus_path, recursive_depth_limit,
     formatted_print(
         res, fields=[('Permissions', 'permissions'), ('User', 'user'),
                      ('Group', 'group'), ('Size', 'size'),
-                     ('Last Modified', 'last_modified'), ('File Type', 'type'),
-                     ('Filename', cleaned_item_name)],
+                     ('Last Modified', 'last_modified'),
+                     ('File Type', long_item_type),
+                     ('Filename', long_item_name)],
         simple_text=(None if long or is_verbose() or outformat_is_json() else
                      "\n".join(cleaned_item_name(x) for x in res)),
         json_converter=iterable_response_to_dict)

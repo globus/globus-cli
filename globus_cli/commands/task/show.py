@@ -46,6 +46,7 @@ TRANSFER_FIELDS = [
     ('Destination Endpoint ID', 'destination_endpoint_id'),
     ('Bytes Transferred', 'bytes_transferred'),
     ('Bytes Per Second', 'effective_bytes_per_second'),
+    ('Symlinks', 'symlinks'), ('Recursive Symlinks', 'recursive_symlinks')
 ]
 
 SUCCESSFULL_TRANSFER_FIELDS = [
