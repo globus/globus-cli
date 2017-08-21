@@ -24,12 +24,12 @@ consistent, deterministic location.  The contents of a source directory will
 be placed inside the dest directory.  A source file will be copied to
 the dest file path, which must not be an existing  directory.  All
 intermediate / parent directories on the dest will be automatically
-created if they don't exist. 
+created if they don't exist.
 
-If the files or directories given as input are symbolic links, they are
-followed.  However, no other symbolic links are followed and no symbolic links
-are ever created on the dest.  
-
+By default, if the file or directory at SOURCE_PATH is a symbolic link, it is
+followed, and no other symbolic links are followed, transfered, or created on
+the destination endpoint. This behavior can be changed with the '--symlink' and
+'--recursive-symlinks' options.
 
 include::include/cli_autoactivate.adoc[]
 
@@ -37,22 +37,29 @@ include::include/cli_autoactivate.adoc[]
 == Batch Input
 
 If you use SOURCE_PATH and DEST_PATH without the --batch flag, you
-will submit a single-file or single-directory transfer task. This has
-behavior similar to 'cp' and 'cp -r' across endpoints.
+will submit a single-item transfer task. This has behavior similar to
+'cp' across endpoints.
 
 Using '--batch', *globus transfer* can submit a task which transfers
-multiple files or directories. Paths to transfer are taken from stdin.
+multiple files directories or symlinks. Paths to transfer are taken from stdin.
 Lines are split on spaces, respecting quotes, and every line is treated as
-a file or directory to transfer.
+a separate item to transfer.
 
 Lines are of the form
-[--recursive] SOURCE_PATH DEST_PATH
-
+[--recursive] [--symlink] SOURCE_PATH DEST_PATH
 Empty lines and comments beginning with '#' are ignored.
 
-Batch only requires a SOURCE_ENDPOINT and a DEST_ENDPOINT before passing lines,
-on stdin, but if you pass SOURCE_PATH and/or DEST_PATH in the original command,
-these paths will be used as prefixes to their respective paths on stdin.
+'--recursive' and '--symlink' are mutually exclusive options that tell transfer
+to treat SOURCE_PATH as a dir to be transfered recursively, or a symlink that
+should be transfered as is rather than followed, respectively.
+Please note that these options cannot be used with the the command level
+'--recursive' and '--symlink' options despite sharing names and behavior, as
+the command level options are mutually exclusive with batch input.
+
+Batch only requires a SOURCE_ENDPOINT and a DEST_ENDPOINT with the original
+command before passing lines on stdin, but if you pass SOURCE_PATH and/or
+DEST_PATH in the original command, these paths will be used as prefixes to
+their respective paths on stdin.
 
 
 == OPTIONS
@@ -60,27 +67,33 @@ these paths will be used as prefixes to their respective paths on stdin.
 *--batch*::
 
 Starts batch mode input for transfers, which takes lines in the form 
-[--recursive] SOURCE_PATH DEST_PATH from stdin to transfer multiple
-files and/or directories. See "Batch Input" above for more information.
+[--recursive] [--symlink] SOURCE_PATH DEST_PATH from stdin to transfer multiple
+files, directories, and/or symlinks. See "Batch Input" above for more
+information.
 
 *-r, --recursive*::
 
 If SOURCE_PATH and DEST_PATH are both directories, do a recursive transfer
 of all files and directories inside of the source directory to the destination
-directory. Note that for batch input, each directory must be marked as
-recursive individually unlike 'globus delete'.
+directory. For batch input each directory must use the '--recursive' option at
+the batch level, as this option is mutually exclusive with
+'--batch' at the command level. This option is also mutually
+exclusive with '--symlink'.
 
 *--symlink*::
 
 Keep the symlink at SOURCE_PATH as a symlink, and create it on the destination
-endpoint. Mutually exclusive with --recursive.
+endpoint. For batch input each symlink to be treated this way must use the
+'--symlink' option at the batch level, as this option is mutually exclusive
+with '--batch' at the command level. This option is also mutually
+exclusive with '--recursive'.
 
 *--recursive-symlinks [keep|copy|ignore]*::
 
 Choose how transfer task will handle symlinks on source endpoint
 during recursive transfers. Defaults to ignore.
 +
-*keep* will create symlinks on the destination.
+*keep* will create the symlinks on the destination endpoint.
 +
 *copy* will copy all data symlinks point to to the destination endpoint.
 +
@@ -89,7 +102,8 @@ during recursive transfers. Defaults to ignore.
 *-s, --sync-level [exists|size|mtime|checksum]*::
 
 Set the level at which the transfer task will decide to replace a file at the
-destination with a file at the source with the same name. If not set, 
+destination with a file at the source with the same name. If not set, files
+at the destination will be replaced by default.
 +
 *exists* will only copy files that do not exist at the destination
 +
@@ -148,7 +162,16 @@ $ dest_ep=ddb59af0-6d04-11e5-ba46-22000b92c6ec
 $ globus transfer $source_ep:/share/godata/ $dest_ep:~/mynewdir/ --recursive
 ----
 
-Use the batch input method to transfer multiple files and or dirs:
+Transfer a symlink at /path/to/symlink as a symlink rather than transferring
+the file or directory it links to.
+
+----
+$ source_ep=ddb59aef-6d04-11e5-ba46-22000b92c6ec
+$ dest_ep=ddb59af0-6d04-11e5-ba46-22000b92c6ec
+$ globus transfer $source_ep:/path/to/symlink $dest_ep:~/symlink --symlink
+----
+
+Use the batch input method to transfer multiple files dirs and/or symlinks:
 
 ----
 $ source_ep=ddb59aef-6d04-11e5-ba46-22000b92c6ec
@@ -158,19 +181,13 @@ $ globus transfer $source_ep $dest_ep --batch
 /share/godata/file2.txt ~/myfile2.txt
 /share/godata/file3.txt ~/myfile3.txt
 /share/godata ~/mygodatadir -r
+# the line bellow transfers the symlink as a symlink
+# rather than transfering the target of the symlink
+/share/symlinks/symlink ~/mysymlink --symlink
 <EOF>
 ----
 
-Transfer the symlink at /path/to/symlink as a symlink rather than transferring
-the contents of the directory it links to.
-
-----
-$ source_ep=ddb59aef-6d04-11e5-ba46-22000b92c6ec
-$ dest_ep=ddb59af0-6d04-11e5-ba46-22000b92c6ec
-$ globus transfer $source_ep:/path/to/symlink $dest_ep:~/symlink --symlink
-----
-
-Recursively transfer the contents of the directory linked to by the symlink
+Recursively transfer the contents of a directory linked to by the symlink
 at /path/to/symlink to the destination endpoint's home directory while keeping
 any further symlinks as symlinks on the destination endpoint.
 

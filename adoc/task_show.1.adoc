@@ -59,6 +59,8 @@ All of the following which apply will be shown:
 - 'Subtasks Failed'
 - 'Subtasks Canceled'
 - 'Subtasks Expired'
+- 'Symlinks'
+- 'Recursive Symlinks'
 
 If *--successful-transfers* is given, the following fields are used:
 
