@@ -75,18 +75,14 @@ information.
 
 If SOURCE_PATH and DEST_PATH are both directories, do a recursive transfer
 of all files and directories inside of the source directory to the destination
-directory. For batch input each directory must use the '--recursive' option at
-the batch level, as this option is mutually exclusive with
-'--batch' at the command level. This option is also mutually
-exclusive with '--symlink'.
+directory. This option is mutually exclusive with '--symlink' and '--batch'.
+For recursively transferring lines of batch input, see "Batch Input" above.
 
 *--symlink*::
 
 Keep the symlink at SOURCE_PATH as a symlink, and create it on the destination
-endpoint. For batch input each symlink to be treated this way must use the
-'--symlink' option at the batch level, as this option is mutually exclusive
-with '--batch' at the command level. This option is also mutually
-exclusive with '--recursive'.
+endpoint. This option is mutually exclusive with '--recursive' and '--batch'.
+For transferring lines of batch input as symlinks, see "Batch Input" above.
 
 *--recursive-symlinks [keep|copy|ignore]*::
 
