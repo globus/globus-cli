@@ -50,6 +50,7 @@ setup(
             # not just py2: py3 versions of mock don't all have the same
             # interface!
             'mock==2.0.0;python_version<"3.6"',
+            "tox<4",
         ],
     },
     entry_points={"console_scripts": ["globus = globus_cli:main"]},
