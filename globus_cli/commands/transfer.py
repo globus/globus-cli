@@ -193,6 +193,18 @@ fi
         "during the transfer."
     ),
 )
+@click.option(
+    "--exclude",
+    multiple=True,
+    default=None,
+    show_default=True,
+    help=(
+        "Exclude files and directories found with names that match the given "
+        "pattern in recursive transfers. Pattern may include * ? or [] for "
+        "unix style globbing. Give this option multiple times to exclude "
+        "multiple patterns."
+    ),
+)
 @click.argument(
     "source", metavar="SOURCE_ENDPOINT_ID[:SOURCE_PATH]", type=ENDPOINT_PLUS_OPTPATH
 )
@@ -213,6 +225,7 @@ def transfer_command(
     external_checksum,
     skip_source_errors,
     fail_on_quota_errors,
+    exclude,
     label,
     preserve_mtime,
     verify_checksum,
@@ -339,6 +352,14 @@ def transfer_command(
     kwargs.update(perf_opts)
     kwargs.update(notify)
 
+    def _make_exclude_rule(name_pattern):
+        return {"DATA_TYPE": "filter_rule", "method": "exclude", "name": name_pattern}
+
+    if exclude:
+        filter_rules = [_make_exclude_rule(s) for s in exclude]
+    else:
+        filter_rules = None
+
     client = get_client()
     transfer_data = TransferData(
         client,
@@ -355,6 +376,7 @@ def transfer_command(
         skip_activation_check=skip_activation_check,
         skip_source_errors=skip_source_errors,
         fail_on_quota_errors=fail_on_quota_errors,
+        filter_rules=filter_rules,
         **kwargs
     )
 
@@ -374,6 +396,7 @@ def transfer_command(
                 raise click.UsageError(
                     "--recursive and --external-checksum are mutually exclusive"
                 )
+
             transfer_data.add_item(
                 str(source_path),
                 str(dest_path),
@@ -397,6 +420,16 @@ def transfer_command(
             checksum_algorithm=checksum_algorithm,
             recursive=recursive,
         )
+
+    for item in transfer_data["DATA"]:
+        if item["recursive"]:
+            has_recursive_items = True
+            break
+    else:
+        has_recursive_items = False
+
+    if exclude and not has_recursive_items:
+        raise click.UsageError("--exclude can only be used with --recursive transfers")
 
     if dry_run:
         formatted_print(
