@@ -31,5 +31,10 @@ jobs:
         # only lint on 3.9 for faster overall runs
         if: ${{ matrix.python-version == '3.9' }}
         run: python -m tox -e lint
+      - name: Test reference docs generation
+        # make sure this does not fail, only on linux 3.9
+        # because that's the build environment used (i.e. the one which really matters)
+        if: ${{ matrix.python-version == '3.9' && matrix.os == 'ubuntu-latest' }}
+        run: python -m tox -e reference
       - name: Run Tests
         run: python -m tox -e py
