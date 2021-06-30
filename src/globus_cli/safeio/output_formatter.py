@@ -195,11 +195,11 @@ def print_table(iterable, fields, print_headers=True):
 
     # print headers
     if print_headers:
-        click.echo(format_str.format(*[h for h in headers]))
-        click.echo(format_str.format(*["-" * w for w in widths]))
+        click.echo(format_str.format(*(h for h in headers)))
+        click.echo(format_str.format(*("-" * w for w in widths)))
     # print the rows of data
     for i in iterable:
-        click.echo(format_str.format(*[none_to_null(f(i)) for f in fields]))
+        click.echo(format_str.format(*(none_to_null(f(i)) for f in fields)))
 
 
 def formatted_print(

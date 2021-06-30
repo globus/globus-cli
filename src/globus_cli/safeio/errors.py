@@ -31,7 +31,7 @@ class PrintableErrorField:
         """
         name = self.name + ":"
         if not self.multiline or "\n" not in val:
-            val = "{} {}".format(name.ljust(self._text_prefix_len), val)
+            val = f"{name.ljust(self._text_prefix_len)} {val}"
         else:
             spacer = "\n" + " " * (self._text_prefix_len + 1)
             val = "{}{}{}".format(name, spacer, spacer.join(val.split("\n")))

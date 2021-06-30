@@ -110,7 +110,7 @@ class TaskPath(click.ParamType):
     def __repr__(self):
         return "TaskPath({})".format(
             ",".join(
-                "{}={}".format(name, getattr(self, name))
+                f"{name}={getattr(self, name)}"
                 for name in (
                     "base_dir",
                     "coerce_to_dir",

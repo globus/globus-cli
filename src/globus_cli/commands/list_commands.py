@@ -43,8 +43,7 @@ def list_commands():
         # names so that they form a nice column
         else:
             click.echo(
-                " " * indent
-                + "{}{}".format(command.name.ljust(_command_length), short_help)
+                " " * indent + f"{command.name.ljust(_command_length)}{short_help}"
             )
 
     def _print_cmd_group(command, parent_names):
