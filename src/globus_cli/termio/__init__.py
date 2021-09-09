@@ -21,6 +21,7 @@ from .output_formatter import (
     FormatField,
     formatted_print,
 )
+from .shell_completion import print_completion as print_experimental_completion
 
 
 def print_command_hint(message):
@@ -52,4 +53,5 @@ __all__ = [
     "get_jmespath_expression",
     "verbosity",
     "is_verbose",
+    "print_experimental_completion",
 ]

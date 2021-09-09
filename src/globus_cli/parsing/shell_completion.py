@@ -2,6 +2,8 @@ import os
 
 import click
 
+from globus_cli.termio import print_experimental_completion
+
 # pulled by running `_GLOBUS_COMPLETE=source globus` in a bash shell
 BASH_SHELL_COMPLETER = r"""
 _globus_completion() {
@@ -110,4 +112,25 @@ def print_completer_option(f):
     f = _compopt("--completer", "auto")(f)
     f = _compopt("--bash-completer", "BASH")(f)
     f = _compopt("--zsh-completer", "ZSH")(f)
+
+    def experimental_callback(ctx, param, value):
+        if not value or ctx.resilient_parsing:
+            return
+        shell = value if value != "auto" else None
+        print_experimental_completion(shell)
+        click.get_current_context().exit(0)
+
+    def experimental_compopt(flag, value):
+        return click.option(
+            flag,
+            hidden=True,
+            is_eager=True,
+            expose_value=False,
+            flag_value=value,
+            callback=experimental_callback,
+        )
+
+    f = experimental_compopt("--experimental-completer", "auto")(f)
+    f = experimental_compopt("--experimental-zsh-completer", "zsh")(f)
+    f = experimental_compopt("--experimental-bash-completer", "bash")(f)
     return f
