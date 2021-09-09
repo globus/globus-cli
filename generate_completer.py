@@ -1,16 +1,16 @@
 #!/usr/bin/env python3
 """completion generator for globus-cli"""
 import contextlib
+import os
 import re
 import sys
-import textwrap
 
 import click
 from pkg_resources import load_entry_point
 
 CLI = load_entry_point("globus-cli", "console_scripts", "globus")
 
-_ZSH_HELP_ESC_RE = re.compile(r'([":\[\]])')
+_ZSH_HELP_ESC_RE = re.compile(r'([`":\[\]])')
 
 
 def walk_contexts(name="globus", cmd=CLI, parent_ctx=None):
@@ -73,146 +73,141 @@ class Completer:
 
 
 class BashCompleter(Completer):
-    PROLOGUE = textwrap.dedent(
-        """
-        declare -A __globus_comp_subcmds
-        declare -A __globus_comp_opts
-        declare -A __globus_comp_opt_nargs
-        declare -A __globus_comp_slamopts
-        declare -A __globus_comp_opt_choices
-        """
-    )
+    PROLOGUE = """\
+declare -A __globus_comp_subcmds
+declare -A __globus_comp_opts
+declare -A __globus_comp_opt_nargs
+declare -A __globus_comp_slamopts
+declare -A __globus_comp_opt_choices
+"""
 
-    EPILOGUE = textwrap.dedent(
-        """\
-        __globus_comp_parse_line() {
-          local compword
-          compword="${COMP_WORDS[$COMP_CWORD]}"
+    EPILOGUE = """
+__globus_comp_parse_line() {
+  local compword
+  compword="${COMP_WORDS[$COMP_CWORD]}"
 
-          local boundary
-          boundary=$((${#COMP_WORDS[@]} - 2))
+  local boundary
+  boundary=$((${#COMP_WORDS[@]} - 2))
 
-          local i=0 toskip=0
-          local curopt="" nomoreopts=0
-          local curcmd=${COMP_WORDS[0]} curword=${COMP_WORDS[0]}
-          while [ $i -lt $boundary ]; do
-            _=$((i++))
-            curword=${COMP_WORDS[$i]}
+  local i=0 toskip=0
+  local curopt="" nomoreopts=0
+  local curcmd=${COMP_WORDS[0]} curword=${COMP_WORDS[0]}
+  while [ $i -lt $boundary ]; do
+    _=$((i++))
+    curword=${COMP_WORDS[$i]}
 
-            if [ "$curword" = "--" ]; then
-              curopt=""
-              nomoreopts=1
-              continue
-            fi
+    if [ "$curword" = "--" ]; then
+      curopt=""
+      nomoreopts=1
+      continue
+    fi
 
-            if [ $toskip -gt 0 ]; then
-              _=$((toskip--))
-              continue
-            fi
+    if [ $toskip -gt 0 ]; then
+      _=$((toskip--))
+      continue
+    fi
 
-            if [[ $nomoreopts -eq 0 ]] && [[ $curword == -* ]]; then
-              # if a "slammed" option like `-Ftext` is given, proceed to the next word
-              # in the command
-              slamopts=${__globus_comp_slamopts[$curcmd]}
-              for opt in $slamopts; do
-                if [[ "$curword" != "$opt" ]] && [[ "$curword" == "$opt"* ]]; then
-                  continue 2
-                fi
-              done
+    if [[ $nomoreopts -eq 0 ]] && [[ $curword == -* ]]; then
+      # if a "slammed" option like `-Ftext` is given, proceed to the next word
+      # in the command
+      slamopts=${__globus_comp_slamopts[$curcmd]}
+      for opt in $slamopts; do
+        if [[ "$curword" != "$opt" ]] && [[ "$curword" == "$opt"* ]]; then
+          continue 2
+        fi
+      done
 
-              curopt=$curword
-              toskip=${__globus_comp_opt_nargs["$curcmd $curword"]}
-              [ -n "$toskip" ] || toskip=0
-              continue
-            fi
+      curopt=$curword
+      toskip=${__globus_comp_opt_nargs["$curcmd $curword"]}
+      [ -n "$toskip" ] || toskip=0
+      continue
+    fi
 
-            for subcmd in ${__globus_comp_subcmds["$curcmd"]}; do
-              if [ "$curword" = "$subcmd" ]; then
-                curcmd="$curcmd $curword"
-                continue 2
-              fi
-            done
+    for subcmd in ${__globus_comp_subcmds["$curcmd"]}; do
+      if [ "$curword" = "$subcmd" ]; then
+        curcmd="$curcmd $curword"
+        continue 2
+      fi
+    done
 
-            # if this point is reached, the command structure is unrecognized
-            # (e.g. 'globus enpdoint foo'); end with the current discovered command
-            # (i.e. 'globus endpoint')
-            break
-          done
-          if [ $toskip -eq 0 ]; then
-            curopt=""
-          fi
+    # if this point is reached, the command structure is unrecognized
+    # (e.g. 'globus enpdoint foo'); end with the current discovered command
+    # (i.e. 'globus endpoint')
+    break
+  done
+  if [ $toskip -eq 0 ]; then
+    curopt=""
+  fi
 
-          # if no partial option processing is happening, check to see if the current
-          # word, when added, matches a command
-          if [ "$toskip" -eq 0 ]; then
-            for subcmd in ${__globus_comp_subcmds["$curcmd"]}; do
-              if [ "$compword" = "$subcmd" ]; then
-                curcmd="$curcmd $compword"
-                curopt=""
-                break
-              fi
-            done
-          fi
-          echo "$curcmd"
-          echo "$curopt"
-          echo "$toskip"
-        }
+  # if no partial option processing is happening, check to see if the current
+  # word, when added, matches a command
+  if [ "$toskip" -eq 0 ]; then
+    for subcmd in ${__globus_comp_subcmds["$curcmd"]}; do
+      if [ "$compword" = "$subcmd" ]; then
+        curcmd="$curcmd $compword"
+        curopt=""
+        break
+      fi
+    done
+  fi
+  echo "$curcmd"
+  echo "$curopt"
+  echo "$toskip"
+}
 
-        __globus_comp_add_match_to_compreply() {
-          for choice in $1; do
-            if [[ "$choice" == "${COMP_WORDS[$COMP_CWORD]}"* ]]; then
-              COMPREPLY+=("$choice")
-            fi
-          done
-        }
+__globus_comp_add_match_to_compreply() {
+  for choice in $1; do
+    if [[ "$choice" == "${COMP_WORDS[$COMP_CWORD]}"* ]]; then
+      COMPREPLY+=("$choice")
+    fi
+  done
+}
 
-        __globus_comp_add_match_for_cmdopt() {
-          local choices="${__globus_comp_opt_choices["$1"]}"
-          if [ -n "$choices" ]; then
-            __globus_comp_add_match_to_compreply "$choices"
-          fi
-        }
+__globus_comp_add_match_for_cmdopt() {
+  local choices="${__globus_comp_opt_choices["$1"]}"
+  if [ -n "$choices" ]; then
+    __globus_comp_add_match_to_compreply "$choices"
+  fi
+}
 
-        _globus_comp_bash() {
-          COMPREPLY=()
-          local curword
-          curword="${COMP_WORDS[$COMP_CWORD]}"
+_globus_comp_bash() {
+  COMPREPLY=()
+  local curword
+  curword="${COMP_WORDS[$COMP_CWORD]}"
 
-          local parsed
-          readarray -t parsed < <(__globus_comp_parse_line)
+  local parsed
+  readarray -t parsed < <(__globus_comp_parse_line)
 
-          local curcmd curopt num_optargs curcmd_w_curopt
-          curcmd=${parsed[0]}
-          curopt=${parsed[1]}
-          num_optargs=${parsed[2]}
-          curcmd_w_curopt="$curcmd $curopt"
+  local curcmd curopt num_optargs curcmd_w_curopt
+  curcmd=${parsed[0]}
+  curopt=${parsed[1]}
+  num_optargs=${parsed[2]}
+  curcmd_w_curopt="$curcmd $curopt"
 
-          case $curword in
-            -*)  # option case
-              __globus_comp_add_match_to_compreply "${__globus_comp_opts["$curcmd"]}"
-              ;;
-            "")  # next subcommand, option, or option value if no partial word
-              if [ "$num_optargs" -gt 0 ]; then
-                __globus_comp_add_match_for_cmdopt "$curcmd_w_curopt"
-              else
-                for subcmd in ${__globus_comp_subcmds["$curcmd"]}; do
-                  COMPREPLY+=("$subcmd")
-                done
-              fi
-              ;;
-            *)  # partial word case, subcommand or option argument
-              if [ -z "$curopt" ]; then
-                __globus_comp_add_match_to_compreply "${__globus_comp_subcmds["$curcmd"]}"
-              else
-                __globus_comp_add_match_for_cmdopt "$curcmd_w_curopt"
-              fi
-              ;;
-          esac
-        }
+  case $curword in
+    -*)  # option case
+      __globus_comp_add_match_to_compreply "${__globus_comp_opts["$curcmd"]}"
+      ;;
+    "")  # next subcommand, option, or option value if no partial word
+      if [ "$num_optargs" -gt 0 ]; then
+        __globus_comp_add_match_for_cmdopt "$curcmd_w_curopt"
+      else
+        for subcmd in ${__globus_comp_subcmds["$curcmd"]}; do
+          COMPREPLY+=("$subcmd")
+        done
+      fi
+      ;;
+    *)  # partial word case, subcommand or option argument
+      if [ -z "$curopt" ]; then
+        __globus_comp_add_match_to_compreply "${__globus_comp_subcmds["$curcmd"]}"
+      else
+        __globus_comp_add_match_for_cmdopt "$curcmd_w_curopt"
+      fi
+      ;;
+  esac
+}
 
-        complete -F _globus_comp_bash globus
-        """  # noqa: E501
-    )
+complete -F _globus_comp_bash globus"""  # noqa: E501
 
     def _print_common_info(self, ctx):
         options = [
@@ -261,6 +256,12 @@ class BashCompleter(Completer):
 class ZshCompleter(Completer):
     EPILOGUE = "compdef _globus_comp_cmd_globus globus"
 
+    def __init__(self):
+        self._indent = 0
+
+    def _p(self, s):
+        print(" " * self._indent + s)
+
     def _is_root_ctx(self, ctx):
         return ctx.command_path == "globus"
 
@@ -274,33 +275,38 @@ class ZshCompleter(Completer):
         return f"_globus_comp_describe_subcmds_{self._cmdslug(ctx)}"
 
     @contextlib.contextmanager
-    def _in_completion_func(self, ctx):
-        print(f"{self._cmd_completer_name(ctx)}() {{")
-        if self._is_root_ctx(ctx):
-            print('  local curcontext="$curcontext" context state state_descr line')
-            print("  typeset -A opt_args\n")
+    def indent(self, n=2):
+        self._indent += n
         yield
-        print("}")
+        self._indent -= n
+
+    @contextlib.contextmanager
+    def _in_completion_func(self, ctx):
+        self._p(f"{self._cmd_completer_name(ctx)}() {{")
+        with self.indent():
+            if self._is_root_ctx(ctx):
+                self._p('local curcontext="$curcontext" context state state_descr line')
+                self._p("typeset -A opt_args")
+            yield
+        self._p("}")
 
     @contextlib.contextmanager
     def _in_subcmd_describer(self, ctx):
-        print(f"{self._subcmd_describer_name(ctx)}() {{")
-        print("  local subcmds")
-        print("  subcmds=(")
-        yield
-        print("  )")
-        print(f"  _describe -t subcmds '{ctx.command_path} command' subcmds \"$@\"")
-        print("}")
+        self._p(f"{self._subcmd_describer_name(ctx)}() {{")
+        with self.indent():
+            self._p("local -a subcmds; subcmds=(")
+            with self.indent():
+                yield
+            self._p(")")
+            self._p(f"_describe -t subcmds '{ctx.command_path} command' subcmds \"$@\"")
+        self._p("}")
 
     @contextlib.contextmanager
     def _in_line_case(self, ctx):
-        print("  case $state in")
-        print("    args)")
-        print("      case $line[1] in")
-        yield
-        print("      esac")
-        print("    ;;")
-        print("  esac")
+        self._p("case $state in (args) case $line[1] in")
+        with self.indent():
+            yield
+        self._p("esac ;; esac")
 
     def _option_descs(self, o):
         nargs = compute_nargs(o)
@@ -350,41 +356,48 @@ class ZshCompleter(Completer):
 
     def _print_cmd_completer(self, ctx):
         with self._in_completion_func(ctx):
-            print("  _arguments \\")
-            print("    " + " \\\n    ".join(self._all_option_descs(ctx)))
+            self._p("_arguments \\")
+            with self.indent():
+                all_descs = list(self._all_option_descs(ctx))
+                for d in all_descs[:-1]:
+                    self._p(f"{d}  \\")
+                self._p(all_descs[-1])
 
     def _print_group_completer(self, ctx):
         subcommand_names = ctx.command.commands.keys()
         with self._in_subcmd_describer(ctx):
             for n in subcommand_names:
                 cmdhelp = ctx.command.commands[n].get_short_help_str()
-                print(f'    "{n}:{cmdhelp}"')
+                self._p(f'"{n}:{cmdhelp}"')
 
         with self._in_completion_func(ctx):
-            print("  _arguments -C \\")
-            for desc in self._all_option_descs(ctx):
-                print(f"    {desc} \\")
-            # IMPORTANT!
-            # This is subtle, but each of these specs MUST have '(-)', indicating mutual
-            # exclusivity with additional CLI options
-            # This prevents the higher-level command in a tree from eagerly consuming
-            # options which follow subcommands
-            #
-            # For example, if the input command is `globus endpoint -h`, we *don't* want
-            # the `_arguments` call to consume `-h` as an option to the `globus` command
-            # It should instead be left un-parsed, and the subsequent `_arguments` call
-            # for the `endpoint` subcommand will pick it up correctly
-            #
-            # This behavior has been tested and does not mark these matches as mutually
-            # exclusive with prior options. Meaning that `globus -Fjson <TAB>` will
-            # run the subcommand description action as desired
-            print(f'    "(-): :{self._subcmd_describer_name(ctx)}" \\')
-            print('    "(-)*::arg:->args"\n')
+            self._p("_arguments -C \\")
+            with self.indent():
+                for desc in self._all_option_descs(ctx):
+                    self._p(f"{desc} \\")
+                # IMPORTANT!
+                # This is subtle, but each of these specs MUST have '(-)', indicating
+                # mutual exclusivity with additional CLI options
+                # This prevents the higher-level command in a tree from eagerly
+                # consuming options which follow subcommands
+                #
+                # For example, if the input command is `globus endpoint -h`, we *don't*
+                # want the `_arguments` call to consume `-h` as an option to the
+                # `globus` command
+                # It should instead be left un-parsed, and the subsequent `_arguments`
+                # call for the `endpoint` subcommand will pick it up correctly
+                #
+                # This behavior has been tested and does not mark these matches as
+                # mutually exclusive with prior options. Meaning that
+                # `globus -Fjson <TAB>` will run the subcommand description action as
+                # desired
+                self._p(f'"(-): :{self._subcmd_describer_name(ctx)}" \\')
+                self._p('"(-)*::arg:->args"')
 
             with self._in_line_case(ctx):
                 for n in subcommand_names:
                     funcname = f"{self._cmd_completer_name(ctx)}_{n.replace('-', '_')}"
-                    print(f'        "{n}") {funcname} ;;')
+                    self._p(f'"{n}") {funcname} ;;')
 
     def print_completion(self):
         for ctx in iter_all_contexts():
@@ -392,14 +405,14 @@ class ZshCompleter(Completer):
                 self._print_group_completer(ctx)
             else:
                 self._print_cmd_completer(ctx)
-        print(self.EPILOGUE)
+        self._p(self.EPILOGUE)
 
 
 def main():
     if len(sys.argv) > 1:
         shell = sys.argv[1].lower()
     else:
-        shell = "bash"
+        shell = os.path.basename(os.getenv("SHELL", "/bin/bash"))
 
     completer_cls = {
         "zsh": ZshCompleter,
