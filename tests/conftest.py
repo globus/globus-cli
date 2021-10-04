@@ -70,6 +70,9 @@ def mock_login_token_response():
         "groups.api.globus.org": _mock_token_response_data(
             "groups.api.globus.org", "urn:globus:auth:scope:groups.api.globus.org:all"
         ),
+        "search.api.globus.org": _mock_token_response_data(
+            "search.api.globus.org", "urn:globus:auth:scope:search.api.globus.org:all"
+        ),
     }
     return mock_token_res
 

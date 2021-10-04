@@ -11,6 +11,7 @@ from globus_cli.commands.ls import ls_command
 from globus_cli.commands.mkdir import mkdir_command
 from globus_cli.commands.rename import rename_command
 from globus_cli.commands.rm import rm_command
+from globus_cli.commands.search import search_command
 from globus_cli.commands.session import session_command
 from globus_cli.commands.task import task_command
 from globus_cli.commands.transfer import transfer_command
@@ -56,3 +57,5 @@ main.add_command(task_command)
 main.add_command(session_command)
 
 main.add_command(group_command)
+
+main.add_command(search_command)

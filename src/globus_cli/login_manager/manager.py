@@ -3,7 +3,7 @@ from typing import Dict, Generator, List, Optional, Tuple
 
 import click
 import globus_sdk
-from globus_sdk.scopes import AuthScopes, GroupsScopes, TransferScopes
+from globus_sdk.scopes import AuthScopes, GroupsScopes, SearchScopes, TransferScopes
 
 from .auth_flows import do_link_auth_flow, do_local_server_auth_flow
 from .errors import MissingLoginError
@@ -15,9 +15,10 @@ class LoginManager:
     # TEST_MODE skips token validation
     _TEST_MODE: bool = False
 
-    AUTH_RS = "auth.globus.org"
-    TRANSFER_RS = "transfer.api.globus.org"
-    GROUPS_RS = "groups.api.globus.org"
+    AUTH_RS = AuthScopes.resource_server
+    TRANSFER_RS = TransferScopes.resource_server
+    GROUPS_RS = GroupsScopes.resource_server
+    SEARCH_RS = SearchScopes.resource_server
 
     STATIC_SCOPES: Dict[str, List[str]] = {
         AUTH_RS: [
@@ -31,6 +32,9 @@ class LoginManager:
         ],
         GROUPS_RS: [
             GroupsScopes.all,
+        ],
+        SEARCH_RS: [
+            SearchScopes.all,
         ],
     }
 

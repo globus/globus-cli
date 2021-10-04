@@ -1,0 +1,200 @@
+metadata:
+  index_id: 6f831ac8-4c41-4812-b383-6fb04f8b9f9f
+
+search:
+  - path: /v1/index/6f831ac8-4c41-4812-b383-6fb04f8b9f9f/search
+    method: get
+    json:
+      {
+        "@datatype": "GSearchResult",
+        "@version": "2017-09-01",
+        "count": 1,
+        "gmeta": [
+          {
+            "@datatype": "GMetaResult",
+            "@version": "2019-08-27",
+            "entries": [
+              {
+                "content": {
+                  "cuisine": [
+                    "mexican"
+                  ],
+                  "handle": "salsa-verde",
+                  "ingredients": [
+                    {
+                      "amount": {
+                        "number": 10
+                      },
+                      "default": "tomatillo",
+                      "preparation": "simmer 20 minutes",
+                      "type": "fruit"
+                    },
+                    {
+                      "amount": {
+                        "number": 2
+                      },
+                      "default": "serrano pepper",
+                      "preparation": "seeded",
+                      "substitutes": [
+                        "jalapeno",
+                        "thai bird chili"
+                      ],
+                      "type": "fruit"
+                    },
+                    {
+                      "amount": {
+                        "number": 2,
+                        "unit": "clove"
+                      },
+                      "default": "garlic",
+                      "type": "vegetable"
+                    },
+                    {
+                      "amount": {
+                        "number": 0.5
+                      },
+                      "default": "yellow onion",
+                      "type": "vegetable"
+                    },
+                    {
+                      "amount": {
+                        "number": 2,
+                        "unit": "tsp"
+                      },
+                      "default": "salt",
+                      "type": "spice"
+                    },
+                    {
+                      "amount": {
+                        "number": 2,
+                        "unit": "tbsp"
+                      },
+                      "default": "coriander",
+                      "preparation": "ground",
+                      "subsitutes": [
+                        "cumin"
+                      ],
+                      "type": "spice"
+                    }
+                  ],
+                  "keywords": [
+                    "salsa",
+                    "tomatillo",
+                    "coriander",
+                    "serrano pepper"
+                  ],
+                  "origin": {
+                    "author": "Diana Kennedy",
+                    "title": "Regional Mexican Cooking",
+                    "type": "book"
+                  }
+                },
+                "entry_id": null,
+                "matched_principal_sets": []
+              }
+            ],
+            "subject": "https://en.wikipedia.org/wiki/Salsa_verde"
+          }
+        ],
+        "has_next_page": false,
+        "offset": 0,
+        "total": 1
+      }
+  - path: /v1/index/6f831ac8-4c41-4812-b383-6fb04f8b9f9f/search
+    method: post
+    json:
+      {
+        "@datatype": "GSearchResult",
+        "@version": "2017-09-01",
+        "count": 1,
+        "gmeta": [
+          {
+            "@datatype": "GMetaResult",
+            "@version": "2019-08-27",
+            "entries": [
+              {
+                "content": {
+                  "cuisine": [
+                    "mexican"
+                  ],
+                  "handle": "salsa-verde",
+                  "ingredients": [
+                    {
+                      "amount": {
+                        "number": 10
+                      },
+                      "default": "tomatillo",
+                      "preparation": "simmer 20 minutes",
+                      "type": "fruit"
+                    },
+                    {
+                      "amount": {
+                        "number": 2
+                      },
+                      "default": "serrano pepper",
+                      "preparation": "seeded",
+                      "substitutes": [
+                        "jalapeno",
+                        "thai bird chili"
+                      ],
+                      "type": "fruit"
+                    },
+                    {
+                      "amount": {
+                        "number": 2,
+                        "unit": "clove"
+                      },
+                      "default": "garlic",
+                      "type": "vegetable"
+                    },
+                    {
+                      "amount": {
+                        "number": 0.5
+                      },
+                      "default": "yellow onion",
+                      "type": "vegetable"
+                    },
+                    {
+                      "amount": {
+                        "number": 2,
+                        "unit": "tsp"
+                      },
+                      "default": "salt",
+                      "type": "spice"
+                    },
+                    {
+                      "amount": {
+                        "number": 2,
+                        "unit": "tbsp"
+                      },
+                      "default": "coriander",
+                      "preparation": "ground",
+                      "subsitutes": [
+                        "cumin"
+                      ],
+                      "type": "spice"
+                    }
+                  ],
+                  "keywords": [
+                    "salsa",
+                    "tomatillo",
+                    "coriander",
+                    "serrano pepper"
+                  ],
+                  "origin": {
+                    "author": "Diana Kennedy",
+                    "title": "Regional Mexican Cooking",
+                    "type": "book"
+                  }
+                },
+                "entry_id": null,
+                "matched_principal_sets": []
+              }
+            ],
+            "subject": "https://en.wikipedia.org/wiki/Salsa_verde"
+          }
+        ],
+        "has_next_page": false,
+        "offset": 0,
+        "total": 1
+      }
