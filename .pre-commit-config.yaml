@@ -6,7 +6,7 @@ repos:
     - id: trailing-whitespace
     - id: end-of-file-fixer
 - repo: https://github.com/sirosen/check-jsonschema
-  rev: 0.11.0
+  rev: 0.13.0
   hooks:
     - id: check-github-workflows
 - repo: https://github.com/psf/black
