@@ -1,22 +1,12 @@
 import os
-from typing import Any, Callable, Dict, Iterator, List, Optional, Tuple, cast
+from typing import Any, Callable, Dict, List, Optional, Tuple, cast
 
 import click
-import globus_sdk.tokenstorage
 
 from globus_cli.login_manager import is_client_login, token_storage_adapter
 from globus_cli.parsing import command
 from globus_cli.termio import FORMAT_TEXT_TABLE, formatted_print
 from globus_cli.types import FIELD_LIST_T
-
-
-# TODO: upstream this into the SDK as a method of the SQLiteStorageAdapter
-def _iter_namespaces(adapter: globus_sdk.tokenstorage.SQLiteAdapter) -> Iterator[str]:
-    conn = adapter._connection
-
-    cursor = conn.execute("SELECT DISTINCT namespace FROM token_storage;")
-    for row in cursor:
-        yield row[0]
 
 
 def _profilestr_to_datadict(s: str) -> Optional[Dict[str, Any]]:
@@ -40,12 +30,11 @@ def _profilestr_to_datadict(s: str) -> Optional[Dict[str, Any]]:
 def _parse_and_filter_profiles(
     all: bool,
 ) -> Tuple[List[Dict[str, Any]], List[Dict[str, Any]]]:
-    namespaces = list(_iter_namespaces(token_storage_adapter()))
     globus_env = os.getenv("GLOBUS_SDK_ENVIRONMENT", "production")
 
     client_profiles = []
     user_profiles = []
-    for n in namespaces:
+    for n in token_storage_adapter().iter_namespaces(include_config_namespaces=True):
         data = _profilestr_to_datadict(n)
         if not data:  # skip any parse failures
             continue
