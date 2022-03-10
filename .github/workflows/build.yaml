@@ -84,6 +84,21 @@ jobs:
       - name: test
         run: tox -e py-mindeps
 
+  test-sdk-main:
+    strategy:
+      matrix:
+        os: [ubuntu-latest]
+        python-version: ["3.6", "3.10"]
+    runs-on: ubuntu-latest
+    name: "sdk-main"
+    steps:
+      - uses: actions/checkout@v2
+      - uses: actions/setup-python@v2
+        with:
+          python-version: ${{ matrix.python-version }}
+      - run: python -m pip install -U tox
+      - run: tox -e py-sdkmain
+
   # use the oldest python version we support for this build
   test-ancient-virtualenv:
     name: "test on py3.6, using old virtualenv"
