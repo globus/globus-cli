@@ -12,3 +12,7 @@ exclude_lines =
     raise NotImplementedError
     # don't check on executable components of importable modules
     if __name__ == .__main__.:
+    # don't check 'TYPE_CHECKING' blocks
+    if TYPE_CHECKING:
+    if typing.TYPE_CHECKING:
+    if t.TYPE_CHECKING:
