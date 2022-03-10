@@ -87,7 +87,6 @@ jobs:
   test-sdk-main:
     strategy:
       matrix:
-        os: [ubuntu-latest]
         python-version: ["3.6", "3.10"]
     runs-on: ubuntu-latest
     name: "sdk-main"
