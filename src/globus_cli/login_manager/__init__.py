@@ -1,6 +1,5 @@
 from .client_login import get_client_login, is_client_login
 from .errors import MissingLoginError
-from .local_server import is_remote_session
 from .manager import LoginManager
 from .tokenstore import (
     delete_templated_client,
@@ -8,6 +7,7 @@ from .tokenstore import (
     internal_native_client,
     token_storage_adapter,
 )
+from .utils import is_remote_session
 
 __all__ = [
     "MissingLoginError",

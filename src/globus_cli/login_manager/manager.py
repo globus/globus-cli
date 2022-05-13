@@ -21,8 +21,8 @@ from ..services.transfer import CustomTransferClient
 from .auth_flows import do_link_auth_flow, do_local_server_auth_flow
 from .client_login import get_client_login, is_client_login
 from .errors import MissingLoginError
-from .local_server import is_remote_session
 from .tokenstore import internal_auth_client, token_storage_adapter
+from .utils import is_remote_session
 
 
 class LoginManager:

@@ -1,6 +1,4 @@
-import inspect
 import json
-import shlex
 from typing import Any, Callable, Dict, Iterable, Iterator, List, Optional, TextIO, cast
 
 import click
@@ -20,6 +18,8 @@ def get_current_option_help(
 
 
 def supported_parameters(c: Callable) -> List[str]:
+    import inspect
+
     sig = inspect.signature(c)
     return list(sig.parameters.keys())
 
@@ -170,6 +170,8 @@ def shlex_process_stream(process_command: click.Command, stream: TextIO) -> None
     processing single lines of input. helptext is prepended to the standard
     message printed to interactive sessions.
     """
+    import shlex
+
     # use readlines() rather than implicit file read line looping to force
     # python to properly capture EOF (otherwise, EOF acts as a flush and
     # things get weird)

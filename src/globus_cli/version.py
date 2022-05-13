@@ -1,5 +1,7 @@
-from distutils.version import LooseVersion
-from typing import Optional, Tuple
+from typing import TYPE_CHECKING, Optional, Tuple
+
+if TYPE_CHECKING:
+    from distutils.version import LooseVersion
 
 # single source of truth for package version,
 # see https://packaging.python.org/en/latest/single_source_version/
@@ -10,7 +12,7 @@ app_name = f"Globus CLI v{__version__}"
 
 
 # pull down version data from PyPi
-def get_versions() -> Tuple[Optional[LooseVersion], LooseVersion]:
+def get_versions() -> Tuple[Optional["LooseVersion"], "LooseVersion"]:
     """
     Wrap in a function to ensure that we don't run this every time a CLI
     command runs or when version number is loaded by setuptools.
@@ -20,6 +22,8 @@ def get_versions() -> Tuple[Optional[LooseVersion], LooseVersion]:
     # import in the func (rather than top-level scope) so that at setup time,
     # `requests` isn't required -- otherwise, setuptools will fail to run
     # because it isn't installed yet.
+    from distutils.version import LooseVersion
+
     import requests
 
     try:

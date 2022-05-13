@@ -1,6 +1,5 @@
 import atexit
 import os
-import pathlib
 import site
 import subprocess
 import sys
@@ -29,6 +28,8 @@ def _is_user_install() -> bool:
 # pipx home discovery extracted from pipx itself. see:
 #   https://github.com/pypa/pipx/blob/878f03504417fa4cc9a6676b1bc24aef2ba3e491/src/pipx/constants.py#L8
 def _is_pipx_install() -> bool:
+    import pathlib
+
     _DEFAULT_PIPX_HOME = pathlib.Path.home() / ".local/pipx"
     _PIPX_HOME = pathlib.Path(os.getenv("PIPX_HOME", _DEFAULT_PIPX_HOME)).resolve()
     return __file__.startswith(str(_PIPX_HOME))

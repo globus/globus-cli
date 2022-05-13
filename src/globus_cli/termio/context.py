@@ -1,6 +1,5 @@
 import os
 import sys
-from distutils.util import strtobool
 from typing import Optional
 
 import click
@@ -75,6 +74,8 @@ def env_interactive() -> Optional[bool]:
     Check the `GLOBUS_CLI_INTERACTIVE` environment variable for a boolean, and *let*
     `strtobool` raise a `ValueError` if it doesn't parse.
     """
+    from distutils.util import strtobool
+
     explicit_val = os.getenv("GLOBUS_CLI_INTERACTIVE")
     if explicit_val is None:
         return None

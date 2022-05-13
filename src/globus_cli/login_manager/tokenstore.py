@@ -5,7 +5,6 @@ from typing import cast
 import globus_sdk
 from globus_sdk.tokenstorage import SQLiteAdapter
 
-from ._old_config import invalidate_old_config
 from .client_login import get_client_login, is_client_login
 
 # internal constants
@@ -111,6 +110,8 @@ def token_storage_adapter() -> SQLiteAdapter:
         # if it does not, then use this as a flag to clean the old config
         fname = _get_storage_filename()
         if not os.path.exists(fname):
+            from ._old_config import invalidate_old_config
+
             invalidate_old_config(internal_native_client())
         # namespace is equal to the current environment
         as_proto._instance = SQLiteAdapter(fname, namespace=_resolve_namespace())

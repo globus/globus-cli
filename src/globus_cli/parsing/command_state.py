@@ -3,7 +3,6 @@ import warnings
 from typing import Callable
 
 import click
-import jmespath
 
 # Format Enum for output formatting
 # could use a namedtuple, but that's overkill
@@ -81,6 +80,8 @@ def format_option(f: Callable) -> Callable:
     def jmespath_callback(ctx, param, value):
         if value is None:
             return
+
+        import jmespath
 
         state = ctx.ensure_object(CommandState)
         state.jmespath_expr = jmespath.compile(value)

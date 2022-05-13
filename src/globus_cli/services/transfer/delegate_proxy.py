@@ -3,10 +3,6 @@ import os
 import re
 import struct
 
-from cryptography import x509
-from cryptography.hazmat.backends import default_backend
-from cryptography.hazmat.primitives import hashes, serialization
-
 
 def fill_delegate_proxy_activation_requirements(
     requirements_data, cred_file, lifetime_hours=12
@@ -54,6 +50,10 @@ def create_proxy_credentials(issuer_cred, public_key, lifetime_hours):
     proxy lifetime, returns credentials as a unicode string in PEM format
     containing a new proxy certificate and an extended proxy chain.
     """
+
+    from cryptography.hazmat.backends import default_backend
+    from cryptography.hazmat.primitives import serialization
+
     # parse the issuer credential
     loaded_cert, loaded_private_key, issuer_chain = parse_issuer_cred(issuer_cred)
 
@@ -94,6 +94,10 @@ def parse_issuer_cred(issuer_cred):
     Returns the issuer cert and private key as loaded cryptography objects
     and the proxy chain as a potentially empty string.
     """
+    from cryptography import x509
+    from cryptography.hazmat.backends import default_backend
+    from cryptography.hazmat.primitives import serialization
+
     # get each section of the PEM file
     sections = re.findall(
         "-----BEGIN.*?-----.*?-----END.*?-----", issuer_cred, flags=re.DOTALL
@@ -143,6 +147,10 @@ def create_proxy_cert(
     a private_key, and an int for lifetime in hours, creates a proxy
     cert from the issuer and public key signed by the private key.
     """
+    from cryptography import x509
+    from cryptography.hazmat.backends import default_backend
+    from cryptography.hazmat.primitives import hashes
+
     builder = x509.CertificateBuilder()
 
     # create a serial number for the new proxy
@@ -204,6 +212,8 @@ def confirm_not_old_proxy(loaded_cert):
     Given a cryptography object for the issuer cert, checks if the cert is
     an "old proxy" and raise an error if so.
     """
+    from cryptography import x509
+
     # Examine the last CommonName to see if it looks like an old proxy.
     last_cn = loaded_cert.subject.get_attributes_for_oid(x509.oid.NameOID.COMMON_NAME)[
         -1
@@ -221,6 +231,8 @@ def validate_key_usage(loaded_cert):
     the keyUsage extension is being used that the digital signature
     bit has been asserted. (As specified in RFC 3820 section 3.1.)
     """
+    from cryptography import x509
+
     try:
         key_usage = loaded_cert.extensions.get_extension_for_oid(
             x509.oid.ExtensionOID.KEY_USAGE

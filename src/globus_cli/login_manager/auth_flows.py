@@ -1,8 +1,5 @@
-import webbrowser
-
 import click
 
-from .local_server import LocalServerError, start_local_server
 from .tokenstore import internal_auth_client, token_storage_adapter
 
 _STORE_CONFIG_USERINFO = "auth_user_data"
@@ -50,6 +47,10 @@ def do_local_server_auth_flow(scopes, *, session_params=None):
     Starts a local http server, opens a browser to have the user authenticate,
     and gets the code redirected to the server (no copy and pasting required)
     """
+    import webbrowser
+
+    from .local_server import LocalServerError, start_local_server
+
     session_params = session_params or {}
 
     # start local server and create matching redirect_uri
