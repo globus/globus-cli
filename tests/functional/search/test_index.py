@@ -43,3 +43,11 @@ def test_index_create(run_line):
         matcher=True,
     )
     matcher.check(r"^Index ID:\s+([\w-]+)$", groups=[index_id])
+
+
+def test_index_delete(run_line):
+    meta = load_response_set("cli.search").metadata
+    index_id = meta["index_id"]
+
+    result = run_line(f"globus search index delete {index_id}")
+    assert f"Index {index_id} is now marked for deletion." in result.output

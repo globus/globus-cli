@@ -354,6 +354,13 @@ search:
         "status": "open",
         "subscription_id": null
       }
+  - path: /beta/index/6f831ac8-4c41-4812-b383-6fb04f8b9f9f
+    method: DELETE
+    json:
+      {
+        "acknowledged": true,
+        "index_id": "6f831ac8-4c41-4812-b383-6fb04f8b9f9f"
+      }
   - path: /v1/index_list
     json:
       {
