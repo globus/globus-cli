@@ -1,4 +1,6 @@
-from typing import Any, Callable, Dict, Iterable, Optional, Tuple
+from __future__ import annotations
+
+from typing import Any, Callable, Iterable
 
 import click
 import globus_sdk
@@ -16,12 +18,12 @@ def task_id_arg(f: Callable) -> Callable:
 
 def resolved_principals_field(
     auth_client: globus_sdk.AuthClient,
-    items: Optional[Iterable[Dict[str, Any]]] = None,
+    items: Iterable[dict[str, Any]] | None = None,
     *,
     name: str = "Principal",
     type_key: str = "principal_type",
     value_key: str = "principal",
-) -> Tuple[str, Callable[[Dict], str]]:
+) -> tuple[str, Callable[[dict], str]]:
     resolved_ids = globus_sdk.IdentityMap(
         auth_client,
         (x[value_key].split(":")[-1] for x in items if x[type_key] == "identity")
@@ -29,7 +31,7 @@ def resolved_principals_field(
         else [],
     )
 
-    def render_principal(item: Dict[str, Any]) -> str:
+    def render_principal(item: dict[str, Any]) -> str:
         value = item[value_key].split(":")[-1]
         if item[type_key] == "identity":
             try:

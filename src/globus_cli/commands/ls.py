@@ -1,4 +1,6 @@
-from typing import Any, Dict, Union
+from __future__ import annotations
+
+from typing import Any
 
 import click
 from globus_sdk.services.transfer.response import IterableTransferResponse
@@ -166,7 +168,7 @@ def ls_command(
     autoactivate(transfer_client, endpoint_id, if_expires_in=60)
 
     # create the query paramaters to send to operation_ls
-    ls_params: Dict[str, Any] = {"show_hidden": int(show_hidden)}
+    ls_params: dict[str, Any] = {"show_hidden": int(show_hidden)}
     if path:
         ls_params["path"] = path
     if filter_val:
@@ -186,9 +188,9 @@ def ls_command(
         # if we're asked to change or "improve" the behavior in the future, we
         # could do so with "type:dir" or "type:file" filters added in, and
         # potentially work out some viable behavior based on what people want
-        res: Union[
-            IterableTransferResponse, RecursiveLsResponse
-        ] = transfer_client.recursive_operation_ls(
+        res: (
+            IterableTransferResponse | RecursiveLsResponse
+        ) = transfer_client.recursive_operation_ls(
             endpoint_id, ls_params, depth=recursive_depth_limit
         )
     else:

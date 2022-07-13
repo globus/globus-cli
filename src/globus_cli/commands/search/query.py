@@ -1,7 +1,9 @@
+from __future__ import annotations
+
 import json
 import uuid
 from io import TextIOWrapper
-from typing import Any, Dict, List, Optional
+from typing import Any
 
 import click
 
@@ -56,12 +58,12 @@ def query_command(
     *,
     login_manager: LoginManager,
     index_id: uuid.UUID,
-    q: Optional[str],
-    query_document: Optional[TextIOWrapper],
-    limit: Optional[int],
+    q: str | None,
+    query_document: TextIOWrapper | None,
+    limit: int | None,
     advanced: bool,
     bypass_visible_to: bool,
-    filter_principal_sets: Optional[List[str]],
+    filter_principal_sets: list[str] | None,
 ):
     """
     Query a Globus Search Index by ID using either a simple query string, or a complex
@@ -80,7 +82,7 @@ def query_command(
     search_client = login_manager.get_search_client()
 
     if q:
-        query_params: Dict[str, Any] = {}
+        query_params: dict[str, Any] = {}
         if filter_principal_sets:
             query_params["filter_principal_sets"] = ",".join(filter_principal_sets)
         if bypass_visible_to:

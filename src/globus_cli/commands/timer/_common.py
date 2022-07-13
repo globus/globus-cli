@@ -1,6 +1,8 @@
+from __future__ import annotations
+
 import datetime
 import re
-from typing import Any, Dict, Optional
+from typing import Any
 from urllib.parse import urlparse
 
 # List of datetime formats accepted as input. (`%z` means timezone.)
@@ -14,19 +16,19 @@ DATETIME_FORMATS = [
 ]
 
 
-def _get_stop_date(data: Dict[str, Any]) -> Optional[str]:
+def _get_stop_date(data: dict[str, Any]) -> str | None:
     if not data["stop_after"]:
         return None
     return str(data.get("stop_after", {}).get("date"))
 
 
-def _get_stop_n_runs(data: Dict[str, Any]) -> Optional[str]:
+def _get_stop_n_runs(data: dict[str, Any]) -> str | None:
     if not data["stop_after"]:
         return None
     return str(data.get("stop_after", {}).get("n_runs"))
 
 
-def _get_action_type(data: Dict[str, Any]) -> str:
+def _get_action_type(data: dict[str, Any]) -> str:
     url = urlparse(data["callback_url"])
     if (
         url.netloc.endswith("actions.automate.globus.org")
@@ -39,15 +41,15 @@ def _get_action_type(data: Dict[str, Any]) -> str:
         return str(data["callback_url"])
 
 
-def _get_interval(data: Dict[str, Any]) -> Optional[str]:
+def _get_interval(data: dict[str, Any]) -> str | None:
     if not data["interval"]:
         return None
     return str(datetime.timedelta(seconds=data["interval"]))
 
 
 def isoformat_to_local(
-    utc_str: Optional[str], localtz: Optional[datetime.tzinfo] = None
-) -> Optional[str]:
+    utc_str: str | None, localtz: datetime.tzinfo | None = None
+) -> str | None:
     if not utc_str:
         return None
     # let this raise ValueError

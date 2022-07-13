@@ -1,5 +1,7 @@
+from __future__ import annotations
+
 import functools
-from typing import Callable, List, Optional
+from typing import Callable
 
 import click
 
@@ -12,7 +14,7 @@ from globus_cli.parsing.command_state import (
 
 
 def common_options(
-    f: Optional[Callable] = None, *, disable_options: Optional[List[str]] = None
+    f: Callable | None = None, *, disable_options: list[str] | None = None
 ) -> Callable:
     """
     This is a multi-purpose decorator for applying a "base" set of options
@@ -53,13 +55,13 @@ def common_options(
     return f
 
 
-def collection_id_arg(f: Optional[Callable] = None, *, metavar: str = "COLLECTION_ID"):
+def collection_id_arg(f: Callable | None = None, *, metavar: str = "COLLECTION_ID"):
     if f is None:
         return functools.partial(collection_id_arg, metavar=metavar)
     return click.argument("collection_id", metavar=metavar, type=click.UUID)(f)
 
 
-def endpoint_id_arg(f: Optional[Callable] = None, *, metavar: str = "ENDPOINT_ID"):
+def endpoint_id_arg(f: Callable | None = None, *, metavar: str = "ENDPOINT_ID"):
     """
     This is the `ENDPOINT_ID` argument consumed by many Transfer endpoint
     related operations. It accepts alternate metavars for cases when another
@@ -193,7 +195,7 @@ def task_submission_options(f):
 
 
 def delete_and_rm_options(
-    f: Optional[Callable] = None,
+    f: Callable | None = None,
     *,
     supports_batch: bool = True,
     default_enable_globs: bool = False,

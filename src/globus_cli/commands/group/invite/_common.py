@@ -1,6 +1,8 @@
+from __future__ import annotations
+
 import sys
 import uuid
-from typing import Callable, Dict, List, Optional
+from typing import Callable
 
 import click
 import globus_sdk
@@ -36,8 +38,8 @@ def build_invite_actions(
     groups_client: globus_sdk.GroupsClient,
     action: Literal["accept", "decline"],
     group_id: uuid.UUID,
-    identity: Optional[ParsedIdentity],
-) -> Dict[str, List[Dict[str, str]]]:
+    identity: ParsedIdentity | None,
+) -> dict[str, list[dict[str, str]]]:
     if identity:
         identity_id = auth_client.maybe_lookup_identity_id(identity.value)
         if not identity_id:

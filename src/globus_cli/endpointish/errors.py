@@ -1,4 +1,4 @@
-from typing import Optional, Tuple
+from __future__ import annotations
 
 from .endpoint_type import EndpointType
 
@@ -30,7 +30,7 @@ class WrongEndpointTypeError(ValueError):
         from_command: str,
         endpoint_id: str,
         actual_type: EndpointType,
-        expected_types: Tuple[EndpointType, ...],
+        expected_types: tuple[EndpointType, ...],
     ) -> None:
         self.from_command = from_command
         self.endpoint_id = str(endpoint_id)
@@ -52,7 +52,7 @@ class WrongEndpointTypeError(ValueError):
         actual_str = EndpointType.nice_name(self.actual_type)
         return f"Instead, found it was of type '{actual_str}'."
 
-    def should_use_command(self) -> Optional[str]:
+    def should_use_command(self) -> str | None:
         if self.from_command in SHOULD_USE_MAP:
             for should_use, if_types in SHOULD_USE_MAP[self.from_command]:
                 if self.actual_type in if_types:

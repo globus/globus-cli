@@ -1,4 +1,6 @@
-from typing import Callable, Iterable, Optional
+from __future__ import annotations
+
+from typing import Callable, Iterable
 
 import click
 
@@ -7,8 +9,8 @@ class CommaDelimitedList(click.ParamType):
     def __init__(
         self,
         *,
-        convert_values: Optional[Callable[[str], str]] = None,
-        choices: Optional[Iterable[str]] = None,
+        convert_values: Callable[[str], str] | None = None,
+        choices: Iterable[str] | None = None,
     ):
         super().__init__()
         self.convert_values = convert_values

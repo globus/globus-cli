@@ -1,4 +1,6 @@
-from typing import Any, Optional, Tuple
+from __future__ import annotations
+
+from typing import Any
 
 from globus_cli.login_manager import LoginManager
 from globus_cli.parsing import (
@@ -79,8 +81,8 @@ def endpoint_create(
     login_manager: LoginManager,
     personal: bool,
     server: bool,
-    shared: Optional[Tuple[str, str]],
-    **kwargs: Any
+    shared: tuple[str, str] | None,
+    **kwargs: Any,
 ) -> None:
     """
     Create a new endpoint.

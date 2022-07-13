@@ -1,5 +1,6 @@
+from __future__ import annotations
+
 import uuid
-from typing import Optional
 
 import click
 
@@ -31,7 +32,7 @@ def create_command(
     index_id: uuid.UUID,
     role_name: str,
     principal: str,
-    principal_type: Optional[str],
+    principal_type: str | None,
     login_manager: LoginManager,
 ):
     """

@@ -1,16 +1,16 @@
+from __future__ import annotations
+
 import inspect
 import json
 import shlex
-from typing import Any, Callable, Dict, Iterable, Iterator, List, Optional, TextIO, cast
+from typing import Any, Callable, Iterable, Iterator, TextIO, cast
 
 import click
 
 from globus_cli.types import DATA_CONTAINER_T, FIELD_LIST_T
 
 
-def get_current_option_help(
-    *, filter_names: Optional[Iterable[str]] = None
-) -> List[str]:
+def get_current_option_help(*, filter_names: Iterable[str] | None = None) -> list[str]:
     ctx = click.get_current_context()
     cmd = ctx.command
     opts = [x for x in cmd.params if isinstance(x, click.Option)]
@@ -19,7 +19,7 @@ def get_current_option_help(
     return [o.get_error_hint(ctx) for o in opts]
 
 
-def supported_parameters(c: Callable) -> List[str]:
+def supported_parameters(c: Callable) -> list[str]:
     sig = inspect.signature(c)
     return list(sig.parameters.keys())
 
@@ -33,7 +33,7 @@ def format_list_of_words(first: str, *rest: str) -> str:
 
 
 def format_plural_str(
-    formatstr: str, pluralizable: Dict[str, str], use_plural: bool
+    formatstr: str, pluralizable: dict[str, str], use_plural: bool
 ) -> str:
     """
     Format text with singular or plural forms of words. Use the singular forms as
@@ -137,7 +137,7 @@ class CLIStubResponse:
 
 # wrap to add a `has_next()` method and `limit` param to a naive iterator
 class PagingWrapper:
-    def __init__(self, iterator: Iterator[Any], limit: Optional[int] = None) -> None:
+    def __init__(self, iterator: Iterator[Any], limit: int | None = None) -> None:
         self.iterator = iterator
         self.next = None
         self.limit = limit

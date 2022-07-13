@@ -1,4 +1,4 @@
-from typing import Type, Union
+from __future__ import annotations
 
 import click
 from globus_sdk import GuestCollectionDocument, MappedCollectionDocument
@@ -212,9 +212,9 @@ def collection_update(
     gcs_client = login_manager.get_gcs_client(collection_id=collection_id)
 
     if gcs_client.source_epish.ep_type == EndpointType.GUEST_COLLECTION:
-        doc_class: Union[
-            Type[GuestCollectionDocument], Type[MappedCollectionDocument]
-        ] = GuestCollectionDocument
+        doc_class: (
+            type[GuestCollectionDocument] | type[MappedCollectionDocument]
+        ) = GuestCollectionDocument
     else:
         doc_class = MappedCollectionDocument
 

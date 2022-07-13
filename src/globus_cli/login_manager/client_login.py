@@ -1,13 +1,14 @@
 """
 Logic for using client identities with the Globus CLI
 """
+from __future__ import annotations
+
 import os
-from typing import Optional, Tuple
 
 import globus_sdk
 
 
-def _get_client_creds_from_env() -> Tuple[Optional[str], Optional[str]]:
+def _get_client_creds_from_env() -> tuple[str | None, str | None]:
     client_id = os.getenv("GLOBUS_CLI_CLIENT_ID")
     client_secret = os.getenv("GLOBUS_CLI_CLIENT_SECRET")
     return client_id, client_secret

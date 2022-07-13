@@ -1,4 +1,6 @@
-from typing import Any, Dict, Union, cast
+from __future__ import annotations
+
+from typing import Any, Dict, cast
 from uuid import UUID
 
 import click
@@ -7,7 +9,7 @@ import globus_sdk
 
 def resolve_id_or_name(
     client: globus_sdk.TransferClient, bookmark_id_or_name: str
-) -> Union[globus_sdk.GlobusHTTPResponse, Dict[str, Any]]:
+) -> globus_sdk.GlobusHTTPResponse | dict[str, Any]:
     # leading/trailing whitespace doesn't make sense for UUIDs and the Transfer
     # service outright forbids it for bookmark names, so we can strip it off
     bookmark_id_or_name = bookmark_id_or_name.strip()

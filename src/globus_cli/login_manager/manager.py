@@ -1,6 +1,8 @@
+from __future__ import annotations
+
 import functools
 import uuid
-from typing import Dict, Iterator, List, Optional, Tuple
+from typing import Iterator
 
 import click
 import globus_sdk
@@ -36,7 +38,7 @@ class LoginManager:
     SEARCH_RS = SearchScopes.resource_server
     TIMER_RS = TimerScopes.resource_server
 
-    STATIC_SCOPES: Dict[str, List[str]] = {
+    STATIC_SCOPES: dict[str, list[str]] = {
         AUTH_RS: [
             AuthScopes.openid,
             AuthScopes.profile,
@@ -59,13 +61,13 @@ class LoginManager:
 
     def __init__(self) -> None:
         self._token_storage = token_storage_adapter()
-        self._nonstatic_requirements: Dict[str, List[str]] = {}
+        self._nonstatic_requirements: dict[str, list[str]] = {}
 
-    def add_requirement(self, rs_name: str, scopes: List[str]) -> None:
+    def add_requirement(self, rs_name: str, scopes: list[str]) -> None:
         self._nonstatic_requirements[rs_name] = scopes
 
     @property
-    def login_requirements(self) -> Iterator[Tuple[str, List[str]]]:
+    def login_requirements(self) -> Iterator[tuple[str, list[str]]]:
         yield from self.STATIC_SCOPES.items()
         yield from self._nonstatic_requirements.items()
 
@@ -119,10 +121,10 @@ class LoginManager:
         self,
         *,
         no_local_server: bool = False,
-        local_server_message: Optional[str] = None,
-        epilog: Optional[str] = None,
-        session_params: Optional[dict] = None,
-        scopes: Optional[List[str]] = None,
+        local_server_message: str | None = None,
+        epilog: str | None = None,
+        session_params: dict | None = None,
+        scopes: list[str] | None = None,
     ):
         if is_client_login():
             click.echo(
@@ -201,7 +203,7 @@ class LoginManager:
         return inner
 
     def _get_client_authorizer(
-        self, resource_server: str, *, no_tokens_msg: Optional[str] = None
+        self, resource_server: str, *, no_tokens_msg: str | None = None
     ) -> globus_sdk.authorizers.RenewingAuthorizer:
         tokens = self._token_storage.get_token_data(resource_server)
 
@@ -273,9 +275,9 @@ class LoginManager:
     def _get_gcs_info(
         self,
         *,
-        collection_id: Optional[uuid.UUID] = None,
-        endpoint_id: Optional[uuid.UUID] = None,
-    ) -> Tuple[str, Endpointish]:
+        collection_id: uuid.UUID | None = None,
+        endpoint_id: uuid.UUID | None = None,
+    ) -> tuple[str, Endpointish]:
         if collection_id is not None and endpoint_id is not None:  # pragma: no cover
             raise ValueError("Internal Error! collection_id and endpoint_id are mutex")
 
@@ -295,8 +297,8 @@ class LoginManager:
     def get_gcs_client(
         self,
         *,
-        collection_id: Optional[uuid.UUID] = None,
-        endpoint_id: Optional[uuid.UUID] = None,
+        collection_id: uuid.UUID | None = None,
+        endpoint_id: uuid.UUID | None = None,
     ) -> CustomGCSClient:
         gcs_id, epish = self._get_gcs_info(
             collection_id=collection_id, endpoint_id=endpoint_id

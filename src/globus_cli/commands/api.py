@@ -1,5 +1,7 @@
+from __future__ import annotations
+
 import json
-from typing import List, Optional, TextIO, Tuple, Union, cast
+from typing import TextIO, cast
 
 import click
 import globus_sdk
@@ -59,7 +61,7 @@ def _looks_like_json(body: str) -> bool:
         return False
 
 
-def detect_content_type(content_type: str, body: Optional[str]) -> Optional[str]:
+def detect_content_type(content_type: str, body: str | None) -> str | None:
     if content_type == "json":
         return "application/json"
     elif content_type == "form":
@@ -78,7 +80,7 @@ def detect_content_type(content_type: str, body: Optional[str]) -> Optional[str]
 
 
 def print_error_or_response(
-    data: Union[globus_sdk.GlobusHTTPResponse, globus_sdk.GlobusAPIError]
+    data: globus_sdk.GlobusHTTPResponse | globus_sdk.GlobusAPIError,
 ) -> None:
     if termio.is_verbose():
         # if verbose, reconstruct the status line and show headers
@@ -211,10 +213,10 @@ sends a 'GET' request to '{_get_url(service_name)}foo/bar'
         login_manager: LoginManager,
         method: str,
         path: str,
-        query_param: List[Tuple[str, str]],
-        header: List[Tuple[str, str]],
-        body: Optional[str],
-        body_file: Optional[TextIO],
+        query_param: list[tuple[str, str]],
+        header: list[tuple[str, str]],
+        body: str | None,
+        body_file: TextIO | None,
         content_type: str,
         allow_errors: bool,
         allow_redirects: bool,

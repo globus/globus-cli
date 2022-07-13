@@ -1,4 +1,4 @@
-from typing import Tuple
+from __future__ import annotations
 
 import click
 
@@ -38,8 +38,8 @@ $ globus bookmark create \
 def bookmark_create(
     *,
     login_manager: LoginManager,
-    endpoint_plus_path: Tuple[str, str],
-    bookmark_name: str
+    endpoint_plus_path: tuple[str, str],
+    bookmark_name: str,
 ) -> None:
     """
     Create a new bookmark. Given an endpoint plus a path, and a name for the bookmark,

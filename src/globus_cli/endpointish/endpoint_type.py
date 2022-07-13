@@ -1,5 +1,6 @@
+from __future__ import annotations
+
 from enum import Enum, auto
-from typing import Tuple
 
 
 class EndpointType(Enum):
@@ -12,25 +13,25 @@ class EndpointType(Enum):
     NON_GCSV5_ENDPOINT = auto()  # most likely GCSv4, but not necessarily
 
     @classmethod
-    def collections(cls) -> Tuple["EndpointType", ...]:
+    def collections(cls) -> tuple[EndpointType, ...]:
         return (cls.GUEST_COLLECTION, cls.MAPPED_COLLECTION)
 
     @classmethod
-    def traditional_endpoints(cls) -> Tuple["EndpointType", ...]:
+    def traditional_endpoints(cls) -> tuple[EndpointType, ...]:
         return (cls.GCP, cls.SHARE, cls.NON_GCSV5_ENDPOINT)
 
     @classmethod
-    def non_collection_types(cls) -> Tuple["EndpointType", ...]:
+    def non_collection_types(cls) -> tuple[EndpointType, ...]:
         return tuple(x for x in cls if x not in cls.collections())
 
     @classmethod
-    def gcsv5_types(cls) -> Tuple["EndpointType", ...]:
+    def gcsv5_types(cls) -> tuple[EndpointType, ...]:
         return tuple(
             x for x in cls if (x is cls.GCSV5_ENDPOINT or x in cls.collections())
         )
 
     @classmethod
-    def nice_name(cls, eptype: "EndpointType") -> str:
+    def nice_name(cls, eptype: EndpointType) -> str:
         return {
             cls.GCP: "Globus Connect Personal",
             cls.GCSV5_ENDPOINT: "Globus Connect Server v5 Endpoint",
@@ -41,7 +42,7 @@ class EndpointType(Enum):
         }.get(eptype, "UNKNOWN")
 
     @classmethod
-    def determine_endpoint_type(cls, ep_doc: dict) -> "EndpointType":
+    def determine_endpoint_type(cls, ep_doc: dict) -> EndpointType:
         """
         Given an endpoint document from transfer, determine what type of
         endpoint or collection it is for

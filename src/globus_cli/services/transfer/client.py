@@ -1,7 +1,9 @@
+from __future__ import annotations
+
 import logging
 import textwrap
 import uuid
-from typing import Any, Dict, Tuple, Union
+from typing import Any
 
 import click
 from globus_sdk import GlobusHTTPResponse, TransferClient
@@ -49,8 +51,8 @@ class CustomTransferClient(TransferClient):
     # TODO: Remove this function when endpoints natively support recursive ls
     def recursive_operation_ls(
         self,
-        endpoint_id: Union[str, uuid.UUID],
-        params: Dict[str, Any],
+        endpoint_id: str | uuid.UUID,
+        params: dict[str, Any],
         depth: int = 3,
     ) -> RecursiveLsResponse:
         """
@@ -77,7 +79,7 @@ class CustomTransferClient(TransferClient):
 
     def get_endpoint_w_server_list(
         self, endpoint_id
-    ) -> Tuple[GlobusHTTPResponse, Union[str, GlobusHTTPResponse]]:
+    ) -> tuple[GlobusHTTPResponse, str | GlobusHTTPResponse]:
         """
         A helper for handling endpoint server list lookups correctly accounting
         for various endpoint types.

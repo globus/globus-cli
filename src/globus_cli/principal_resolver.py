@@ -19,7 +19,9 @@ whole paginated call to be walked at once.
 This also lets us keep the resolution work only in the text-mode printed output (and not
 applied on JSON output).
 """
-from typing import Iterable, Optional, Tuple, cast
+from __future__ import annotations
+
+from typing import Iterable, cast
 
 from globus_sdk import IdentityMap
 
@@ -57,7 +59,7 @@ class PrincipalResolver:
     def __init__(self, key: str, use_urns: bool = True) -> None:
         self.key = key
         self.use_urns = use_urns
-        self._idmap: Optional[IdentityMap] = None
+        self._idmap: IdentityMap | None = None
 
     @property
     def idmap(self) -> IdentityMap:
@@ -65,7 +67,7 @@ class PrincipalResolver:
             self._idmap = IdentityMap(LoginManager().get_auth_client())
         return self._idmap
 
-    def _raw_id_from_object(self, obj: DATA_CONTAINER_T) -> Tuple[str, str]:
+    def _raw_id_from_object(self, obj: DATA_CONTAINER_T) -> tuple[str, str]:
         """
         returns a pair, (original, value)
 

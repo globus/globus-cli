@@ -1,5 +1,7 @@
+from __future__ import annotations
+
 import functools
-from typing import Callable, List, NoReturn, Optional, Tuple, Type, TypeVar, cast
+from typing import Callable, List, NoReturn, Tuple, Type, TypeVar, cast
 
 import click
 import globus_sdk
@@ -46,7 +48,7 @@ def error_handler(
     return inner_decorator
 
 
-def find_handler(exception: Exception) -> Optional[HOOK_TYPE]:
+def find_handler(exception: Exception) -> HOOK_TYPE | None:
     for handler, error_class, condition in _REGISTERED_HOOKS:
         if error_class is not None and not isinstance(exception, error_class):
             continue

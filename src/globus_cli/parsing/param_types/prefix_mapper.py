@@ -1,5 +1,6 @@
+from __future__ import annotations
+
 import json
-from typing import Dict, List
 
 import click
 
@@ -14,8 +15,8 @@ class StringPrefixMapper(click.ParamType):
     It can be used to define a nice system for dispatch on prefixes
     """
 
-    __prefix_mapping__: Dict[str, str] = {}
-    __prefix_metavars__: List[str] = []
+    __prefix_mapping__: dict[str, str] = {}
+    __prefix_metavars__: list[str] = []
 
     def __init__(self, *args, null=None, **kwargs):
         self.null = null

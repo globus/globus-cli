@@ -1,4 +1,4 @@
-from typing import List, Optional
+from __future__ import annotations
 
 import click
 from globus_sdk import TransferData
@@ -352,7 +352,7 @@ def transfer_command(
         return {"DATA_TYPE": "filter_rule", "method": "exclude", "name": name_pattern}
 
     if exclude:
-        filter_rules: Optional[List[str]] = [_make_exclude_rule(s) for s in exclude]
+        filter_rules: list[str] | None = [_make_exclude_rule(s) for s in exclude]
     else:
         filter_rules = None
 

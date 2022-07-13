@@ -5,11 +5,11 @@ All customizations that apply specifically to the main command go here as well.
 Ultimately, `globus_cli.parsing` will export only the decorators defined here,
 and all other components will be hidden internals.
 """
+from __future__ import annotations
 
 import logging
 import sys
 from shutil import get_terminal_size
-from typing import List
 
 import click
 
@@ -70,7 +70,7 @@ class GlobusCommand(click.Command):
         finally:
             log.debug("command invoke exit")
 
-    def parse_args(self, ctx: click.Context, args: List[str]) -> List[str]:
+    def parse_args(self, ctx: click.Context, args: list[str]) -> list[str]:
         # args will be consumed, so check it before super()
         had_args = bool(args)
         try:

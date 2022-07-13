@@ -1,7 +1,8 @@
+from __future__ import annotations
+
 import os
 import sys
 from distutils.util import strtobool
-from typing import Optional
 
 import click
 
@@ -70,7 +71,7 @@ def err_is_terminal():
     return sys.stderr.isatty()
 
 
-def env_interactive() -> Optional[bool]:
+def env_interactive() -> bool | None:
     """
     Check the `GLOBUS_CLI_INTERACTIVE` environment variable for a boolean, and *let*
     `strtobool` raise a `ValueError` if it doesn't parse.

@@ -1,5 +1,7 @@
+from __future__ import annotations
+
 import functools
-from typing import Callable, Optional
+from typing import Callable
 
 import click
 import globus_sdk
@@ -7,7 +9,7 @@ import globus_sdk
 MEMBERSHIP_FIELDS = {x.value for x in globus_sdk.GroupRequiredSignupFields}
 
 
-def group_id_arg(f: Optional[Callable] = None):
+def group_id_arg(f: Callable | None = None):
     if f is None:
         return functools.partial(group_id_arg)
     return click.argument("GROUP_ID")(f)
@@ -41,7 +43,7 @@ def parse_signup_fields(res):
 
 
 def group_create_and_update_params(
-    f: Optional[Callable] = None, *, create: bool = False
+    f: Callable | None = None, *, create: bool = False
 ) -> Callable:
     """
     Collection of options consumed by group create and update.

@@ -1,6 +1,8 @@
+from __future__ import annotations
+
 import logging
 import uuid
-from typing import Tuple, Type, Union, cast
+from typing import cast
 
 import click
 import globus_sdk
@@ -18,9 +20,9 @@ log = logging.getLogger(__name__)
 class Endpointish:
     def __init__(
         self,
-        endpoint_id: Union[str, uuid.UUID],
+        endpoint_id: str | uuid.UUID,
         *,
-        transfer_client: globus_sdk.TransferClient
+        transfer_client: globus_sdk.TransferClient,
     ):
         self._client = transfer_client
         self.endpoint_id = endpoint_id
@@ -40,8 +42,8 @@ class Endpointish:
 
     def assert_ep_type(
         self,
-        expect_types: Union[Tuple[EndpointType, ...], EndpointType],
-        error_class: Type[WrongEndpointTypeError] = WrongEndpointTypeError,
+        expect_types: tuple[EndpointType, ...] | EndpointType,
+        error_class: type[WrongEndpointTypeError] = WrongEndpointTypeError,
     ) -> None:
         if isinstance(expect_types, EndpointType):
             expect_types = (expect_types,)

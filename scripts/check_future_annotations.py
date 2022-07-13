@@ -26,6 +26,9 @@ FLAGGABLE_NAMES = frozenset(
     {
         "Optional",
         "Union",
+        "Dict",
+        "List",
+        "Set",
     }
 )
 

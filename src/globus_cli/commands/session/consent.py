@@ -1,4 +1,4 @@
-from typing import Tuple
+from __future__ import annotations
 
 import click
 
@@ -13,7 +13,7 @@ from globus_cli.parsing import command, no_local_server_option
 )
 @no_local_server_option
 @click.argument("SCOPES", nargs=-1, required=True)
-def session_consent(scopes: Tuple[str], no_local_server: bool) -> None:
+def session_consent(scopes: tuple[str], no_local_server: bool) -> None:
     """
     Update your current CLI auth session by authenticating with a specific scope or set
     of scopes.

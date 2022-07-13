@@ -1,5 +1,7 @@
+from __future__ import annotations
+
 import json
-from typing import List, Optional, Union, cast
+from typing import List, Optional, cast
 
 import click
 import globus_sdk
@@ -105,7 +107,7 @@ def consent_required_hook(exception: globus_sdk.GlobusAPIError) -> None:
     )
 )
 def authentication_hook(
-    exception: Union[globus_sdk.TransferAPIError, globus_sdk.AuthAPIError]
+    exception: globus_sdk.TransferAPIError | globus_sdk.AuthAPIError,
 ) -> None:
     write_error_info(
         "No Authentication Error",

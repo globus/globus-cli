@@ -1,8 +1,8 @@
-from typing import Dict, List, Optional
+from __future__ import annotations
 
 from globus_sdk import GCSClient
 
-CONNECTOR_INFO: List[Dict[str, str]] = [
+CONNECTOR_INFO: list[dict[str, str]] = [
     {
         "connector_id": "145812c8-decc-41f1-83cf-bb2a85a2a70b",
         "name": "POSIX",
@@ -50,7 +50,7 @@ CONNECTOR_INFO: List[Dict[str, str]] = [
 ]
 
 
-def connector_display_name_to_id(connector_name: str) -> Optional[str]:
+def connector_display_name_to_id(connector_name: str) -> str | None:
     conn_id = None
     for data in CONNECTOR_INFO:
         if data["name"] == connector_name:

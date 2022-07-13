@@ -1,4 +1,4 @@
-from typing import List, Optional
+from __future__ import annotations
 
 import click
 
@@ -29,7 +29,7 @@ def member_list(
     *,
     login_manager: LoginManager,
     group_id: str,
-    fields: Optional[List[str]],
+    fields: list[str] | None,
 ):
     """List group members"""
     groups_client = login_manager.get_groups_client()

@@ -1,4 +1,4 @@
-from typing import Optional
+from __future__ import annotations
 
 import click
 
@@ -60,12 +60,12 @@ def group_set_policies(
     *,
     login_manager: LoginManager,
     group_id: str,
-    high_assurance: Optional[bool],
-    authentication_timeout: Optional[int],
-    visibility: Optional[str],
-    members_visibility: Optional[str],
-    join_requests: Optional[bool],
-    signup_fields: Optional[str],
+    high_assurance: bool | None,
+    authentication_timeout: int | None,
+    visibility: str | None,
+    members_visibility: str | None,
+    join_requests: bool | None,
+    signup_fields: str | None,
 ):
     """Update an existing group's policies"""
     groups_client = login_manager.get_groups_client()

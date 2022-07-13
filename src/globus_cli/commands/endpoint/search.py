@@ -1,4 +1,4 @@
-from typing import Optional
+from __future__ import annotations
 
 import click
 
@@ -71,10 +71,10 @@ $ globus endpoint search --filter-scope my-endpoints
 def endpoint_search(
     *,
     login_manager: LoginManager,
-    filter_fulltext: Optional[str],
+    filter_fulltext: str | None,
     limit: int,
-    filter_owner_id: Optional[str],
-    filter_scope: Optional[str],
+    filter_owner_id: str | None,
+    filter_scope: str | None,
 ) -> None:
     """
     Search for Globus endpoints with search filters. If --filter-scope is set to the

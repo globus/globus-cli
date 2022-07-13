@@ -1,6 +1,8 @@
 """
 Internal types for type annotations
 """
+from __future__ import annotations
+
 from typing import TYPE_CHECKING, Any, Callable, List, Mapping, Tuple, Union
 
 from globus_sdk import GlobusHTTPResponse

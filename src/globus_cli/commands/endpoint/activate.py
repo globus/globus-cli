@@ -1,5 +1,6 @@
+from __future__ import annotations
+
 import webbrowser
-from typing import Dict, Optional, Union
 
 import click
 from globus_sdk import GlobusHTTPResponse
@@ -121,13 +122,13 @@ def endpoint_activate(
     login_manager: LoginManager,
     endpoint_id: str,
     myproxy: bool,
-    myproxy_username: Optional[str],
-    myproxy_password: Optional[str],
-    myproxy_lifetime: Optional[int],
+    myproxy_username: str | None,
+    myproxy_password: str | None,
+    myproxy_lifetime: int | None,
     web: bool,
     no_browser: bool,
     delegate_proxy: bool,
-    proxy_lifetime: Optional[int],
+    proxy_lifetime: int | None,
     no_autoactivate: bool,
     force: bool,
 ) -> None:
@@ -197,9 +198,9 @@ def endpoint_activate(
 
     # check if endpoint is already activated unless --force
     if not force:
-        res: Union[
-            Dict[str, str], GlobusHTTPResponse
-        ] = transfer_client.endpoint_autoactivate(endpoint_id, if_expires_in=60)
+        res: (
+            dict[str, str] | GlobusHTTPResponse
+        ) = transfer_client.endpoint_autoactivate(endpoint_id, if_expires_in=60)
 
         if "AlreadyActivated" == res["code"]:
             formatted_print(

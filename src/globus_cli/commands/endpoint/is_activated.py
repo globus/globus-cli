@@ -1,4 +1,6 @@
-from typing import NoReturn, Optional
+from __future__ import annotations
+
+from typing import NoReturn
 
 import click
 
@@ -85,7 +87,7 @@ def endpoint_is_activated(
     *,
     login_manager: LoginManager,
     endpoint_id: str,
-    until: Optional[int],
+    until: int | None,
     absolute_time: bool,
 ) -> None:
     """

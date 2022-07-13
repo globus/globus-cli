@@ -1,5 +1,7 @@
+from __future__ import annotations
+
 import functools
-from typing import Callable, Optional
+from typing import Callable
 
 import click
 
@@ -8,7 +10,7 @@ def server_id_arg(f):
     return click.argument("server_id")(f)
 
 
-def server_add_and_update_opts(f: Optional[Callable] = None, *, add=False):
+def server_add_and_update_opts(f: Callable | None = None, *, add=False):
     """
     shared collection of options for `globus transfer endpoint server add` and
     `globus transfer endpoint server update`.

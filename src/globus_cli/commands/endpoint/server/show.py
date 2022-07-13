@@ -1,5 +1,6 @@
+from __future__ import annotations
+
 from textwrap import dedent
-from typing import Optional
 
 from globus_cli.login_manager import LoginManager
 from globus_cli.parsing import command, endpoint_id_arg
@@ -32,7 +33,7 @@ def server_show(*, login_manager: LoginManager, endpoint_id, server_id):
     server_doc = transfer_client.get_endpoint_server(endpoint_id, server_id)
     fields: FIELD_LIST_T = [("ID", "id")]
     if not server_doc["uri"]:  # GCP endpoint server
-        text_epilog: Optional[str] = dedent(
+        text_epilog: str | None = dedent(
             """
             This server is for a Globus Connect Personal installation.
 

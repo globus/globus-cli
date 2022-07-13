@@ -1,5 +1,6 @@
+from __future__ import annotations
+
 import uuid
-from typing import Optional
 
 import click
 
@@ -32,7 +33,7 @@ JOIN_USER_FIELDS: FIELD_LIST_T = [
 def group_join(
     *,
     group_id: uuid.UUID,
-    identity: Optional[ParsedIdentity],
+    identity: ParsedIdentity | None,
     request: bool,
     login_manager: LoginManager,
 ):

@@ -1,5 +1,6 @@
+from __future__ import annotations
+
 import uuid
-from typing import Optional
 
 import click
 
@@ -19,10 +20,7 @@ from ._common import build_invite_actions, get_invite_formatter
 )
 @LoginManager.requires_login(LoginManager.GROUPS_RS)
 def invite_accept(
-    *,
-    group_id: uuid.UUID,
-    identity: Optional[ParsedIdentity],
-    login_manager: LoginManager
+    *, group_id: uuid.UUID, identity: ParsedIdentity | None, login_manager: LoginManager
 ):
     """
     Accept an invitation to a group

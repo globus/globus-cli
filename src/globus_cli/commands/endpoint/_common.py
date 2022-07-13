@@ -1,5 +1,7 @@
+from __future__ import annotations
+
 import functools
-from typing import Callable, Optional
+from typing import Callable
 
 import click
 
@@ -8,7 +10,7 @@ from globus_cli.parsing import LocationType, MutexInfo, mutex_option_group
 
 
 def endpoint_create_and_update_params(
-    f: Optional[Callable] = None, *, create: bool = False
+    f: Callable | None = None, *, create: bool = False
 ) -> Callable:
     """
     Collection of options consumed by Transfer endpoint create and update

@@ -1,5 +1,7 @@
 # TDOD: Remove this file when endpoints natively support recursive ls
 
+from __future__ import annotations
+
 import logging
 import time
 from collections import deque
@@ -55,7 +57,7 @@ class RecursiveLsResponse:
         self,
         client: TransferClient,
         endpoint_id: str,
-        ls_params: Dict[str, Any],
+        ls_params: dict[str, Any],
         *,
         max_depth: int = 3,
         filter_after_first: bool = True,
@@ -81,7 +83,7 @@ class RecursiveLsResponse:
         # careful and make sure that such a condition is respected (and
         # replicated as an iterable of length 0)
         try:
-            self._first_elem: Optional[ITEM_T] = next(self._generator)
+            self._first_elem: ITEM_T | None = next(self._generator)
         except StopIteration:
             # express this internally as "first_elem is null" -- just need some
             # way of making sure that it's clear
@@ -92,7 +94,7 @@ class RecursiveLsResponse:
             yield self._first_elem
             yield from self._generator
 
-    def _iterable_func(self, start_path: Optional[str]) -> Iterator[ITEM_T]:
+    def _iterable_func(self, start_path: str | None) -> Iterator[ITEM_T]:
         """
         An internal function which has generator semantics. Defined using the
         `yield` syntax.

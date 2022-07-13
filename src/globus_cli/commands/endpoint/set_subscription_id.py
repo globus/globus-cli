@@ -1,5 +1,6 @@
+from __future__ import annotations
+
 import uuid
-from typing import Optional
 
 import click
 
@@ -10,7 +11,7 @@ from globus_cli.termio import FORMAT_TEXT_RAW, formatted_print
 
 class SubscriptionIdType(click.ParamType):
     def convert(
-        self, value: str, param: Optional[click.Parameter], ctx: Optional[click.Context]
+        self, value: str, param: click.Parameter | None, ctx: click.Context | None
     ):
         if value is None or (ctx and ctx.resilient_parsing):
             return None
@@ -28,7 +29,7 @@ class SubscriptionIdType(click.ParamType):
 @click.argument("SUBSCRIPTION_ID", type=SubscriptionIdType())
 @LoginManager.requires_login(LoginManager.TRANSFER_RS)
 def set_endpoint_subscription_id(
-    *, login_manager: LoginManager, endpoint_id: str, subscription_id: Optional[str]
+    *, login_manager: LoginManager, endpoint_id: str, subscription_id: str | None
 ) -> None:
     """
     Set an endpoint's subscription ID.

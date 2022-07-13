@@ -1,5 +1,6 @@
+from __future__ import annotations
+
 import uuid
-from typing import Optional
 
 import click
 import globus_sdk
@@ -41,7 +42,7 @@ def group_leave_formatter(data: globus_sdk.GlobusHTTPResponse) -> None:
 def group_leave(
     *,
     group_id: uuid.UUID,
-    identity: Optional[ParsedIdentity],
+    identity: ParsedIdentity | None,
     login_manager: LoginManager,
 ):
     """
