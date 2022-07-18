@@ -6,7 +6,7 @@ repos:
     - id: trailing-whitespace
     - id: end-of-file-fixer
 - repo: https://github.com/python-jsonschema/check-jsonschema
-  rev: 0.17.0
+  rev: 0.17.1
   hooks:
     - id: check-github-workflows
     - id: check-dependabot
