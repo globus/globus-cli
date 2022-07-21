@@ -69,9 +69,20 @@ JOB_FORMAT_FIELDS = [
     ("Last Run", lambda data: isoformat_to_local(data["last_ran_at"])),
     ("Next Run", lambda data: isoformat_to_local(data["next_run"])),
     ("Stop After Date", _get_stop_date),
-    ("Stop After N. Runs", _get_stop_n_runs),
-    ("N. Runs", lambda data: data["n_runs"]),
-    ("N. Timer Errors", lambda data: data["n_errors"]),
+    ("Stop After Number of Runs", _get_stop_n_runs),
+    ("Number of Runs", lambda data: data["n_runs"]),
+    ("Number of Timer Errors", lambda data: data["n_errors"]),
+]
+
+DELETED_JOB_FORMAT_FIELDS = [
+    ("Job ID", "job_id"),
+    ("Name", "name"),
+    ("Type", _get_action_type),
+    ("Submitted At", lambda data: isoformat_to_local(data["submitted_at"])),
+    ("Start", lambda data: isoformat_to_local(data["start"])),
+    ("Interval", _get_interval),
+    ("Stop After Date", _get_stop_date),
+    ("Stop After Number of Runs", _get_stop_n_runs),
 ]
 
 START_HELP = """
