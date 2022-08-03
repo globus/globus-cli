@@ -42,9 +42,7 @@ def session_hook(exception: globus_sdk.GlobusAPIError) -> None:
     if identities or domains:
         # cast: mypy can't deduce that `domains` is not None if `identities` is None
         update_target = (
-            " ".join(identities)
-            if identities is not None
-            else " ".join(cast(List[str], domains))
+            " ".join(identities) if identities else " ".join(cast(List[str], domains))
         )
         click.echo(
             "Please run\n\n"
