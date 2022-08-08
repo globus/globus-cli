@@ -104,6 +104,7 @@ _SERVICE_MAP = {
     "groups": LoginManager.GROUPS_RS,
     "search": LoginManager.SEARCH_RS,
     "transfer": LoginManager.TRANSFER_RS,
+    "timer": LoginManager.TIMER_RS,
 }
 
 
@@ -118,6 +119,8 @@ def _get_client(
         return login_manager.get_search_client()
     elif service_name == "transfer":
         return login_manager.get_transfer_client()
+    elif service_name == "timer":
+        return login_manager.get_timer_client()
     else:
         raise NotImplementedError(f"unrecognized service: {service_name}")
 
@@ -128,6 +131,7 @@ def _get_url(service_name: str) -> str:
         "groups": "https://groups.api.globus.org/v2/",
         "search": "https://search.api.globus.org/",
         "transfer": "https://transfer.api.globus.org/v0.10/",
+        "timer": "https://timer.automate.globus.org/",
     }[service_name]
 
 
