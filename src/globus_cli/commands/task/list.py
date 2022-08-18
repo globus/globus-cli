@@ -205,7 +205,10 @@ def task_list(
     transfer_client = login_manager.get_transfer_client()
     task_iterator = PagingWrapper(
         transfer_client.paginated.task_list(
-            query_params={"filter": filter_string[:-1]},  # remove trailing /
+            query_params={
+                "filter": filter_string[:-1],  # remove trailing /
+                "orderby": "request_time DESC",
+            },
         ).items(),
         limit=limit,
     )
