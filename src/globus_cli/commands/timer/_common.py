@@ -1,7 +1,6 @@
 from __future__ import annotations
 
 import datetime
-import re
 from typing import Any
 from urllib.parse import urlparse
 
@@ -84,22 +83,3 @@ DELETED_JOB_FORMAT_FIELDS = [
     ("Stop After Date", _get_stop_date),
     ("Stop After Number of Runs", _get_stop_n_runs),
 ]
-
-START_HELP = """
-Start time for the job. Defaults to current time. (The example above shows the allowed
-formats using Python's datetime formatters; see:
-https://docs.python.org/3/library/datetime.html #strftime-and-strptime-format-codes
-"""
-
-timedelta_regex = re.compile(
-    r"""\
-    ^
-    ((?P<weeks>\d+)w)?
-    ((?P<days>\d+)d)?
-    ((?P<hours>\d+)h)?
-    ((?P<minutes>\d+)m)?
-    ((?P<seconds>\d+)s?)?
-    $
-    """,
-    flags=re.VERBOSE,
-)

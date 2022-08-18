@@ -3,14 +3,15 @@ from __future__ import annotations
 import click
 import globus_sdk
 
-from globus_cli import utils
 from globus_cli.login_manager import LoginManager
 from globus_cli.parsing import (
     ENDPOINT_PLUS_OPTPATH,
-    TaskPath,
     command,
     mutex_option_group,
+    sync_level_option,
     task_submission_options,
+    transfer_batch_option,
+    transfer_recursive_option,
 )
 from globus_cli.termio import FORMAT_TEXT_RECORD, formatted_print
 
@@ -106,24 +107,16 @@ fi
 ----
 """,
 )
+@click.argument(
+    "source", metavar="SOURCE_ENDPOINT_ID[:SOURCE_PATH]", type=ENDPOINT_PLUS_OPTPATH
+)
+@click.argument(
+    "destination", metavar="DEST_ENDPOINT_ID[:DEST_PATH]", type=ENDPOINT_PLUS_OPTPATH
+)
 @task_submission_options
-@click.option(
-    "--recursive",
-    "-r",
-    is_flag=True,
-    help="SOURCE_PATH and DEST_PATH are both directories, do a recursive dir transfer",
-)
-@click.option(
-    "--sync-level",
-    "-s",
-    default=None,
-    show_default=True,
-    type=click.Choice(("exists", "size", "mtime", "checksum"), case_sensitive=False),
-    help=(
-        "How will the Transfer task determine whether or not to "
-        "actually transfer a file over the network?"
-    ),
-)
+@sync_level_option(add_decls=("-s",))
+@transfer_batch_option
+@transfer_recursive_option
 @click.option(
     "--preserve-mtime",
     is_flag=True,
@@ -149,17 +142,6 @@ fi
     help=(
         "Delete extraneous files in the destination directory. "
         "Only applies to recursive directory transfers."
-    ),
-)
-@click.option(
-    "--batch",
-    type=click.File("r"),
-    help=(
-        "Accept a batch of source/dest path pairs from a file. Use the special `-` "
-        "value to read from stdin; otherwise opens the file from the argument and "
-        "passes through lines from that file. Uses SOURCE_ENDPOINT_ID and "
-        "DEST_ENDPOINT_ID as passed on the commandline. Commandline paths are still "
-        "allowed and are used as prefixes to the batchmode inputs."
     ),
 )
 @click.option(
@@ -207,12 +189,6 @@ fi
         "unix style globbing. Give this option multiple times to exclude "
         "multiple patterns."
     ),
-)
-@click.argument(
-    "source", metavar="SOURCE_ENDPOINT_ID[:SOURCE_PATH]", type=ENDPOINT_PLUS_OPTPATH
-)
-@click.argument(
-    "destination", metavar="DEST_ENDPOINT_ID[:DEST_PATH]", type=ENDPOINT_PLUS_OPTPATH
 )
 @click.option("--perf-cc", type=int, hidden=True)
 @click.option("--perf-p", type=int, hidden=True)
@@ -314,11 +290,12 @@ def transfer_command(
 
     {AUTOMATIC_ACTIVATION}
     """
-    from globus_cli.services.transfer import autoactivate
+    from globus_cli.services.transfer import add_batch_to_transfer_data, autoactivate
 
     source_endpoint, cmd_source_path = source
     dest_endpoint, cmd_dest_path = destination
 
+    # avoid 'mutex_option_group', emit a custom error message
     if recursive and batch:
         raise click.UsageError(
             "You cannot use --recursive in addition to --batch. "
@@ -381,28 +358,9 @@ def transfer_command(
     )
 
     if batch:
-
-        @click.command()
-        @click.option("--external-checksum")
-        @click.option("--recursive", "-r", is_flag=True)
-        @click.argument("source_path", type=TaskPath(base_dir=cmd_source_path))
-        @click.argument("dest_path", type=TaskPath(base_dir=cmd_dest_path))
-        @mutex_option_group("--recursive", "--external-checksum")
-        def process_batch_line(dest_path, source_path, recursive, external_checksum):
-            """
-            Parse a line of batch input and turn it into a transfer submission
-            item.
-            """
-            transfer_data.add_item(
-                str(source_path),
-                str(dest_path),
-                external_checksum=external_checksum,
-                checksum_algorithm=checksum_algorithm,
-                recursive=recursive,
-            )
-
-        utils.shlex_process_stream(process_batch_line, batch)
-
+        add_batch_to_transfer_data(
+            cmd_source_path, cmd_dest_path, checksum_algorithm, transfer_data, batch
+        )
     else:
         transfer_data.add_item(
             cmd_source_path,

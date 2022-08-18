@@ -9,6 +9,7 @@ from .location import LocationType
 from .nullable import StringOrNull, UrlOrNull, nullable_multi_callback
 from .prefix_mapper import JSONStringOrFile
 from .task_path import TaskPath
+from .timedelta import TimedeltaType
 
 __all__ = (
     "CommaDelimitedList",
@@ -23,4 +24,5 @@ __all__ = (
     "nullable_multi_callback",
     "JSONStringOrFile",
     "TaskPath",
+    "TimedeltaType",
 )
