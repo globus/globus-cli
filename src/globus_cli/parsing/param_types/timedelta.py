@@ -6,11 +6,17 @@ import click
 _timedelta_regex = re.compile(
     r"""
     ^
+    \s*
     ((?P<weeks>\d+)w)?
+    \s*
     ((?P<days>\d+)d)?
+    \s*
     ((?P<hours>\d+)h)?
+    \s*
     ((?P<minutes>\d+)m)?
+    \s*
     ((?P<seconds>\d+)s?)?
+    \s*
     $
     """,
     flags=re.VERBOSE,
