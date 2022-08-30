@@ -114,7 +114,7 @@ fi
     "destination", metavar="DEST_ENDPOINT_ID[:DEST_PATH]", type=ENDPOINT_PLUS_OPTPATH
 )
 @task_submission_options
-@sync_level_option(add_decls=("-s",))
+@sync_level_option(aliases=("-s",))
 @transfer_batch_option
 @transfer_recursive_option
 @click.option(

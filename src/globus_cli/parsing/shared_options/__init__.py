@@ -440,22 +440,6 @@ def no_local_server_option(f):
     )(f)
 
 
-def sync_level_option(*, add_decls: tuple[str, ...] = ()) -> Callable[[C], C]:
-    return click.option(
-        "--sync-level",
-        *add_decls,
-        default=None,
-        show_default=True,
-        type=click.Choice(
-            ("exists", "size", "mtime", "checksum"), case_sensitive=False
-        ),
-        help=(
-            "Specify that only new or modified files should be transferred, depending "
-            "on which setting is provided"
-        ),
-    )
-
-
 def transfer_recursive_option(f: C) -> C:
     return click.option(
         "--recursive",

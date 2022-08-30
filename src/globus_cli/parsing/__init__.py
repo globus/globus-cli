@@ -1,20 +1,6 @@
-from globus_cli.parsing.commands import command, group, main_group
-from globus_cli.parsing.mutex_group import MutexInfo, mutex_option_group
-from globus_cli.parsing.one_use_option import one_use_option
-from globus_cli.parsing.shared_options import (
-    collection_id_arg,
-    delete_and_rm_options,
-    endpoint_id_arg,
-    no_local_server_option,
-    security_principal_opts,
-    sync_level_option,
-    synchronous_task_wait_options,
-    task_notify_option,
-    task_submission_options,
-    transfer_batch_option,
-    transfer_recursive_option,
-)
-
+from .commands import command, group, main_group
+from .mutex_group import MutexInfo, mutex_option_group
+from .one_use_option import one_use_option
 from .param_types import (
     ENDPOINT_PLUS_OPTPATH,
     ENDPOINT_PLUS_REQPATH,
@@ -29,6 +15,19 @@ from .param_types import (
     UrlOrNull,
     nullable_multi_callback,
 )
+from .shared_options import (
+    collection_id_arg,
+    delete_and_rm_options,
+    endpoint_id_arg,
+    no_local_server_option,
+    security_principal_opts,
+    synchronous_task_wait_options,
+    task_notify_option,
+    task_submission_options,
+    transfer_batch_option,
+    transfer_recursive_option,
+)
+from .shared_options.sync_level import sync_level_option
 
 __all__ = [
     # replacement decorators

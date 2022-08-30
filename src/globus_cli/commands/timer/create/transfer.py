@@ -47,7 +47,7 @@ e.g. '1h30m', '500s', '10d'
     "destination", metavar="DEST_ENDPOINT_ID[:DEST_PATH]", type=ENDPOINT_PLUS_OPTPATH
 )
 @transfer_batch_option
-@sync_level_option()
+@sync_level_option
 @transfer_recursive_option
 @task_notify_option
 @click.option(
