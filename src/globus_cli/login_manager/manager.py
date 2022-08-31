@@ -30,11 +30,6 @@ if TYPE_CHECKING:
     from ..services.transfer import CustomTransferClient
 
 
-_TRANSFER_AP_SCOPE = (
-    "https://auth.globus.org/scopes/actions.globus.org/transfer/transfer"
-)
-
-
 class LoginManager:
     # TEST_MODE skips token validation
     _TEST_MODE: bool = False
