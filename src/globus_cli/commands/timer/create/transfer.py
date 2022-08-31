@@ -39,6 +39,14 @@ e.g. '1h30m', '500s', '10d'
 """
 
 
+def resolve_start_time(start: datetime.datetime | None) -> datetime.datetime:
+    # handle the default start time (now)
+    start_ = start or datetime.datetime.now()
+    # set the timezone to local system time if the timezone input is not aware
+    start_with_tz = start_.astimezone() if start_.tzinfo is None else start_
+    return start_with_tz
+
+
 @command("transfer", short_help="Create a recurring transfer job in Timer")
 @click.argument(
     "source", metavar="SOURCE_ENDPOINT_ID[:SOURCE_PATH]", type=ENDPOINT_PLUS_OPTPATH
@@ -158,7 +166,9 @@ def transfer_command(
     # Interval must be null iff the job is non-repeating, i.e. stop-after-runs == 1.
     if stop_after_runs != 1:
         if interval is None:
-            raise click.UsageError("Missing option '--interval'")
+            raise click.UsageError(
+                "'--interval' is required unless `--stop-after-runs=1` is used."
+            )
 
     # default name, dynamically computed from the current time
     if name is None:
@@ -202,13 +212,10 @@ def transfer_command(
     else:  # unreachable
         raise NotImplementedError()
 
-    start_with_tz = start or datetime.datetime.now()
-    if start_with_tz.tzinfo is None:
-        start_with_tz = start_with_tz.astimezone()
     response = timer_client.create_job(
         globus_sdk.TimerJob.from_transfer_data(
             transfer_data,
-            start_with_tz,
+            resolve_start_time(start),
             interval,
             name=name,
             stop_after=stop_after_date,
