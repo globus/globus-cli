@@ -15,7 +15,7 @@ _timedelta_regex = re.compile(
     \s*
     ((?P<minutes>\d+)m)?
     \s*
-    ((?P<seconds>\d+)s?)?
+    ((?P<seconds>\d+)s)?
     \s*
     $
     """,

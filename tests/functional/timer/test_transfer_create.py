@@ -27,7 +27,7 @@ def ep_for_timer():
 @pytest.mark.parametrize(
     "extra_args",
     [
-        ["--interval", "600"],
+        ["--interval", "600s"],
         ["--stop-after-runs", "1"],
     ],
 )
@@ -68,7 +68,7 @@ def test_create_job_batch_data(run_line, ep_for_timer):
             ep_for_timer,
             ep_for_timer,
             "--interval",
-            "1800",
+            "1800s",
             "--batch",
             "-",
         ],
@@ -100,7 +100,7 @@ def test_recursive_and_batch_exclusive(run_line):
             ep_id,
             ep_id,
             "--interval",
-            "1800",
+            "1800s",
             "--recursive",
             "--batch",
             "-",
@@ -114,7 +114,7 @@ def test_create_job_requires_some_pathargs(run_line):
     ep_id = str(uuid.UUID(int=1))
 
     result = run_line(
-        ["globus", "timer", "create", "transfer", ep_id, ep_id, "--interval", "1800"],
+        ["globus", "timer", "create", "transfer", ep_id, ep_id, "--interval", "1800s"],
         assert_exit_code=2,
     )
     assert (

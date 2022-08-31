@@ -212,10 +212,10 @@ def test_timedelta_type(runner):
     result = runner.invoke(foo, [" 2d  3m1s"])
     assert result.output == f"t={1 + 3 * 60 + 2 * 24 * 3600}\n"
 
-    # a bare integer is handled as seconds
-    for arg in ("600", "3600"):
-        result = runner.invoke(foo, [arg])
-        assert result.output == f"t={arg}\n"
+    # a bare integer is rejected
+    result = runner.invoke(foo, ["100"])
+    assert result.exit_code == 2
+    assert "couldn't parse timedelta: '100'" in result.output
 
     # out of order fails to parse
     result = runner.invoke(foo, ["1m2d"])
