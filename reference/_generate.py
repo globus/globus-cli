@@ -65,7 +65,8 @@ def walk_contexts(name="globus", cmd=CLI, parent_ctx=None):
     """
     current_ctx = click.Context(cmd, info_name=name, parent=parent_ctx)
     cmds, groups = [], []
-    for subcmdname, subcmd in getattr(cmd, "commands", {}).items():
+    for subcmdname in cmd.list_commands(current_ctx):
+        subcmd = cmd.get_command(current_ctx, subcmdname)
         # explicitly skip hidden commands and `globus config`
         if subcmd.hidden or (name + " " + subcmdname) == "globus config":
             continue
@@ -139,7 +140,7 @@ class AdocPage:
         sections = []
         sections.append(f"= {self.commandname.upper()}\n")
         sections.append(f"== NAME\n\n{self.commandname} - {self.short_help}\n")
-        sections.append(f"== SYNOPSIS\n\n`{self.commandname} {self.synopsis}`\n")
+        sections.append(f"== SYNOPSIS\n\n`{self.commandname}`\n{self.synopsis}\n")
         if self.description:
             sections.append(f"== DESCRIPTION\n\n{self.description}\n")
         if self.options:
