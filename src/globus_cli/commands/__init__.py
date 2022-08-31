@@ -1,31 +1,33 @@
-from globus_cli.commands.bookmark import bookmark_command
-from globus_cli.commands.cli_profile_list import cli_profile_list
-from globus_cli.commands.collection import collection_command
-from globus_cli.commands.delete import delete_command
-from globus_cli.commands.endpoint import endpoint_command
-from globus_cli.commands.get_identities import get_identities_command
-from globus_cli.commands.group import group_command
-from globus_cli.commands.list_commands import list_commands
-from globus_cli.commands.login import login_command
-from globus_cli.commands.logout import logout_command
-from globus_cli.commands.ls import ls_command
-from globus_cli.commands.mkdir import mkdir_command
-from globus_cli.commands.rename import rename_command
-from globus_cli.commands.rm import rm_command
-from globus_cli.commands.search import search_command
-from globus_cli.commands.session import session_command
-from globus_cli.commands.task import task_command
-from globus_cli.commands.timer import timer_command
-from globus_cli.commands.transfer import transfer_command
-from globus_cli.commands.update import update_command
-from globus_cli.commands.version import version_command
-from globus_cli.commands.whoami import whoami_command
 from globus_cli.parsing import main_group
 
-from .api import api_command
 
-
-@main_group
+@main_group(
+    lazy_subcommands={
+        "api": ("api", "api_command"),
+        "bookmark": ("bookmark", "bookmark_command"),
+        "cli-profile-list": ("cli_profile_list", "cli_profile_list"),
+        "collection": ("collection", "collection_command"),
+        "delete": ("delete", "delete_command"),
+        "endpoint": ("endpoint", "endpoint_command"),
+        "get-identities": ("get_identities", "get_identities_command"),
+        "group": ("group", "group_command"),
+        "list-commands": ("list_commands", "list_commands"),
+        "login": ("login", "login_command"),
+        "logout": ("logout", "logout_command"),
+        "ls": ("ls", "ls_command"),
+        "mkdir": ("mkdir", "mkdir_command"),
+        "rename": ("rename", "rename_command"),
+        "rm": ("rm", "rm_command"),
+        "search": ("search", "search_command"),
+        "session": ("session", "session_command"),
+        "task": ("task", "task_command"),
+        "timer": ("timer", "timer_command"),
+        "transfer": ("transfer", "transfer_command"),
+        "update": ("update", "update_command"),
+        "version": ("version", "version_command"),
+        "whoami": ("whoami", "whoami_command"),
+    }
+)
 def main() -> None:
     """
     Interact with Globus from the command line
@@ -36,34 +38,3 @@ def main() -> None:
 
     The documentation is also online at https://docs.globus.org/cli/
     """
-
-
-main.add_command(list_commands)
-main.add_command(cli_profile_list)
-main.add_command(version_command)
-main.add_command(update_command)
-
-main.add_command(login_command)
-main.add_command(logout_command)
-main.add_command(whoami_command)
-main.add_command(api_command)
-
-main.add_command(get_identities_command)
-main.add_command(ls_command)
-main.add_command(mkdir_command)
-main.add_command(rename_command)
-main.add_command(delete_command)
-main.add_command(rm_command)
-main.add_command(transfer_command)
-
-main.add_command(endpoint_command)
-main.add_command(collection_command)
-main.add_command(bookmark_command)
-main.add_command(task_command)
-main.add_command(session_command)
-
-main.add_command(group_command)
-
-main.add_command(search_command)
-
-main.add_command(timer_command)

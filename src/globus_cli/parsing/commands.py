@@ -7,6 +7,7 @@ and all other components will be hidden internals.
 """
 from __future__ import annotations
 
+import importlib
 import logging
 import sys
 from shutil import get_terminal_size
@@ -107,6 +108,50 @@ class GlobusCommandGroup(click.Group):
     there are options, but no subcommand (positional arg) is given.
     """
 
+    def __init__(
+        self,
+        *args,
+        lazy_subcommands: dict[str, tuple[str, str]] | None = None,
+        **kwargs,
+    ):
+        super().__init__(*args, **kwargs)
+        # lazy_subcommands is a map of the form:
+        #
+        #   {command-name} -> ({module-name}, {command-object-name})
+        #
+        self.lazy_subcommands: dict[str, tuple[str, str]] = lazy_subcommands or {}
+
+    def list_commands(self, ctx: click.Context) -> list[str]:
+        base = super().list_commands(ctx)
+        lazy = sorted(self.lazy_subcommands.keys())
+        return base + lazy
+
+    def get_command(self, ctx: click.Context, cmd_name: str) -> click.Command | None:
+        if cmd_name in self.lazy_subcommands:
+            return self._lazy_load(ctx, cmd_name)
+        return super().get_command(ctx, cmd_name)
+
+    def _lazy_load(self, ctx: click.Context, cmd_name: str) -> click.Command:
+        # lazily loading a command, first get the module name and attribute name
+        modname, cmd_object_name = self.lazy_subcommands[cmd_name]
+        # if the module name is relative (leading dot), resolve it relative to the
+        # callback function's module, so that we get the location where this was
+        # *probably* defined
+        if modname.startswith("."):
+            full_modname = self.callback.__module__ + modname
+            mod = importlib.import_module(modname, self.callback.__module__)
+        # otherwise, resolve it relative to the commands subpackage
+        else:
+            full_modname = "globus_cli.commands." + modname
+            mod = importlib.import_module("." + modname, "globus_cli.commands")
+        cmd_object = getattr(mod, cmd_object_name)
+        if not isinstance(cmd_object, click.Command):
+            raise ValueError(
+                f"Lazy loading of {full_modname}.{cmd_object_name} failed by returning "
+                "a non-command object"
+            )
+        return cmd_object
+
     def invoke(self, ctx):
         # if no subcommand was given (but, potentially, flags were passed),
         # ctx.protected_args will be empty
@@ -136,11 +181,14 @@ class TopLevelGroup(GlobusCommandGroup):
             custom_except_hook(sys.exc_info())
 
 
-def main_group(f):
-    f = click.group("globus", cls=TopLevelGroup)(f)
-    f = common_options(f)
-    f = print_completer_option(f)
-    return f
+def main_group(**kwargs):
+    def decorator(f):
+        f = click.group("globus", cls=TopLevelGroup, **kwargs)(f)
+        f = common_options(f)
+        f = print_completer_option(f)
+        return f
+
+    return decorator
 
 
 def command(*args, **kwargs):

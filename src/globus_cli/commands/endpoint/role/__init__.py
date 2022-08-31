@@ -1,18 +1,14 @@
-from globus_cli.commands.endpoint.role.create import role_create
-from globus_cli.commands.endpoint.role.delete import role_delete
-from globus_cli.commands.endpoint.role.list import role_list
-from globus_cli.commands.endpoint.role.show import role_show
 from globus_cli.parsing import group
 
 
-@group("role")
+@group(
+    "role",
+    lazy_subcommands={
+        "create": (".create", "role_create"),
+        "delete": (".delete", "role_delete"),
+        "list": (".list", "role_list"),
+        "show": (".show", "role_show"),
+    },
+)
 def role_command() -> None:
     """Manage endpoint roles"""
-
-
-role_command.add_command(role_list)
-role_command.add_command(role_show)
-role_command.add_command(role_create)
-role_command.add_command(role_delete)
-
-__all__ = ["role_command"]
