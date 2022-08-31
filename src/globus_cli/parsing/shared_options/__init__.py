@@ -438,27 +438,3 @@ def no_local_server_option(f):
             "remote connection."
         ),
     )(f)
-
-
-def transfer_recursive_option(f: C) -> C:
-    return click.option(
-        "--recursive",
-        "-r",
-        is_flag=True,
-        help="SOURCE_PATH and DEST_PATH are both directories, "
-        "do a recursive directory transfer",
-    )(f)
-
-
-def transfer_batch_option(f: C) -> C:
-    return click.option(
-        "--batch",
-        type=click.File("r"),
-        help=(
-            "Accept a batch of source/dest path pairs from a file. Use the special `-` "
-            "value to read from stdin; otherwise opens the file from the argument and "
-            "passes through lines from that file. Uses SOURCE_ENDPOINT_ID and "
-            "DEST_ENDPOINT_ID as passed on the commandline. Commandline paths are "
-            "still allowed and are used as prefixes to the batchmode inputs."
-        ),
-    )(f)

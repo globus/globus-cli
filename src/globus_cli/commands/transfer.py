@@ -7,11 +7,16 @@ from globus_cli.login_manager import LoginManager
 from globus_cli.parsing import (
     ENDPOINT_PLUS_OPTPATH,
     command,
+    encrypt_data_option,
+    fail_on_quota_errors_option,
     mutex_option_group,
+    preserve_timestamp_option,
+    skip_source_errors_option,
     sync_level_option,
     task_submission_options,
     transfer_batch_option,
     transfer_recursive_option,
+    verify_checksum_option,
 )
 from globus_cli.termio import FORMAT_TEXT_RECORD, formatted_print
 
@@ -117,24 +122,11 @@ fi
 @sync_level_option(aliases=("-s",))
 @transfer_batch_option
 @transfer_recursive_option
-@click.option(
-    "--preserve-mtime",
-    is_flag=True,
-    default=False,
-    help="Preserve file and directory modification times.",
-)
-@click.option(
-    "--verify-checksum/--no-verify-checksum",
-    default=True,
-    show_default=True,
-    help="Verify checksum after transfer.",
-)
-@click.option(
-    "--encrypt",
-    is_flag=True,
-    default=False,
-    help="Encrypt data sent through the network.",
-)
+@preserve_timestamp_option(aliases=("--preserve-mtime",))
+@verify_checksum_option
+@encrypt_data_option(aliases=("--encrypt",))
+@skip_source_errors_option
+@fail_on_quota_errors_option
 @click.option(
     "--delete",
     is_flag=True,
@@ -157,26 +149,6 @@ fi
     default=None,
     show_default=True,
     help=("Specify an algorithm for --external-checksum or --verify-checksum"),
-)
-@click.option(
-    "--skip-source-errors",
-    is_flag=True,
-    default=False,
-    show_default=True,
-    help=(
-        "Skip over source paths that hit permission denied or file not "
-        "found errors during the transfer."
-    ),
-)
-@click.option(
-    "--fail-on-quota-errors",
-    is_flag=True,
-    default=False,
-    show_default=True,
-    help=(
-        "Cause the task to fail if any quota exceeded errors are hit "
-        "during the transfer."
-    ),
 )
 @click.option(
     "--exclude",
@@ -210,9 +182,9 @@ def transfer_command(
     fail_on_quota_errors,
     exclude,
     label,
-    preserve_mtime,
+    preserve_timestamp,
     verify_checksum,
-    encrypt,
+    encrypt_data,
     submission_id,
     dry_run,
     delete,
@@ -342,8 +314,8 @@ def transfer_command(
         label=label,
         sync_level=sync_level,
         verify_checksum=verify_checksum,
-        preserve_timestamp=preserve_mtime,
-        encrypt_data=encrypt,
+        preserve_timestamp=preserve_timestamp,
+        encrypt_data=encrypt_data,
         submission_id=submission_id,
         deadline=deadline,
         skip_source_errors=skip_source_errors,

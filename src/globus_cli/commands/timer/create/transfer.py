@@ -12,10 +12,15 @@ from globus_cli.parsing import (
     ENDPOINT_PLUS_OPTPATH,
     TimedeltaType,
     command,
+    encrypt_data_option,
+    fail_on_quota_errors_option,
+    preserve_timestamp_option,
+    skip_source_errors_option,
     sync_level_option,
     task_notify_option,
     transfer_batch_option,
     transfer_recursive_option,
+    verify_checksum_option,
 )
 from globus_cli.termio import FORMAT_TEXT_RECORD, formatted_print
 
@@ -57,6 +62,11 @@ def resolve_start_time(start: datetime.datetime | None) -> datetime.datetime:
 @transfer_batch_option
 @sync_level_option
 @transfer_recursive_option
+@encrypt_data_option
+@verify_checksum_option
+@preserve_timestamp_option
+@skip_source_errors_option
+@fail_on_quota_errors_option
 @task_notify_option
 @click.option(
     "--start",
@@ -83,34 +93,6 @@ def resolve_start_time(start: datetime.datetime | None) -> datetime.datetime:
     "--stop-after-runs",
     type=click.IntRange(min=1),
     help="Stop running the transfer after this number of runs have happened",
-)
-@click.option(
-    "--encrypt-data",
-    is_flag=True,
-    help="Encrypt data sent through the network using TLS",
-)
-@click.option(
-    "--verify-checksum",
-    is_flag=True,
-    help="Verify file checksums and retry if the source and destination don't match",
-)
-@click.option(
-    "--preserve-timestamp",
-    is_flag=True,
-    help="Set file timestamps on the destination to match the origin",
-)
-@click.option(
-    "--skip-source-errors",
-    is_flag=True,
-    default=False,
-    help="Skip files or directories on the source endpoint that hit PERMISSION_DENIED "
-    "or FILE_NOT_FOUND errors",
-)
-@click.option(
-    "--fail-on-quota-errors",
-    is_flag=True,
-    default=False,
-    help="Cancel the submitted tasks if QUOTA_EXCEEDED errors are hit",
 )
 @LoginManager.requires_login(LoginManager.TIMER_RS, LoginManager.TRANSFER_RS)
 def transfer_command(

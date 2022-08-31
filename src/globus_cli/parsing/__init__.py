@@ -24,10 +24,17 @@ from .shared_options import (
     synchronous_task_wait_options,
     task_notify_option,
     task_submission_options,
+)
+from .shared_options.transfer_task_options import (
+    encrypt_data_option,
+    fail_on_quota_errors_option,
+    preserve_timestamp_option,
+    skip_source_errors_option,
+    sync_level_option,
     transfer_batch_option,
     transfer_recursive_option,
+    verify_checksum_option,
 )
-from .shared_options.sync_level import sync_level_option
 
 __all__ = [
     # replacement decorators
@@ -63,4 +70,9 @@ __all__ = [
     "transfer_batch_option",
     "sync_level_option",
     "task_notify_option",
+    "fail_on_quota_errors_option",
+    "encrypt_data_option",
+    "preserve_timestamp_option",
+    "skip_source_errors_option",
+    "verify_checksum_option",
 ]
