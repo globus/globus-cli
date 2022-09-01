@@ -21,6 +21,7 @@ from globus_cli.parsing import group
         "set-subscription-id": (".set_subscription_id", "set_endpoint_subscription_id"),
         "show": (".show", "endpoint_show"),
         "update": (".update", "endpoint_update"),
+        "user-credential": (".user_credential", "user_credential_command"),
     },
 )
 def endpoint_command() -> None:

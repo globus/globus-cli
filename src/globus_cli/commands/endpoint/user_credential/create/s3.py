@@ -1,0 +1,50 @@
+import click
+from globus_sdk.services.gcs import UserCredentialDocument
+
+from globus_cli.login_manager import LoginManager
+from globus_cli.parsing import command, endpoint_id_arg
+from globus_cli.termio import formatted_print
+
+from .._common import user_credential_create_and_update_params
+
+
+@command("s3", short_help="Create a User Credential for an S3 Storage Gateway")
+@endpoint_id_arg
+@user_credential_create_and_update_params(create=True)
+@click.argument("s3_key_id")
+@click.argument("s3_secret_key")
+@LoginManager.requires_login(LoginManager.TRANSFER_RS, LoginManager.AUTH_RS)
+def s3(
+    *,
+    login_manager: LoginManager,
+    endpoint_id,
+    storage_gateway,
+    globus_identity,
+    local_username,
+    s3_key_id,
+    s3_secret_key,
+    **kwargs,  # values from user_credential_create_and_update_params
+):
+    """
+    Create a User Credential for an S3 Storage Gateway
+    """
+    gcs_client = login_manager.get_gcs_client(endpoint_id=endpoint_id)
+    auth_client = login_manager.get_auth_client()
+
+    # TODO: replace with SDK class once available
+    policies = dict(
+        DATA_TYPE="s3_user_credential_policies#1.0.0",
+        s3_key_id=s3_key_id,
+        s3_secret_key=s3_secret_key,
+    )
+
+    data = UserCredentialDocument(
+        storage_gateway_id=storage_gateway,
+        identity_id=auth_client.maybe_lookup_identity_id(globus_identity),
+        username=local_username,
+        policies=policies,
+        **kwargs,
+    )
+    res = gcs_client.create_user_credential(data)
+
+    formatted_print(res, simple_text=res.full_data.get("message"))

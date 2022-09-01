@@ -65,10 +65,11 @@ def collection_id_arg(f: t.Callable | None = None, *, metavar: str = "COLLECTION
 
 def endpoint_id_arg(f: t.Callable | None = None, *, metavar: str = "ENDPOINT_ID"):
     """
-    This is the `ENDPOINT_ID` argument consumed by many Transfer endpoint
-    related operations. It accepts alternate metavars for cases when another
-    name is desirable (e.x. `SHARE_ID`, `HOST_ENDPOINT_ID`), but can also be
-    applied as a direct decorator if no specialized metavar is being passed.
+    This is the `ENDPOINT_ID` argument consumed by many Transfer and GCS
+    endpoint related operations. It accepts alternate metavars for cases
+    when another name is desirable (e.x. `SHARE_ID`, `HOST_ENDPOINT_ID`), but
+    can also be applied as a direct decorator if no specialized metavar is
+    being passed.
 
     Usage:
 
