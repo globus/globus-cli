@@ -360,7 +360,7 @@ def transfer_command(
                 ("Source Path", "source_path"),
                 ("Dest Path", "destination_path"),
                 ("Recursive", "recursive"),
-                ("External Checksum", "external_checksum"),
+                ("External Checksum", lambda x: x.get("external_checksum")),
             ),
         )
         # exit safely

@@ -1,4 +1,5 @@
 import os
+import re
 
 import pytest
 from globus_sdk._testing import RegisteredResponse, load_response, load_response_set
@@ -147,7 +148,8 @@ def test_transfer_call(run_line):
     assert "home/" in result.output
 
 
-def test_transfer_batch_stdin_dryrun(run_line, go_ep1_id, go_ep2_id):
+@pytest.mark.parametrize("output_format", ["json", "text"])
+def test_transfer_batch_stdin_dryrun(run_line, go_ep1_id, go_ep2_id, output_format):
     """
     Dry-runs a transfer in batchmode, confirms batchmode inputs received
     """
@@ -157,12 +159,19 @@ def test_transfer_batch_stdin_dryrun(run_line, go_ep1_id, go_ep2_id):
 
     batch_input = "abc /def\n/xyz p/q/r\n"
     result = run_line(
-        "globus transfer -F json --batch - --dry-run " + go_ep1_id + " " + go_ep2_id,
+        f"globus transfer -F {output_format} --batch - "
+        f"--dry-run {go_ep1_id} {go_ep2_id}",
         stdin=batch_input,
     )
     for src, dst in [("abc", "/def"), ("/xyz", "p/q/r")]:
-        assert f'"source_path": "{src}"' in result.output
-        assert f'"destination_path": "{dst}"' in result.output
+        if output_format == "json":
+            assert f'"source_path": "{src}"' in result.output
+            assert f'"destination_path": "{dst}"' in result.output
+        else:
+            src_dst_columns_regex = re.compile(
+                re.escape(src) + r"\s+|\s+" + re.escape(dst)
+            )
+            assert src_dst_columns_regex.search(result.output) is not None
 
 
 def test_transfer_batch_file_dryrun(run_line, go_ep1_id, go_ep2_id, tmp_path):
