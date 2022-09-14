@@ -16,3 +16,7 @@ exclude_lines =
     if TYPE_CHECKING:
     if typing.TYPE_CHECKING:
     if t.TYPE_CHECKING:
+    # don't check typing overloads
+    @overload
+    @typing.overload
+    @t.overload
