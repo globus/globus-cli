@@ -25,6 +25,7 @@ from .shared_options import (
     task_notify_option,
     task_submission_options,
 )
+from .shared_options.endpoint_create_and_update import endpointish_create_options
 from .shared_options.transfer_task_options import (
     encrypt_data_option,
     fail_on_quota_errors_option,
@@ -75,4 +76,5 @@ __all__ = [
     "preserve_timestamp_option",
     "skip_source_errors_option",
     "verify_checksum_option",
+    "endpointish_create_options",
 ]

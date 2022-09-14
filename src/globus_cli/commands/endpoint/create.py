@@ -84,7 +84,10 @@ def endpoint_create(
     **kwargs: Any,
 ) -> None:
     """
-    Create a new endpoint.
+    Create a new endpoint. (deprecated)
+
+    This command is deprecated. Either `globus gcp create` or the Globus Connect Server
+    CLI should be used instead for most cases.
 
     Requires a display name and exactly one of --personal, --server, or --shared to make
     a Globus Connect Personal, Globus Connect Server, or Shared endpoint respectively.

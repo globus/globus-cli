@@ -9,6 +9,7 @@ from globus_cli.parsing import main_group
         "collection": ("collection", "collection_command"),
         "delete": ("delete", "delete_command"),
         "endpoint": ("endpoint", "endpoint_command"),
+        "gcp": ("gcp", "gcp_command"),
         "get-identities": ("get_identities", "get_identities_command"),
         "group": ("group", "group_command"),
         "list-commands": ("list_commands", "list_commands"),
