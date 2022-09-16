@@ -1,30 +1,34 @@
 from __future__ import annotations
 
-import functools
-from typing import Callable, TypeVar, Union, cast, overload
+import sys
+from typing import Callable, TypeVar, Union
+
+if sys.version_info >= (3, 8):
+    from typing import Literal
+else:
+    from typing_extensions import Literal
+if sys.version_info >= (3, 11):
+    from typing import assert_never
+else:
+    from typing_extensions import assert_never
 
 import click
 
 C = TypeVar("C", bound=Union[Callable, click.Command])
 
 
-@overload
-def endpointish_create_options(f: C) -> C:
-    ...
+def _apply_universal_endpointish_params(
+    f: C, name: str, *, display_name: Literal["argument", "option", "null"] = "null"
+) -> C:
+    if display_name == "argument":
+        f = click.argument("DISPLAY_NAME")(f)
+    elif display_name == "option":
+        f = click.option("--display-name", help=f"Name for the {name}")(f)
+    elif display_name == "null":
+        pass
+    else:
+        assert_never()
 
-
-@overload
-def endpointish_create_options(*, name: str) -> Callable[[C], C]:
-    ...
-
-
-def endpointish_create_options(
-    f: C | None = None, *, name: str = "endpoint"
-) -> Callable[[C], C] | C:
-    if f is None:
-        return cast(
-            Callable[[C], C], functools.partial(endpointish_create_options, name=name)
-        )
     f = click.option("--description", help=f"Description for the {name}")(f)
     f = click.option("--info-link", help=f"Link for Info about the {name}")(f)
     f = click.option("--contact-info", help=f"Contact Info for the {name}")(f)
@@ -49,5 +53,23 @@ def endpointish_create_options(
         is_flag=True,
         help=f"Set the {name} to ignore checksum verification",
     )(f)
-
     return f
+
+
+def endpointish_create_and_update_params(
+    mode: Literal["create", "update"], name: str = "endpoint"
+) -> Callable[[C], C]:
+    if mode == "create":
+
+        def decorator(f: C) -> C:
+            return _apply_universal_endpointish_params(f, name, display_name="argument")
+
+    elif mode == "update":
+
+        def decorator(f: C) -> C:
+            return _apply_universal_endpointish_params(f, name, display_name="option")
+
+    else:
+        assert_never()
+
+    return decorator

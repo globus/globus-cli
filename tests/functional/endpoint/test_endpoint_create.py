@@ -209,16 +209,3 @@ def test_invalid_managed_only_options(run_line):
             assert_exit_code=2,
         )
         assert "managed endpoints" in result.stderr
-
-
-def test_mutex_options(run_line):
-    options = [
-        "--default-directory /foo/ --no-default-directory",
-        "--subscription-id aa3ccabf-d0dc-4ea8-b6aa-6c9b4ae9b0d3 --no-managed",
-    ]
-    for opts in options:
-        result = run_line(
-            f"globus endpoint create withbadopts --server {opts}",
-            assert_exit_code=2,
-        )
-        assert "mutually exclusive" in result.stderr

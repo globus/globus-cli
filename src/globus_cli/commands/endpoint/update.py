@@ -1,17 +1,19 @@
 from globus_cli.endpointish import Endpointish
 from globus_cli.login_manager import LoginManager
-from globus_cli.parsing import command, endpoint_id_arg
+from globus_cli.parsing import (
+    command,
+    endpoint_id_arg,
+    endpointish_create_and_update_params,
+)
 from globus_cli.termio import FORMAT_TEXT_RAW, formatted_print
 
-from ._common import (
-    endpoint_create_and_update_params,
-    validate_endpoint_create_and_update_params,
-)
+from ._common import endpoint_update_params, validate_endpoint_create_and_update_params
 
 
 @command("update")
 @endpoint_id_arg
-@endpoint_create_and_update_params(create=False)
+@endpoint_update_params
+@endpointish_create_and_update_params("update")
 @LoginManager.requires_login(LoginManager.TRANSFER_RS)
 def endpoint_update(*, login_manager: LoginManager, **kwargs):
     """Update attributes of an endpoint"""

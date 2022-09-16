@@ -1,93 +1,26 @@
 from __future__ import annotations
 
-import functools
-from typing import Callable
+from typing import Callable, TypeVar, Union
 
 import click
 
 from globus_cli.constants import EXPLICIT_NULL
 from globus_cli.parsing import LocationType, MutexInfo, mutex_option_group
 
+C = TypeVar("C", bound=Union[Callable, click.Command])
 
-def endpoint_create_and_update_params(
-    f: Callable | None = None, *, create: bool = False
-) -> Callable:
-    """
-    Collection of options consumed by Transfer endpoint create and update
-    operations -- accepts toggle regarding create vs. update that makes
-    display_name required vs. optional.
 
-    Usage:
-
-    >>> @endpoint_create_and_update_params(create=True)
-    >>> def command_func(display_name, description, info_link, contact_info,
-    >>>                  contact_email, organization, department, keywords,
-    >>>                  public, location, disable_verify, myproxy_dn,
-    >>>                  myproxy_server, oauth_server, force_encryption,
-    >>>                  default_directory, subscription_id, network_use,
-    >>>                  max_concurrency, preferred_concurrency,
-    >>>                  max_parallelism, preferred_parallelism):
-    >>>     ...
-    """
-    if f is None:
-        return functools.partial(endpoint_create_and_update_params, create=create)
-
-    update_help_prefix = (not create and "New ") or ""
-
-    # display name is required for create, not update
-    if create:
-        f = click.argument("display_name")(f)
-    else:
-        f = click.option(
-            "--display-name", help=f"{update_help_prefix}Name for the endpoint"
-        )(f)
-
-    # Options available to any endpoint
-    f = click.option(
-        "--description", help=f"{update_help_prefix}Description for the endpoint"
-    )(f)
-    f = click.option(
-        "--info-link", help=f"{update_help_prefix}Link for Info about the endpoint"
-    )(f)
-    f = click.option(
-        "--contact-info", help=f"{update_help_prefix}Contact Info for the endpoint"
-    )(f)
-    f = click.option(
-        "--contact-email", help=f"{update_help_prefix}Contact Email for the endpoint"
-    )(f)
-    f = click.option(
-        "--organization", help=f"{update_help_prefix}Organization for the endpoint"
-    )(f)
-    f = click.option(
-        "--department",
-        help=f"{update_help_prefix}Department which operates the endpoint",
-    )(f)
-    f = click.option(
-        "--keywords",
-        help=f"{update_help_prefix}Comma separated list of keywords to help searches "
-        "for the endpoint",
-    )(f)
-
-    f = click.option("--default-directory", help="Set the default directory")(f)
-    f = click.option(
-        "--no-default-directory",
-        is_flag=True,
-        flag_value=True,
-        default=None,
-        help="Unset any default directory on the endpoint",
-    )(f)
-    f = mutex_option_group("--default-directory", "--no-default-directory")(f)
-
+def _apply_create_or_update_params(f: C) -> C:
     f = click.option(
         "--force-encryption/--no-force-encryption",
         default=None,
-        help="(Un)Force the endpoint to encrypt transfers",
+        help="Force the endpoint to encrypt transfers",
     )(f)
     f = click.option(
         "--disable-verify/--no-disable-verify",
         default=None,
         is_flag=True,
-        help="(Un)Set the endpoint to ignore checksum verification",
+        help="Set the endpoint to ignore checksum verification",
     )(f)
 
     # GCS only options
@@ -189,7 +122,23 @@ def endpoint_create_and_update_params(
         help="Set the endpoint's preferred parallelism; requires --network-use=custom "
         f"{managedonly} {gcsonly}",
     )(f)
+    return f
 
+
+def endpoint_create_params(f: C) -> C:
+    return _apply_create_or_update_params(f)
+
+
+def endpoint_update_params(f: C) -> C:
+    f = click.option(
+        "--no-default-directory",
+        is_flag=True,
+        flag_value=True,
+        default=None,
+        help="Unset any default directory on the endpoint",
+    )(f)
+    f = mutex_option_group("--default-directory", "--no-default-directory")(f)
+    f = _apply_create_or_update_params(f)
     return f
 
 

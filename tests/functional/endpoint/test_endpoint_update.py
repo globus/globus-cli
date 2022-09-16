@@ -1,4 +1,5 @@
 import json
+import uuid
 
 import pytest
 import responses
@@ -131,3 +132,18 @@ def test_invalid_managed_only_options(run_line):
             assert_exit_code=2,
         )
         assert "managed endpoints" in result.stderr
+
+
+def test_mutex_options(run_line):
+    subid = str(uuid.uuid1())
+    epid = str(uuid.uuid1())
+    options = [
+        "--default-directory /foo/ --no-default-directory",
+        f"--subscription-id {subid} --no-managed",
+    ]
+    for opts in options:
+        result = run_line(
+            f"globus endpoint update {epid} {opts}",
+            assert_exit_code=2,
+        )
+        assert "mutually exclusive" in result.stderr

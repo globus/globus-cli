@@ -6,15 +6,14 @@ from globus_cli.login_manager import LoginManager
 from globus_cli.parsing import (
     ENDPOINT_PLUS_REQPATH,
     command,
-    endpointish_create_options,
+    endpointish_create_and_update_params,
 )
 from globus_cli.termio import FORMAT_TEXT_RECORD, formatted_print
 
 
 @command("guest", short_help="Create a new Guest Collection on GCP")
-@click.argument("DISPLAY_NAME")
+@endpointish_create_and_update_params("create", "collection")
 @click.argument("HOST_GCP_PATH", type=ENDPOINT_PLUS_REQPATH)
-@endpointish_create_options(name="collection")
 @LoginManager.requires_login(LoginManager.TRANSFER_RS)
 def guest_command(
     *,
