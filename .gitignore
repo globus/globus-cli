@@ -5,6 +5,7 @@
 *.pyc
 /docs-source/_build/
 /.coverage
+.idea
 
 #virtualenv
 /virtualenv/

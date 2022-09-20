@@ -4,6 +4,8 @@ import datetime
 from typing import Any
 from urllib.parse import urlparse
 
+from globus_cli.commands._common import isoformat_to_local
+
 # List of datetime formats accepted as input. (`%z` means timezone.)
 DATETIME_FORMATS = [
     "%Y-%m-%d",
@@ -44,18 +46,6 @@ def _get_interval(data: dict[str, Any]) -> str | None:
     if not data["interval"]:
         return None
     return str(datetime.timedelta(seconds=data["interval"]))
-
-
-def isoformat_to_local(
-    utc_str: str | None, localtz: datetime.tzinfo | None = None
-) -> str | None:
-    if not utc_str:
-        return None
-    # let this raise ValueError
-    date = datetime.datetime.fromisoformat(utc_str)
-    if date.tzinfo is None:
-        return date.strftime("%Y-%m-%d %H:%M:%S")
-    return date.astimezone(tz=localtz).strftime("%Y-%m-%d %H:%M:%S")
 
 
 JOB_FORMAT_FIELDS = [
