@@ -10,6 +10,7 @@ exclude_lines =
     pragma: no cover
     # don't complain if tests don't hit unimplemented methods/modes
     raise NotImplementedError
+    assert_never()
     # don't check on executable components of importable modules
     if __name__ == .__main__.:
     # don't check 'TYPE_CHECKING' blocks

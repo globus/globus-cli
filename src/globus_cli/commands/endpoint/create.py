@@ -6,15 +6,13 @@ from globus_cli.login_manager import LoginManager
 from globus_cli.parsing import (
     ENDPOINT_PLUS_REQPATH,
     command,
+    endpointish_create_and_update_params,
     mutex_option_group,
     one_use_option,
 )
 from globus_cli.termio import FORMAT_TEXT_RECORD, formatted_print
 
-from ._common import (
-    endpoint_create_and_update_params,
-    validate_endpoint_create_and_update_params,
-)
+from ._common import endpoint_create_params, validate_endpoint_create_and_update_params
 
 COMMON_FIELDS = [("Message", "message"), ("Endpoint ID", "id")]
 
@@ -47,7 +45,8 @@ $ globus endpoint create --shared host_ep:~/ my_shared_endpoint
 ----
 """,
 )
-@endpoint_create_and_update_params(create=True)
+@endpointish_create_and_update_params("create")
+@endpoint_create_params
 @one_use_option(
     "--personal",
     is_flag=True,
@@ -84,7 +83,10 @@ def endpoint_create(
     **kwargs: Any,
 ) -> None:
     """
-    Create a new endpoint.
+    Create a new endpoint. (deprecated)
+
+    This command is deprecated. Either `globus gcp create` or the Globus Connect Server
+    CLI should be used instead for most cases.
 
     Requires a display name and exactly one of --personal, --server, or --shared to make
     a Globus Connect Personal, Globus Connect Server, or Shared endpoint respectively.
