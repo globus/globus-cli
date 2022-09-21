@@ -36,10 +36,7 @@ class LoginManager:
     _TEST_MODE: bool = False
 
     AUTH_RS = AuthScopes.resource_server
-    # TODO: Update this ref once Flows Resource Server remapping is released
-    #  (https://github.com/globus/globus-sdk-python/pull/612)
-    # FLOWS_RS = FlowsScopes.resource_server
-    FLOWS_RS = "flows.globus.org"
+    FLOWS_RS = FlowsScopes.resource_server
     GROUPS_RS = GroupsScopes.resource_server
     SEARCH_RS = SearchScopes.resource_server
     TIMER_RS = TimerScopes.resource_server
@@ -279,10 +276,7 @@ class LoginManager:
         return globus_sdk.GroupsClient(authorizer=authorizer, app_name=version.app_name)
 
     def get_flows_client(self) -> globus_sdk.FlowsClient:
-        # TODO: Update this ref once Flows Resource Server remapping is released
-        #  (https://github.com/globus/globus-sdk-python/pull/612)
-        # authorizer = self._get_client_authorizer(FlowsScopes.resource_server)
-        authorizer = self._get_client_authorizer("flows.globus.org")
+        authorizer = self._get_client_authorizer(FlowsScopes.resource_server)
         return globus_sdk.FlowsClient(authorizer=authorizer, app_name=version.app_name)
 
     def get_search_client(self) -> globus_sdk.SearchClient:

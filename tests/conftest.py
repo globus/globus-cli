@@ -10,7 +10,7 @@ import pytest
 import responses
 from click.testing import CliRunner
 from globus_sdk._testing import register_response_set
-from globus_sdk.scopes import FlowsScopes, TimerScopes
+from globus_sdk.scopes import TimerScopes
 from globus_sdk.tokenstorage import SQLiteAdapter
 from globus_sdk.transport import RequestsTransport
 from ruamel.yaml import YAML
@@ -78,7 +78,8 @@ def mock_login_token_response():
             TimerScopes.resource_server, TimerScopes.timer
         ),
         "flows.globus.org": _mock_token_response_data(
-            "flows.globus.org", FlowsScopes.view_flows
+            "flows.globus.org",
+            "https://auth.globus.org/scopes/eec9b274-0c81-4334-bdc2-54e90e689b9a/view_flows",  # noqa E501
         ),
     }
     return mock_token_res
