@@ -26,7 +26,9 @@ ROLE_TYPES = ("flow_viewer", "flow_starter", "flow_administrator", "flow_owner")
 )
 @LoginManager.requires_login(LoginManager.FLOWS_RS)
 def list_command(
-    login_manager: LoginManager, filter_role: str | None, filter_fulltext: str | None
+    login_manager: LoginManager,
+    filter_role: str | None,
+    filter_fulltext: str | None,
 ):
     """
     List flows
@@ -34,16 +36,10 @@ def list_command(
     flows_client = login_manager.get_flows_client()
     # TODO: paginate once path supports pagination
     #  https://app.shortcut.com/globus/story/18445/add-pagination-back-to-flowsclient-flow-list
-    kwargs = {
-        k: v
-        for k, v in {
-            "filter_role": filter_role,
-            "filter_fulltext": filter_fulltext,
-        }.items()
-        if v is not None
-    }
     response = flows_client.list_flows(
-        query_params={"orderby": "updated_at DESC"}, **kwargs
+        filter_role=filter_role,
+        filter_fulltext=filter_fulltext,
+        query_params={"orderby": "updated_at DESC"},
     )
     formatted_print(
         response["flows"],

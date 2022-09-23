@@ -62,7 +62,11 @@ class LoginManager:
             TimerScopes.timer,
         ],
         FLOWS_RS: [
+            FlowsScopes.manage_flows,
             FlowsScopes.view_flows,
+            FlowsScopes.run,
+            FlowsScopes.run_status,
+            FlowsScopes.run_manage,
         ],
     }
 
