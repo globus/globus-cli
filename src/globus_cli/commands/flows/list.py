@@ -13,13 +13,11 @@ ROLE_TYPES = ("flow_viewer", "flow_starter", "flow_administrator", "flow_owner")
 @command("list", short_help="List flows")
 @click.option(
     "--filter-role",
-    required=False,
     type=click.Choice(ROLE_TYPES),
     help="Filter results by the flow's role type associated with the caller",
 )
 @click.option(
     "--filter-fulltext",
-    required=False,
     type=str,
     help="Filter results based on pattern matching within a subset of fields: "
     "[id, title, subtitle, description, flow_owner, flow_administrators]",
