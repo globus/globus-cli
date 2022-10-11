@@ -7,8 +7,7 @@ import click
 
 from ..utils import format_list_of_words
 
-RT = TypeVar("RT")
-C = TypeVar("C", bound=Callable[..., RT])
+C = TypeVar("C", bound=Callable)
 
 
 class MutexInfo:
@@ -62,7 +61,7 @@ def mutex_option_group(*options: str | MutexInfo) -> Callable[[C], C]:
 
     def decorator(func: C) -> C:
         @functools.wraps(func)
-        def wrapped(*args: Any, **kwargs: Any) -> RT:
+        def wrapped(*args: Any, **kwargs: Any) -> Any:
             found_opts = []
             for opt in opt_infos:
                 if opt.is_present(kwargs):
