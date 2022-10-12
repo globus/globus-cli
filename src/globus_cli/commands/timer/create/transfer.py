@@ -2,11 +2,13 @@ from __future__ import annotations
 
 import datetime
 import sys
+import uuid
 from typing import TextIO
 
 import click
 import globus_sdk
 
+from globus_cli.endpointish import Endpointish
 from globus_cli.login_manager import LoginManager
 from globus_cli.parsing import (
     ENDPOINT_PLUS_OPTPATH,
@@ -98,8 +100,8 @@ def resolve_start_time(start: datetime.datetime | None) -> datetime.datetime:
 def transfer_command(
     login_manager: LoginManager,
     name: str | None,
-    source: tuple[str, str | None],
-    destination: tuple[str, str | None],
+    source: tuple[uuid.UUID, str | None],
+    destination: tuple[uuid.UUID, str | None],
     batch: TextIO | None,
     recursive: bool,
     start: datetime.datetime | None,
@@ -158,6 +160,23 @@ def transfer_command(
         name = f"CLI Created Timer [{now}]"
 
     # Check endpoint activation, figure out scopes needed.
+
+    # check if either source or dest requires the data_access scope, and if so
+    # FIXME: hard fail for now (in the future, we should pick up on the requirement and
+    # generate a scope string to check against our logins)
+    source_epish = Endpointish(source_endpoint, transfer_client=transfer_client)
+    dest_epish = Endpointish(dest_endpoint, transfer_client=transfer_client)
+    needs_data_access: list[str] = []
+    if source_epish.requires_data_access_scope:
+        needs_data_access.append(str(source_endpoint))
+    if dest_epish.requires_data_access_scope:
+        needs_data_access.append(str(dest_endpoint))
+    if needs_data_access:
+        raise click.UsageError(
+            "Unsupported operation. 'globus timer create transfer' does not currently "
+            "support collections which use the data_access scope: "
+            f"{','.join(needs_data_access)}"
+        )
 
     # Note this will provide help text on activating endpoints.
     autoactivate(transfer_client, source_endpoint, if_expires_in=86400)

@@ -77,3 +77,10 @@ class Endpointish:
     def get_gcs_address(self) -> str:
         self.assert_ep_type(EndpointType.gcsv5_types())
         return cast(str, self.data["DATA"][0]["hostname"])
+
+    @property
+    def requires_data_access_scope(self) -> bool:
+        if self.ep_type is EndpointType.MAPPED_COLLECTION:
+            if self.data.get("high_assurance") is False:
+                return True
+        return False

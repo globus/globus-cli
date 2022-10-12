@@ -8,6 +8,58 @@ from globus_sdk._testing import RegisteredResponse, get_last_request, load_respo
 
 
 @pytest.fixture
+def non_ha_mapped_collection():
+    mapped_collection_id = "1405823f-0597-4a16-b296-46d4f0ae4b15"
+    client_id = "cf37806c-572c-47ff-88e2-511c646ef1a4"
+    load_response(
+        RegisteredResponse(
+            service="transfer",
+            path=f"/endpoint/{mapped_collection_id}",
+            method="GET",
+            json={
+                "DATA": [
+                    {"DATA_TYPE": "server", "hostname": "abc.xyz.data.globus.org"}
+                ],
+                "DATA_TYPE": "endpoint",
+                "activated": False,
+                "canonical_name": f"{client_id}#{mapped_collection_id}",
+                "contact_email": None,
+                "contact_info": None,
+                "default_directory": None,
+                "description": "example gcsv5 mapped collection",
+                "department": None,
+                "display_name": "Happy Fun Mapped Collection Name",
+                "force_encryption": False,
+                "gcs_version": "5.4.10",
+                "host_endpoint_id": None,
+                "id": mapped_collection_id,
+                "is_globus_connect": False,
+                "info_link": None,
+                "keywords": None,
+                "local_user_info_available": False,
+                "non_functional": False,
+                "organization": "My Org",
+                "owner_id": client_id,
+                "owner_string": f"{client_id}@clients.auth.globus.org",
+                "public": False,
+                "shareable": False,
+                "subscription_id": None,
+                "high_assurance": False,
+            },
+        )
+    )
+    load_response(
+        RegisteredResponse(
+            path=f"/endpoint/{mapped_collection_id}/autoactivate",
+            service="transfer",
+            method="POST",
+            json={"code": "Activated.BogusCode"},
+        )
+    )
+    return mapped_collection_id
+
+
+@pytest.fixture
 def ep_for_timer():
     load_response(globus_sdk.TimerClient.create_job)
     load_response(globus_sdk.TransferClient.get_submission_id)
@@ -223,3 +275,26 @@ def test_start_time_without_timezone_converts_to_have_tzinfo(
     )
     sent_data = json.loads(get_last_request().body)
     assert sent_data["start"] == expect_value
+
+
+def test_timer_creation_rejects_data_access_requirement(
+    run_line, ep_for_timer, non_ha_mapped_collection
+):
+    # explicit timezone is preserved in the formatted data sent to the service
+    result = run_line(
+        [
+            "globus",
+            "timer",
+            "create",
+            "transfer",
+            "--recursive",
+            f"{ep_for_timer}:/foo/",
+            f"{non_ha_mapped_collection}:/bar/",
+            "--interval",
+            "60m",
+            "--start",
+            "2022-01-01T00:00:00-05:00",
+        ],
+        assert_exit_code=2,
+    )
+    assert "Unsupported operation." in result.stderr
