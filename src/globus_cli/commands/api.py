@@ -101,6 +101,7 @@ def print_error_or_response(
 
 _SERVICE_MAP = {
     "auth": LoginManager.AUTH_RS,
+    "flows": LoginManager.FLOWS_RS,
     "groups": LoginManager.GROUPS_RS,
     "search": LoginManager.SEARCH_RS,
     "transfer": LoginManager.TRANSFER_RS,
@@ -113,6 +114,8 @@ def _get_client(
 ) -> globus_sdk.BaseClient:
     if service_name == "auth":
         return login_manager.get_auth_client()
+    elif service_name == "flows":
+        return login_manager.get_flows_client()
     elif service_name == "groups":
         return login_manager.get_groups_client()
     elif service_name == "search":
@@ -128,6 +131,7 @@ def _get_client(
 def _get_url(service_name: str) -> str:
     return {
         "auth": "https://auth.globus.org/",
+        "flows": "https://flows.automate.globus.org/",
         "groups": "https://groups.api.globus.org/v2/",
         "search": "https://search.api.globus.org/",
         "transfer": "https://transfer.api.globus.org/v0.10/",
