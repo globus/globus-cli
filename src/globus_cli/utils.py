@@ -137,10 +137,16 @@ class CLIStubResponse:
 
 # wrap to add a `has_next()` method and `limit` param to a naive iterator
 class PagingWrapper:
-    def __init__(self, iterator: Iterator[Any], limit: int | None = None) -> None:
+    def __init__(
+        self,
+        iterator: Iterator[Any],
+        limit: int | None = None,
+        json_conversion_key: str | None = None,
+    ) -> None:
         self.iterator = iterator
         self.next = None
         self.limit = limit
+        self.json_conversion_key = json_conversion_key
         self._step()
 
     def _step(self) -> None:
@@ -159,6 +165,17 @@ class PagingWrapper:
             self._step()
             yield cur
             yielded += 1
+
+    @property
+    def json_converter(self) -> Callable[[Iterator[Any]], dict[str, list[Any]]]:
+        if self.json_conversion_key is None:
+            raise NotImplementedError("does not support json_converter")
+        key: str = self.json_conversion_key
+
+        def converter(it: Iterator[Any]) -> dict[str, list[Any]]:
+            return {key: list(it)}
+
+        return converter
 
 
 def shlex_process_stream(process_command: click.Command, stream: TextIO) -> None:

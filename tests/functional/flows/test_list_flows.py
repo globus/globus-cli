@@ -1,4 +1,5 @@
 import json
+import uuid
 
 from globus_sdk._testing import load_response_set
 
@@ -59,3 +60,20 @@ def test_list_flows_filter_fulltext(run_line):
 
     result = run_line("globus flows list --filter-fulltext Fairytale")
     assert result.output == expected
+
+
+def test_list_flows_paginated_response(run_line):
+    meta = load_response_set("flows_list_paginated").metadata
+
+    result = run_line("globus flows list --limit 1000")
+    output_lines = result.output.split("\n")[:-1]  # trim the final newline/empty str
+    assert len(output_lines) == meta["total_items"] + 2
+
+    for i, line in enumerate(output_lines[2:]):
+        row = line.split(" | ")
+        assert row[0] == str(uuid.UUID(int=i))
+        # rstrip because this column may be right-padded to align
+        #    Hello, World (Example {1})   <-- trailing space
+        #    Hello, World (Example {10})  <-- no trailing space
+        assert row[1].rstrip() == f"Hello, World (Example {i})"
+        assert row[2] == meta["flow_owner"]
