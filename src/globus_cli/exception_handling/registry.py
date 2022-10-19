@@ -1,28 +1,30 @@
 from __future__ import annotations
 
 import functools
-from typing import Callable, List, NoReturn, Tuple, Type, TypeVar, Union, cast
+import typing as t
 
 import click
 import globus_sdk
 
 from globus_cli.parsing.command_state import CommandState
 
-E = TypeVar("E", bound=Exception)
+E = t.TypeVar("E", bound=Exception)
 
-HOOK_TYPE = Callable[[E], NoReturn]
+HOOK_TYPE = t.Callable[[E], t.NoReturn]
 # something which can be decorated to become a hook
-_HOOK_SRC_TYPE = Callable[[E], None]
-CONDITION_TYPE = Callable[[E], bool]
+_HOOK_SRC_TYPE = t.Callable[[E], None]
+CONDITION_TYPE = t.Callable[[E], bool]
 
-# must cast the registry to avoid type errors around List[<nothing>]
-_HOOKLIST_TYPE = List[Tuple[HOOK_TYPE, Union[str, Type[Exception]], CONDITION_TYPE]]
-_REGISTERED_HOOKS: _HOOKLIST_TYPE = cast(_HOOKLIST_TYPE, [])
+# must cast the registry to avoid type errors around t.List[<nothing>]
+_HOOKLIST_TYPE = t.List[
+    t.Tuple[HOOK_TYPE, t.Union[str, t.Type[Exception]], CONDITION_TYPE]
+]
+_REGISTERED_HOOKS: _HOOKLIST_TYPE = t.cast(_HOOKLIST_TYPE, [])
 
 
 def error_handler(
     *, error_class=None, condition=None, exit_status: int = 1
-) -> Callable[[_HOOK_SRC_TYPE], HOOK_TYPE]:
+) -> t.Callable[[_HOOK_SRC_TYPE], HOOK_TYPE]:
     """decorator for excepthooks
 
     register each one, in order, with any relevant "condition"

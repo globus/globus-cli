@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from typing import Any, Callable, Iterable
+import typing as t
 
 import click
 import globus_sdk
@@ -8,22 +8,22 @@ import globus_sdk
 from globus_cli.types import FIELD_LIST_T
 
 
-def index_id_arg(f: Callable) -> Callable:
+def index_id_arg(f: t.Callable) -> t.Callable:
     return click.argument("index_id", metavar="INDEX_ID", type=click.UUID)(f)
 
 
-def task_id_arg(f: Callable) -> Callable:
+def task_id_arg(f: t.Callable) -> t.Callable:
     return click.argument("task_id", metavar="TASK_ID", type=click.UUID)(f)
 
 
 def resolved_principals_field(
     auth_client: globus_sdk.AuthClient,
-    items: Iterable[dict[str, Any]] | None = None,
+    items: t.Iterable[dict[str, t.Any]] | None = None,
     *,
     name: str = "Principal",
     type_key: str = "principal_type",
     value_key: str = "principal",
-) -> tuple[str, Callable[[dict], str]]:
+) -> tuple[str, t.Callable[[dict], str]]:
     resolved_ids = globus_sdk.IdentityMap(
         auth_client,
         (x[value_key].split(":")[-1] for x in items if x[type_key] == "identity")
@@ -31,7 +31,7 @@ def resolved_principals_field(
         else [],
     )
 
-    def render_principal(item: dict[str, Any]) -> str:
+    def render_principal(item: dict[str, t.Any]) -> str:
         value = item[value_key].split(":")[-1]
         if item[type_key] == "identity":
             try:

@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 import functools
-from typing import Callable
+import typing as t
 
 import click
 
@@ -25,7 +25,7 @@ MEMBERSHIP_FIELDS = {
 }
 
 
-def group_id_arg(f: Callable | None = None):
+def group_id_arg(f: t.Callable | None = None):
     if f is None:
         return functools.partial(group_id_arg)
     return click.argument("GROUP_ID")(f)
@@ -59,8 +59,8 @@ def parse_signup_fields(res):
 
 
 def group_create_and_update_params(
-    f: Callable | None = None, *, create: bool = False
-) -> Callable:
+    f: t.Callable | None = None, *, create: bool = False
+) -> t.Callable:
     """
     Collection of options consumed by group create and update.
     Passing create as True makes any values required for create

@@ -21,7 +21,7 @@ applied on JSON output).
 """
 from __future__ import annotations
 
-from typing import Iterable, cast
+import typing as t
 
 import globus_sdk
 
@@ -94,12 +94,12 @@ class PrincipalResolver:
             return err.value
         # try to do the lookup and get the "username" property
         # but default to the original value if this doesn't resolve
-        return cast(str, self.idmap.get(value, {}).get("username", original))
+        return t.cast(str, self.idmap.get(value, {}).get("username", original))
 
     # TODO: In gcs-cli, page_callback is suported by the pretty printer. In globus-cli,
     # we should attach this to the PagingWrapper. The purpose is to get the map
     # populated on a per-page basis.
-    def page_callback(self, data_page: Iterable[DATA_CONTAINER_T]) -> None:
+    def page_callback(self, data_page: t.Iterable[DATA_CONTAINER_T]) -> None:
         for item in data_page:
             try:
                 _original, value = self._raw_id_from_object(item)

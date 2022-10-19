@@ -1,27 +1,27 @@
 from __future__ import annotations
 
 import sys
+import typing as t
 import uuid
-from typing import TYPE_CHECKING, Callable
 
 import click
 
 from globus_cli.parsing import ParsedIdentity
 
-if TYPE_CHECKING:
+if t.TYPE_CHECKING:
     import globus_sdk
 
     from globus_cli.services.auth import CustomAuthClient
 
 if sys.version_info >= (3, 8):
-    from typing import Literal
+    from typing import Literal  # noqa: TYT03
 else:
     from typing_extensions import Literal
 
 
 def get_invite_formatter(
     case: Literal["accept", "decline"]
-) -> Callable[[globus_sdk.GlobusHTTPResponse], None]:
+) -> t.Callable[[globus_sdk.GlobusHTTPResponse], None]:
     action_word = "Accepted" if case == "accept" else "Declined"
 
     def formatter(data: globus_sdk.GlobusHTTPResponse) -> None:

@@ -1,8 +1,8 @@
 from __future__ import annotations
 
 import functools
+import typing as t
 import uuid
-from typing import TYPE_CHECKING, Iterator
 
 import click
 import globus_sdk
@@ -25,7 +25,7 @@ from .errors import MissingLoginError
 from .tokenstore import internal_auth_client, token_storage_adapter
 from .utils import is_remote_session
 
-if TYPE_CHECKING:
+if t.TYPE_CHECKING:
     from ..services.auth import CustomAuthClient
     from ..services.gcs import CustomGCSClient
     from ..services.transfer import CustomTransferClient
@@ -78,12 +78,12 @@ class LoginManager:
         self._nonstatic_requirements[rs_name] = scopes
 
     @property
-    def login_requirements(self) -> Iterator[tuple[str, list[str]]]:
+    def login_requirements(self) -> t.Iterator[tuple[str, list[str]]]:
         yield from self.STATIC_SCOPES.items()
         yield from self._nonstatic_requirements.items()
 
     @property
-    def always_required_scopes(self) -> Iterator[str]:
+    def always_required_scopes(self) -> t.Iterator[str]:
         """
         scopes which are required on all login flows, regardless of the specified
         scopes for that flow

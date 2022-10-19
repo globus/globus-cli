@@ -1,7 +1,7 @@
 from __future__ import annotations
 
+import typing as t
 import uuid
-from typing import TextIO
 
 import click
 import globus_sdk
@@ -16,7 +16,7 @@ def add_batch_to_transfer_data(
     dest_base_path: str | None,
     checksum_algorithm: str | None,
     transfer_data: globus_sdk.TransferData,
-    batch: TextIO,
+    batch: t.TextIO,
 ) -> None:
     @click.command()
     @click.option("--external-checksum")

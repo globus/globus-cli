@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from typing import Any
+import typing as t
 
 import click
 
@@ -170,7 +170,7 @@ def ls_command(
     autoactivate(transfer_client, endpoint_id, if_expires_in=60)
 
     # create the query paramaters to send to operation_ls
-    ls_params: dict[str, Any] = {"show_hidden": int(show_hidden)}
+    ls_params: dict[str, t.Any] = {"show_hidden": int(show_hidden)}
     if path:
         ls_params["path"] = path
     if filter_val:

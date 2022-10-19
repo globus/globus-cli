@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 import functools
-from typing import Callable, TypeVar, Union
+import typing as t
 
 import click
 
@@ -12,12 +12,12 @@ from globus_cli.parsing.command_state import (
     verbose_option,
 )
 
-C = TypeVar("C", bound=Union[Callable, click.Command])
+C = t.TypeVar("C", bound=t.Union[t.Callable, click.Command])
 
 
 def common_options(
-    f: Callable | None = None, *, disable_options: list[str] | None = None
-) -> Callable:
+    f: t.Callable | None = None, *, disable_options: list[str] | None = None
+) -> t.Callable:
     """
     This is a multi-purpose decorator for applying a "base" set of options
     shared by all commands.
@@ -57,13 +57,13 @@ def common_options(
     return f
 
 
-def collection_id_arg(f: Callable | None = None, *, metavar: str = "COLLECTION_ID"):
+def collection_id_arg(f: t.Callable | None = None, *, metavar: str = "COLLECTION_ID"):
     if f is None:
         return functools.partial(collection_id_arg, metavar=metavar)
     return click.argument("collection_id", metavar=metavar, type=click.UUID)(f)
 
 
-def endpoint_id_arg(f: Callable | None = None, *, metavar: str = "ENDPOINT_ID"):
+def endpoint_id_arg(f: t.Callable | None = None, *, metavar: str = "ENDPOINT_ID"):
     """
     This is the `ENDPOINT_ID` argument consumed by many Transfer endpoint
     related operations. It accepts alternate metavars for cases when another
@@ -201,7 +201,7 @@ def task_submission_options(f):
 
 
 def delete_and_rm_options(
-    f: Callable | None = None,
+    f: t.Callable | None = None,
     *,
     supports_batch: bool = True,
     default_enable_globs: bool = False,
@@ -370,7 +370,7 @@ def security_principal_opts(
 
         return decorator
 
-    def decorate(f: Callable) -> Callable:
+    def decorate(f: t.Callable) -> t.Callable:
         # order matters here -- the preprocessor must run after option
         # application, so it has to be applied first
         if isinstance(f, click.Command):

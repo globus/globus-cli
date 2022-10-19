@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 import datetime
-from typing import Any
+import typing as t
 from urllib.parse import urlparse
 
 from globus_cli.commands._common import isoformat_to_local
@@ -17,19 +17,19 @@ DATETIME_FORMATS = [
 ]
 
 
-def _get_stop_date(data: dict[str, Any]) -> str | None:
+def _get_stop_date(data: dict[str, t.Any]) -> str | None:
     if not data["stop_after"]:
         return None
     return str(data.get("stop_after", {}).get("date"))
 
 
-def _get_stop_n_runs(data: dict[str, Any]) -> str | None:
+def _get_stop_n_runs(data: dict[str, t.Any]) -> str | None:
     if not data["stop_after"]:
         return None
     return str(data.get("stop_after", {}).get("n_runs"))
 
 
-def _get_action_type(data: dict[str, Any]) -> str:
+def _get_action_type(data: dict[str, t.Any]) -> str:
     url = urlparse(data["callback_url"])
     if (
         url.netloc.endswith("actions.automate.globus.org")
@@ -42,7 +42,7 @@ def _get_action_type(data: dict[str, Any]) -> str:
         return str(data["callback_url"])
 
 
-def _get_interval(data: dict[str, Any]) -> str | None:
+def _get_interval(data: dict[str, t.Any]) -> str | None:
     if not data["interval"]:
         return None
     return str(datetime.timedelta(seconds=data["interval"]))

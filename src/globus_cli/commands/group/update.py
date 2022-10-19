@@ -1,4 +1,4 @@
-from typing import Any
+import typing as t
 
 from globus_cli.login_manager import LoginManager
 from globus_cli.parsing import command
@@ -11,7 +11,7 @@ from ._common import group_create_and_update_params, group_id_arg
 @group_id_arg
 @command("update")
 @LoginManager.requires_login(LoginManager.GROUPS_RS)
-def group_update(*, login_manager: LoginManager, group_id: str, **kwargs: Any):
+def group_update(*, login_manager: LoginManager, group_id: str, **kwargs: t.Any):
     """Update an existing group."""
     groups_client = login_manager.get_groups_client()
 

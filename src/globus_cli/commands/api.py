@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 import json
-from typing import TextIO, cast
+import typing as t
 
 import click
 import globus_sdk
@@ -224,7 +224,7 @@ sends a 'GET' request to '{_get_url(service_name)}foo/bar'
         query_param: list[tuple[str, str]],
         header: list[tuple[str, str]],
         body: str | None,
-        body_file: TextIO | None,
+        body_file: t.TextIO | None,
         content_type: str,
         allow_errors: bool,
         allow_redirects: bool,
@@ -293,7 +293,7 @@ sends a 'GET' request to '{_get_url(service_name)}foo/bar'
         else:
             print_error_or_response(res)
 
-    return cast(click.Command, service_command)
+    return t.cast(click.Command, service_command)
 
 
 for service_name in _SERVICE_MAP:

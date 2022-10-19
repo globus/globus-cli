@@ -1,9 +1,9 @@
 from __future__ import annotations
 
 import json
+import typing as t
 import uuid
 from io import TextIOWrapper
-from typing import Any
 
 import click
 
@@ -82,7 +82,7 @@ def query_command(
     search_client = login_manager.get_search_client()
 
     if q:
-        query_params: dict[str, Any] = {}
+        query_params: dict[str, t.Any] = {}
         if filter_principal_sets:
             query_params["filter_principal_sets"] = ",".join(filter_principal_sets)
         if bypass_visible_to:

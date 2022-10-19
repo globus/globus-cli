@@ -1,10 +1,10 @@
 import os
 import sys
-from typing import TYPE_CHECKING, cast
+import typing as t
 
 import globus_sdk
 
-if TYPE_CHECKING:
+if t.TYPE_CHECKING:
     from globus_sdk.tokenstorage import SQLiteAdapter
 
 from .client_login import get_client_login, is_client_login
@@ -108,7 +108,7 @@ def _resolve_namespace():
 def token_storage_adapter() -> "SQLiteAdapter":
     from globus_sdk.tokenstorage import SQLiteAdapter
 
-    as_proto = cast(_TokenStoreFuncProto, token_storage_adapter)
+    as_proto = t.cast(_TokenStoreFuncProto, token_storage_adapter)
     if not hasattr(as_proto, "_instance"):
         # when initializing the token storage adapter, check if the storage file exists
         # if it does not, then use this as a flag to clean the old config

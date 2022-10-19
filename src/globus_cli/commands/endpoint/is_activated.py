@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from typing import NoReturn
+import typing as t
 
 import click
 
@@ -102,7 +102,7 @@ def endpoint_is_activated(
     transfer_client = login_manager.get_transfer_client()
     res = transfer_client.endpoint_get_activation_requirements(endpoint_id)
 
-    def fail(deadline=None) -> NoReturn:
+    def fail(deadline=None) -> t.NoReturn:
         exp_string = ""
         if deadline is not None:
             exp_string = f" or will expire within {deadline} seconds"

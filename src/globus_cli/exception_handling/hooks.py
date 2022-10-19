@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 import json
-from typing import List, Optional, cast
+import typing as t
 
 import click
 import globus_sdk
@@ -42,7 +42,9 @@ def session_hook(exception: globus_sdk.GlobusAPIError) -> None:
     if identities or domains:
         # cast: mypy can't deduce that `domains` is not None if `identities` is None
         update_target = (
-            " ".join(identities) if identities else " ".join(cast(List[str], domains))
+            " ".join(identities)
+            if identities
+            else " ".join(t.cast(t.List[str], domains))
         )
         click.echo(
             "Please run\n\n"
@@ -148,7 +150,7 @@ def searchapi_validationerror_hook(exception: globus_sdk.SearchAPIError) -> None
     ]
     # FIXME: type cast because error_data type is incorrect
     # (needs upstream fix in SDK)
-    error_data = cast(Optional[dict], exception.error_data)
+    error_data = t.cast(t.Optional[dict], exception.error_data)
     if error_data is not None:
         messages = error_data.get("messages")
         if messages is not None and len(messages) == 1:
@@ -176,7 +178,7 @@ def searchapi_hook(exception: globus_sdk.SearchAPIError) -> None:
     ]
     # FIXME: type cast because error_data type is incorrect
     # (needs upstream fix in SDK)
-    error_data = cast(Optional[dict], exception.error_data)
+    error_data = t.cast(t.Optional[dict], exception.error_data)
     if error_data is not None:
         fields += [
             PrintableErrorField("error_data", _pretty_json(error_data, compact=True))

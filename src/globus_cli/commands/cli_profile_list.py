@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 import os
-from typing import Any, Callable, cast
+import typing as t
 
 import click
 
@@ -11,7 +11,7 @@ from globus_cli.termio import FORMAT_TEXT_TABLE, formatted_print
 from globus_cli.types import FIELD_LIST_T
 
 
-def _profilestr_to_datadict(s: str) -> dict[str, Any] | None:
+def _profilestr_to_datadict(s: str) -> dict[str, t.Any] | None:
     if s.count("/") < 1:
         return None
     if s.count("/") < 2:
@@ -31,7 +31,7 @@ def _profilestr_to_datadict(s: str) -> dict[str, Any] | None:
 
 def _parse_and_filter_profiles(
     all: bool,
-) -> tuple[list[dict[str, Any]], list[dict[str, Any]]]:
+) -> tuple[list[dict[str, t.Any]], list[dict[str, t.Any]]]:
     globus_env = os.getenv("GLOBUS_SDK_ENVIRONMENT", "production")
 
     client_profiles = []
@@ -52,21 +52,21 @@ def _parse_and_filter_profiles(
     return (client_profiles, user_profiles)
 
 
-def _get_current_checker() -> Callable[[dict[str, Any]], str]:
+def _get_current_checker() -> t.Callable[[dict[str, t.Any]], str]:
     is_client = is_client_login()
 
-    def is_current(data: dict[str, Any]) -> bool:
+    def is_current(data: dict[str, t.Any]) -> bool:
         globus_env = os.getenv("GLOBUS_SDK_ENVIRONMENT", "production")
         if data["env"] != globus_env:
             return False
         if is_client != data["client"]:
             return False
         if data["client"]:
-            return cast(str, data["profile"]) == os.getenv("GLOBUS_CLI_CLIENT_ID")
+            return t.cast(str, data["profile"]) == os.getenv("GLOBUS_CLI_CLIENT_ID")
         else:
-            return cast(str, data["profile"]) == os.getenv("GLOBUS_PROFILE")
+            return t.cast(str, data["profile"]) == os.getenv("GLOBUS_PROFILE")
 
-    def field_callback(data: dict[str, Any]) -> str:
+    def field_callback(data: dict[str, t.Any]) -> str:
         if is_current(data):
             return "-> "
         return ""

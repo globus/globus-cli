@@ -1,29 +1,29 @@
 from __future__ import annotations
 
 import functools
-from typing import Callable, TypeVar, Union, cast, overload
+import typing as t
 
 import click
 
-C = TypeVar("C", bound=Union[Callable, click.Command])
+C = t.TypeVar("C", bound=t.Union[t.Callable, click.Command])
 
 
-@overload
+@t.overload
 def sync_level_option(f: C) -> C:
     ...
 
 
-@overload
-def sync_level_option(*, aliases: tuple[str, ...]) -> Callable[[C], C]:
+@t.overload
+def sync_level_option(*, aliases: tuple[str, ...]) -> t.Callable[[C], C]:
     ...
 
 
 def sync_level_option(
     f: C | None = None, *, aliases: tuple[str, ...] = ()
-) -> Callable[[C], C] | C:
+) -> t.Callable[[C], C] | C:
     if f is None:
-        return cast(
-            Callable[[C], C], functools.partial(sync_level_option, aliases=aliases)
+        return t.cast(
+            t.Callable[[C], C], functools.partial(sync_level_option, aliases=aliases)
         )
     return click.option(
         "--sync-level",
@@ -90,22 +90,22 @@ def skip_source_errors_option(f: C) -> C:
     )(f)
 
 
-@overload
+@t.overload
 def preserve_timestamp_option(f: C) -> C:
     ...
 
 
-@overload
-def preserve_timestamp_option(*, aliases: tuple[str, ...]) -> Callable[[C], C]:
+@t.overload
+def preserve_timestamp_option(*, aliases: tuple[str, ...]) -> t.Callable[[C], C]:
     ...
 
 
 def preserve_timestamp_option(
     f: C | None = None, *, aliases: tuple[str, ...] = ()
-) -> Callable[[C], C] | C:
+) -> t.Callable[[C], C] | C:
     if f is None:
-        return cast(
-            Callable[[C], C],
+        return t.cast(
+            t.Callable[[C], C],
             functools.partial(preserve_timestamp_option, aliases=aliases),
         )
     return click.option(
@@ -126,22 +126,22 @@ def verify_checksum_option(f: C) -> C:
     )(f)
 
 
-@overload
+@t.overload
 def encrypt_data_option(f: C) -> C:
     ...
 
 
-@overload
-def encrypt_data_option(*, aliases: tuple[str, ...]) -> Callable[[C], C]:
+@t.overload
+def encrypt_data_option(*, aliases: tuple[str, ...]) -> t.Callable[[C], C]:
     ...
 
 
 def encrypt_data_option(
     f: C | None = None, *, aliases: tuple[str, ...] = ()
-) -> Callable[[C], C] | C:
+) -> t.Callable[[C], C] | C:
     if f is None:
-        return cast(
-            Callable[[C], C],
+        return t.cast(
+            t.Callable[[C], C],
             functools.partial(encrypt_data_option, aliases=aliases),
         )
     return click.option(

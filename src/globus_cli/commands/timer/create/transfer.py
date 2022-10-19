@@ -2,8 +2,8 @@ from __future__ import annotations
 
 import datetime
 import sys
+import typing as t
 import uuid
-from typing import TextIO
 
 import click
 import globus_sdk
@@ -29,7 +29,7 @@ from globus_cli.termio import FORMAT_TEXT_RECORD, formatted_print
 from .._common import DATETIME_FORMATS, JOB_FORMAT_FIELDS
 
 if sys.version_info >= (3, 8):
-    from typing import Literal
+    from typing import Literal  # noqa: TYT03
 else:
     from typing_extensions import Literal
 
@@ -102,7 +102,7 @@ def transfer_command(
     name: str | None,
     source: tuple[uuid.UUID, str | None],
     destination: tuple[uuid.UUID, str | None],
-    batch: TextIO | None,
+    batch: t.TextIO | None,
     recursive: bool,
     start: datetime.datetime | None,
     interval: int | None,

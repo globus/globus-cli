@@ -1,9 +1,9 @@
 from __future__ import annotations
 
 import json
+import typing as t
 import uuid
 from io import TextIOWrapper
-from typing import Any
 
 import click
 
@@ -49,7 +49,7 @@ def delete_by_query_command(
     search_client = login_manager.get_search_client()
 
     if q:
-        doc: dict[str, Any] = {"q": q}
+        doc: dict[str, t.Any] = {"q": q}
     elif query_document:
         doc = json.load(query_document)
     else:

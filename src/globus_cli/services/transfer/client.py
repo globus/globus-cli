@@ -2,8 +2,8 @@ from __future__ import annotations
 
 import logging
 import textwrap
+import typing as t
 import uuid
-from typing import Any
 
 import click
 import globus_sdk
@@ -52,7 +52,7 @@ class CustomTransferClient(globus_sdk.TransferClient):
     def recursive_operation_ls(
         self,
         endpoint_id: str | uuid.UUID,
-        params: dict[str, Any],
+        params: dict[str, t.Any],
         depth: int = 3,
     ) -> RecursiveLsResponse:
         """

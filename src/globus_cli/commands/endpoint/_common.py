@@ -1,13 +1,13 @@
 from __future__ import annotations
 
-from typing import Callable, TypeVar, Union
+import typing as t
 
 import click
 
 from globus_cli.constants import EXPLICIT_NULL
 from globus_cli.parsing import LocationType, MutexInfo, mutex_option_group
 
-C = TypeVar("C", bound=Union[Callable, click.Command])
+C = t.TypeVar("C", bound=t.Union[t.Callable, click.Command])
 
 
 def _apply_create_or_update_params(f: C) -> C:

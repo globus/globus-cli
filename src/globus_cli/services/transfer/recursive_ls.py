@@ -4,22 +4,22 @@ from __future__ import annotations
 
 import logging
 import time
+import typing as t
 from collections import deque
-from typing import Any, Deque, Dict, Iterator, Optional, Tuple, cast
 
 import globus_sdk
 
 log = logging.getLogger(__name__)
 
-ITEM_T = Dict[str, Any]
-QUEUE_T = Deque[Tuple[Optional[str], str, int]]
+ITEM_T = t.Dict[str, t.Any]
+QUEUE_T = t.Deque[t.Tuple[t.Optional[str], str, int]]
 
 # constants for controlling client-side rate limiting
 SLEEP_FREQUENCY = 25
 SLEEP_LEN = 1
 
 
-def _client_side_limiter() -> Iterator[None]:
+def _client_side_limiter() -> t.Iterator[None]:
     counter = 0
     while True:
         counter += 1
@@ -57,7 +57,7 @@ class RecursiveLsResponse:
         self,
         client: globus_sdk.TransferClient,
         endpoint_id: str,
-        ls_params: dict[str, Any],
+        ls_params: dict[str, t.Any],
         *,
         max_depth: int = 3,
         filter_after_first: bool = True,
@@ -68,7 +68,7 @@ class RecursiveLsResponse:
         self._max_depth = max_depth
         self._filter_after_first = filter_after_first
 
-        start_path = cast(Optional[str], ls_params.get("path"))
+        start_path = t.cast(t.Optional[str], ls_params.get("path"))
         log.info(
             "Creating RecursiveLsResponse on path '%s' of endpoint '%s'",
             start_path,
@@ -89,12 +89,12 @@ class RecursiveLsResponse:
             # way of making sure that it's clear
             self._first_elem = None
 
-    def __iter__(self) -> Iterator[ITEM_T]:
+    def __iter__(self) -> t.Iterator[ITEM_T]:
         if self._first_elem is not None:
             yield self._first_elem
             yield from self._generator
 
-    def _iterable_func(self, start_path: str | None) -> Iterator[ITEM_T]:
+    def _iterable_func(self, start_path: str | None) -> t.Iterator[ITEM_T]:
         """
         An internal function which has generator semantics. Defined using the
         `yield` syntax.
@@ -156,4 +156,4 @@ class RecursiveLsResponse:
             # the relative path popped from the queue, and yield the item
             for item in res_data:
                 item["name"] = (rel_path + "/" if rel_path else "") + item["name"]
-                yield cast(ITEM_T, item)
+                yield t.cast(ITEM_T, item)

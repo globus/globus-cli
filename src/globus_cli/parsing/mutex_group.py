@@ -1,13 +1,13 @@
 from __future__ import annotations
 
 import functools
-from typing import Any, Callable, TypeVar, cast
+import typing as t
 
 import click
 
 from ..utils import format_list_of_words
 
-C = TypeVar("C", bound=Callable)
+C = t.TypeVar("C", bound=t.Callable)
 
 
 class MutexInfo:
@@ -31,7 +31,7 @@ class MutexInfo:
         return self.option_name
 
 
-def mutex_option_group(*options: str | MutexInfo) -> Callable[[C], C]:
+def mutex_option_group(*options: str | MutexInfo) -> t.Callable[[C], C]:
     """
     Given a mapping of param name to option string, decorate a command function to check
     for the exclusivity of those options.
@@ -61,7 +61,7 @@ def mutex_option_group(*options: str | MutexInfo) -> Callable[[C], C]:
 
     def decorator(func: C) -> C:
         @functools.wraps(func)
-        def wrapped(*args: Any, **kwargs: Any) -> Any:
+        def wrapped(*args: t.Any, **kwargs: t.Any) -> t.Any:
             found_opts = []
             for opt in opt_infos:
                 if opt.is_present(kwargs):
@@ -71,6 +71,6 @@ def mutex_option_group(*options: str | MutexInfo) -> Callable[[C], C]:
                 raise click.UsageError(f"{option_str} are mutually exclusive")
             return func(*args, **kwargs)
 
-        return cast(C, wrapped)
+        return t.cast(C, wrapped)
 
     return decorator

@@ -1,8 +1,8 @@
 from __future__ import annotations
 
 import logging
+import typing as t
 import uuid
-from typing import cast
 
 import click
 import globus_sdk
@@ -72,11 +72,11 @@ class Endpointish:
 
     def get_collection_endpoint_id(self) -> str:
         self.assert_is_gcsv5_collection()
-        return cast(str, self.data["owner_id"])
+        return t.cast(str, self.data["owner_id"])
 
     def get_gcs_address(self) -> str:
         self.assert_ep_type(EndpointType.gcsv5_types())
-        return cast(str, self.data["DATA"][0]["hostname"])
+        return t.cast(str, self.data["DATA"][0]["hostname"])
 
     @property
     def requires_data_access_scope(self) -> bool:

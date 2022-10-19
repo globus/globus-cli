@@ -2,13 +2,13 @@ from __future__ import annotations
 
 import datetime
 import sys
-from typing import TYPE_CHECKING
+import typing as t
 
 import click
 
 from globus_cli.termio import FORMAT_SILENT, formatted_print
 
-if TYPE_CHECKING:
+if t.TYPE_CHECKING:
     from ..services.transfer import CustomTransferClient
 
 

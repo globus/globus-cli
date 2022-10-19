@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from typing import Any
+import typing as t
 
 import globus_sdk
 
@@ -29,7 +29,7 @@ def server_list(*, login_manager: LoginManager, endpoint_id):
     endpoint_w_server_list = transfer_client.get_endpoint_w_server_list(endpoint_id)
     endpoint = endpoint_w_server_list[0]
     server_list: (
-        str | dict[str, Any] | globus_sdk.GlobusHTTPResponse
+        str | dict[str, t.Any] | globus_sdk.GlobusHTTPResponse
     ) = endpoint_w_server_list[1]
 
     if server_list == "S3":  # not GCS -- this is an S3 endpoint

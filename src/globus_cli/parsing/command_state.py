@@ -1,6 +1,6 @@
 import logging.config
+import typing as t
 import warnings
-from typing import Callable
 
 import click
 
@@ -64,7 +64,7 @@ class CommandState:
         return self.verbosity > 0
 
 
-def format_option(f: Callable) -> Callable:
+def format_option(f: t.Callable) -> t.Callable:
     def callback(ctx, param, value):
         if not value:
             return
@@ -112,7 +112,7 @@ def format_option(f: Callable) -> Callable:
     return f
 
 
-def debug_option(f: Callable) -> Callable:
+def debug_option(f: t.Callable) -> t.Callable:
     def callback(ctx, param, value):
         if not value or ctx.resilient_parsing:
             # turn off warnings altogether
@@ -134,7 +134,7 @@ def debug_option(f: Callable) -> Callable:
     )(f)
 
 
-def verbose_option(f: Callable) -> Callable:
+def verbose_option(f: t.Callable) -> t.Callable:
     def callback(ctx, param, value):
         # set state verbosity value from option
         state = ctx.ensure_object(CommandState)
@@ -180,7 +180,7 @@ def verbose_option(f: Callable) -> Callable:
     )(f)
 
 
-def map_http_status_option(f: Callable) -> Callable:
+def map_http_status_option(f: t.Callable) -> t.Callable:
     exit_stat_set = [0, 1] + list(range(50, 100))
 
     def per_val_callback(ctx, value):

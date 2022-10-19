@@ -1,14 +1,16 @@
 from __future__ import annotations
 
 import json
-from typing import Any, Callable, Iterable, Iterator, TextIO, cast
+import typing as t
 
 import click
 
 from globus_cli.types import DATA_CONTAINER_T, FIELD_LIST_T
 
 
-def get_current_option_help(*, filter_names: Iterable[str] | None = None) -> list[str]:
+def get_current_option_help(
+    *, filter_names: t.Iterable[str] | None = None
+) -> list[str]:
     ctx = click.get_current_context()
     cmd = ctx.command
     opts = [x for x in cmd.params if isinstance(x, click.Option)]
@@ -17,7 +19,7 @@ def get_current_option_help(*, filter_names: Iterable[str] | None = None) -> lis
     return [o.get_error_hint(ctx) for o in opts]
 
 
-def supported_parameters(c: Callable) -> list[str]:
+def supported_parameters(c: t.Callable) -> list[str]:
     import inspect
 
     sig = inspect.signature(c)
@@ -65,13 +67,13 @@ class _FuncWithFilterKey:
 
 def sorted_json_field(
     key: str,
-) -> Callable[[DATA_CONTAINER_T], str]:
+) -> t.Callable[[DATA_CONTAINER_T], str]:
     """Define sorted JSON output for text output containing complex types."""
 
     def field_func(data: DATA_CONTAINER_T) -> str:
         return json.dumps(data[key], sort_keys=True)
 
-    ret = cast(_FuncWithFilterKey, field_func)
+    ret = t.cast(_FuncWithFilterKey, field_func)
     ret._filter_key = key
     return field_func
 
@@ -97,7 +99,7 @@ def filter_fields(
         name, key = field_to_check
         check_key = key
         if callable(key) and hasattr(key, "_filter_key"):
-            check_key = cast(_FuncWithFilterKey, key)._filter_key
+            check_key = t.cast(_FuncWithFilterKey, key)._filter_key
 
         # if it's a string lookup, check if it's contained (and skip if not)
         if isinstance(check_key, str):
@@ -131,7 +133,7 @@ class CLIStubResponse:
     def __contains__(self, key: str) -> bool:
         return key in self.data
 
-    def __getitem__(self, key: str) -> Any:
+    def __getitem__(self, key: str) -> t.Any:
         return self.data[key]
 
 
@@ -139,7 +141,7 @@ class CLIStubResponse:
 class PagingWrapper:
     def __init__(
         self,
-        iterator: Iterator[Any],
+        iterator: t.Iterator[t.Any],
         limit: int | None = None,
         json_conversion_key: str | None = None,
     ) -> None:
@@ -158,7 +160,7 @@ class PagingWrapper:
     def has_next(self) -> bool:
         return self.next is not None
 
-    def __iter__(self) -> Iterator[Any]:
+    def __iter__(self) -> t.Iterator[t.Any]:
         yielded = 0
         while self.has_next() and (self.limit is None or yielded < self.limit):
             cur = self.next
@@ -167,18 +169,20 @@ class PagingWrapper:
             yielded += 1
 
     @property
-    def json_converter(self) -> Callable[[Iterator[Any]], dict[str, list[Any]]]:
+    def json_converter(
+        self,
+    ) -> t.Callable[[t.Iterator[t.Any]], dict[str, list[t.Any]]]:
         if self.json_conversion_key is None:
             raise NotImplementedError("does not support json_converter")
         key: str = self.json_conversion_key
 
-        def converter(it: Iterator[Any]) -> dict[str, list[Any]]:
+        def converter(it: t.Iterator[t.Any]) -> dict[str, list[t.Any]]:
             return {key: list(it)}
 
         return converter
 
 
-def shlex_process_stream(process_command: click.Command, stream: TextIO) -> None:
+def shlex_process_stream(process_command: click.Command, stream: t.TextIO) -> None:
     """
     Use shlex to process stdin line-by-line.
     Also prints help text.

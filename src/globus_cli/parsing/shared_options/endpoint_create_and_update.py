@@ -1,20 +1,20 @@
 from __future__ import annotations
 
 import sys
-from typing import Callable, TypeVar, Union
+import typing as t
 
 if sys.version_info >= (3, 8):
-    from typing import Literal
+    from typing import Literal  # noqa: TYT03
 else:
     from typing_extensions import Literal
 if sys.version_info >= (3, 11):
-    from typing import assert_never
+    from typing import assert_never  # noqa: TYT03
 else:
     from typing_extensions import assert_never
 
 import click
 
-C = TypeVar("C", bound=Union[Callable, click.Command])
+C = t.TypeVar("C", bound=t.Union[t.Callable, click.Command])
 
 
 def _apply_universal_endpointish_params(
@@ -58,7 +58,7 @@ def _apply_universal_endpointish_params(
 
 def endpointish_create_and_update_params(
     mode: Literal["create", "update"], name: str = "endpoint"
-) -> Callable[[C], C]:
+) -> t.Callable[[C], C]:
     if mode == "create":
 
         def decorator(f: C) -> C:
