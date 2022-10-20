@@ -13,6 +13,7 @@ from .context import (
     verbosity,
 )
 from .errors import PrintableErrorField, write_error_info
+from .field import Field
 from .output_formatter import (
     FORMAT_JSON,
     FORMAT_SILENT,
@@ -20,7 +21,6 @@ from .output_formatter import (
     FORMAT_TEXT_RECORD,
     FORMAT_TEXT_RECORD_LIST,
     FORMAT_TEXT_TABLE,
-    FormatField,
     formatted_print,
 )
 
@@ -39,7 +39,7 @@ __all__ = [
     "PrintableErrorField",
     "write_error_info",
     "formatted_print",
-    "FormatField",
+    "Field",
     "FORMAT_SILENT",
     "FORMAT_JSON",
     "FORMAT_TEXT_TABLE",

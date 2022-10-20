@@ -11,12 +11,12 @@ import typing as t
 if t.TYPE_CHECKING:
     import globus_sdk
 
-    from globus_cli.termio import FormatField
+    from globus_cli.termio import Field
     from globus_cli.utils import CLIStubResponse
 
 
 FIELD_T = t.Union[
-    "FormatField",
+    "Field",
     t.Tuple[str, str],
     t.Tuple[str, t.Callable[..., str]],
     # NOTE: this type is redundant with the previous two, but is needed to ensure

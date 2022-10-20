@@ -3,13 +3,13 @@ import click
 from globus_cli.endpointish import Endpointish
 from globus_cli.login_manager import LoginManager
 from globus_cli.parsing import command, endpoint_id_arg
-from globus_cli.termio import FORMAT_TEXT_RECORD, FormatField, formatted_print
+from globus_cli.termio import FORMAT_TEXT_RECORD, Field, formatted_print
 
 STANDARD_FIELDS = (
     ("Display Name", "display_name"),
     ("ID", "id"),
     ("Owner", "owner_string"),
-    FormatField("Description", "description", wrap_enabled=True),
+    Field("Description", "description", wrap_enabled=True),
     ("Activated", "activated"),
     ("Shareable", "shareable"),
     ("Department", "department"),

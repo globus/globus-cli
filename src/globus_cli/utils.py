@@ -91,7 +91,7 @@ def filter_fields(
     """
     fields: FIELD_LIST_T = []
     for field_to_check in check_fields:
-        # FormatField objects get included always
+        # Field objects get included always
         if not isinstance(field_to_check, tuple):
             fields.append(field_to_check)
             continue
