@@ -20,6 +20,7 @@ from globus_cli.parsing import group
         "server": (".server", "server_command"),
         "set-subscription-id": (".set_subscription_id", "set_endpoint_subscription_id"),
         "show": (".show", "endpoint_show"),
+        "storage-gateway": (".storage_gateway", "storage_gateway_command"),
         "update": (".update", "endpoint_update"),
         "user-credential": (".user_credential", "user_credential_command"),
     },

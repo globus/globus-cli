@@ -8,3 +8,5 @@
         * globus endpoint user-credential create from-json
         * globus endpoint user-credential create posix
         * globus endpoint user-credential create s3
+
+* Added globus endpoint storage-gateway list
