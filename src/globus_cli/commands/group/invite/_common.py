@@ -14,7 +14,7 @@ if t.TYPE_CHECKING:
     from globus_cli.services.auth import CustomAuthClient
 
 if sys.version_info >= (3, 8):
-    from typing import Literal  # noqa: TYT03
+    from typing import Literal
 else:
     from typing_extensions import Literal
 

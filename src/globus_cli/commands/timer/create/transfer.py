@@ -29,7 +29,7 @@ from globus_cli.termio import FORMAT_TEXT_RECORD, formatted_print
 from .._common import DATETIME_FORMATS, JOB_FORMAT_FIELDS
 
 if sys.version_info >= (3, 8):
-    from typing import Literal  # noqa: TYT03
+    from typing import Literal
 else:
     from typing_extensions import Literal
 

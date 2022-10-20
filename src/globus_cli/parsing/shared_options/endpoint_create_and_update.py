@@ -4,11 +4,11 @@ import sys
 import typing as t
 
 if sys.version_info >= (3, 8):
-    from typing import Literal  # noqa: TYT03
+    from typing import Literal
 else:
     from typing_extensions import Literal
 if sys.version_info >= (3, 11):
-    from typing import assert_never  # noqa: TYT03
+    from typing import assert_never
 else:
     from typing_extensions import assert_never
 
