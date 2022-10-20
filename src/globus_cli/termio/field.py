@@ -12,12 +12,12 @@ class FieldFormatter(abc.ABC):
         ...
 
 
-class StrFieldFormatter(FieldFormatter):
+class _StrFieldFormatter(FieldFormatter):
     def format(self, value: t.Any) -> str:
         return str(value)
 
 
-class DateFieldFormatter(FieldFormatter):
+class _DateFieldFormatter(FieldFormatter):
     def format(self, value: t.Any) -> str:
         if not value:
             return "None"
@@ -68,6 +68,11 @@ class Field:
         Str = enum.auto()
         Date = enum.auto()
 
+    _DEFAULT_FORMATTERS: dict[FormatName, FieldFormatter] = {
+        FormatName.Str: _StrFieldFormatter(),
+        FormatName.Date: _DateFieldFormatter(),
+    }
+
     def __init__(
         self,
         name,
@@ -81,10 +86,8 @@ class Field:
 
         if isinstance(formatter, FieldFormatter):
             self.formatter: FieldFormatter = formatter
-        elif formatter == self.FormatName.Str:
-            self.formatter = StrFieldFormatter()
-        elif formatter == self.FormatName.Date:
-            self.formatter = DateFieldFormatter()
+        elif isinstance(formatter, self.FormatName):
+            self.formatter = self._DEFAULT_FORMATTERS[formatter]
         else:
             raise ValueError(f"bad field formatter: {formatter}")
 
