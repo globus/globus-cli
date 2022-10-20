@@ -1,3 +1,33 @@
+from __future__ import annotations
+
+import abc
+import datetime
+import enum
+import typing as t
+
+
+class FieldFormatter(abc.ABC):
+    @abc.abstractmethod
+    def format(self, value: t.Any) -> str:
+        ...
+
+
+class StrFieldFormatter(FieldFormatter):
+    def format(self, value: t.Any) -> str:
+        return str(value)
+
+
+class DateFieldFormatter(FieldFormatter):
+    def format(self, value: t.Any) -> str:
+        if not value:
+            return "None"
+        # let this raise ValueError
+        date = datetime.datetime.fromisoformat(value)
+        if date.tzinfo is None:
+            return date.strftime("%Y-%m-%d %H:%M:%S")
+        return date.astimezone().strftime("%Y-%m-%d %H:%M:%S")
+
+
 def _key_to_keyfunc(k):
     """
     We allow for 'keys' which are functions that map columns onto value
@@ -34,10 +64,29 @@ class Field:
     :param wrap_enabled: in record output, is this field allowed to wrap
     """
 
-    def __init__(self, name, key, wrap_enabled=False):
+    class FormatName(enum.Enum):
+        Str = enum.auto()
+        Date = enum.auto()
+
+    def __init__(
+        self,
+        name,
+        key,
+        wrap_enabled=False,
+        formatter: FormatName | FieldFormatter = FormatName.Str,
+    ):
         self.name = name
         self.keyfunc = _key_to_keyfunc(key)
         self.wrap_enabled = wrap_enabled
+
+        if isinstance(formatter, FieldFormatter):
+            self.formatter: FieldFormatter = formatter
+        elif formatter == self.FormatName.Str:
+            self.formatter = StrFieldFormatter()
+        elif formatter == self.FormatName.Date:
+            self.formatter = DateFieldFormatter()
+        else:
+            raise ValueError(f"bad field formatter: {formatter}")
 
     @classmethod
     def coerce(cls, rawfield):
@@ -54,5 +103,5 @@ class Field:
         )
 
     def __call__(self, data):
-        """extract the field's value from the print data"""
-        return self.keyfunc(data)
+        """extract the field's value from the data and format it"""
+        return self.formatter.format(self.keyfunc(data))

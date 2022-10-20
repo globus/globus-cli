@@ -68,7 +68,11 @@ def test_show_job(run_line):
     result = run_line(["globus", "timer", "show", meta["job_id"]])
     assert result.exit_code == 0
     assert meta["job_id"] in result.output
-    for field_name, _ in JOB_FORMAT_FIELDS:
+    for field in JOB_FORMAT_FIELDS:
+        if isinstance(field, tuple):
+            field_name = field[0]
+        else:
+            field_name = field.name
         assert field_name in result.output
 
 
@@ -78,7 +82,11 @@ def test_list_jobs(run_line):
     result = run_line(["globus", "timer", "list"])
     assert result.exit_code == 0
     assert all(job_id in result.output for job_id in meta["job_ids"])
-    for field_name, _ in JOB_FORMAT_FIELDS:
+    for field in JOB_FORMAT_FIELDS:
+        if isinstance(field, tuple):
+            field_name = field[0]
+        else:
+            field_name = field.name
         assert field_name in result.output
 
 

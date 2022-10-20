@@ -1,6 +1,5 @@
 from __future__ import annotations
 
-import datetime
 import sys
 import typing as t
 
@@ -102,15 +101,3 @@ def transfer_task_wait_with_io(
     formatted_print(res, text_format=FORMAT_SILENT)
 
     click.get_current_context().exit(exit_code)
-
-
-def isoformat_to_local(
-    utc_str: str | None, localtz: datetime.tzinfo | None = None
-) -> str | None:
-    if not utc_str:
-        return None
-    # let this raise ValueError
-    date = datetime.datetime.fromisoformat(utc_str)
-    if date.tzinfo is None:
-        return date.strftime("%Y-%m-%d %H:%M:%S")
-    return date.astimezone(tz=localtz).strftime("%Y-%m-%d %H:%M:%S")

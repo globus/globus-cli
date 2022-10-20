@@ -4,7 +4,7 @@ import datetime
 import typing as t
 from urllib.parse import urlparse
 
-from globus_cli.commands._common import isoformat_to_local
+from globus_cli.termio import Field
 
 # List of datetime formats accepted as input. (`%z` means timezone.)
 DATETIME_FORMATS = [
@@ -52,11 +52,11 @@ JOB_FORMAT_FIELDS = [
     ("Job ID", "job_id"),
     ("Name", "name"),
     ("Type", _get_action_type),
-    ("Submitted At", lambda data: isoformat_to_local(data["submitted_at"])),
-    ("Start", lambda data: isoformat_to_local(data["start"])),
+    Field("Submitted At", "submitted_at", formatter=Field.FormatName.Date),
+    Field("Start", "start", formatter=Field.FormatName.Date),
     ("Interval", _get_interval),
-    ("Last Run", lambda data: isoformat_to_local(data["last_ran_at"])),
-    ("Next Run", lambda data: isoformat_to_local(data["next_run"])),
+    Field("Last Run", "last_ran_at", formatter=Field.FormatName.Date),
+    Field("Next Run", "next_run", formatter=Field.FormatName.Date),
     ("Stop After Date", _get_stop_date),
     ("Stop After Number of Runs", _get_stop_n_runs),
     ("Number of Runs", lambda data: data["n_runs"]),
@@ -67,8 +67,8 @@ DELETED_JOB_FORMAT_FIELDS = [
     ("Job ID", "job_id"),
     ("Name", "name"),
     ("Type", _get_action_type),
-    ("Submitted At", lambda data: isoformat_to_local(data["submitted_at"])),
-    ("Start", lambda data: isoformat_to_local(data["start"])),
+    Field("Submitted At", "submitted_at", formatter=Field.FormatName.Date),
+    Field("Start", "start", formatter=Field.FormatName.Date),
     ("Interval", _get_interval),
     ("Stop After Date", _get_stop_date),
     ("Stop After Number of Runs", _get_stop_n_runs),
