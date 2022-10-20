@@ -17,7 +17,7 @@ STANDARD_FIELDS = [
 ]
 
 
-@command("list", short_help="List all User Credentials on an Endpoint")
+@command("list", short_help="List the Storage Gateways on an Endpoint")
 @click.argument(
     "endpoint_id",
     metavar="ENDPOINT_ID",
@@ -29,7 +29,7 @@ def storage_gateway_list(
     endpoint_id,
 ):
     """
-    List the User Credentials on a given Globus Connect Server v5 Endpoint
+    List the Storage Gateways on a given Globus Connect Server v5 Endpoint
     """
     gcs_client = login_manager.get_gcs_client(endpoint_id=endpoint_id)
     res = gcs_client.get_storage_gateway_list()
