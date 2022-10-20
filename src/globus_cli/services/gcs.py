@@ -2,6 +2,8 @@ from __future__ import annotations
 
 import globus_sdk
 
+from globus_cli.termio import FieldFormatter
+
 CONNECTOR_INFO: list[dict[str, str]] = [
     {
         "connector_id": "145812c8-decc-41f1-83cf-bb2a85a2a70b",
@@ -70,6 +72,11 @@ def connector_id_to_display_name(connector_id: str) -> str:
         display_name = f"UNKNOWN ({connector_id})"
 
     return display_name
+
+
+class ConnectorIdFormatter(FieldFormatter):
+    def format(self, connector_id: str) -> str:
+        return connector_id_to_display_name(connector_id)
 
 
 class CustomGCSClient(globus_sdk.GCSClient):

@@ -8,19 +8,19 @@ import typing as t
 
 class FieldFormatter(abc.ABC):
     @abc.abstractmethod
-    def format(self, value: t.Any) -> str:
+    def format(self, value: t.Any) -> str | None:
         ...
 
 
 class _StrFieldFormatter(FieldFormatter):
-    def format(self, value: t.Any) -> str:
+    def format(self, value: t.Any) -> str | None:
         return str(value)
 
 
 class _DateFieldFormatter(FieldFormatter):
-    def format(self, value: t.Any) -> str:
+    def format(self, value: t.Any) -> str | None:
         if not value:
-            return "None"
+            return None
         # let this raise ValueError
         date = datetime.datetime.fromisoformat(value)
         if date.tzinfo is None:
@@ -44,7 +44,9 @@ def _key_to_keyfunc(k):
         def lookup(x):
             current = x
             for sub in subkeys:
-                current = x[sub]
+                current = x.get(sub)
+                if current is None:
+                    return None
             return current
 
         return lookup

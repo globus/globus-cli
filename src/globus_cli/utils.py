@@ -1,11 +1,10 @@
 from __future__ import annotations
 
-import json
 import typing as t
 
 import click
 
-from globus_cli.types import DATA_CONTAINER_T, FIELD_LIST_T
+from globus_cli.types import DATA_CONTAINER_T
 
 
 def get_current_option_help(
@@ -59,66 +58,6 @@ def format_plural_str(
         for singular, plural in pluralizable.items()
     }
     return formatstr.format(**argdict)
-
-
-class _FuncWithFilterKey:
-    _filter_key: str
-
-
-def sorted_json_field(
-    key: str,
-) -> t.Callable[[DATA_CONTAINER_T], str]:
-    """Define sorted JSON output for text output containing complex types."""
-
-    def field_func(data: DATA_CONTAINER_T) -> str:
-        return json.dumps(data[key], sort_keys=True)
-
-    ret = t.cast(_FuncWithFilterKey, field_func)
-    ret._filter_key = key
-    return field_func
-
-
-def filter_fields(
-    check_fields: FIELD_LIST_T,
-    container: DATA_CONTAINER_T,
-) -> FIELD_LIST_T:
-    """
-    Given a set of fields, this is a list of fields actually found in some containing
-    object.
-
-    Always includes keyfunc fields unless they set the magic _filter_key attribute
-    sorted_json_field above is a good example of doing this
-    """
-    fields: FIELD_LIST_T = []
-    for field_to_check in check_fields:
-        # Field objects get included always
-        if not isinstance(field_to_check, tuple):
-            fields.append(field_to_check)
-            continue
-
-        name, key = field_to_check
-        check_key = key
-        if callable(key) and hasattr(key, "_filter_key"):
-            check_key = t.cast(_FuncWithFilterKey, key)._filter_key
-
-        # if it's a string lookup, check if it's contained (and skip if not)
-        if isinstance(check_key, str):
-            subkeys = check_key.split(".")
-            skip_subkey = False
-
-            check_container = container
-            for check_subkey in subkeys[:-1]:
-                if check_subkey not in check_container:
-                    skip_subkey = True
-                    break
-                check_container = check_container[check_subkey]
-            if skip_subkey or subkeys[-1] not in check_container:
-                continue
-
-        # anything else falls through to success
-        # includes keyfuncs which don't set _filter_key
-        fields.append((name, key))
-    return fields
 
 
 class CLIStubResponse:

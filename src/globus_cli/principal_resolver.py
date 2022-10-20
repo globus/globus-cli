@@ -36,6 +36,19 @@ class InvalidPrincipalError(ValueError):
         self.value = value
 
 
+# TODO: work out how to rephrase PrincipalResolver as a FieldFormatter
+# this is non-trivial for two reasons:
+#
+# 1. a FieldFormatter only handles a string to format; note how PrincipalResolver
+#    fails over to using the "original" value
+# 2. PrincipalResolver uses page_callback to run logic on each page of results,
+#    prepopulating the id_map. This is an important optimization because it results in
+#    batched lookups against get_identities, rather than a network call per value
+#
+# page_callback may become a function of the Field objects, to pass pages of results to
+# their formatters. This would cover (2).
+# (1) is more difficult because it requires a more complex protocol/interface between
+# the FieldFormatter and the Field object.
 class PrincipalResolver:
     """
     Everything is done lazily via properties so that nothing happens during
