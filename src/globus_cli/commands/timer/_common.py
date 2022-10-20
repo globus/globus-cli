@@ -49,27 +49,27 @@ def _get_interval(data: dict[str, t.Any]) -> str | None:
 
 
 JOB_FORMAT_FIELDS = [
-    ("Job ID", "job_id"),
-    ("Name", "name"),
-    ("Type", _get_action_type),
+    Field("Job ID", "job_id"),
+    Field("Name", "name"),
+    Field("Type", _get_action_type),
     Field("Submitted At", "submitted_at", formatter=Field.FormatName.Date),
     Field("Start", "start", formatter=Field.FormatName.Date),
-    ("Interval", _get_interval),
+    Field("Interval", _get_interval),
     Field("Last Run", "last_ran_at", formatter=Field.FormatName.Date),
     Field("Next Run", "next_run", formatter=Field.FormatName.Date),
-    ("Stop After Date", _get_stop_date),
-    ("Stop After Number of Runs", _get_stop_n_runs),
-    ("Number of Runs", lambda data: data["n_runs"]),
-    ("Number of Timer Errors", lambda data: data["n_errors"]),
+    Field("Stop After Date", _get_stop_date),
+    Field("Stop After Number of Runs", _get_stop_n_runs),
+    Field("Number of Runs", lambda data: data["n_runs"]),
+    Field("Number of Timer Errors", lambda data: data["n_errors"]),
 ]
 
 DELETED_JOB_FORMAT_FIELDS = [
-    ("Job ID", "job_id"),
-    ("Name", "name"),
-    ("Type", _get_action_type),
+    Field("Job ID", "job_id"),
+    Field("Name", "name"),
+    Field("Type", _get_action_type),
     Field("Submitted At", "submitted_at", formatter=Field.FormatName.Date),
     Field("Start", "start", formatter=Field.FormatName.Date),
-    ("Interval", _get_interval),
-    ("Stop After Date", _get_stop_date),
-    ("Stop After Number of Runs", _get_stop_n_runs),
+    Field("Interval", _get_interval),
+    Field("Stop After Date", _get_stop_date),
+    Field("Stop After Number of Runs", _get_stop_n_runs),
 ]

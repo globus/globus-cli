@@ -9,7 +9,7 @@ from globus_cli.login_manager import LoginManager
 from globus_cli.parsing import collection_id_arg, command
 from globus_cli.principal_resolver import default_identity_id_resolver
 from globus_cli.termio import FORMAT_TEXT_RECORD, Field, FieldFormatter, formatted_print
-from globus_cli.types import DATA_CONTAINER_T, FIELD_LIST_T
+from globus_cli.types import DATA_CONTAINER_T
 
 
 class SortedJsonFormatter(FieldFormatter):
@@ -86,7 +86,7 @@ def collection_show(
     gcs_client = login_manager.get_gcs_client(collection_id=collection_id)
 
     query_params = {}
-    fields: FIELD_LIST_T = _get_standard_fields()
+    fields: list[Field] = _get_standard_fields()
 
     if include_private_policies:
         query_params["include"] = "private_policies"

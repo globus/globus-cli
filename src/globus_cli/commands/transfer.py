@@ -356,12 +356,12 @@ def transfer_command(
         formatted_print(
             transfer_data.data,
             response_key="DATA",
-            fields=(
+            fields=[
                 ("Source Path", "source_path"),
                 ("Dest Path", "destination_path"),
                 ("Recursive", "recursive"),
                 ("External Checksum", lambda x: x.get("external_checksum")),
-            ),
+            ],
         )
         # exit safely
         return
@@ -376,5 +376,5 @@ def transfer_command(
     formatted_print(
         res,
         text_format=FORMAT_TEXT_RECORD,
-        fields=(("Message", "message"), ("Task ID", "task_id")),
+        fields=[("Message", "message"), ("Task ID", "task_id")],
     )

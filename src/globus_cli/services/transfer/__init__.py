@@ -1,3 +1,5 @@
+from globus_cli.termio import Field
+
 from .activation import (
     activation_requirements_help_text,
     autoactivate,
@@ -13,11 +15,11 @@ from .data import (
 from .delegate_proxy import fill_delegate_proxy_activation_requirements
 from .recursive_ls import RecursiveLsResponse
 
-ENDPOINT_LIST_FIELDS = (
-    ("ID", "id"),
-    ("Owner", "owner_string"),
-    ("Display Name", display_name_or_cname),
-)
+ENDPOINT_LIST_FIELDS = [
+    Field("ID", "id"),
+    Field("Owner", "owner_string"),
+    Field("Display Name", display_name_or_cname),
+]
 
 
 __all__ = (

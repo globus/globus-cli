@@ -24,7 +24,7 @@ FIELD_T = t.Union[
     t.Tuple[str, t.Union[str, t.Callable[..., str]]],
 ]
 
-FIELD_LIST_T = t.List[FIELD_T]
+FIELD_LIST_T = t.Union[t.List[FIELD_T], t.List["Field"], t.List[t.Tuple[str, t.Any]]]
 
 DATA_CONTAINER_T = t.Union[
     t.Mapping[str, t.Any],

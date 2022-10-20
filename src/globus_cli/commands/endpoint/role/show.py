@@ -1,6 +1,6 @@
 from globus_cli.login_manager import LoginManager
 from globus_cli.parsing import command, endpoint_id_arg
-from globus_cli.termio import FORMAT_TEXT_RECORD, formatted_print
+from globus_cli.termio import FORMAT_TEXT_RECORD, Field, formatted_print
 
 from ._common import role_id_arg
 
@@ -48,9 +48,9 @@ def role_show(*, login_manager: LoginManager, endpoint_id, role_id):
     formatted_print(
         role,
         text_format=FORMAT_TEXT_RECORD,
-        fields=(
-            ("Principal Type", "principal_type"),
-            ("Principal", lookup_principal),
-            ("Role", "role"),
-        ),
+        fields=[
+            Field("Principal Type", "principal_type"),
+            Field("Principal", lookup_principal),
+            Field("Role", "role"),
+        ],
     )

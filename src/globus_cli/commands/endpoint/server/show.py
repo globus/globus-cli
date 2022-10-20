@@ -4,8 +4,7 @@ from textwrap import dedent
 
 from globus_cli.login_manager import LoginManager
 from globus_cli.parsing import command, endpoint_id_arg
-from globus_cli.termio import FORMAT_TEXT_RECORD, formatted_print
-from globus_cli.types import FIELD_LIST_T
+from globus_cli.termio import FORMAT_TEXT_RECORD, Field, formatted_print
 
 from ._common import server_id_arg
 
@@ -31,7 +30,7 @@ def server_show(*, login_manager: LoginManager, endpoint_id, server_id):
     transfer_client = login_manager.get_transfer_client()
 
     server_doc = transfer_client.get_endpoint_server(endpoint_id, server_id)
-    fields: FIELD_LIST_T = [("ID", "id")]
+    fields = [Field("ID", "id")]
     if not server_doc["uri"]:  # GCP endpoint server
         text_epilog: str | None = dedent(
             """
@@ -66,9 +65,9 @@ def server_show(*, login_manager: LoginManager, endpoint_id, server_id):
 
         fields.extend(
             [
-                ("URI", "uri"),
-                ("Subject", "subject"),
-                ("Data Ports", advertised_port_summary),
+                Field("URI", "uri"),
+                Field("Subject", "subject"),
+                Field("Data Ports", advertised_port_summary),
             ]
         )
         text_epilog = None

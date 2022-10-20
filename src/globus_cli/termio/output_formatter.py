@@ -4,6 +4,7 @@ import textwrap
 import click
 import globus_sdk
 
+from globus_cli.types import FIELD_LIST_T
 from globus_cli.utils import CLIStubResponse
 
 from .awscli_text import unix_formatted_print
@@ -149,7 +150,7 @@ def formatted_print(
     text_epilog=None,
     text_format=FORMAT_TEXT_TABLE,
     json_converter=None,
-    fields=None,
+    fields: FIELD_LIST_T | None = None,
     response_key=None,
 ):
     """

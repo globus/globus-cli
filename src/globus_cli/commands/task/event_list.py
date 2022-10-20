@@ -105,11 +105,11 @@ def task_event_list(
 
     formatted_print(
         event_iterator,
-        fields=(
+        fields=[
             ("Time", "time"),
             ("Code", "code"),
             ("Is Error", "is_error"),
             ("Details", squashed_json_details),
-        ),
+        ],
         json_converter=iterable_response_to_dict,
     )

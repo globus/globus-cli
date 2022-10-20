@@ -7,8 +7,7 @@ import click
 
 from globus_cli.login_manager import is_client_login, token_storage_adapter
 from globus_cli.parsing import command
-from globus_cli.termio import FORMAT_TEXT_TABLE, formatted_print
-from globus_cli.types import FIELD_LIST_T
+from globus_cli.termio import FORMAT_TEXT_TABLE, Field, formatted_print
 
 
 def _profilestr_to_datadict(s: str) -> dict[str, t.Any] | None:
@@ -91,22 +90,20 @@ def cli_profile_list(*, all: bool) -> None:
     current_profile_field = _get_current_checker()
 
     if user_profiles:
-        fields: FIELD_LIST_T = [
-            ("", current_profile_field),
-            ("GLOBUS_PROFILE", "profile"),
-            ("is_default", lambda x: "True" if x["default"] else "False"),
+        fields = [
+            Field("", current_profile_field),
+            Field("GLOBUS_PROFILE", "profile"),
+            Field("is_default", lambda x: "True" if x["default"] else "False"),
         ]
         if all:
-            fields += [
-                ("GLOBUS_SDK_ENVIRONMENT", "env"),
-            ]
+            fields.append(Field("GLOBUS_SDK_ENVIRONMENT", "env"))
         formatted_print(user_profiles, text_format=FORMAT_TEXT_TABLE, fields=fields)
     if client_profiles:
         click.echo("")
         fields = [
-            ("", current_profile_field),
-            ("GLOBUS_CLI_CLIENT_ID", "profile"),
+            Field("", current_profile_field),
+            Field("GLOBUS_CLI_CLIENT_ID", "profile"),
         ]
         if all:
-            fields.append(("GLOBUS_SDK_ENVIRONMENT", "env"))
+            fields.append(Field("GLOBUS_SDK_ENVIRONMENT", "env"))
         formatted_print(client_profiles, text_format=FORMAT_TEXT_TABLE, fields=fields)

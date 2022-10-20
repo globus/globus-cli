@@ -69,11 +69,7 @@ def test_show_job(run_line):
     assert result.exit_code == 0
     assert meta["job_id"] in result.output
     for field in JOB_FORMAT_FIELDS:
-        if isinstance(field, tuple):
-            field_name = field[0]
-        else:
-            field_name = field.name
-        assert field_name in result.output
+        assert field.name in result.output
 
 
 def test_list_jobs(run_line):
@@ -83,11 +79,7 @@ def test_list_jobs(run_line):
     assert result.exit_code == 0
     assert all(job_id in result.output for job_id in meta["job_ids"])
     for field in JOB_FORMAT_FIELDS:
-        if isinstance(field, tuple):
-            field_name = field[0]
-        else:
-            field_name = field.name
-        assert field_name in result.output
+        assert field.name in result.output
 
 
 @pytest.mark.parametrize("out_format", ["text", "json"])

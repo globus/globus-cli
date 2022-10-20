@@ -2,7 +2,7 @@ import click
 
 from globus_cli.login_manager import LoginManager
 from globus_cli.parsing import command
-from globus_cli.termio import FORMAT_TEXT_RECORD, formatted_print, is_verbose
+from globus_cli.termio import FORMAT_TEXT_RECORD, Field, formatted_print, is_verbose
 
 from ._common import resolve_id_or_name
 
@@ -47,12 +47,12 @@ def bookmark_show(*, login_manager: LoginManager, bookmark_id_or_name):
     formatted_print(
         res,
         text_format=FORMAT_TEXT_RECORD,
-        fields=(
-            ("ID", "id"),
-            ("Name", "name"),
-            ("Endpoint ID", "endpoint_id"),
-            ("Path", "path"),
-        ),
+        fields=[
+            Field("ID", "id"),
+            Field("Name", "name"),
+            Field("Endpoint ID", "endpoint_id"),
+            Field("Path", "path"),
+        ],
         simple_text=(
             # standard output is endpoint:path format
             "{}:{}".format(res["endpoint_id"], res["path"])

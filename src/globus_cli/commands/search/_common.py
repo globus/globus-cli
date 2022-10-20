@@ -5,7 +5,7 @@ import typing as t
 import click
 import globus_sdk
 
-from globus_cli.types import FIELD_LIST_T
+from globus_cli.termio import Field
 
 
 def index_id_arg(f: t.Callable) -> t.Callable:
@@ -47,8 +47,8 @@ def resolved_principals_field(
     return (name, render_principal)
 
 
-INDEX_FIELDS: FIELD_LIST_T = [
-    ("Index ID", "id"),
-    ("Display Name", "display_name"),
-    ("Status", "status"),
+INDEX_FIELDS = [
+    Field("Index ID", "id"),
+    Field("Display Name", "display_name"),
+    Field("Status", "status"),
 ]
