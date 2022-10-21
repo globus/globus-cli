@@ -36,6 +36,9 @@ class InvalidPrincipalError(ValueError):
         self.value = value
 
 
+# FIXME: page_callback is never actually invoked! Comments below make it sound like it
+# is, but it is not.
+#
 # TODO: work out how to rephrase PrincipalResolver as a FieldFormatter
 # this is non-trivial for two reasons:
 #
@@ -47,6 +50,7 @@ class InvalidPrincipalError(ValueError):
 #
 # page_callback may become a function of the Field objects, to pass pages of results to
 # their formatters. This would cover (2).
+#
 # (1) is more difficult because it requires a more complex protocol/interface between
 # the FieldFormatter and the Field object.
 class PrincipalResolver:
