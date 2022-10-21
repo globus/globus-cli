@@ -18,7 +18,7 @@ from globus_cli.parsing import (
     transfer_recursive_option,
     verify_checksum_option,
 )
-from globus_cli.termio import FORMAT_TEXT_RECORD, formatted_print
+from globus_cli.termio import FORMAT_TEXT_RECORD, Field, formatted_print
 
 
 @command(
@@ -357,10 +357,10 @@ def transfer_command(
             transfer_data.data,
             response_key="DATA",
             fields=[
-                ("Source Path", "source_path"),
-                ("Dest Path", "destination_path"),
-                ("Recursive", "recursive"),
-                ("External Checksum", lambda x: x.get("external_checksum")),
+                Field("Source Path", "source_path"),
+                Field("Dest Path", "destination_path"),
+                Field("Recursive", "recursive"),
+                Field("External Checksum", lambda x: x.get("external_checksum")),
             ],
         )
         # exit safely
@@ -376,5 +376,5 @@ def transfer_command(
     formatted_print(
         res,
         text_format=FORMAT_TEXT_RECORD,
-        fields=[("Message", "message"), ("Task ID", "task_id")],
+        fields=[Field("Message", "message"), Field("Task ID", "task_id")],
     )

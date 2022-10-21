@@ -2,7 +2,7 @@ import globus_sdk
 
 from globus_cli.login_manager import LoginManager
 from globus_cli.parsing import command
-from globus_cli.termio import formatted_print
+from globus_cli.termio import Field, formatted_print
 
 
 @command(
@@ -56,11 +56,11 @@ def bookmark_list(*, login_manager: LoginManager):
     formatted_print(
         bookmark_iterator,
         fields=[
-            ("Name", "name"),
-            ("Bookmark ID", "id"),
-            ("Endpoint ID", "endpoint_id"),
-            ("Endpoint Name", get_ep_name),
-            ("Path", "path"),
+            Field("Name", "name"),
+            Field("Bookmark ID", "id"),
+            Field("Endpoint ID", "endpoint_id"),
+            Field("Endpoint Name", get_ep_name),
+            Field("Path", "path"),
         ],
         response_key="DATA",
         json_converter=iterable_response_to_dict,

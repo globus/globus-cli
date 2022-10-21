@@ -2,7 +2,7 @@ import uuid
 
 from globus_cli.login_manager import LoginManager
 from globus_cli.parsing import command
-from globus_cli.termio import FORMAT_TEXT_TABLE, formatted_print
+from globus_cli.termio import FORMAT_TEXT_TABLE, Field, formatted_print
 
 from ..._common import index_id_arg, resolved_principals_field
 
@@ -19,8 +19,8 @@ def list_command(*, login_manager: LoginManager, index_id: uuid.UUID):
     formatted_print(
         res,
         fields=[
-            ("ID", "id"),
-            ("Role", "role_name"),
+            Field("ID", "id"),
+            Field("Role", "role_name"),
             resolved_principals_field(auth_client, res["role_list"]),
         ],
         text_format=FORMAT_TEXT_TABLE,

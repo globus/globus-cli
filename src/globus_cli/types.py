@@ -11,20 +11,8 @@ import typing as t
 if t.TYPE_CHECKING:
     import globus_sdk
 
-    from globus_cli.termio import Field
     from globus_cli.utils import CLIStubResponse
 
-
-FIELD_T = t.Union[
-    "Field",
-    t.Tuple[str, str],
-    t.Tuple[str, t.Callable[..., str]],
-    # NOTE: this type is redundant with the previous two, but is needed to ensure
-    # type agreement (mypy may flag it as a false negative otherwise)
-    t.Tuple[str, t.Union[str, t.Callable[..., str]]],
-]
-
-FIELD_LIST_T = t.Union[t.List[FIELD_T], t.List["Field"]]
 
 DATA_CONTAINER_T = t.Union[
     t.Mapping[str, t.Any],

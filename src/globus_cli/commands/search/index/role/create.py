@@ -6,7 +6,7 @@ import click
 
 from globus_cli.login_manager import LoginManager
 from globus_cli.parsing import command
-from globus_cli.termio import FORMAT_TEXT_RECORD, formatted_print
+from globus_cli.termio import FORMAT_TEXT_RECORD, Field, formatted_print
 
 from ..._common import index_id_arg, resolved_principals_field
 
@@ -78,9 +78,9 @@ def create_command(
         search_client.create_role(index_id, data=role_doc),
         text_format=FORMAT_TEXT_RECORD,
         fields=[
-            ("Index ID", "index_id"),
-            ("Role ID", "id"),
-            ("Role Name", "role_name"),
+            Field("Index ID", "index_id"),
+            Field("Role ID", "id"),
+            Field("Role Name", "role_name"),
             resolved_principals_field(auth_client),
         ],
     )

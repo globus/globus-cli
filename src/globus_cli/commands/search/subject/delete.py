@@ -4,7 +4,7 @@ import click
 
 from globus_cli.login_manager import LoginManager
 from globus_cli.parsing import command
-from globus_cli.termio import FORMAT_TEXT_RECORD, formatted_print
+from globus_cli.termio import FORMAT_TEXT_RECORD, Field, formatted_print
 
 from .._common import index_id_arg
 
@@ -33,7 +33,9 @@ def delete_command(
         search_client.delete_subject(index_id, subject),
         text_format=FORMAT_TEXT_RECORD,
         fields=[
-            ("Message", lambda _x: "delete-by-subject task successfully submitted"),
-            ("Task ID", "task_id"),
+            Field(
+                "Message", lambda _x: "delete-by-subject task successfully submitted"
+            ),
+            Field("Task ID", "task_id"),
         ],
     )

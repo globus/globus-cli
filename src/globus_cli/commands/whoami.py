@@ -5,6 +5,7 @@ from globus_cli.login_manager import LoginManager
 from globus_cli.parsing import command
 from globus_cli.termio import (
     FORMAT_TEXT_RECORD,
+    Field,
     formatted_print,
     is_verbose,
     print_command_hint,
@@ -54,7 +55,7 @@ $ globus whoami --linked-identities
     help="Also show identities linked to the currently logged-in primary identity.",
 )
 @LoginManager.requires_login(LoginManager.AUTH_RS)
-def whoami_command(*, login_manager, linked_identities):
+def whoami_command(*, login_manager: LoginManager, linked_identities: bool):
     """
     Display information for the currently logged-in user.
     """
@@ -81,10 +82,10 @@ def whoami_command(*, login_manager, linked_identities):
             formatted_print(
                 res["identity_set"],
                 fields=[
-                    ("Username", "username"),
-                    ("Name", "name"),
-                    ("ID", "sub"),
-                    ("Email", "email"),
+                    Field("Username", "username"),
+                    Field("Name", "name"),
+                    Field("ID", "sub"),
+                    Field("Email", "email"),
                 ],
                 simple_text=(
                     None
@@ -106,10 +107,10 @@ def whoami_command(*, login_manager, linked_identities):
             res,
             text_format=FORMAT_TEXT_RECORD,
             fields=[
-                ("Username", "preferred_username"),
-                ("Name", "name"),
-                ("ID", "sub"),
-                ("Email", "email"),
+                Field("Username", "preferred_username"),
+                Field("Name", "name"),
+                Field("ID", "sub"),
+                Field("Email", "email"),
             ],
             simple_text=(None if is_verbose() else res["preferred_username"]),
         )

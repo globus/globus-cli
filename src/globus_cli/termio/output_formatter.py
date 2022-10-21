@@ -1,10 +1,11 @@
+from __future__ import annotations
+
 import json
 import textwrap
 
 import click
 import globus_sdk
 
-from globus_cli.types import FIELD_LIST_T
 from globus_cli.utils import CLIStubResponse
 
 from .awscli_text import unix_formatted_print
@@ -150,7 +151,7 @@ def formatted_print(
     text_epilog=None,
     text_format=FORMAT_TEXT_TABLE,
     json_converter=None,
-    fields: FIELD_LIST_T | None = None,
+    fields: list[Field] | None = None,
     response_key=None,
 ):
     """
@@ -247,10 +248,6 @@ def formatted_print(
         # if there's an epilog, print it after any text
         if text_epilog is not None:
             click.echo(text_epilog)
-
-    # ensure fields are Field instances
-    if fields:
-        fields = [Field.coerce(f) for f in fields]
 
     if isinstance(text_format, str):
         text_format = text_format

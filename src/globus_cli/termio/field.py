@@ -93,20 +93,6 @@ class Field:
         else:
             raise ValueError(f"bad field formatter: {formatter}")
 
-    @classmethod
-    def coerce(cls, rawfield):
-        """given a (Field|tuple), convert to a Field"""
-        if isinstance(rawfield, cls):
-            return rawfield
-        elif isinstance(rawfield, tuple):
-            if len(rawfield) == 2:
-                return cls(rawfield[0], rawfield[1])
-            raise ValueError("cannot coerce tuple of bad length")
-        raise TypeError(
-            "Field.coerce must be given a field or tuple, "
-            "got {}".format(type(rawfield))
-        )
-
     def __call__(self, data):
         """extract the field's value from the data and format it"""
         return self.formatter.format(self.keyfunc(data))

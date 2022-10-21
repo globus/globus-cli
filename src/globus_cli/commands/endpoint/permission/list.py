@@ -1,8 +1,10 @@
+import uuid
+
 import globus_sdk
 
 from globus_cli.login_manager import LoginManager
 from globus_cli.parsing import command, endpoint_id_arg
-from globus_cli.termio import formatted_print
+from globus_cli.termio import Field, formatted_print
 
 
 @command(
@@ -17,7 +19,7 @@ $ globus endpoint permission list $ep_id
 )
 @endpoint_id_arg
 @LoginManager.requires_login(LoginManager.AUTH_RS, LoginManager.TRANSFER_RS)
-def list_command(*, login_manager: LoginManager, endpoint_id):
+def list_command(*, login_manager: LoginManager, endpoint_id: uuid.UUID):
     """List all rules in an endpoint's access control list."""
     transfer_client = login_manager.get_transfer_client()
     auth_client = login_manager.get_auth_client()
@@ -43,9 +45,9 @@ def list_command(*, login_manager: LoginManager, endpoint_id):
     formatted_print(
         rules,
         fields=[
-            ("Rule ID", "id"),
-            ("Permissions", "permissions"),
-            ("Shared With", principal_str),
-            ("Path", "path"),
+            Field("Rule ID", "id"),
+            Field("Permissions", "permissions"),
+            Field("Shared With", principal_str),
+            Field("Path", "path"),
         ],
     )

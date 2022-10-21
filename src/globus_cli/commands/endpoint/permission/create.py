@@ -2,7 +2,7 @@ import click
 
 from globus_cli.login_manager import LoginManager
 from globus_cli.parsing import ENDPOINT_PLUS_REQPATH, command, security_principal_opts
-from globus_cli.termio import FORMAT_TEXT_RECORD, formatted_print
+from globus_cli.termio import FORMAT_TEXT_RECORD, Field, formatted_print
 
 
 @command(
@@ -104,5 +104,5 @@ def create_command(
     formatted_print(
         res,
         text_format=FORMAT_TEXT_RECORD,
-        fields=[("Message", "message"), ("Rule ID", "access_id")],
+        fields=[Field("Message", "message"), Field("Rule ID", "access_id")],
     )

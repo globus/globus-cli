@@ -4,7 +4,7 @@ import click
 
 from globus_cli.login_manager import LoginManager
 from globus_cli.parsing import command, endpointish_create_and_update_params
-from globus_cli.termio import FORMAT_TEXT_RECORD, formatted_print
+from globus_cli.termio import FORMAT_TEXT_RECORD, Field, formatted_print
 
 
 @command("mapped", short_help="Create a new GCP Mapped Collection")
@@ -68,9 +68,9 @@ def mapped_command(
     formatted_print(
         res,
         fields=[
-            ("Message", "message"),
-            ("Collection ID", "id"),
-            ("Setup Key", "globus_connect_setup_key"),
+            Field("Message", "message"),
+            Field("Collection ID", "id"),
+            Field("Setup Key", "globus_connect_setup_key"),
         ],
         text_format=FORMAT_TEXT_RECORD,
     )

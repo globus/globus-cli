@@ -6,7 +6,7 @@ import click
 
 from globus_cli.login_manager import LoginManager
 from globus_cli.parsing import command
-from globus_cli.termio import FORMAT_TEXT_RECORD, formatted_print
+from globus_cli.termio import FORMAT_TEXT_RECORD, Field, formatted_print
 
 from ._common import index_id_arg
 
@@ -48,5 +48,5 @@ def ingest_command(
     formatted_print(
         search_client.ingest(index_id, doc),
         text_format=FORMAT_TEXT_RECORD,
-        fields=[("Task ID", "task_id"), ("Acknowledged", "acknowledged")],
+        fields=[Field("Task ID", "task_id"), Field("Acknowledged", "acknowledged")],
     )

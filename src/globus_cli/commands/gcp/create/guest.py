@@ -8,7 +8,7 @@ from globus_cli.parsing import (
     command,
     endpointish_create_and_update_params,
 )
-from globus_cli.termio import FORMAT_TEXT_RECORD, formatted_print
+from globus_cli.termio import FORMAT_TEXT_RECORD, Field, formatted_print
 
 
 @command("guest", short_help="Create a new Guest Collection on GCP")
@@ -65,6 +65,6 @@ def guest_command(
     # output
     formatted_print(
         res,
-        fields=[("Message", "message"), ("Collection ID", "id")],
+        fields=[Field("Message", "message"), Field("Collection ID", "id")],
         text_format=FORMAT_TEXT_RECORD,
     )

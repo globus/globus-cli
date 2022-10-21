@@ -1,8 +1,10 @@
+import uuid
+
 import globus_sdk
 
 from globus_cli.login_manager import LoginManager
 from globus_cli.parsing import command, endpoint_id_arg
-from globus_cli.termio import formatted_print
+from globus_cli.termio import Field, formatted_print
 
 
 @command(
@@ -29,7 +31,7 @@ $ globus endpoint role list 'ddb59aef-6d04-11e5-ba46-22000b92c6ec'
 )
 @endpoint_id_arg
 @LoginManager.requires_login(LoginManager.AUTH_RS, LoginManager.TRANSFER_RS)
-def role_list(*, login_manager: LoginManager, endpoint_id):
+def role_list(*, login_manager: LoginManager, endpoint_id: uuid.UUID):
     """
     List the assigned roles on an endpoint.
 
@@ -57,9 +59,9 @@ def role_list(*, login_manager: LoginManager, endpoint_id):
     formatted_print(
         roles,
         fields=[
-            ("Principal Type", "principal_type"),
-            ("Role ID", "id"),
-            ("Principal", principal_str),
-            ("Role", "role"),
+            Field("Principal Type", "principal_type"),
+            Field("Role ID", "id"),
+            Field("Principal", principal_str),
+            Field("Role", "role"),
         ],
     )

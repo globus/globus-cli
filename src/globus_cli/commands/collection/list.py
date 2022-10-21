@@ -3,14 +3,14 @@ import click
 from globus_cli.login_manager import LoginManager
 from globus_cli.parsing import command
 from globus_cli.principal_resolver import default_identity_id_resolver
-from globus_cli.termio import FORMAT_TEXT_TABLE, formatted_print
+from globus_cli.termio import FORMAT_TEXT_TABLE, Field, formatted_print
 
 STANDARD_FIELDS = [
-    ("ID", "id"),
-    ("Display Name", "display_name"),
-    ("Owner", default_identity_id_resolver.field),
-    ("Collection Type", "collection_type"),
-    ("Storage Gateway ID", "storage_gateway_id"),
+    Field("ID", "id"),
+    Field("Display Name", "display_name"),
+    Field("Owner", default_identity_id_resolver.field),
+    Field("Collection Type", "collection_type"),
+    Field("Storage Gateway ID", "storage_gateway_id"),
 ]
 
 

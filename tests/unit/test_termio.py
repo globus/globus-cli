@@ -6,6 +6,7 @@ import pytest
 
 from globus_cli.termio import (
     FORMAT_TEXT_RECORD_LIST,
+    Field,
     formatted_print,
     term_is_interactive,
 )
@@ -43,7 +44,7 @@ def test_format_record_list(capsys):
         {"bird": "Killdeer", "wingspan": 46},
         {"bird": "Franklin's Gull", "wingspan": 91},
     ]
-    fields = [("Bird", "bird"), ("Wingspan", "wingspan")]
+    fields = [Field("Bird", "bird"), Field("Wingspan", "wingspan")]
     with click.Context(click.Command("fake-command")) as _:
         formatted_print(data, text_format=FORMAT_TEXT_RECORD_LIST, fields=fields)
     output = capsys.readouterr().out

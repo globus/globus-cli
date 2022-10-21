@@ -1,6 +1,6 @@
 from globus_cli.login_manager import LoginManager
 from globus_cli.parsing import command
-from globus_cli.termio import FORMAT_TEXT_RECORD, formatted_print
+from globus_cli.termio import FORMAT_TEXT_RECORD, Field, formatted_print
 
 from ._common import (
     format_session_enforcement,
@@ -30,14 +30,14 @@ def group_show(
         group,
         text_format=FORMAT_TEXT_RECORD,
         fields=[
-            ("Name", "name"),
-            ("Description", "description"),
-            ("Type", "group_type"),
-            ("Visibility", parse_visibility),
-            ("Membership Visibility", parse_members_visibility),
-            ("Session Enforcement", format_session_enforcement),
-            ("Join Requests Allowed", parse_join_requests),
-            ("Signup Fields", parse_signup_fields),
-            ("Roles", parse_roles),
+            Field("Name", "name"),
+            Field("Description", "description"),
+            Field("Type", "group_type"),
+            Field("Visibility", parse_visibility),
+            Field("Membership Visibility", parse_members_visibility),
+            Field("Session Enforcement", format_session_enforcement),
+            Field("Join Requests Allowed", parse_join_requests),
+            Field("Signup Fields", parse_signup_fields),
+            Field("Roles", parse_roles),
         ],
     )

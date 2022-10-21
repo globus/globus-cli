@@ -6,7 +6,7 @@ import click
 
 from globus_cli.login_manager import LoginManager
 from globus_cli.parsing import ENDPOINT_PLUS_OPTPATH, command
-from globus_cli.termio import formatted_print, is_verbose, outformat_is_text
+from globus_cli.termio import Field, formatted_print, is_verbose, outformat_is_text
 
 
 @command(
@@ -205,13 +205,13 @@ def ls_command(
     formatted_print(
         res,
         fields=[
-            ("Permissions", "permissions"),
-            ("User", "user"),
-            ("Group", "group"),
-            ("Size", "size"),
-            ("Last Modified", "last_modified"),
-            ("File Type", "type"),
-            ("Filename", cleaned_item_name),
+            Field("Permissions", "permissions"),
+            Field("User", "user"),
+            Field("Group", "group"),
+            Field("Size", "size"),
+            Field("Last Modified", "last_modified"),
+            Field("File Type", "type"),
+            Field("Filename", cleaned_item_name),
         ],
         simple_text=(
             None

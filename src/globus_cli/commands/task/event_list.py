@@ -5,7 +5,7 @@ import click
 
 from globus_cli.login_manager import LoginManager
 from globus_cli.parsing import command
-from globus_cli.termio import formatted_print
+from globus_cli.termio import Field, formatted_print
 from globus_cli.utils import PagingWrapper
 
 from ._common import task_id_arg
@@ -106,10 +106,10 @@ def task_event_list(
     formatted_print(
         event_iterator,
         fields=[
-            ("Time", "time"),
-            ("Code", "code"),
-            ("Is Error", "is_error"),
-            ("Details", squashed_json_details),
+            Field("Time", "time"),
+            Field("Code", "code"),
+            Field("Is Error", "is_error"),
+            Field("Details", squashed_json_details),
         ],
         json_converter=iterable_response_to_dict,
     )

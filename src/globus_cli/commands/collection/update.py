@@ -17,7 +17,7 @@ from globus_cli.parsing import (
     mutex_option_group,
     nullable_multi_callback,
 )
-from globus_cli.termio import FORMAT_TEXT_RECORD, formatted_print
+from globus_cli.termio import FORMAT_TEXT_RECORD, Field, formatted_print
 
 
 def _mkhelp(txt):
@@ -263,6 +263,6 @@ def collection_update(
     res = gcs_client.update_collection(collection_id, doc)
     formatted_print(
         res,
-        fields=[("code", lambda x: x.full_data["code"])],
+        fields=[Field("code", lambda x: x.full_data["code"])],
         text_format=FORMAT_TEXT_RECORD,
     )

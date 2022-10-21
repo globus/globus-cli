@@ -2,15 +2,15 @@ import uuid
 
 from globus_cli.login_manager import LoginManager
 from globus_cli.parsing import command
-from globus_cli.termio import FORMAT_TEXT_TABLE, formatted_print
+from globus_cli.termio import FORMAT_TEXT_TABLE, Field, formatted_print
 
 from .._common import index_id_arg
 
 TASK_FIELDS = [
-    ("State", "state"),
-    ("Task ID", "task_id"),
-    ("Creation Date", "creation_date"),
-    ("Completion Date", "completion_date"),
+    Field("State", "state"),
+    Field("Task ID", "task_id"),
+    Field("Creation Date", "creation_date"),
+    Field("Completion Date", "completion_date"),
 ]
 
 

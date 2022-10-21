@@ -1,6 +1,6 @@
 from globus_cli.login_manager import LoginManager
 from globus_cli.parsing import command
-from globus_cli.termio import formatted_print
+from globus_cli.termio import Field, formatted_print
 
 from ._common import format_session_enforcement, parse_roles
 
@@ -31,10 +31,10 @@ def group_list(*, login_manager: LoginManager):
     formatted_print(
         groups,
         fields=[
-            ("Group ID", "id"),
-            ("Name", "name"),
-            ("Type", "group_type"),
-            ("Session Enforcement", format_session_enforcement),
-            ("Roles", parse_roles),
+            Field("Group ID", "id"),
+            Field("Name", "name"),
+            Field("Type", "group_type"),
+            Field("Session Enforcement", format_session_enforcement),
+            Field("Roles", parse_roles),
         ],
     )

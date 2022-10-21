@@ -10,13 +10,13 @@ from globus_cli.parsing import (
     mutex_option_group,
     one_use_option,
 )
-from globus_cli.termio import FORMAT_TEXT_RECORD, formatted_print
+from globus_cli.termio import FORMAT_TEXT_RECORD, Field, formatted_print
 
 from ._common import endpoint_create_params, validate_endpoint_create_and_update_params
 
-COMMON_FIELDS = [("Message", "message"), ("Endpoint ID", "id")]
+COMMON_FIELDS = [Field("Message", "message"), Field("Endpoint ID", "id")]
 
-GCP_FIELDS = [("Setup Key", "globus_connect_setup_key")]
+GCP_FIELDS = [Field("Setup Key", "globus_connect_setup_key")]
 
 
 @command(
