@@ -59,8 +59,8 @@ JOB_FORMAT_FIELDS = [
     Field("Next Run", "next_run", formatter=Field.FormatName.Date),
     Field("Stop After Date", _get_stop_date),
     Field("Stop After Number of Runs", _get_stop_n_runs),
-    Field("Number of Runs", lambda data: data["n_runs"]),
-    Field("Number of Timer Errors", lambda data: data["n_errors"]),
+    Field("Number of Runs", "n_runs"),
+    Field("Number of Timer Errors", "n_errors"),
 ]
 
 DELETED_JOB_FORMAT_FIELDS = [
