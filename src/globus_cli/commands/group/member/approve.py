@@ -2,13 +2,12 @@ import click
 
 from globus_cli.login_manager import LoginManager
 from globus_cli.parsing import IdentityType, ParsedIdentity, command
-from globus_cli.termio import FORMAT_TEXT_RECORD, formatted_print
-from globus_cli.types import FIELD_LIST_T
+from globus_cli.termio import FORMAT_TEXT_RECORD, Field, formatted_print
 
-APPROVED_USER_FIELDS: FIELD_LIST_T = [
-    ("Group ID", "group_id"),
-    ("Approved User ID", "identity_id"),
-    ("Approved User Username", "username"),
+APPROVED_USER_FIELDS = [
+    Field("Group ID", "group_id"),
+    Field("Approved User ID", "identity_id"),
+    Field("Approved User Username", "username"),
 ]
 
 

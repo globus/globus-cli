@@ -2,13 +2,12 @@ import click
 
 from globus_cli.login_manager import LoginManager
 from globus_cli.parsing import IdentityType, ParsedIdentity, command
-from globus_cli.termio import FORMAT_TEXT_RECORD, formatted_print
-from globus_cli.types import FIELD_LIST_T
+from globus_cli.termio import FORMAT_TEXT_RECORD, Field, formatted_print
 
-REMOVED_USER_FIELDS: FIELD_LIST_T = [
-    ("Group ID", "group_id"),
-    ("Removed User ID", "identity_id"),
-    ("Removed User Username", "username"),
+REMOVED_USER_FIELDS = [
+    Field("Group ID", "group_id"),
+    Field("Removed User ID", "identity_id"),
+    Field("Removed User Username", "username"),
 ]
 
 

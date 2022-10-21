@@ -2,13 +2,12 @@ import click
 
 from globus_cli.login_manager import LoginManager
 from globus_cli.parsing import IdentityType, ParsedIdentity, command
-from globus_cli.termio import FORMAT_TEXT_RECORD, formatted_print
-from globus_cli.types import FIELD_LIST_T
+from globus_cli.termio import FORMAT_TEXT_RECORD, Field, formatted_print
 
-INVITED_USER_FIELDS: FIELD_LIST_T = [
-    ("Group ID", "group_id"),
-    ("Invited User ID", "identity_id"),
-    ("Invited User Username", "username"),
+INVITED_USER_FIELDS = [
+    Field("Group ID", "group_id"),
+    Field("Invited User ID", "identity_id"),
+    Field("Invited User Username", "username"),
 ]
 
 
