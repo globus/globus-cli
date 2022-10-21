@@ -93,7 +93,7 @@ def cli_profile_list(*, all: bool) -> None:
         fields = [
             Field("", current_profile_field),
             Field("GLOBUS_PROFILE", "profile"),
-            Field("is_default", lambda x: "True" if x["default"] else "False"),
+            Field("is_default", "default", formatter=Field.FormatName.Bool),
         ]
         if all:
             fields.append(Field("GLOBUS_SDK_ENVIRONMENT", "env"))

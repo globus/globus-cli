@@ -22,7 +22,7 @@ STANDARD_FIELDS = [
     Field("Visibility", "public"),
     Field("Default Directory", "default_directory"),
     Field("Force Encryption", "force_encryption"),
-    Field("Managed Endpoint", lambda res: bool(res["subscription_id"])),
+    Field("Managed Endpoint", "subscription_id", formatter=Field.FormatName.Bool),
     Field("Subscription ID", "subscription_id"),
     Field("Legacy Name", "canonical_name"),
     Field("Local User Info Available", "local_user_info_available"),

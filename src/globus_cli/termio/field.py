@@ -28,6 +28,13 @@ class _DateFieldFormatter(FieldFormatter):
         return date.astimezone().strftime("%Y-%m-%d %H:%M:%S")
 
 
+class _BoolFieldFormatter(FieldFormatter):
+    def format(self, value: t.Any) -> str | None:
+        if bool(value):
+            return "True"
+        return "False"
+
+
 def _key_to_keyfunc(k):
     """
     We allow for 'keys' which are functions that map columns onto value
@@ -69,10 +76,12 @@ class Field:
     class FormatName(enum.Enum):
         Str = enum.auto()
         Date = enum.auto()
+        Bool = enum.auto()
 
     _DEFAULT_FORMATTERS: dict[FormatName, FieldFormatter] = {
         FormatName.Str: _StrFieldFormatter(),
         FormatName.Date: _DateFieldFormatter(),
+        FormatName.Bool: _BoolFieldFormatter(),
     }
 
     def __init__(
