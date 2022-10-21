@@ -30,9 +30,7 @@ class _DateFieldFormatter(FieldFormatter):
 
 class _BoolFieldFormatter(FieldFormatter):
     def format(self, value: t.Any) -> str | None:
-        if bool(value):
-            return "True"
-        return "False"
+        return str(bool(value))
 
 
 def _key_to_keyfunc(k):
@@ -51,7 +49,7 @@ def _key_to_keyfunc(k):
         def lookup(x):
             current = x
             for sub in subkeys:
-                current = x.get(sub)
+                current = current.get(sub)
                 if current is None:
                     return None
             return current
@@ -102,6 +100,11 @@ class Field:
         else:
             raise ValueError(f"bad field formatter: {formatter}")
 
+    def get_value(self, data):
+        return self.keyfunc(data)
+
+    def format(self, value):
+        return self.formatter.format(value)
+
     def __call__(self, data):
-        """extract the field's value from the data and format it"""
-        return self.formatter.format(self.keyfunc(data))
+        return self.format(self.get_value(data))

@@ -54,3 +54,24 @@ def test_format_record_list(capsys):
     # and one empty line between the records
     assert "" in output.splitlines()
     assert re.match(r"Bird:\s+Killdeer", output)
+
+
+def test_dot_nested_field_lookup():
+    nested_field = Field("foobarbaz", "foo.bar.baz")
+    assert nested_field.get_value({"foo": {}}) is None
+    assert nested_field.get_value({"foo": {"bar": {}}}) is None
+    assert nested_field.get_value({"foo": {"bar": {"baz": None}}}) is None
+    assert nested_field.get_value({"foo": {"bar": {"baz": "buzz"}}}) == "buzz"
+
+
+def test_date_format():
+    f = Field("foo", "foo", formatter=Field.FormatName.Date)
+    assert f({"foo": None}) is None
+    assert f({"foo": "2022-04-05T16:27:48.805427"}) == "2022-04-05 16:27:48"
+
+
+def test_bool_format():
+    f = Field("foo", "foo", formatter=Field.FormatName.Bool)
+    assert f({"foo": None}) == "False"
+    assert f({}) == "False"
+    assert f({"foo": True}) == "True"
