@@ -30,7 +30,7 @@ def user_credential_create_and_update_params(
     if create:
         f = click.argument("local-username")(f)
         f = click.argument("globus-identity")(f)
-        f = click.argument("storage-gateway")(f)
+        f = click.argument("storage-gateway", type=click.UUID)(f)
 
     f = click.option("--display-name", help="Display name for the credential.")(f)
 

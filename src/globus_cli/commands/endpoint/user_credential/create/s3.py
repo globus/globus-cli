@@ -1,5 +1,7 @@
 from __future__ import annotations
 
+import uuid
+
 import click
 from globus_sdk.services.gcs import UserCredentialDocument
 
@@ -19,8 +21,8 @@ from .._common import user_credential_create_and_update_params
 def s3(
     *,
     login_manager: LoginManager,
-    endpoint_id: str,
-    storage_gateway: str,
+    endpoint_id: uuid.UUID,
+    storage_gateway: uuid.UUID,
     globus_identity: str,
     local_username: str,
     s3_key_id: str,

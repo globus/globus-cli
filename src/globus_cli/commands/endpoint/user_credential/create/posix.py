@@ -1,5 +1,7 @@
 from __future__ import annotations
 
+import uuid
+
 from globus_sdk.services.gcs import UserCredentialDocument
 
 from globus_cli.login_manager import LoginManager
@@ -16,8 +18,8 @@ from .._common import user_credential_create_and_update_params
 def posix(
     *,
     login_manager: LoginManager,
-    endpoint_id: str,
-    storage_gateway: str,
+    endpoint_id: uuid.UUID,
+    storage_gateway: uuid.UUID,
     globus_identity: str,
     local_username: str,
     display_name: str | None,
