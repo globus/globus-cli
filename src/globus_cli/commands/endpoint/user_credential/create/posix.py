@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 from globus_sdk.services.gcs import UserCredentialDocument
 
 from globus_cli.login_manager import LoginManager
@@ -14,11 +16,11 @@ from .._common import user_credential_create_and_update_params
 def posix(
     *,
     login_manager: LoginManager,
-    endpoint_id,
-    storage_gateway,
-    globus_identity,
-    local_username,
-    **kwargs,  # values from user_credential_create_and_update_params
+    endpoint_id: str,
+    storage_gateway: str,
+    globus_identity: str,
+    local_username: str,
+    display_name: str | None,
 ):
     """
     Create a User Credential for a POSIX storage gateway
@@ -30,7 +32,7 @@ def posix(
         storage_gateway_id=storage_gateway,
         identity_id=auth_client.maybe_lookup_identity_id(globus_identity),
         username=local_username,
-        **kwargs,
+        display_name=display_name,
     )
     res = gcs_client.create_user_credential(data)
 

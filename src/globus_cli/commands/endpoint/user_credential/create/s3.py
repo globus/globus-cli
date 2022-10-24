@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 import click
 from globus_sdk.services.gcs import UserCredentialDocument
 
@@ -17,13 +19,13 @@ from .._common import user_credential_create_and_update_params
 def s3(
     *,
     login_manager: LoginManager,
-    endpoint_id,
-    storage_gateway,
-    globus_identity,
-    local_username,
-    s3_key_id,
-    s3_secret_key,
-    **kwargs,  # values from user_credential_create_and_update_params
+    endpoint_id: str,
+    storage_gateway: str,
+    globus_identity: str,
+    local_username: str,
+    s3_key_id: str,
+    s3_secret_key: str,
+    display_name: str | None,
 ):
     """
     Create a User Credential for an S3 Storage Gateway
@@ -43,7 +45,7 @@ def s3(
         identity_id=auth_client.maybe_lookup_identity_id(globus_identity),
         username=local_username,
         policies=policies,
-        **kwargs,
+        display_name=display_name,
     )
     res = gcs_client.create_user_credential(data)
 
