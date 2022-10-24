@@ -1,19 +1,25 @@
 import click
+import globus_sdk
 
 from globus_cli.login_manager import LoginManager
 from globus_cli.parsing import command
-from globus_cli.termio import FORMAT_TEXT_RECORD, formatted_print
+from globus_cli.termio import (
+    FORMAT_TEXT_RECORD,
+    Field,
+    field_formatters,
+    formatted_print,
+)
 
 from ._common import task_id_arg
 
 EXPLICIT_PAUSE_MSG_FIELDS = [
-    ("Source Endpoint", "source_pause_message"),
-    ("Source Shared Endpoint", "source_pause_message_share"),
-    ("Destination Endpoint", "destination_pause_message"),
-    ("Destination Shared Endpoint", "destination_pause_message_share"),
+    Field("Source Endpoint", "source_pause_message"),
+    Field("Source Shared Endpoint", "source_pause_message_share"),
+    Field("Destination Endpoint", "destination_pause_message"),
+    Field("Destination Shared Endpoint", "destination_pause_message_share"),
 ]
 
-PAUSE_RULE_OPERATION_FIELDS = [
+PAUSE_RULE_OPERATION_SUBFIELDS = [
     ("write", "pause_task_transfer_write"),
     ("read", "pause_task_transfer_read"),
     ("delete", "pause_task_delete"),
@@ -23,15 +29,19 @@ PAUSE_RULE_OPERATION_FIELDS = [
 ]
 
 PAUSE_RULE_DISPLAY_FIELDS = [
-    (
+    Field(
         "Operations",
         lambda rule: "/".join(
-            label for label, key in PAUSE_RULE_OPERATION_FIELDS if rule[key]
+            label for label, key in PAUSE_RULE_OPERATION_SUBFIELDS if rule[key]
         ),
     ),
-    ("On Endpoint", "endpoint_display_name"),
-    ("All Users", lambda rule: "No" if rule["identity_id"] else "Yes"),
-    ("Message", "message"),
+    Field("On Endpoint", "endpoint_display_name"),
+    Field(
+        "All Users",
+        "identity_id",
+        formatter=field_formatters.BoolFieldFormatter(true_str="No", false_str="Yes"),
+    ),
+    Field("Message", "message"),
 ]
 
 
@@ -79,12 +89,12 @@ def task_pause_info(*, login_manager: LoginManager, task_id):
     transfer_client = login_manager.get_transfer_client()
     res = transfer_client.task_pause_info(task_id)
 
-    def _custom_text_format(res):
+    def _custom_text_format(res: globus_sdk.GlobusHTTPResponse) -> None:
         explicit_pauses = [
             field
             for field in EXPLICIT_PAUSE_MSG_FIELDS
             # n.b. some keys are absent for completed tasks
-            if res.get(field[1])
+            if field.get_value(res)
         ]
         effective_pause_rules = res["pause_rules"]
 

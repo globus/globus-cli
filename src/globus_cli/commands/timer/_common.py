@@ -4,7 +4,7 @@ import datetime
 import typing as t
 from urllib.parse import urlparse
 
-from globus_cli.termio import Field
+from globus_cli.termio import Field, field_formatters
 
 # List of datetime formats accepted as input. (`%z` means timezone.)
 DATETIME_FORMATS = [
@@ -52,11 +52,11 @@ JOB_FORMAT_FIELDS = [
     Field("Job ID", "job_id"),
     Field("Name", "name"),
     Field("Type", _get_action_type),
-    Field("Submitted At", "submitted_at", formatter=Field.FormatName.Date),
-    Field("Start", "start", formatter=Field.FormatName.Date),
+    Field("Submitted At", "submitted_at", formatter=field_formatters.Date),
+    Field("Start", "start", formatter=field_formatters.Date),
     Field("Interval", _get_interval),
-    Field("Last Run", "last_ran_at", formatter=Field.FormatName.Date),
-    Field("Next Run", "next_run", formatter=Field.FormatName.Date),
+    Field("Last Run", "last_ran_at", formatter=field_formatters.Date),
+    Field("Next Run", "next_run", formatter=field_formatters.Date),
     Field("Stop After Date", _get_stop_date),
     Field("Stop After Number of Runs", _get_stop_n_runs),
     Field("Number of Runs", "n_runs"),
@@ -67,8 +67,8 @@ DELETED_JOB_FORMAT_FIELDS = [
     Field("Job ID", "job_id"),
     Field("Name", "name"),
     Field("Type", _get_action_type),
-    Field("Submitted At", "submitted_at", formatter=Field.FormatName.Date),
-    Field("Start", "start", formatter=Field.FormatName.Date),
+    Field("Submitted At", "submitted_at", formatter=field_formatters.Date),
+    Field("Start", "start", formatter=field_formatters.Date),
     Field("Interval", _get_interval),
     Field("Stop After Date", _get_stop_date),
     Field("Stop After Number of Runs", _get_stop_n_runs),

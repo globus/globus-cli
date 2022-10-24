@@ -1,36 +1,6 @@
 from __future__ import annotations
 
-import abc
-import datetime
-import enum
-import typing as t
-
-
-class FieldFormatter(abc.ABC):
-    @abc.abstractmethod
-    def format(self, value: t.Any) -> str | None:
-        ...
-
-
-class _StrFieldFormatter(FieldFormatter):
-    def format(self, value: t.Any) -> str | None:
-        return str(value)
-
-
-class _DateFieldFormatter(FieldFormatter):
-    def format(self, value: t.Any) -> str | None:
-        if not value:
-            return None
-        # let this raise ValueError
-        date = datetime.datetime.fromisoformat(value)
-        if date.tzinfo is None:
-            return date.strftime("%Y-%m-%d %H:%M:%S")
-        return date.astimezone().strftime("%Y-%m-%d %H:%M:%S")
-
-
-class _BoolFieldFormatter(FieldFormatter):
-    def format(self, value: t.Any) -> str | None:
-        return str(bool(value))
+from . import field_formatters
 
 
 def _key_to_keyfunc(k):
@@ -71,34 +41,17 @@ class Field:
     :param wrap_enabled: in record output, is this field allowed to wrap
     """
 
-    class FormatName(enum.Enum):
-        Str = enum.auto()
-        Date = enum.auto()
-        Bool = enum.auto()
-
-    _DEFAULT_FORMATTERS: dict[FormatName, FieldFormatter] = {
-        FormatName.Str: _StrFieldFormatter(),
-        FormatName.Date: _DateFieldFormatter(),
-        FormatName.Bool: _BoolFieldFormatter(),
-    }
-
     def __init__(
         self,
         name,
         key,
         wrap_enabled=False,
-        formatter: FormatName | FieldFormatter = FormatName.Str,
+        formatter: field_formatters.FieldFormatter = field_formatters.Str,
     ):
         self.name = name
         self.keyfunc = _key_to_keyfunc(key)
         self.wrap_enabled = wrap_enabled
-
-        if isinstance(formatter, FieldFormatter):
-            self.formatter: FieldFormatter = formatter
-        elif isinstance(formatter, self.FormatName):
-            self.formatter = self._DEFAULT_FORMATTERS[formatter]
-        else:
-            raise ValueError(f"bad field formatter: {formatter}")
+        self.formatter = formatter
 
     def get_value(self, data):
         return self.keyfunc(data)

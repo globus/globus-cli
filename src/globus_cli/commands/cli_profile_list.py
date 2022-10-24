@@ -7,7 +7,12 @@ import click
 
 from globus_cli.login_manager import is_client_login, token_storage_adapter
 from globus_cli.parsing import command
-from globus_cli.termio import FORMAT_TEXT_TABLE, Field, formatted_print
+from globus_cli.termio import (
+    FORMAT_TEXT_TABLE,
+    Field,
+    field_formatters,
+    formatted_print,
+)
 
 
 def _profilestr_to_datadict(s: str) -> dict[str, t.Any] | None:
@@ -93,7 +98,7 @@ def cli_profile_list(*, all: bool) -> None:
         fields = [
             Field("", current_profile_field),
             Field("GLOBUS_PROFILE", "profile"),
-            Field("is_default", "default", formatter=Field.FormatName.Bool),
+            Field("is_default", "default", formatter=field_formatters.Bool),
         ]
         if all:
             fields.append(Field("GLOBUS_SDK_ENVIRONMENT", "env"))

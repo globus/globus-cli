@@ -3,7 +3,12 @@ import click
 from globus_cli.endpointish import Endpointish
 from globus_cli.login_manager import LoginManager
 from globus_cli.parsing import command, endpoint_id_arg
-from globus_cli.termio import FORMAT_TEXT_RECORD, Field, formatted_print
+from globus_cli.termio import (
+    FORMAT_TEXT_RECORD,
+    Field,
+    field_formatters,
+    formatted_print,
+)
 
 STANDARD_FIELDS = [
     Field("Display Name", "display_name"),
@@ -22,7 +27,7 @@ STANDARD_FIELDS = [
     Field("Visibility", "public"),
     Field("Default Directory", "default_directory"),
     Field("Force Encryption", "force_encryption"),
-    Field("Managed Endpoint", "subscription_id", formatter=Field.FormatName.Bool),
+    Field("Managed Endpoint", "subscription_id", formatter=field_formatters.FuzzyBool),
     Field("Subscription ID", "subscription_id"),
     Field("Legacy Name", "canonical_name"),
     Field("Local User Info Available", "local_user_info_available"),

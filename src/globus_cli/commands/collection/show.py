@@ -1,20 +1,17 @@
 from __future__ import annotations
 
-import json
-import typing as t
-
 import click
 
 from globus_cli.login_manager import LoginManager
 from globus_cli.parsing import collection_id_arg, command
 from globus_cli.principal_resolver import default_identity_id_resolver
-from globus_cli.termio import FORMAT_TEXT_RECORD, Field, FieldFormatter, formatted_print
+from globus_cli.termio import (
+    FORMAT_TEXT_RECORD,
+    Field,
+    field_formatters,
+    formatted_print,
+)
 from globus_cli.types import DATA_CONTAINER_T
-
-
-class SortedJsonFormatter(FieldFormatter):
-    def format(self, value: t.Any) -> str | None:
-        return json.dumps(value, sort_keys=True)
 
 
 def _filter_fields(check_fields: list[Field], data: DATA_CONTAINER_T) -> list[Field]:
@@ -57,7 +54,7 @@ PRIVATE_FIELDS: list[Field] = [
     Field(
         "Sharing Path Restrictions",
         "sharing_restrict_paths",
-        formatter=SortedJsonFormatter(),
+        formatter=field_formatters.SortedJson,
     ),
     Field("Sharing Allowed Users", "sharing_users_allow"),
     Field("Sharing Denied Users", "sharing_users_deny"),
