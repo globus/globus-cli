@@ -96,6 +96,14 @@ class SortedJsonFormatter(FieldFormatter[JSON]):
         return json.dumps(value, sort_keys=True)
 
 
+class StaticStringFormatter(StrFieldFormatter):
+    def __init__(self, value: str) -> None:
+        self.value = value
+
+    def parse(self, value: t.Any) -> str:
+        return self.value
+
+
 Str = StrFieldFormatter()
 Date = DateFieldFormatter()
 Bool = BoolFieldFormatter()
