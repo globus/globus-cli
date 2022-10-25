@@ -1,14 +1,37 @@
 import json
+import typing as t
 import uuid
 
 import click
 
 from globus_cli.login_manager import LoginManager
 from globus_cli.parsing import command
-from globus_cli.termio import Field, formatted_print
+from globus_cli.termio import Field, field_formatters, formatted_print
 from globus_cli.utils import PagingWrapper
 
 from ._common import task_id_arg
+
+
+class SquashedJsonFormatter(field_formatters.FieldFormatter[t.Tuple[t.Any, bool]]):
+    def parse(self, value: t.Any) -> tuple[t.Any, bool]:
+        if not isinstance(value, str):
+            raise ValueError("bad input data")
+
+        is_json = False
+        try:
+            loaded = json.loads(value)
+            is_json = True
+        except ValueError:
+            loaded = value
+
+        return (loaded, is_json)
+
+    def render(self, value: tuple[t.Any, bool]) -> str:
+        data, is_json = value
+        if is_json:
+            return json.dumps(data, separators=(",", ":"), sort_keys=True)
+        else:
+            return str(data.replace("\n", "\\n"))
 
 
 @command(
@@ -90,26 +113,13 @@ def task_event_list(
         limit=limit,
     )
 
-    def squashed_json_details(x):
-        is_json = False
-        try:
-            loaded = json.loads(x["details"])
-            is_json = True
-        except ValueError:
-            loaded = x["details"]
-
-        if is_json:
-            return json.dumps(loaded, separators=(",", ":"), sort_keys=True)
-        else:
-            return loaded.replace("\n", "\\n")
-
     formatted_print(
         event_iterator,
         fields=[
             Field("Time", "time"),
             Field("Code", "code"),
             Field("Is Error", "is_error"),
-            Field("Details", squashed_json_details),
+            Field("Details", "details", formatter=SquashedJsonFormatter()),
         ],
         json_converter=iterable_response_to_dict,
     )
