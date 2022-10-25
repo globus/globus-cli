@@ -3,6 +3,17 @@ import responses
 from globus_sdk._testing import load_response_set
 
 
+def get_last_gcs_call(gcs_addr):
+    try:
+        return next(
+            c
+            for c in responses.calls[::-1]
+            if c.request.url.startswith(f"https://{gcs_addr}")
+        )
+    except StopIteration:
+        return None
+
+
 def test_collection_list(run_line, add_gcs_login):
     meta = load_response_set("cli.collection_operations").metadata
     epid = meta["endpoint_id"]
@@ -19,9 +30,14 @@ def test_collection_list_opts(run_line, add_gcs_login):
     add_gcs_login(epid)
     cid = meta["mapped_collection_id"]
     run_line(f"globus collection list --mapped-collection-id {cid} {epid}")
-    assert responses.calls[-1].request.params["mapped_collection_id"] == cid
+
+    gcs_addr = meta["gcs_hostname"]
+    last_call = get_last_gcs_call(gcs_addr)
+    assert last_call.request.params["mapped_collection_id"] == cid
+
     run_line(f"globus collection list --include-private-policies {epid}")
-    assert responses.calls[-1].request.params["include"] == "private_policies"
+    last_call = get_last_gcs_call(gcs_addr)
+    assert last_call.request.params["include"] == "private_policies"
 
 
 def test_collection_list_on_gcp(run_line):
@@ -71,4 +87,7 @@ def test_collection_list_filters(run_line, add_gcs_login, filter_val):
     filter_str = " ".join(f"--filter {f}" for f in filter_val)
     run_line(f"globus collection list {filter_str} {epid}")
     filter_params = {v.lower().replace("-", "_") for v in filter_val}
-    assert set(responses.calls[-1].request.params["filter"].split(",")) == filter_params
+
+    gcs_addr = meta["gcs_hostname"]
+    last_call = get_last_gcs_call(gcs_addr)
+    assert set(last_call.request.params["filter"].split(",")) == filter_params

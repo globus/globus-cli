@@ -5,6 +5,7 @@ metadata:
   gcp_endpoint_id: "06e2c959-d311-4bab-b2ea-25ad77d9fc12"
   username: "sirosen@globusid.org"
   identity_id: "e926d510-cb98-11e5-a6ac-0b0216052512"
+  gcs_hostname: "abc.xyz.data.globus.org"
 
 transfer:
   - path: /endpoint/1405823f-0597-4a16-b296-46d4f0ae4b15
