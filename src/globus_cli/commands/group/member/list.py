@@ -9,11 +9,8 @@ from globus_cli.termio import FORMAT_TEXT_TABLE, Field, formatted_print
 from .._common import MEMBERSHIP_FIELDS, group_id_arg
 
 
-def _str2field(fieldname: str):
-    def get_field(data):
-        return data["membership_fields"].get(fieldname, "")
-
-    return Field(fieldname.title(), get_field)
+def _str2field(fieldname: str) -> Field:
+    return Field(fieldname.title(), f"membership_fields.{fieldname}")
 
 
 @group_id_arg
