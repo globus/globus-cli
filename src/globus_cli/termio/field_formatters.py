@@ -104,8 +104,37 @@ class StaticStringFormatter(StrFieldFormatter):
         return self.value
 
 
+class ArrayFormatter(FieldFormatter[t.List[str]]):
+    def __init__(
+        self,
+        *,
+        delimiter: str = ",",
+        sort: bool = False,
+        element_formatter: FieldFormatter | None = None,
+    ) -> None:
+        self.delimiter = delimiter
+        self.sort = sort
+        self.element_formatter: FieldFormatter = (
+            element_formatter if element_formatter is not None else StrFieldFormatter()
+        )
+
+    def parse(self, value: t.Any) -> list[str]:
+        if not isinstance(value, list):
+            raise ValueError("non list array value")
+        data = [self.element_formatter.format(x) for x in value]
+        if self.sort:
+            return sorted(data)
+        else:
+            return data
+
+    def render(self, value: list[str]) -> str:
+        return self.delimiter.join(value)
+
+
 Str = StrFieldFormatter()
 Date = DateFieldFormatter()
 Bool = BoolFieldFormatter()
 FuzzyBool = FuzzyBoolFieldFormatter()
 SortedJson = SortedJsonFormatter()
+Array = ArrayFormatter()
+SortedArray = ArrayFormatter(sort=True)

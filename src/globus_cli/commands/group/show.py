@@ -1,16 +1,13 @@
 from globus_cli.login_manager import LoginManager
 from globus_cli.parsing import command
-from globus_cli.termio import FORMAT_TEXT_RECORD, Field, formatted_print
-
-from ._common import (
-    format_session_enforcement,
-    group_id_arg,
-    parse_join_requests,
-    parse_members_visibility,
-    parse_roles,
-    parse_signup_fields,
-    parse_visibility,
+from globus_cli.termio import (
+    FORMAT_TEXT_RECORD,
+    Field,
+    field_formatters,
+    formatted_print,
 )
+
+from ._common import SESSION_ENFORCEMENT_FIELD, group_id_arg, parse_roles
 
 
 @group_id_arg
@@ -33,11 +30,15 @@ def group_show(
             Field("Name", "name"),
             Field("Description", "description"),
             Field("Type", "group_type"),
-            Field("Visibility", parse_visibility),
-            Field("Membership Visibility", parse_members_visibility),
-            Field("Session Enforcement", format_session_enforcement),
-            Field("Join Requests Allowed", parse_join_requests),
-            Field("Signup Fields", parse_signup_fields),
+            Field("Visibility", "policies.group_visibility"),
+            Field("Membership Visibility", "policies.group_members_visibility"),
+            SESSION_ENFORCEMENT_FIELD,
+            Field("Join Requests Allowed", "policies.join_requests"),
+            Field(
+                "Signup Fields",
+                "policies.signup_fields",
+                formatter=field_formatters.SortedArray,
+            ),
             Field("Roles", parse_roles),
         ],
     )

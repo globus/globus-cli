@@ -1,11 +1,16 @@
 from globus_cli.login_manager import LoginManager
 from globus_cli.parsing import command
-from globus_cli.termio import FORMAT_TEXT_TABLE, Field, formatted_print
+from globus_cli.termio import (
+    FORMAT_TEXT_TABLE,
+    Field,
+    field_formatters,
+    formatted_print,
+)
 
 from .._common import INDEX_FIELDS
 
 INDEX_LIST_FIELDS = INDEX_FIELDS + [
-    Field("Permissions", lambda x: ",".join(x["permissions"])),
+    Field("Permissions", "permissions", formatter=field_formatters.Array),
 ]
 
 
