@@ -187,6 +187,40 @@ class PrincipalWithTypeKeyFormatter(FieldFormatter[t.Tuple[str, str, str]]):
             return fallback
 
 
+# IdentityFormatters work over (principal, is_valid) tuples so that subclasses can
+# override parse() to opt-out of the identity lookups in the render() phase
+class IdentityFormatter(FieldFormatter[t.Tuple[str, bool]]):
+    def __init__(self, auth_client: globus_sdk.AuthClient):
+        self.auth_client = auth_client
+        self.resolved_ids = globus_sdk.IdentityMap(auth_client)
+
+    def parse(self, value: t.Any) -> tuple[str, bool]:
+        if not isinstance(value, str):
+            raise ValueError("non-str identity value")
+        return (value, True)
+
+    def render(self, value: tuple[str, bool]) -> str:
+        principal, is_valid = value
+
+        if is_valid:
+            try:
+                return t.cast(str, self.resolved_ids[principal]["username"])
+            except LookupError:
+                pass
+        return principal
+
+
+class IdentityURNFormatter(IdentityFormatter):
+    _urn_prefix = "urn:globus:auth:identity:"
+
+    def parse(self, value: t.Any) -> tuple[str, bool]:
+        if not isinstance(value, str):
+            raise ValueError("non-str identity value")
+        if value.startswith(self._urn_prefix):
+            return (value[len(self._urn_prefix) :], True)
+        return (value, False)
+
+
 class ParentheticalDescriptionFormatter(FieldFormatter[t.Tuple[str, str]]):
     def parse(self, value: t.Any) -> tuple[str, str]:
         if not isinstance(value, list) or len(value) != 2:
