@@ -56,26 +56,27 @@ def _parse_and_filter_profiles(
     return (client_profiles, user_profiles)
 
 
-def _get_current_checker() -> t.Callable[[dict[str, t.Any]], str]:
-    is_client = is_client_login()
+class ProfileIndicatorFormatter(field_formatters.FieldFormatter[bool]):
+    def parse(self, value: t.Any) -> bool:
+        if not isinstance(value, dict):
+            raise ValueError("could not parse profile data from non-dict input")
 
-    def is_current(data: dict[str, t.Any]) -> bool:
+        is_client = is_client_login()
+
         globus_env = os.getenv("GLOBUS_SDK_ENVIRONMENT", "production")
-        if data["env"] != globus_env:
+        if value["env"] != globus_env:
             return False
-        if is_client != data["client"]:
+        if is_client != value["client"]:
             return False
-        if data["client"]:
-            return t.cast(str, data["profile"]) == os.getenv("GLOBUS_CLI_CLIENT_ID")
+        if value["client"]:
+            return value["profile"] == os.getenv("GLOBUS_CLI_CLIENT_ID")
         else:
-            return t.cast(str, data["profile"]) == os.getenv("GLOBUS_PROFILE")
+            return value["profile"] == os.getenv("GLOBUS_PROFILE")
 
-    def field_callback(data: dict[str, t.Any]) -> str:
-        if is_current(data):
+    def render(self, value: bool) -> str:
+        if value:
             return "-> "
         return ""
-
-    return field_callback
 
 
 @command(
@@ -92,11 +93,10 @@ def cli_profile_list(*, all: bool) -> None:
     """
 
     client_profiles, user_profiles = _parse_and_filter_profiles(all)
-    current_profile_field = _get_current_checker()
 
     if user_profiles:
         fields = [
-            Field("", current_profile_field),
+            Field("", "@", formatter=ProfileIndicatorFormatter()),
             Field("GLOBUS_PROFILE", "profile"),
             Field("is_default", "default", formatter=field_formatters.Bool),
         ]
@@ -106,7 +106,7 @@ def cli_profile_list(*, all: bool) -> None:
     if client_profiles:
         click.echo("")
         fields = [
-            Field("", current_profile_field),
+            Field("", "@", formatter=ProfileIndicatorFormatter()),
             Field("GLOBUS_CLI_CLIENT_ID", "profile"),
         ]
         if all:
