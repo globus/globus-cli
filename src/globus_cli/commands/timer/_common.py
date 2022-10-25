@@ -17,59 +17,50 @@ DATETIME_FORMATS = [
 ]
 
 
-def _get_stop_date(data: dict[str, t.Any]) -> str | None:
-    if not data["stop_after"]:
-        return None
-    return str(data.get("stop_after", {}).get("date"))
+class CallbackActionTypeFormatter(field_formatters.StrFieldFormatter):
+    def render(self, value: str) -> str:
+        url = urlparse(value)
+        if (
+            url.netloc.endswith("actions.automate.globus.org")
+            and url.path == "/transfer/transfer/run"
+        ):
+            return "Transfer"
+        if url.netloc.endswith("flows.automate.globus.org"):
+            return "Flow"
+        else:
+            return value
 
 
-def _get_stop_n_runs(data: dict[str, t.Any]) -> str | None:
-    if not data["stop_after"]:
-        return None
-    return str(data.get("stop_after", {}).get("n_runs"))
+class TimedeltaFormatter(field_formatters.FieldFormatter[datetime.timedelta]):
+    def parse(self, value: t.Any) -> datetime.timedelta:
+        if not isinstance(value, int):
+            raise ValueError("bad timedelta value")
+        return datetime.timedelta(seconds=value)
+
+    def render(self, value: datetime.timedelta) -> str:
+        return str(value)
 
 
-def _get_action_type(data: dict[str, t.Any]) -> str:
-    url = urlparse(data["callback_url"])
-    if (
-        url.netloc.endswith("actions.automate.globus.org")
-        and url.path == "/transfer/transfer/run"
-    ):
-        return "Transfer"
-    if url.netloc.endswith("flows.automate.globus.org"):
-        return "Flow"
-    else:
-        return str(data["callback_url"])
-
-
-def _get_interval(data: dict[str, t.Any]) -> str | None:
-    if not data["interval"]:
-        return None
-    return str(datetime.timedelta(seconds=data["interval"]))
-
-
-JOB_FORMAT_FIELDS = [
+_COMMON_FIELDS = [
     Field("Job ID", "job_id"),
     Field("Name", "name"),
-    Field("Type", _get_action_type),
+    Field("Type", "callback_url", formatter=CallbackActionTypeFormatter()),
     Field("Submitted At", "submitted_at", formatter=field_formatters.Date),
     Field("Start", "start", formatter=field_formatters.Date),
-    Field("Interval", _get_interval),
+    Field("Interval", "interval", formatter=TimedeltaFormatter()),
+]
+
+
+JOB_FORMAT_FIELDS = _COMMON_FIELDS + [
     Field("Last Run", "last_ran_at", formatter=field_formatters.Date),
     Field("Next Run", "next_run", formatter=field_formatters.Date),
-    Field("Stop After Date", _get_stop_date),
-    Field("Stop After Number of Runs", _get_stop_n_runs),
+    Field("Stop After Date", "stop_after.date"),
+    Field("Stop After Number of Runs", "stop_after.n_runs"),
     Field("Number of Runs", "n_runs"),
     Field("Number of Timer Errors", "n_errors"),
 ]
 
-DELETED_JOB_FORMAT_FIELDS = [
-    Field("Job ID", "job_id"),
-    Field("Name", "name"),
-    Field("Type", _get_action_type),
-    Field("Submitted At", "submitted_at", formatter=field_formatters.Date),
-    Field("Start", "start", formatter=field_formatters.Date),
-    Field("Interval", _get_interval),
-    Field("Stop After Date", _get_stop_date),
-    Field("Stop After Number of Runs", _get_stop_n_runs),
+DELETED_JOB_FORMAT_FIELDS = _COMMON_FIELDS + [
+    Field("Stop After Date", "stop_after.date"),
+    Field("Stop After Number of Runs", "stop_after.n_runs"),
 ]
