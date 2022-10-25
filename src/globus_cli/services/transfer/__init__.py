@@ -1,4 +1,6 @@
-from globus_cli.termio import Field
+import typing as t
+
+from globus_cli.termio import Field, field_formatters
 
 from .activation import (
     activation_requirements_help_text,
@@ -15,10 +17,18 @@ from .data import (
 from .delegate_proxy import fill_delegate_proxy_activation_requirements
 from .recursive_ls import RecursiveLsResponse
 
+
+class _DisplayNameFormatter(field_formatters.StrFieldFormatter):
+    def parse(self, value: t.Any) -> str:
+        if not isinstance(value, dict):
+            raise ValueError("cannot parse display_name from non-dict data")
+        return str(value["display_name"] or value["canonical_name"])
+
+
 ENDPOINT_LIST_FIELDS = [
     Field("ID", "id"),
     Field("Owner", "owner_string"),
-    Field("Display Name", display_name_or_cname),
+    Field("Display Name", "@", formatter=_DisplayNameFormatter()),
 ]
 
 
