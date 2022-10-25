@@ -6,7 +6,20 @@ import click
 
 from globus_cli.login_manager import LoginManager
 from globus_cli.parsing import ENDPOINT_PLUS_OPTPATH, command
-from globus_cli.termio import Field, formatted_print, is_verbose, outformat_is_text
+from globus_cli.termio import (
+    Field,
+    field_formatters,
+    formatted_print,
+    is_verbose,
+    outformat_is_text,
+)
+
+
+class PathItemFormatter(field_formatters.StrFieldFormatter):
+    def parse(self, data: t.Any) -> str:
+        if not isinstance(data, dict):
+            raise ValueError("cannot parse path item which is not a dict")
+        return str(data["name"]) + ("/" if data["type"] == "dir" else "")
 
 
 @command(
@@ -198,10 +211,8 @@ def ls_command(
     else:
         res = transfer_client.operation_ls(endpoint_id, **ls_params)
 
-    def cleaned_item_name(item):
-        return item["name"] + ("/" if item["type"] == "dir" else "")
-
     # and then print it, per formatting rules
+    pathformatter = PathItemFormatter()
     formatted_print(
         res,
         fields=[
@@ -211,12 +222,12 @@ def ls_command(
             Field("Size", "size"),
             Field("Last Modified", "last_modified"),
             Field("File Type", "type"),
-            Field("Filename", cleaned_item_name),
+            Field("Filename", "@", formatter=pathformatter),
         ],
         simple_text=(
             None
             if long_output or is_verbose() or not outformat_is_text()
-            else "\n".join(cleaned_item_name(x) for x in res)
+            else "\n".join(pathformatter.parse(x) for x in res)
         ),
         json_converter=iterable_response_to_dict,
     )
