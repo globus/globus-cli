@@ -15,6 +15,8 @@ def _key_to_keyfunc(k):
     # operation -- return that
     if isinstance(k, str):
         subkeys = k.split(".")
+        if k == ".":
+            subkeys = []
 
         def lookup(x):
             current = x
