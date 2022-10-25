@@ -10,8 +10,18 @@ from globus_cli.termio import (
     FORMAT_TEXT_RECORD,
     FORMAT_TEXT_TABLE,
     Field,
+    field_formatters,
     formatted_print,
 )
+
+
+class ServerURIFormatter(field_formatters.StrFieldFormatter):
+    parse_null_values = True
+
+    def parse(self, value: t.Any) -> str:
+        if value is None:
+            return "none (Globus Connect Personal)"
+        return str(value)
 
 
 @command(
@@ -43,7 +53,7 @@ def server_list(*, login_manager: LoginManager, endpoint_id):
     else:  # regular GCS host endpoint
         fields = [
             Field("ID", "id"),
-            Field("URI", lambda s: (s["uri"] or "none (Globus Connect Personal)")),
+            Field("URI", "uri", formatter=ServerURIFormatter()),
         ]
         text_format = FORMAT_TEXT_TABLE
     formatted_print(server_list, text_format=text_format, fields=fields)
