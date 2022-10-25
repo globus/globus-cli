@@ -40,7 +40,7 @@ def delete_command(
         fields=[
             Field(
                 "Message",
-                ".",
+                "@",
                 formatter=field_formatters.StaticStringFormatter(
                     "delete-by-subject task successfully submitted"
                 ),

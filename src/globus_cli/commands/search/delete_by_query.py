@@ -70,7 +70,7 @@ def delete_by_query_command(
         fields=[
             Field(
                 "Message",
-                ".",
+                "@",
                 formatter=field_formatters.StaticStringFormatter(
                     "delete-by-query task successfully submitted"
                 ),

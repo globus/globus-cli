@@ -14,17 +14,11 @@ def _key_to_keyfunc(k):
     # if the key is a string, then the "keyfunc" is just a basic lookup
     # operation -- return that
     if isinstance(k, str):
-        subkeys = k.split(".")
-        if k == ".":
-            subkeys = []
 
         def lookup(x):
-            current = x
-            for sub in subkeys:
-                current = current.get(sub)
-                if current is None:
-                    return None
-            return current
+            import jmespath
+
+            return jmespath.search(k, x)
 
         return lookup
     # otherwise, the key must be a function which is executed on the item

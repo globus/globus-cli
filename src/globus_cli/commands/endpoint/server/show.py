@@ -93,7 +93,7 @@ def server_show(*, login_manager: LoginManager, endpoint_id, server_id):
             [
                 Field("URI", "uri"),
                 Field("Subject", "subject"),
-                Field("Data Ports", ".", formatter=PortRangeFormatter()),
+                Field("Data Ports", "@", formatter=PortRangeFormatter()),
             ]
         )
         text_epilog = None
