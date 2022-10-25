@@ -50,8 +50,8 @@ class PortRangeFormatter(
         )
 
     def render(self, value: tuple[PORT_RANGE_T, PORT_RANGE_T]) -> str:
-        incoming = self._range_summary(value[0])
-        outgoing = self._range_summary(value[1])
+        incoming = self._range_summary(*value[0])
+        outgoing = self._range_summary(*value[1])
         return f"incoming {incoming}, outgoing {outgoing}"
 
 

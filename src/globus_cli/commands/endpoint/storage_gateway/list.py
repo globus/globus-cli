@@ -2,18 +2,18 @@ import click
 
 from globus_cli.login_manager import LoginManager
 from globus_cli.parsing import command
-from globus_cli.termio import FORMAT_TEXT_TABLE, formatted_print
-
-
-def _parse_allowed_domains(res):
-    return ", ".join(sorted(res["allowed_domains"]))
-
+from globus_cli.termio import (
+    FORMAT_TEXT_TABLE,
+    Field,
+    field_formatters,
+    formatted_print,
+)
 
 STANDARD_FIELDS = [
-    ("ID", "id"),
-    ("Display Name", "display_name"),
-    ("High Assurance", "high_assurance"),
-    ("Allowed Domains", _parse_allowed_domains),
+    Field("ID", "id"),
+    Field("Display Name", "display_name"),
+    Field("High Assurance", "high_assurance"),
+    Field("Allowed Domains", "allowed_domains", formatter=field_formatters.SortedArray),
 ]
 
 

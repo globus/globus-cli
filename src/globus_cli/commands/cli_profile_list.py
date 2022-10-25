@@ -69,9 +69,9 @@ class ProfileIndicatorFormatter(field_formatters.FieldFormatter[bool]):
         if is_client != value["client"]:
             return False
         if value["client"]:
-            return value["profile"] == os.getenv("GLOBUS_CLI_CLIENT_ID")
+            return bool(value["profile"] == os.getenv("GLOBUS_CLI_CLIENT_ID"))
         else:
-            return value["profile"] == os.getenv("GLOBUS_PROFILE")
+            return bool(value["profile"] == os.getenv("GLOBUS_PROFILE"))
 
     def render(self, value: bool) -> str:
         if value:

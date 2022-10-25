@@ -45,7 +45,7 @@ def test_user_credential_show(add_gcs_login, run_line):
         "Connector:       POSIX\n"
         "Invalid:         False\n"
         "Provisioned:     False\n"
-        "Policies:        {'DATA_TYPE': 'posix_user_credential_policies#1.0.0'}\n"
+        'Policies:        {"DATA_TYPE": "posix_user_credential_policies#1.0.0"}\n'
     )
     assert expected == result.output
 
