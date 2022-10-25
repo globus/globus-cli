@@ -187,6 +187,21 @@ class PrincipalWithTypeKeyFormatter(FieldFormatter[t.Tuple[str, str, str]]):
             return fallback
 
 
+class ParentheticalDescriptionFormatter(FieldFormatter[t.Tuple[str, str]]):
+    def parse(self, value: t.Any) -> tuple[str, str]:
+        if not isinstance(value, list) or len(value) != 2:
+            raise ValueError(
+                "cannot format parenthetical description from data of wrong shape"
+            )
+        main, description = value[0], value[1]
+        if not isinstance(main, str) or not isinstance(description, str):
+            raise ValueError("cannot format parenthetical description non-str data")
+        return (main, description)
+
+    def render(self, value: tuple[str, str]) -> str:
+        return f"{value[0]} ({value[1]})"
+
+
 Str = StrFieldFormatter()
 Date = DateFieldFormatter()
 Bool = BoolFieldFormatter()

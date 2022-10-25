@@ -2,19 +2,21 @@ import uuid
 
 from globus_cli.login_manager import LoginManager
 from globus_cli.parsing import command
-from globus_cli.termio import FORMAT_TEXT_RECORD, Field, formatted_print
+from globus_cli.termio import (
+    FORMAT_TEXT_RECORD,
+    Field,
+    field_formatters,
+    formatted_print,
+)
 
 from .._common import task_id_arg
 
-
-def _format_state(x: dict):
-    state = x["state"]
-    desc = x["state_description"]
-    return f"{state} ({desc})"
-
-
 TASK_FIELDS = [
-    Field("State", _format_state),
+    Field(
+        "State",
+        "[state, state_description]",
+        formatter=field_formatters.ParentheticalDescriptionFormatter(),
+    ),
     Field("Index ID", "index_id"),
     Field("Message", "message"),
     Field("Creation Date", "creation_date"),
