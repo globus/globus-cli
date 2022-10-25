@@ -1,3 +1,5 @@
+import typing as t
+
 import click
 import globus_sdk
 
@@ -19,22 +21,31 @@ EXPLICIT_PAUSE_MSG_FIELDS = [
     Field("Destination Shared Endpoint", "destination_pause_message_share"),
 ]
 
-PAUSE_RULE_OPERATION_SUBFIELDS = [
-    ("write", "pause_task_transfer_write"),
-    ("read", "pause_task_transfer_read"),
-    ("delete", "pause_task_delete"),
-    ("rename", "pause_rename"),
-    ("mkdir", "pause_mkdir"),
-    ("ls", "pause_ls"),
-]
+
+class RuleOperationsFormatter(field_formatters.FieldFormatter[t.List[str]]):
+    def parse(self, value: t.Any) -> list[str]:
+        if not isinstance(value, dict):
+            raise ValueError("cannot format rule operations from non-dict value")
+
+        ret: list[str] = []
+        for (label, key) in [
+            ("write", "pause_task_transfer_write"),
+            ("read", "pause_task_transfer_read"),
+            ("delete", "pause_task_delete"),
+            ("rename", "pause_rename"),
+            ("mkdir", "pause_mkdir"),
+            ("ls", "pause_ls"),
+        ]:
+            if value.get(key):
+                ret.append(label)
+        return ret
+
+    def render(self, value: list[str]) -> str:
+        return "/".join(value)
+
 
 PAUSE_RULE_DISPLAY_FIELDS = [
-    Field(
-        "Operations",
-        lambda rule: "/".join(
-            label for label, key in PAUSE_RULE_OPERATION_SUBFIELDS if rule[key]
-        ),
-    ),
+    Field("Operations", "@", formatter=RuleOperationsFormatter()),
     Field("On Endpoint", "endpoint_display_name"),
     Field(
         "All Users",
