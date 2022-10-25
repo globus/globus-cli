@@ -1,10 +1,8 @@
 import uuid
 
-import globus_sdk
-
 from globus_cli.login_manager import LoginManager
 from globus_cli.parsing import command, endpoint_id_arg
-from globus_cli.termio import Field, formatted_print
+from globus_cli.termio import Field, field_formatters, formatted_print
 
 
 @command(
@@ -40,28 +38,19 @@ def role_list(*, login_manager: LoginManager, endpoint_id: uuid.UUID):
     transfer_client = login_manager.get_transfer_client()
     roles = transfer_client.endpoint_role_list(endpoint_id)
 
-    resolved_ids = globus_sdk.IdentityMap(
+    formatter = field_formatters.PrincipalWithTypeKeyFormatter(
         login_manager.get_auth_client(),
-        (x["principal"] for x in roles if x["principal_type"] == "identity"),
+        values_are_urns=False,
+        group_format_str="https://app.globus.org/groups/{group_id}",
     )
-
-    def principal_str(role):
-        principal = role["principal"]
-        if role["principal_type"] == "identity":
-            try:
-                return resolved_ids[principal]["username"]
-            except KeyError:
-                return principal
-        if role["principal_type"] == "group":
-            return f"https://app.globus.org/groups/{principal}"
-        return principal
+    formatter.add_items(roles)
 
     formatted_print(
         roles,
         fields=[
             Field("Principal Type", "principal_type"),
             Field("Role ID", "id"),
-            Field("Principal", principal_str),
+            Field("Principal", "@", formatter=formatter),
             Field("Role", "role"),
         ],
     )

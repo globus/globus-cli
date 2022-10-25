@@ -6,6 +6,8 @@ import json
 import typing as t
 import warnings
 
+import globus_sdk
+
 T = t.TypeVar("T")
 JSON = t.Union[dict, list, str, int, float, bool, None]
 
@@ -129,6 +131,60 @@ class ArrayFormatter(FieldFormatter[t.List[str]]):
 
     def render(self, value: list[str]) -> str:
         return self.delimiter.join(value)
+
+
+class PrincipalWithTypeKeyFormatter(FieldFormatter[t.Tuple[str, str, str]]):
+    def __init__(
+        self,
+        auth_client: globus_sdk.AuthClient,
+        *,
+        type_key: str = "principal_type",
+        value_key: str = "principal",
+        values_are_urns: bool = True,
+        group_format_str: str = "Globus Group ({group_id})",
+    ) -> None:
+        self.type_key = type_key
+        self.value_key = value_key
+        self.values_are_urns = values_are_urns
+        self.group_format_str = group_format_str
+        self.resolved_ids = globus_sdk.IdentityMap(auth_client)
+
+    def _parse_unresolved_principal(self, value: str) -> str:
+        if self.values_are_urns:
+            return value.split(":")[-1]
+        return value
+
+    def add_items(self, items: t.Iterable[t.Mapping[str, t.Any]]) -> None:
+        for x in items:
+            if x.get(self.type_key) != "identity":
+                continue
+            self.resolved_ids.add(
+                self._parse_unresolved_principal(t.cast(str, x[self.value_key]))
+            )
+
+    def parse(self, value: t.Any) -> tuple[str, str, str]:
+        if not isinstance(value, dict):
+            raise ValueError("cannot format principal from non-dict data")
+
+        unparsed_principal = t.cast(str, value[self.value_key])
+
+        return (
+            value[self.type_key],
+            self._parse_unresolved_principal(unparsed_principal),
+            unparsed_principal,
+        )
+
+    def render(self, value: tuple[str, str, str]) -> str:
+        ptype, pvalue, unparsed = value
+        if ptype == "identity":
+            try:
+                return t.cast(str, self.resolved_ids[pvalue]["username"])
+            except LookupError:
+                return pvalue
+        elif ptype == "group":
+            return self.group_format_str.format(group_id=pvalue)
+        else:
+            return unparsed
 
 
 Str = StrFieldFormatter()
