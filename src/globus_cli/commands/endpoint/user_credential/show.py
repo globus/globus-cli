@@ -2,7 +2,6 @@ import uuid
 
 from globus_cli.login_manager import LoginManager
 from globus_cli.parsing import command, endpoint_id_arg
-from globus_cli.principal_resolver import default_identity_id_resolver
 from globus_cli.termio import (
     FORMAT_TEXT_RECORD,
     Field,
@@ -31,7 +30,13 @@ def user_credential_show(
     fields = [
         Field("ID", "id"),
         Field("Display Name", "display_name"),
-        Field("Globus Identity", default_identity_id_resolver.field),
+        Field(
+            "Globus Identity",
+            "identity_id",
+            formatter=field_formatters.IdentityFormatter(
+                login_manager.get_auth_client()
+            ),
+        ),
         Field("Local Username", "username"),
         Field("Connector", "connector_id", formatter=ConnectorIdFormatter()),
         Field("Invalid", "invalid"),

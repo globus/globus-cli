@@ -1,10 +1,10 @@
 from __future__ import annotations
 
 import click
+import globus_sdk
 
 from globus_cli.login_manager import LoginManager
 from globus_cli.parsing import collection_id_arg, command
-from globus_cli.principal_resolver import default_identity_id_resolver
 from globus_cli.termio import (
     FORMAT_TEXT_RECORD,
     Field,
@@ -18,12 +18,16 @@ def _filter_fields(check_fields: list[Field], data: DATA_CONTAINER_T) -> list[Fi
     return [f for f in check_fields if f.keyfunc(data) is not None]
 
 
-def _get_standard_fields() -> list[Field]:
+def _get_standard_fields(auth_client: globus_sdk.AuthClient) -> list[Field]:
     from globus_cli.services.gcs import ConnectorIdFormatter
 
     return [
         Field("Display Name", "display_name"),
-        Field("Owner", default_identity_id_resolver.field),
+        Field(
+            "Owner",
+            "identity_id",
+            formatter=field_formatters.IdentityFormatter(auth_client),
+        ),
         Field("ID", "id"),
         Field("Collection Type", "collection_type"),
         Field("Storage Gateway ID", "storage_gateway_id"),
@@ -83,7 +87,7 @@ def collection_show(
     gcs_client = login_manager.get_gcs_client(collection_id=collection_id)
 
     query_params = {}
-    fields: list[Field] = _get_standard_fields()
+    fields: list[Field] = _get_standard_fields(login_manager.get_auth_client())
 
     if include_private_policies:
         query_params["include"] = "private_policies"
