@@ -7,7 +7,7 @@ from globus_cli.termio import (
     formatted_print,
 )
 
-from ._common import SESSION_ENFORCEMENT_FIELD, group_id_arg, parse_roles
+from ._common import SESSION_ENFORCEMENT_FIELD, group_id_arg
 
 
 @group_id_arg
@@ -39,6 +39,8 @@ def group_show(
                 "policies.signup_fields",
                 formatter=field_formatters.SortedArray,
             ),
-            Field("Roles", parse_roles),
+            Field(
+                "Roles", "my_memberships[].role", formatter=field_formatters.SortedArray
+            ),
         ],
     )

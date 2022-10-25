@@ -33,10 +33,6 @@ def group_id_arg(f: t.Callable | None = None):
     return click.argument("GROUP_ID")(f)
 
 
-def parse_roles(res):
-    return ",".join(sorted({m["role"] for m in res["my_memberships"]}))
-
-
 def group_create_and_update_params(
     f: t.Callable | None = None, *, create: bool = False
 ) -> t.Callable:

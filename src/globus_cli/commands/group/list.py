@@ -1,16 +1,8 @@
 from globus_cli.login_manager import LoginManager
 from globus_cli.parsing import command
-from globus_cli.termio import Field, formatted_print
+from globus_cli.termio import Field, field_formatters, formatted_print
 
-from ._common import SESSION_ENFORCEMENT_FIELD, parse_roles
-
-
-def _parse_roles(res):
-    roles = set()
-    for membership in res["my_memberships"]:
-        roles.add(membership["role"])
-
-    return ",".join(sorted(roles))
+from ._common import SESSION_ENFORCEMENT_FIELD
 
 
 @command("list", short_help="List groups you belong to")
@@ -28,6 +20,8 @@ def group_list(*, login_manager: LoginManager):
             Field("Name", "name"),
             Field("Type", "group_type"),
             SESSION_ENFORCEMENT_FIELD,
-            Field("Roles", parse_roles),
+            Field(
+                "Roles", "my_memberships[].role", formatter=field_formatters.SortedArray
+            ),
         ],
     )
