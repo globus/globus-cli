@@ -175,16 +175,16 @@ class PrincipalWithTypeKeyFormatter(FieldFormatter[t.Tuple[str, str, str]]):
         )
 
     def render(self, value: tuple[str, str, str]) -> str:
-        ptype, pvalue, unparsed = value
-        if ptype == "identity":
+        parsed_type, parsed_value, fallback = value
+        if parsed_type == "identity":
             try:
-                return t.cast(str, self.resolved_ids[pvalue]["username"])
+                return t.cast(str, self.resolved_ids[parsed_value]["username"])
             except LookupError:
-                return pvalue
-        elif ptype == "group":
-            return self.group_format_str.format(group_id=pvalue)
+                return parsed_value
+        elif parsed_type == "group":
+            return self.group_format_str.format(group_id=parsed_value)
         else:
-            return unparsed
+            return fallback
 
 
 Str = StrFieldFormatter()

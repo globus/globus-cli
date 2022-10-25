@@ -1,10 +1,20 @@
-import uuid
+from __future__ import annotations
 
-import globus_sdk
+import typing as t
+import uuid
 
 from globus_cli.login_manager import LoginManager
 from globus_cli.parsing import command, endpoint_id_arg
-from globus_cli.termio import Field, formatted_print
+from globus_cli.termio import Field, field_formatters, formatted_print
+
+
+class AclPrincipalFormatter(field_formatters.PrincipalWithTypeKeyFormatter):
+    # customize the formatter to provide the `principal_type` as the fallback value for
+    # unrecognized types. This handles various cases in which
+    # `principal_type=all_authenticated_users` or similar
+    def parse(self, value: t.Any) -> tuple[str, str, str]:
+        parsed_type, parsed_value, fallback = super().parse(value)
+        return (parsed_type, parsed_value, parsed_type)
 
 
 @command(
@@ -26,28 +36,19 @@ def list_command(*, login_manager: LoginManager, endpoint_id: uuid.UUID):
 
     rules = transfer_client.endpoint_acl_list(endpoint_id)
 
-    resolved_ids = globus_sdk.IdentityMap(
+    formatter = AclPrincipalFormatter(
         auth_client,
-        (x["principal"] for x in rules if x["principal_type"] == "identity"),
+        values_are_urns=False,
+        group_format_str="https://app.globus.org/groups/{group_id}",
     )
-
-    def principal_str(rule):
-        principal = rule["principal"]
-        if rule["principal_type"] == "identity":
-            try:
-                return resolved_ids[principal]["username"]
-            except KeyError:
-                return principal
-        if rule["principal_type"] == "group":
-            return ("https://app.globus.org/groups/{}").format(principal)
-        return rule["principal_type"]
+    formatter.add_items(rules)
 
     formatted_print(
         rules,
         fields=[
             Field("Rule ID", "id"),
             Field("Permissions", "permissions"),
-            Field("Shared With", principal_str),
+            Field("Shared With", "@", formatter=formatter),
             Field("Path", "path"),
         ],
     )
