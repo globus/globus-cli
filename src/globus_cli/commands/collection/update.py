@@ -20,6 +20,11 @@ from globus_cli.parsing import (
 from globus_cli.termio import FORMAT_TEXT_RECORD, Field, formatted_print
 
 
+class _FullDataField(Field):
+    def get_value(self, data):
+        return super().get_value(data.full_data)
+
+
 def _mkhelp(txt):
     return f"New {txt} the collection"
 
@@ -263,6 +268,6 @@ def collection_update(
     res = gcs_client.update_collection(collection_id, doc)
     formatted_print(
         res,
-        fields=[Field("code", lambda x: x.full_data["code"])],
+        fields=[_FullDataField("code", "code")],
         text_format=FORMAT_TEXT_RECORD,
     )
