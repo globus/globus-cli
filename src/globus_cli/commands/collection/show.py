@@ -15,7 +15,7 @@ from globus_cli.types import DATA_CONTAINER_T
 
 
 def _filter_fields(check_fields: list[Field], data: DATA_CONTAINER_T) -> list[Field]:
-    return [f for f in check_fields if f.keyfunc(data) is not None]
+    return [f for f in check_fields if f.get_value(data) is not None]
 
 
 def _get_standard_fields(auth_client: globus_sdk.AuthClient) -> list[Field]:
