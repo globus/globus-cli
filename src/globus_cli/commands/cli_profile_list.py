@@ -7,12 +7,7 @@ import click
 
 from globus_cli.login_manager import is_client_login, token_storage_adapter
 from globus_cli.parsing import command
-from globus_cli.termio import (
-    FORMAT_TEXT_TABLE,
-    Field,
-    field_formatters,
-    formatted_print,
-)
+from globus_cli.termio import Field, TextMode, display, formatters
 
 
 def _profilestr_to_datadict(s: str) -> dict[str, t.Any] | None:
@@ -56,7 +51,7 @@ def _parse_and_filter_profiles(
     return (client_profiles, user_profiles)
 
 
-class ProfileIndicatorFormatter(field_formatters.FieldFormatter[bool]):
+class ProfileIndicatorFormatter(formatters.FieldFormatter[bool]):
     def parse(self, value: t.Any) -> bool:
         if not isinstance(value, dict):
             raise ValueError("could not parse profile data from non-dict input")
@@ -98,11 +93,11 @@ def cli_profile_list(*, all: bool) -> None:
         fields = [
             Field("", "@", formatter=ProfileIndicatorFormatter()),
             Field("GLOBUS_PROFILE", "profile"),
-            Field("is_default", "default", formatter=field_formatters.Bool),
+            Field("is_default", "default", formatter=formatters.Bool),
         ]
         if all:
             fields.append(Field("GLOBUS_SDK_ENVIRONMENT", "env"))
-        formatted_print(user_profiles, text_format=FORMAT_TEXT_TABLE, fields=fields)
+        display(user_profiles, text_mode=TextMode.text_table, fields=fields)
     if client_profiles:
         click.echo("")
         fields = [
@@ -111,4 +106,4 @@ def cli_profile_list(*, all: bool) -> None:
         ]
         if all:
             fields.append(Field("GLOBUS_SDK_ENVIRONMENT", "env"))
-        formatted_print(client_profiles, text_format=FORMAT_TEXT_TABLE, fields=fields)
+        display(client_profiles, text_mode=TextMode.text_table, fields=fields)

@@ -9,7 +9,7 @@ import click
 
 from globus_cli.login_manager import LoginManager
 from globus_cli.parsing import CommaDelimitedList, command, mutex_option_group
-from globus_cli.termio import formatted_print, outformat_is_text, print_command_hint
+from globus_cli.termio import display, outformat_is_text, print_command_hint
 
 from ._common import index_id_arg
 
@@ -111,4 +111,4 @@ def query_command(
     else:
         raise click.UsageError("Either '-q' or '--query-document' must be provided")
 
-    formatted_print(data, text_format=_print_subjects)
+    display(data, text_mode=_print_subjects)

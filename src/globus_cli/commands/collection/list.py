@@ -2,12 +2,7 @@ import click
 
 from globus_cli.login_manager import LoginManager
 from globus_cli.parsing import command
-from globus_cli.termio import (
-    FORMAT_TEXT_TABLE,
-    Field,
-    field_formatters,
-    formatted_print,
-)
+from globus_cli.termio import Field, TextMode, display, formatters
 
 
 class ChoiceSlugified(click.Choice):
@@ -99,18 +94,16 @@ def collection_list(
     if include_private_policies:
         params["include"] = "private_policies"
     res = gcs_client.get_collection_list(**params)
-    formatted_print(
+    display(
         res,
-        text_format=FORMAT_TEXT_TABLE,
+        text_mode=TextMode.text_table,
         fields=[
             Field("ID", "id"),
             Field("Display Name", "display_name"),
             Field(
                 "Owner",
                 "identity_id",
-                formatter=field_formatters.IdentityFormatter(
-                    login_manager.get_auth_client()
-                ),
+                formatter=formatters.IdentityFormatter(login_manager.get_auth_client()),
             ),
             Field("Collection Type", "collection_type"),
             Field("Storage Gateway ID", "storage_gateway_id"),

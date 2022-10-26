@@ -116,7 +116,7 @@ def _partition_dict(item_dict, scalar_keys):
     return scalar, non_scalar
 
 
-def unix_formatted_print(data, stream=sys.stdout):
+def unix_display(data, stream=sys.stdout):
     _format_text(data, stream)
     try:
         sys.stdout.flush()

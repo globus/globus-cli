@@ -2,7 +2,7 @@ import click
 
 from globus_cli.login_manager import LoginManager
 from globus_cli.parsing import command, endpoint_id_arg
-from globus_cli.termio import FORMAT_TEXT_RAW, formatted_print
+from globus_cli.termio import TextMode, display
 
 
 @command(
@@ -30,4 +30,4 @@ def delete_command(*, login_manager: LoginManager, endpoint_id, rule_id):
     transfer_client = login_manager.get_transfer_client()
 
     res = transfer_client.delete_endpoint_acl_rule(endpoint_id, rule_id)
-    formatted_print(res, text_format=FORMAT_TEXT_RAW, response_key="message")
+    display(res, text_mode=TextMode.text_raw, response_key="message")

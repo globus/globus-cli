@@ -2,7 +2,7 @@ import click
 
 from globus_cli.login_manager import LoginManager
 from globus_cli.parsing import command
-from globus_cli.termio import formatted_print
+from globus_cli.termio import display
 
 from ._common import task_id_arg
 
@@ -40,4 +40,4 @@ def update_task(*, login_manager: LoginManager, deadline, label, task_id):
     task_doc = assemble_generic_doc("task", label=label, deadline=deadline)
 
     res = transfer_client.update_task(task_id, task_doc)
-    formatted_print(res, simple_text="Success")
+    display(res, simple_text="Success")

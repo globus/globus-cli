@@ -1,6 +1,6 @@
 from globus_cli.login_manager import LoginManager
 from globus_cli.parsing import command
-from globus_cli.termio import Field, field_formatters, formatted_print
+from globus_cli.termio import Field, display, formatters
 
 from ._common import SESSION_ENFORCEMENT_FIELD
 
@@ -13,15 +13,13 @@ def group_list(*, login_manager: LoginManager):
 
     groups = groups_client.get_my_groups()
 
-    formatted_print(
+    display(
         groups,
         fields=[
             Field("Group ID", "id"),
             Field("Name", "name"),
             Field("Type", "group_type"),
             SESSION_ENFORCEMENT_FIELD,
-            Field(
-                "Roles", "my_memberships[].role", formatter=field_formatters.SortedArray
-            ),
+            Field("Roles", "my_memberships[].role", formatter=formatters.SortedArray),
         ],
     )

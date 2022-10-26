@@ -2,7 +2,7 @@ import click
 
 from globus_cli.login_manager import LoginManager
 from globus_cli.parsing import command, endpoint_id_arg, security_principal_opts
-from globus_cli.termio import formatted_print
+from globus_cli.termio import display
 
 
 @command(
@@ -70,4 +70,4 @@ def role_create(*, login_manager: LoginManager, role, principal, endpoint_id):
     )
 
     res = transfer_client.add_endpoint_role(endpoint_id, role_doc)
-    formatted_print(res, simple_text="ID: {}".format(res["id"]))
+    display(res, simple_text="ID: {}".format(res["id"]))

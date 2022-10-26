@@ -1,6 +1,6 @@
 from globus_cli.login_manager import LoginManager
 from globus_cli.parsing import command
-from globus_cli.termio import FORMAT_TEXT_RECORD_LIST, formatted_print
+from globus_cli.termio import TextMode, display
 
 from ._common import JOB_FORMAT_FIELDS
 
@@ -13,8 +13,8 @@ def list_command(login_manager: LoginManager):
     """
     timer_client = login_manager.get_timer_client()
     response = timer_client.list_jobs(query_params={"order": "submitted_at asc"})
-    formatted_print(
+    display(
         response["jobs"],
-        text_format=FORMAT_TEXT_RECORD_LIST,
+        text_mode=TextMode.text_record_list,
         fields=JOB_FORMAT_FIELDS,
     )

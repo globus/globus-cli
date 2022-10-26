@@ -6,16 +6,10 @@ import click
 
 from globus_cli.login_manager import LoginManager
 from globus_cli.parsing import ENDPOINT_PLUS_OPTPATH, command
-from globus_cli.termio import (
-    Field,
-    field_formatters,
-    formatted_print,
-    is_verbose,
-    outformat_is_text,
-)
+from globus_cli.termio import Field, display, formatters, is_verbose, outformat_is_text
 
 
-class PathItemFormatter(field_formatters.StrFieldFormatter):
+class PathItemFormatter(formatters.StrFieldFormatter):
     def parse(self, data: t.Any) -> str:
         if not isinstance(data, dict):
             raise ValueError("cannot parse path item which is not a dict")
@@ -213,7 +207,7 @@ def ls_command(
 
     # and then print it, per formatting rules
     pathformatter = PathItemFormatter()
-    formatted_print(
+    display(
         res,
         fields=[
             Field("Permissions", "permissions"),

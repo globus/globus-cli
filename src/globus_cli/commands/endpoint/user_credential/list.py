@@ -4,12 +4,7 @@ import click
 
 from globus_cli.login_manager import LoginManager
 from globus_cli.parsing import command
-from globus_cli.termio import (
-    FORMAT_TEXT_TABLE,
-    Field,
-    field_formatters,
-    formatted_print,
-)
+from globus_cli.termio import Field, TextMode, display, formatters
 
 
 @command("list", short_help="List all User Credentials on an Endpoint")
@@ -44,11 +39,9 @@ def user_credential_list(
         Field(
             "Globus Identity",
             "identity_id",
-            formatter=field_formatters.IdentityFormatter(
-                login_manager.get_auth_client()
-            ),
+            formatter=formatters.IdentityFormatter(login_manager.get_auth_client()),
         ),
         Field("Local Username", "username"),
         Field("Invalid", "invalid"),
     ]
-    formatted_print(res, text_format=FORMAT_TEXT_TABLE, fields=fields)
+    display(res, text_mode=TextMode.text_table, fields=fields)

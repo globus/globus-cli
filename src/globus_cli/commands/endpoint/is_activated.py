@@ -6,7 +6,7 @@ import click
 
 from globus_cli.login_manager import LoginManager
 from globus_cli.parsing import command, endpoint_id_arg
-from globus_cli.termio import formatted_print
+from globus_cli.termio import display
 
 
 @command(
@@ -110,11 +110,11 @@ def endpoint_is_activated(
         message = "The endpoint is not activated{}.\n\n".format(
             exp_string
         ) + activation_requirements_help_text(res, endpoint_id)
-        formatted_print(res, simple_text=message)
+        display(res, simple_text=message)
         click.get_current_context().exit(1)
 
     def success(msg, *format_params):
-        formatted_print(res, simple_text=(msg.format(endpoint_id, *format_params)))
+        display(res, simple_text=(msg.format(endpoint_id, *format_params)))
         click.get_current_context().exit(0)
 
     # eternally active endpoints have a special expires_in value

@@ -2,7 +2,7 @@ import click
 
 from globus_cli.login_manager import LoginManager
 from globus_cli.parsing import JSONStringOrFile, command, endpoint_id_arg
-from globus_cli.termio import formatted_print
+from globus_cli.termio import display
 
 
 @command("from-json", short_help="Create a User Credential from a JSON document")
@@ -20,4 +20,4 @@ def from_json(
     """
     gcs_client = login_manager.get_gcs_client(endpoint_id=endpoint_id)
     res = gcs_client.create_user_credential(user_credential_json)
-    formatted_print(res, simple_text=res.full_data.get("message"))
+    display(res, simple_text=res.full_data.get("message"))

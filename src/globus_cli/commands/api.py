@@ -9,7 +9,7 @@ import globus_sdk
 from globus_cli import termio, version
 from globus_cli.login_manager import LoginManager
 from globus_cli.parsing import command, group, mutex_option_group
-from globus_cli.termio import formatted_print
+from globus_cli.termio import display
 
 
 class QueryParamType(click.ParamType):
@@ -93,10 +93,10 @@ def print_error_or_response(
     if isinstance(data, globus_sdk.GlobusAPIError):
         click.echo(data.raw_text)
     else:
-        # however, we will pass this through formatted_print using 'simple_text' to get
+        # however, we will pass this through display using 'simple_text' to get
         # the right semantics
         # specifically: respect `--jmespath` and pretty-print JSON if `-Fjson` is used
-        formatted_print(data, simple_text=data.text)
+        display(data, simple_text=data.text)
 
 
 _SERVICE_MAP = {

@@ -5,7 +5,7 @@ import typing as t
 import click
 import globus_sdk
 
-from globus_cli.termio import Field, field_formatters
+from globus_cli.termio import Field, formatters
 
 
 def index_id_arg(f: t.Callable) -> t.Callable:
@@ -20,7 +20,7 @@ def resolved_principals_field(
     auth_client: globus_sdk.AuthClient,
     items: t.Iterable[dict[str, t.Any]] | None = None,
 ) -> Field:
-    formatter = field_formatters.PrincipalWithTypeKeyFormatter(auth_client)
+    formatter = formatters.PrincipalWithTypeKeyFormatter(auth_client)
     if items is not None:
         formatter.add_items(items)
 

@@ -1,6 +1,6 @@
 from globus_cli.login_manager import LoginManager
 from globus_cli.parsing import collection_id_arg, command
-from globus_cli.termio import FORMAT_TEXT_RAW, formatted_print
+from globus_cli.termio import TextMode, display
 
 
 @command("delete", short_help="Delete an existing Collection")
@@ -13,4 +13,4 @@ def collection_delete(*, login_manager: LoginManager, collection_id):
     """
     gcs_client = login_manager.get_gcs_client(collection_id=collection_id)
     res = gcs_client.delete_collection(collection_id)
-    formatted_print(res, text_format=FORMAT_TEXT_RAW, response_key="code")
+    display(res, text_mode=TextMode.text_raw, response_key="code")

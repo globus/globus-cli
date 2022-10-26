@@ -2,18 +2,13 @@ import click
 
 from globus_cli.login_manager import LoginManager
 from globus_cli.parsing import command
-from globus_cli.termio import (
-    FORMAT_TEXT_TABLE,
-    Field,
-    field_formatters,
-    formatted_print,
-)
+from globus_cli.termio import Field, TextMode, display, formatters
 
 STANDARD_FIELDS = [
     Field("ID", "id"),
     Field("Display Name", "display_name"),
     Field("High Assurance", "high_assurance"),
-    Field("Allowed Domains", "allowed_domains", formatter=field_formatters.SortedArray),
+    Field("Allowed Domains", "allowed_domains", formatter=formatters.SortedArray),
 ]
 
 
@@ -33,4 +28,4 @@ def storage_gateway_list(
     """
     gcs_client = login_manager.get_gcs_client(endpoint_id=endpoint_id)
     res = gcs_client.get_storage_gateway_list()
-    formatted_print(res, text_format=FORMAT_TEXT_TABLE, fields=STANDARD_FIELDS)
+    display(res, text_mode=TextMode.text_table, fields=STANDARD_FIELDS)

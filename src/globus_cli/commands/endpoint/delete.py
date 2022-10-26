@@ -1,7 +1,7 @@
 from globus_cli.endpointish import Endpointish
 from globus_cli.login_manager import LoginManager
 from globus_cli.parsing import command, endpoint_id_arg
-from globus_cli.termio import FORMAT_TEXT_RAW, formatted_print
+from globus_cli.termio import TextMode, display
 
 
 @command(
@@ -28,4 +28,4 @@ def endpoint_delete(*, login_manager: LoginManager, endpoint_id: str) -> None:
     ).assert_is_traditional_endpoint()
 
     res = transfer_client.delete_endpoint(endpoint_id)
-    formatted_print(res, text_format=FORMAT_TEXT_RAW, response_key="message")
+    display(res, text_mode=TextMode.text_raw, response_key="message")

@@ -4,7 +4,7 @@ import click
 
 from globus_cli.login_manager import LoginManager
 from globus_cli.parsing import command
-from globus_cli.termio import formatted_print
+from globus_cli.termio import display
 from globus_cli.utils import PagingWrapper
 
 
@@ -112,7 +112,7 @@ def endpoint_search(
         limit=limit,
     )
 
-    formatted_print(
+    display(
         search_iterator,
         fields=ENDPOINT_LIST_FIELDS,
         json_converter=iterable_response_to_dict,

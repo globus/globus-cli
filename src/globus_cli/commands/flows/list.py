@@ -4,7 +4,7 @@ import click
 
 from globus_cli.login_manager import LoginManager
 from globus_cli.parsing import command
-from globus_cli.termio import Field, field_formatters, formatted_print
+from globus_cli.termio import Field, display, formatters
 from globus_cli.utils import PagingWrapper
 
 ROLE_TYPES = ("flow_viewer", "flow_starter", "flow_administrator", "flow_owner")
@@ -57,15 +57,13 @@ def list_command(
         Field(
             "Owner",
             "flow_owner",
-            formatter=field_formatters.IdentityURNFormatter(
-                login_manager.get_auth_client()
-            ),
+            formatter=formatters.IdentityURNFormatter(login_manager.get_auth_client()),
         ),
-        Field("Created At", "created_at", formatter=field_formatters.Date),
-        Field("Updated At", "updated_at", formatter=field_formatters.Date),
+        Field("Created At", "created_at", formatter=formatters.Date),
+        Field("Updated At", "updated_at", formatter=formatters.Date),
     ]
 
-    formatted_print(
+    display(
         flow_iterator,
         fields=fields,
         json_converter=flow_iterator.json_converter,

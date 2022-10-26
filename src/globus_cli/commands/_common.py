@@ -5,7 +5,7 @@ import typing as t
 
 import click
 
-from globus_cli.termio import FORMAT_SILENT, formatted_print
+from globus_cli.termio import TextMode, display
 
 if t.TYPE_CHECKING:
     from ..services.transfer import CustomTransferClient
@@ -58,7 +58,7 @@ def transfer_task_wait_with_io(
             # TODO: possibly update TransferClient.task_wait so that we don't
             # need to do an extra fetch to get the task status after completion
             res = transfer_client.get_task(task_id)
-            formatted_print(res, text_format=FORMAT_SILENT)
+            display(res, text_mode=TextMode.silent)
 
             status = res["status"]
             if status == "SUCCEEDED":
@@ -98,6 +98,6 @@ def transfer_task_wait_with_io(
 
     # output json if requested, but nothing for text mode
     res = transfer_client.get_task(task_id)
-    formatted_print(res, text_format=FORMAT_SILENT)
+    display(res, text_mode=TextMode.silent)
 
     click.get_current_context().exit(exit_code)

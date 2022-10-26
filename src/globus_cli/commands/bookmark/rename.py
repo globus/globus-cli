@@ -2,7 +2,7 @@ import click
 
 from globus_cli.login_manager import LoginManager
 from globus_cli.parsing import command
-from globus_cli.termio import formatted_print
+from globus_cli.termio import display
 
 from ._common import resolve_id_or_name
 
@@ -35,4 +35,4 @@ def bookmark_rename(
     submit_data = {"name": new_bookmark_name}
 
     res = transfer_client.update_bookmark(bookmark_id, submit_data)
-    formatted_print(res, simple_text="Success")
+    display(res, simple_text="Success")

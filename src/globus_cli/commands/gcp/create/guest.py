@@ -8,7 +8,7 @@ from globus_cli.parsing import (
     command,
     endpointish_create_and_update_params,
 )
-from globus_cli.termio import FORMAT_TEXT_RECORD, Field, formatted_print
+from globus_cli.termio import Field, TextMode, display
 
 
 @command("guest", short_help="Create a new Guest Collection on GCP")
@@ -63,8 +63,8 @@ def guest_command(
     res = transfer_client.create_shared_endpoint(ep_doc)
 
     # output
-    formatted_print(
+    display(
         res,
         fields=[Field("Message", "message"), Field("Collection ID", "id")],
-        text_format=FORMAT_TEXT_RECORD,
+        text_mode=TextMode.text_record,
     )

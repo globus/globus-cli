@@ -2,12 +2,7 @@ import uuid
 
 from globus_cli.login_manager import LoginManager
 from globus_cli.parsing import command, endpoint_id_arg
-from globus_cli.termio import (
-    FORMAT_TEXT_RECORD,
-    Field,
-    field_formatters,
-    formatted_print,
-)
+from globus_cli.termio import Field, TextMode, display, formatters
 
 from ._common import user_credential_id_arg
 
@@ -33,18 +28,16 @@ def user_credential_show(
         Field(
             "Globus Identity",
             "identity_id",
-            formatter=field_formatters.IdentityFormatter(
-                login_manager.get_auth_client()
-            ),
+            formatter=formatters.IdentityFormatter(login_manager.get_auth_client()),
         ),
         Field("Local Username", "username"),
         Field("Connector", "connector_id", formatter=ConnectorIdFormatter()),
         Field("Invalid", "invalid"),
         Field("Provisioned", "provisioned"),
-        Field("Policies", "policies", formatter=field_formatters.SortedJson),
+        Field("Policies", "policies", formatter=formatters.SortedJson),
     ]
 
     gcs_client = login_manager.get_gcs_client(endpoint_id=endpoint_id)
 
     res = gcs_client.get_user_credential(user_credential_id)
-    formatted_print(res, text_format=FORMAT_TEXT_RECORD, fields=fields)
+    display(res, text_mode=TextMode.text_record, fields=fields)

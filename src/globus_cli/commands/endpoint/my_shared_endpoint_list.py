@@ -1,6 +1,6 @@
 from globus_cli.login_manager import LoginManager
 from globus_cli.parsing import command, endpoint_id_arg
-from globus_cli.termio import formatted_print
+from globus_cli.termio import display
 
 
 @command(
@@ -25,4 +25,4 @@ def my_shared_endpoint_list(*, login_manager: LoginManager, endpoint_id: str) ->
     transfer_client = login_manager.get_transfer_client()
     ep_iterator = transfer_client.my_shared_endpoint_list(endpoint_id)
 
-    formatted_print(ep_iterator, fields=ENDPOINT_LIST_FIELDS)
+    display(ep_iterator, fields=ENDPOINT_LIST_FIELDS)

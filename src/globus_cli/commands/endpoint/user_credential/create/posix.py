@@ -6,7 +6,7 @@ from globus_sdk.services.gcs import UserCredentialDocument
 
 from globus_cli.login_manager import LoginManager
 from globus_cli.parsing import command, endpoint_id_arg
-from globus_cli.termio import formatted_print
+from globus_cli.termio import display
 
 from .._common import user_credential_create_and_update_params
 
@@ -38,4 +38,4 @@ def posix(
     )
     res = gcs_client.create_user_credential(data)
 
-    formatted_print(res, simple_text=res.full_data.get("message"))
+    display(res, simple_text=res.full_data.get("message"))

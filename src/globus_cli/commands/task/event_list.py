@@ -6,13 +6,13 @@ import click
 
 from globus_cli.login_manager import LoginManager
 from globus_cli.parsing import command
-from globus_cli.termio import Field, field_formatters, formatted_print
+from globus_cli.termio import Field, display, formatters
 from globus_cli.utils import PagingWrapper
 
 from ._common import task_id_arg
 
 
-class SquashedJsonFormatter(field_formatters.FieldFormatter[t.Tuple[t.Any, bool]]):
+class SquashedJsonFormatter(formatters.FieldFormatter[t.Tuple[t.Any, bool]]):
     def parse(self, value: t.Any) -> tuple[t.Any, bool]:
         if not isinstance(value, str):
             raise ValueError("bad input data")
@@ -113,7 +113,7 @@ def task_event_list(
         limit=limit,
     )
 
-    formatted_print(
+    display(
         event_iterator,
         fields=[
             Field("Time", "time"),

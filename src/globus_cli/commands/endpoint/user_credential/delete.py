@@ -1,6 +1,6 @@
 from globus_cli.login_manager import LoginManager
 from globus_cli.parsing import command, endpoint_id_arg
-from globus_cli.termio import formatted_print
+from globus_cli.termio import display
 
 from ._common import user_credential_id_arg
 
@@ -22,4 +22,4 @@ def user_credential_delete(
 
     res = gcs_client.delete_user_credential(user_credential_id)
 
-    formatted_print(res, simple_text=res.data.get("message"))
+    display(res, simple_text=res.data.get("message"))

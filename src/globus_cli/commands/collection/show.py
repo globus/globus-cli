@@ -5,12 +5,7 @@ import globus_sdk
 
 from globus_cli.login_manager import LoginManager
 from globus_cli.parsing import collection_id_arg, command
-from globus_cli.termio import (
-    FORMAT_TEXT_RECORD,
-    Field,
-    field_formatters,
-    formatted_print,
-)
+from globus_cli.termio import Field, TextMode, display, formatters
 from globus_cli.types import DATA_CONTAINER_T
 
 
@@ -26,7 +21,7 @@ def _get_standard_fields(auth_client: globus_sdk.AuthClient) -> list[Field]:
         Field(
             "Owner",
             "identity_id",
-            formatter=field_formatters.IdentityFormatter(auth_client),
+            formatter=formatters.IdentityFormatter(auth_client),
         ),
         Field("ID", "id"),
         Field("Collection Type", "collection_type"),
@@ -58,7 +53,7 @@ PRIVATE_FIELDS: list[Field] = [
     Field(
         "Sharing Path Restrictions",
         "sharing_restrict_paths",
-        formatter=field_formatters.SortedJson,
+        formatter=formatters.SortedJson,
     ),
     Field("Sharing Allowed Users", "sharing_users_allow"),
     Field("Sharing Denied Users", "sharing_users_deny"),
@@ -99,8 +94,8 @@ def collection_show(
     # for fields which are actually present
     real_fields = _filter_fields(fields, res)
 
-    formatted_print(
+    display(
         res,
-        text_format=FORMAT_TEXT_RECORD,
+        text_mode=TextMode.text_record,
         fields=real_fields,
     )

@@ -7,18 +7,13 @@ import click
 
 from globus_cli.login_manager import LoginManager
 from globus_cli.parsing import command, endpoint_id_arg
-from globus_cli.termio import (
-    FORMAT_TEXT_RECORD,
-    Field,
-    field_formatters,
-    formatted_print,
-)
+from globus_cli.termio import Field, TextMode, display, formatters
 
 if t.TYPE_CHECKING:
     from globus_cli.services.auth import CustomAuthClient
 
 
-class AclPrincipalFormatter(field_formatters.FieldFormatter[t.Tuple[str, str]]):
+class AclPrincipalFormatter(formatters.FieldFormatter[t.Tuple[str, str]]):
     def __init__(self, auth_client: CustomAuthClient):
         self.auth_client = auth_client
 
@@ -60,9 +55,9 @@ def show_command(*, login_manager: LoginManager, endpoint_id: uuid.UUID, rule_id
     auth_client = login_manager.get_auth_client()
 
     rule = transfer_client.get_endpoint_acl_rule(endpoint_id, rule_id)
-    formatted_print(
+    display(
         rule,
-        text_format=FORMAT_TEXT_RECORD,
+        text_mode=TextMode.text_record,
         fields=[
             Field("Rule ID", "id"),
             Field("Permissions", "permissions"),

@@ -3,13 +3,7 @@ import globus_sdk
 
 from globus_cli.login_manager import LoginManager
 from globus_cli.parsing import command
-from globus_cli.termio import (
-    FORMAT_TEXT_RECORD,
-    Field,
-    formatted_print,
-    is_verbose,
-    print_command_hint,
-)
+from globus_cli.termio import Field, TextMode, display, is_verbose, print_command_hint
 
 
 @command(
@@ -79,7 +73,7 @@ def whoami_command(*, login_manager: LoginManager, linked_identities: bool):
     # --linked-identities either displays all usernames or a table if verbose
     if linked_identities:
         try:
-            formatted_print(
+            display(
                 res["identity_set"],
                 fields=[
                     Field("Username", "username"),
@@ -103,9 +97,9 @@ def whoami_command(*, login_manager: LoginManager, linked_identities: bool):
 
     # Default output is the top level data
     else:
-        formatted_print(
+        display(
             res,
-            text_format=FORMAT_TEXT_RECORD,
+            text_mode=TextMode.text_record,
             fields=[
                 Field("Username", "preferred_username"),
                 Field("Name", "name"),

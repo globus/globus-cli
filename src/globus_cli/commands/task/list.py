@@ -2,7 +2,7 @@ import click
 
 from globus_cli.login_manager import LoginManager
 from globus_cli.parsing import command
-from globus_cli.termio import Field, formatted_print
+from globus_cli.termio import Field, display
 from globus_cli.utils import PagingWrapper
 
 
@@ -221,6 +221,4 @@ def task_list(
         Field("Dest Display Name", "destination_endpoint_display_name"),
         Field("Label", "label"),
     ]
-    formatted_print(
-        task_iterator, fields=fields, json_converter=iterable_response_to_dict
-    )
+    display(task_iterator, fields=fields, json_converter=iterable_response_to_dict)

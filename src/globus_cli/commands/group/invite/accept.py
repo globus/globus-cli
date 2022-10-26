@@ -6,7 +6,7 @@ import click
 
 from globus_cli.login_manager import LoginManager
 from globus_cli.parsing import IdentityType, ParsedIdentity, command
-from globus_cli.termio import formatted_print
+from globus_cli.termio import display
 
 from ._common import build_invite_actions, get_invite_formatter
 
@@ -42,4 +42,4 @@ def invite_accept(
         except LookupError:
             raise ValueError("Could not accept invite")
 
-    formatted_print(response, text_format=get_invite_formatter("accept"))
+    display(response, text_mode=get_invite_formatter("accept"))

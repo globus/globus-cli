@@ -6,16 +6,10 @@ import globus_sdk
 
 from globus_cli.login_manager import LoginManager
 from globus_cli.parsing import command, endpoint_id_arg
-from globus_cli.termio import (
-    FORMAT_TEXT_RECORD,
-    FORMAT_TEXT_TABLE,
-    Field,
-    field_formatters,
-    formatted_print,
-)
+from globus_cli.termio import Field, TextMode, display, formatters
 
 
-class ServerURIFormatter(field_formatters.StrFieldFormatter):
+class ServerURIFormatter(formatters.StrFieldFormatter):
     parse_null_values = True
 
     def parse(self, value: t.Any) -> str:
@@ -49,11 +43,11 @@ def server_list(*, login_manager: LoginManager, endpoint_id):
     if server_list == "S3":  # not GCS -- this is an S3 endpoint
         server_list = {"s3_url": endpoint["s3_url"]}
         fields = [Field("S3 URL", "s3_url")]
-        text_format = FORMAT_TEXT_RECORD
+        text_mode = TextMode.text_record
     else:  # regular GCS host endpoint
         fields = [
             Field("ID", "id"),
             Field("URI", "uri", formatter=ServerURIFormatter()),
         ]
-        text_format = FORMAT_TEXT_TABLE
-    formatted_print(server_list, text_format=text_format, fields=fields)
+        text_mode = TextMode.text_table
+    display(server_list, text_mode=text_mode, fields=fields)

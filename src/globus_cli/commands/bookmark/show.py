@@ -2,7 +2,7 @@ import click
 
 from globus_cli.login_manager import LoginManager
 from globus_cli.parsing import command
-from globus_cli.termio import FORMAT_TEXT_RECORD, Field, formatted_print, is_verbose
+from globus_cli.termio import Field, TextMode, display, is_verbose
 
 from ._common import resolve_id_or_name
 
@@ -44,9 +44,9 @@ def bookmark_show(*, login_manager: LoginManager, bookmark_id_or_name):
     """
     transfer_client = login_manager.get_transfer_client()
     res = resolve_id_or_name(transfer_client, bookmark_id_or_name)
-    formatted_print(
+    display(
         res,
-        text_format=FORMAT_TEXT_RECORD,
+        text_mode=TextMode.text_record,
         fields=[
             Field("ID", "id"),
             Field("Name", "name"),

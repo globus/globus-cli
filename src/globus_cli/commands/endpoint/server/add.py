@@ -1,6 +1,6 @@
 from globus_cli.login_manager import LoginManager
 from globus_cli.parsing import command, endpoint_id_arg
-from globus_cli.termio import FORMAT_TEXT_RAW, formatted_print
+from globus_cli.termio import TextMode, display
 
 from ._common import server_add_and_update_opts
 
@@ -58,4 +58,4 @@ def server_add(
         )
 
     res = transfer_client.add_endpoint_server(endpoint_id, server_doc)
-    formatted_print(res, text_format=FORMAT_TEXT_RAW, response_key="message")
+    display(res, text_mode=TextMode.text_raw, response_key="message")

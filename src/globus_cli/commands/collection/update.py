@@ -17,7 +17,7 @@ from globus_cli.parsing import (
     mutex_option_group,
     nullable_multi_callback,
 )
-from globus_cli.termio import FORMAT_TEXT_RECORD, Field, formatted_print
+from globus_cli.termio import Field, TextMode, display
 
 
 class _FullDataField(Field):
@@ -266,8 +266,8 @@ def collection_update(
 
     doc = doc_class(**converted_kwargs)
     res = gcs_client.update_collection(collection_id, doc)
-    formatted_print(
+    display(
         res,
         fields=[_FullDataField("code", "code")],
-        text_format=FORMAT_TEXT_RECORD,
+        text_mode=TextMode.text_record,
     )

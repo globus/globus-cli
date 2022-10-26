@@ -4,12 +4,7 @@ import click
 
 from globus_cli.login_manager import LoginManager
 from globus_cli.parsing import command
-from globus_cli.termio import (
-    FORMAT_TEXT_RECORD,
-    Field,
-    field_formatters,
-    formatted_print,
-)
+from globus_cli.termio import Field, TextMode, display, formatters
 
 from .._common import index_id_arg
 
@@ -34,14 +29,14 @@ def delete_command(
     commands like 'globus search task show'
     """
     search_client = login_manager.get_search_client()
-    formatted_print(
+    display(
         search_client.delete_subject(index_id, subject),
-        text_format=FORMAT_TEXT_RECORD,
+        text_mode=TextMode.text_record,
         fields=[
             Field(
                 "Message",
                 "@",
-                formatter=field_formatters.StaticStringFormatter(
+                formatter=formatters.StaticStringFormatter(
                     "delete-by-subject task successfully submitted"
                 ),
             ),

@@ -6,7 +6,7 @@ import click
 
 from globus_cli.login_manager import LoginManager
 from globus_cli.parsing import command
-from globus_cli.termio import FORMAT_TEXT_RECORD, Field, formatted_print
+from globus_cli.termio import Field, TextMode, display
 
 from ..._common import index_id_arg, resolved_principals_field
 
@@ -74,9 +74,9 @@ def create_command(
             raise NotImplementedError("unrecognized principal_type")
 
     role_doc = {"role_name": role_name, "principal": principal}
-    formatted_print(
+    display(
         search_client.create_role(index_id, data=role_doc),
-        text_format=FORMAT_TEXT_RECORD,
+        text_mode=TextMode.text_record,
         fields=[
             Field("Index ID", "index_id"),
             Field("Role ID", "id"),

@@ -5,7 +5,7 @@ import typing as t
 
 import click
 
-from globus_cli.termio import Field, field_formatters
+from globus_cli.termio import Field, formatters
 
 # cannot do this because it causes immediate imports and ruins the lazy import
 # performance gain
@@ -58,7 +58,7 @@ def group_create_and_update_params(
 SESSION_ENFORCEMENT_FIELD = Field(
     "Session Enforcement",
     "enforce_session",
-    formatter=field_formatters.FuzzyBoolFieldFormatter(
+    formatter=formatters.FuzzyBoolFieldFormatter(
         true_str="strict", false_str="not strict"
     ),
 )

@@ -2,7 +2,7 @@ import click
 
 from globus_cli.login_manager import LoginManager
 from globus_cli.parsing import IdentityType, command
-from globus_cli.termio import FORMAT_TEXT_TABLE, Field, formatted_print, is_verbose
+from globus_cli.termio import Field, TextMode, display, is_verbose
 from globus_cli.utils import CLIStubResponse
 
 
@@ -93,7 +93,7 @@ def get_identities_command(*, login_manager: LoginManager, values, provision):
         for val in values:
             click.echo(resolve_identity(val.value))
 
-    formatted_print(
+    display(
         res,
         response_key="identities",
         fields=[
@@ -105,5 +105,5 @@ def get_identities_command(*, login_manager: LoginManager, values, provision):
         ],
         # verbose output is a table. Order not guaranteed, may contain
         # duplicates
-        text_format=(FORMAT_TEXT_TABLE if is_verbose() else _custom_text_format),
+        text_mode=(TextMode.text_table if is_verbose() else _custom_text_format),
     )

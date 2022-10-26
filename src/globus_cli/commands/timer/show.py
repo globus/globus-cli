@@ -2,7 +2,7 @@ import click
 
 from globus_cli.login_manager import LoginManager
 from globus_cli.parsing import command
-from globus_cli.termio import FORMAT_TEXT_RECORD, formatted_print
+from globus_cli.termio import TextMode, display
 
 from ._common import JOB_FORMAT_FIELDS
 
@@ -16,4 +16,4 @@ def show_command(login_manager: LoginManager, job_id: str):
     """
     timer_client = login_manager.get_timer_client()
     response = timer_client.get_job(job_id)
-    formatted_print(response, text_format=FORMAT_TEXT_RECORD, fields=JOB_FORMAT_FIELDS)
+    display(response, text_mode=TextMode.text_record, fields=JOB_FORMAT_FIELDS)

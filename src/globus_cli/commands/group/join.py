@@ -6,7 +6,7 @@ import click
 
 from globus_cli.login_manager import LoginManager
 from globus_cli.parsing import IdentityType, ParsedIdentity, command
-from globus_cli.termio import FORMAT_TEXT_RECORD, Field, formatted_print
+from globus_cli.termio import Field, TextMode, display
 
 JOIN_USER_FIELDS = [
     Field("Group ID", "group_id"),
@@ -64,9 +64,9 @@ def group_join(
         except LookupError:
             raise ValueError("Could not join group")
 
-    formatted_print(
+    display(
         response,
-        text_format=FORMAT_TEXT_RECORD,
+        text_mode=TextMode.text_record,
         fields=JOIN_USER_FIELDS,
         response_key=lambda data: data[action][0],
     )

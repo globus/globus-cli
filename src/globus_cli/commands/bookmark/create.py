@@ -4,7 +4,7 @@ import click
 
 from globus_cli.login_manager import LoginManager
 from globus_cli.parsing import ENDPOINT_PLUS_REQPATH, command
-from globus_cli.termio import formatted_print
+from globus_cli.termio import display
 
 
 @command(
@@ -61,4 +61,4 @@ def bookmark_create(
     submit_data = {"endpoint_id": str(endpoint_id), "path": path, "name": bookmark_name}
 
     res = transfer_client.create_bookmark(submit_data)
-    formatted_print(res, simple_text="Bookmark ID: {}".format(res["id"]))
+    display(res, simple_text="Bookmark ID: {}".format(res["id"]))

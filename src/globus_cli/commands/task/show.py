@@ -2,7 +2,7 @@ import click
 
 from globus_cli.login_manager import LoginManager
 from globus_cli.parsing import command, mutex_option_group
-from globus_cli.termio import FORMAT_TEXT_RECORD, Field, formatted_print
+from globus_cli.termio import Field, TextMode, display
 
 from ._common import task_id_arg
 
@@ -60,7 +60,7 @@ def print_successful_transfers(client, task_id):
     from globus_cli.services.transfer import iterable_response_to_dict
 
     res = client.paginated.task_successful_transfers(task_id).items()
-    formatted_print(
+    display(
         res,
         fields=SUCCESSFULL_TRANSFER_FIELDS,
         json_converter=iterable_response_to_dict,
@@ -71,7 +71,7 @@ def print_skipped_errors(client, task_id):
     from globus_cli.services.transfer import iterable_response_to_dict
 
     res = client.paginated.task_skipped_errors(task_id).items()
-    formatted_print(
+    display(
         res,
         fields=SKIPPED_PATHS_FIELDS,
         json_converter=iterable_response_to_dict,
@@ -80,9 +80,9 @@ def print_skipped_errors(client, task_id):
 
 def print_task_detail(client, task_id):
     res = client.get_task(task_id)
-    formatted_print(
+    display(
         res,
-        text_format=FORMAT_TEXT_RECORD,
+        text_mode=TextMode.text_record,
         fields=(
             COMMON_FIELDS
             + (COMPLETED_FIELDS if res["completion_time"] else ACTIVE_FIELDS)

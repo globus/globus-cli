@@ -5,12 +5,7 @@ import globus_sdk
 
 from globus_cli.login_manager import LoginManager
 from globus_cli.parsing import command
-from globus_cli.termio import (
-    FORMAT_TEXT_RECORD,
-    Field,
-    field_formatters,
-    formatted_print,
-)
+from globus_cli.termio import Field, TextMode, display, formatters
 
 from ._common import task_id_arg
 
@@ -22,7 +17,7 @@ EXPLICIT_PAUSE_MSG_FIELDS = [
 ]
 
 
-class RuleOperationsFormatter(field_formatters.FieldFormatter[t.List[str]]):
+class RuleOperationsFormatter(formatters.FieldFormatter[t.List[str]]):
     def parse(self, value: t.Any) -> list[str]:
         if not isinstance(value, dict):
             raise ValueError("cannot format rule operations from non-dict value")
@@ -50,7 +45,7 @@ PAUSE_RULE_DISPLAY_FIELDS = [
     Field(
         "All Users",
         "identity_id",
-        formatter=field_formatters.BoolFieldFormatter(true_str="No", false_str="Yes"),
+        formatter=formatters.BoolFieldFormatter(true_str="No", false_str="Yes"),
     ),
     Field("Message", "message"),
 ]
@@ -114,16 +109,16 @@ def task_pause_info(*, login_manager: LoginManager, task_id):
             click.get_current_context().exit(0)
 
         if explicit_pauses:
-            formatted_print(
+            display(
                 res,
                 fields=explicit_pauses,
-                text_format=FORMAT_TEXT_RECORD,
+                text_mode=TextMode.text_record,
                 text_preamble="This task has been explicitly paused.\n",
                 text_epilog="\n" if effective_pause_rules else None,
             )
 
         if effective_pause_rules:
-            formatted_print(
+            display(
                 effective_pause_rules,
                 fields=PAUSE_RULE_DISPLAY_FIELDS,
                 text_preamble=(
@@ -131,4 +126,4 @@ def task_pause_info(*, login_manager: LoginManager, task_id):
                 ),
             )
 
-    formatted_print(res, text_format=_custom_text_format)
+    display(res, text_mode=_custom_text_format)

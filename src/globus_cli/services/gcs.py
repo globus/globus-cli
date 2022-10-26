@@ -4,7 +4,7 @@ import typing as t
 
 import globus_sdk
 
-from globus_cli.termio import field_formatters
+from globus_cli.termio import formatters
 
 CONNECTOR_INFO: list[dict[str, str]] = [
     {
@@ -76,7 +76,7 @@ def connector_id_to_display_name(connector_id: str) -> str:
     return display_name
 
 
-class ConnectorIdFormatter(field_formatters.StrFieldFormatter):
+class ConnectorIdFormatter(formatters.StrFieldFormatter):
     def parse(self, value: t.Any) -> str:
         if not isinstance(value, str):
             raise ValueError("bad connector ID")

@@ -1,6 +1,6 @@
 from globus_cli.login_manager import LoginManager
 from globus_cli.parsing import command
-from globus_cli.termio import FORMAT_TEXT_RAW, formatted_print
+from globus_cli.termio import TextMode, display
 
 
 @command(
@@ -33,4 +33,4 @@ def generate_submission_id(*, login_manager: LoginManager):
     transfer_client = login_manager.get_transfer_client()
 
     res = transfer_client.get_submission_id()
-    formatted_print(res, text_format=FORMAT_TEXT_RAW, response_key="value")
+    display(res, text_mode=TextMode.text_raw, response_key="value")

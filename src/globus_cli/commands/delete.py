@@ -11,10 +11,10 @@ from globus_cli.parsing import (
     task_submission_options,
 )
 from globus_cli.termio import (
-    FORMAT_TEXT_RECORD,
     Field,
+    TextMode,
+    display,
     err_is_terminal,
-    formatted_print,
     term_is_interactive,
 )
 
@@ -180,15 +180,13 @@ def delete_command(
         delete_data.add_item(path)
 
     if dry_run:
-        formatted_print(
-            delete_data.data, response_key="DATA", fields=[Field("Path", "path")]
-        )
+        display(delete_data.data, response_key="DATA", fields=[Field("Path", "path")])
         # exit safely
         return
 
     res = transfer_client.submit_delete(delete_data)
-    formatted_print(
+    display(
         res,
-        text_format=FORMAT_TEXT_RECORD,
+        text_mode=TextMode.text_record,
         fields=[Field("Message", "message"), Field("Task ID", "task_id")],
     )

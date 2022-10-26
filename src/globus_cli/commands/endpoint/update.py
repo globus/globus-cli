@@ -5,7 +5,7 @@ from globus_cli.parsing import (
     endpoint_id_arg,
     endpointish_create_and_update_params,
 )
-from globus_cli.termio import FORMAT_TEXT_RAW, formatted_print
+from globus_cli.termio import TextMode, display
 
 from ._common import endpoint_update_params, validate_endpoint_create_and_update_params
 
@@ -40,4 +40,4 @@ def endpoint_update(*, login_manager: LoginManager, **kwargs):
     # make the update
     ep_doc = assemble_generic_doc("endpoint", **kwargs)
     res = transfer_client.update_endpoint(endpoint_id, ep_doc)
-    formatted_print(res, text_format=FORMAT_TEXT_RAW, response_key="message")
+    display(res, text_mode=TextMode.text_raw, response_key="message")

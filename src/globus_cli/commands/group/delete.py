@@ -1,6 +1,6 @@
 from globus_cli.login_manager import LoginManager
 from globus_cli.parsing import command
-from globus_cli.termio import formatted_print
+from globus_cli.termio import display
 
 from ._common import group_id_arg
 
@@ -18,4 +18,4 @@ def group_delete(
 
     response = groups_client.delete_group(group_id)
 
-    formatted_print(response, simple_text="Group deleted successfully")
+    display(response, simple_text="Group deleted successfully")

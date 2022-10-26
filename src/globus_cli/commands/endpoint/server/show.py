@@ -5,12 +5,7 @@ from textwrap import dedent
 
 from globus_cli.login_manager import LoginManager
 from globus_cli.parsing import command, endpoint_id_arg
-from globus_cli.termio import (
-    FORMAT_TEXT_RECORD,
-    Field,
-    field_formatters,
-    formatted_print,
-)
+from globus_cli.termio import Field, TextMode, display, formatters
 
 from ._common import server_id_arg
 
@@ -18,7 +13,7 @@ PORT_RANGE_T = t.Tuple[int | None, int | None]
 
 
 class PortRangeFormatter(
-    field_formatters.FieldFormatter[t.Tuple[PORT_RANGE_T, PORT_RANGE_T]]
+    formatters.FieldFormatter[t.Tuple[PORT_RANGE_T, PORT_RANGE_T]]
 ):
     def parse(self, value: t.Any) -> tuple[PORT_RANGE_T, PORT_RANGE_T]:
         incoming_start, incoming_end = (
@@ -98,9 +93,9 @@ def server_show(*, login_manager: LoginManager, endpoint_id, server_id):
         )
         text_epilog = None
 
-    formatted_print(
+    display(
         server_doc,
-        text_format=FORMAT_TEXT_RECORD,
+        text_mode=TextMode.text_record,
         fields=fields,
         text_epilog=text_epilog,
     )

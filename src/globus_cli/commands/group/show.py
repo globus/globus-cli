@@ -1,11 +1,6 @@
 from globus_cli.login_manager import LoginManager
 from globus_cli.parsing import command
-from globus_cli.termio import (
-    FORMAT_TEXT_RECORD,
-    Field,
-    field_formatters,
-    formatted_print,
-)
+from globus_cli.termio import Field, TextMode, display, formatters
 
 from ._common import SESSION_ENFORCEMENT_FIELD, group_id_arg
 
@@ -23,9 +18,9 @@ def group_show(
 
     group = groups_client.get_group(group_id, include="my_memberships")
 
-    formatted_print(
+    display(
         group,
-        text_format=FORMAT_TEXT_RECORD,
+        text_mode=TextMode.text_record,
         fields=[
             Field("Name", "name"),
             Field("Description", "description"),
@@ -37,10 +32,8 @@ def group_show(
             Field(
                 "Signup Fields",
                 "policies.signup_fields",
-                formatter=field_formatters.SortedArray,
+                formatter=formatters.SortedArray,
             ),
-            Field(
-                "Roles", "my_memberships[].role", formatter=field_formatters.SortedArray
-            ),
+            Field("Roles", "my_memberships[].role", formatter=formatters.SortedArray),
         ],
     )

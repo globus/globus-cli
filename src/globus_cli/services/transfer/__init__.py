@@ -1,6 +1,6 @@
 import typing as t
 
-from globus_cli.termio import Field, field_formatters
+from globus_cli.termio import Field, formatters
 
 from .activation import (
     activation_requirements_help_text,
@@ -18,7 +18,7 @@ from .delegate_proxy import fill_delegate_proxy_activation_requirements
 from .recursive_ls import RecursiveLsResponse
 
 
-class _DisplayNameFormatter(field_formatters.StrFieldFormatter):
+class _DisplayNameFormatter(formatters.StrFieldFormatter):
     def parse(self, value: t.Any) -> str:
         if not isinstance(value, dict):
             raise ValueError("cannot parse display_name from non-dict data")

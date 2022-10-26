@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import enum
 import json
 import textwrap
 
@@ -8,17 +9,19 @@ import globus_sdk
 
 from globus_cli.utils import CLIStubResponse
 
-from .awscli_text import unix_formatted_print
+from .awscli_text import unix_display
 from .context import get_jmespath_expression, outformat_is_json, outformat_is_unix
 from .field import Field
 
-FORMAT_SILENT = "silent"
-FORMAT_JSON = "json"
-FORMAT_TEXT_TABLE = "text_table"
-FORMAT_TEXT_RECORD = "text_record"
-FORMAT_TEXT_RECORD_LIST = "text_record_list"
-FORMAT_TEXT_RAW = "text_raw"
-FORMAT_TEXT_CUSTOM = "text_custom"
+
+class TextMode(enum.Enum):
+    silent = enum.auto()
+    json = enum.auto()
+    text_table = enum.auto()
+    text_record = enum.auto()
+    text_record_list = enum.auto()
+    text_raw = enum.auto()
+    text_custom = enum.auto()
 
 
 def _jmespath_preprocess(res):
@@ -43,7 +46,7 @@ def print_json_response(res):
 def print_unix_response(res):
     res = _jmespath_preprocess(res)
     try:
-        unix_formatted_print(res)
+        unix_display(res)
     # Attr errors indicate that we got data which cannot be unix formatted
     # likely a scalar + non-scalar in an array, though there may be other cases
     # print good error and exit(2) (Count this as UsageError!)
@@ -61,7 +64,7 @@ def print_unix_response(res):
         click.get_current_context().exit(2)
 
 
-def colon_formatted_print(data, fields):
+def _colon_display(data, fields):
     maxlen = max(len(f.name) for f in fields) + 2
     indent = " " * maxlen
     wrapper = textwrap.TextWrapper(initial_indent=indent, subsequent_indent=indent)
@@ -144,22 +147,23 @@ def print_table(iterable, fields, print_headers=True):
         click.echo(format_line([none_to_null(f(i)) for f in fields]))
 
 
-def formatted_print(
+def display(
     response_data,
+    *,
     simple_text=None,
     text_preamble=None,
     text_epilog=None,
-    text_format=FORMAT_TEXT_TABLE,
+    text_mode=TextMode.text_table,
     json_converter=None,
     fields: list[Field] | None = None,
     response_key=None,
 ):
     """
-    A generic output formatter. Consumes the following pieces of data:
+    A generic output printer. Consumes the following pieces of data:
 
-    ``response_data`` is a dict, list (if the ``text_format`` is
-    ``FORMAT_TEXT_RECORD_LIST``), or GlobusResponse object. It contains either an API
-    response or synthesized data for printing.
+    ``response_data`` is a dict, list (if the ``text_mode`` is
+    ``TextMode.text_record_list``), or GlobusHTTPResponse object.
+    It contains either an API response or synthesized data for printing.
 
     ``simple_text`` is a text override -- normal printing is skipped and this
     string is printed instead (text output only)
@@ -167,9 +171,8 @@ def formatted_print(
     only)
     ``text_epilog`` is text which prints after normal printing (text output
     only)
-    ``text_format`` is one of the FORMAT_TEXT_* constants OR a callable which
-    takes ``response_data`` and prints output. Note that when a callable is
-    given, it does the actual printing
+    ``text_mode`` is a TextMode OR a callable which takes ``response_data`` and prints
+    output. Note that when a callable is given, it does the actual printing
 
     ``json_converter`` is a callable that does preprocessing of JSON output. It
     must take ``response_data`` and produce another dict or dict-like object
@@ -221,13 +224,13 @@ def formatted_print(
             data = response_data[response_key]
 
         #  do the various kinds of printing
-        if text_format == FORMAT_TEXT_TABLE:
+        if text_mode == TextMode.text_table:
             _assert_fields()
             print_table(data, fields)
-        elif text_format == FORMAT_TEXT_RECORD:
+        elif text_mode == TextMode.text_record:
             _assert_fields()
-            colon_formatted_print(data, fields)
-        elif text_format == FORMAT_TEXT_RECORD_LIST:
+            _colon_display(data, fields)
+        elif text_mode == TextMode.text_record_list:
             _assert_fields()
             if not isinstance(data, list):
                 raise ValueError("only lists can be output in text record list format")
@@ -237,10 +240,10 @@ def formatted_print(
                 if not first:
                     click.echo()
                 first = False
-                colon_formatted_print(record, fields)
-        elif text_format == FORMAT_TEXT_RAW:
+                _colon_display(record, fields)
+        elif text_mode == TextMode.text_raw:
             click.echo(data)
-        elif text_format == FORMAT_TEXT_CUSTOM:
+        elif text_mode == TextMode.text_custom:
             # _custom_text_formatter is set along with FORMAT_TEXT_CUSTOM
             assert _custom_text_formatter
             _custom_text_formatter(data)
@@ -249,12 +252,11 @@ def formatted_print(
         if text_epilog is not None:
             click.echo(text_epilog)
 
-    if isinstance(text_format, str):
-        text_format = text_format
+    if isinstance(text_mode, TextMode):
         _custom_text_formatter = None
     else:
-        _custom_text_formatter = text_format
-        text_format = FORMAT_TEXT_CUSTOM
+        _custom_text_formatter = text_mode
+        text_mode = TextMode.text_custom
 
     if outformat_is_json():
         _print_as_json()
@@ -262,6 +264,6 @@ def formatted_print(
         _print_as_unix()
     else:
         # silent does nothing
-        if text_format == FORMAT_SILENT:
+        if text_mode == TextMode.silent:
             return
         _print_as_text()

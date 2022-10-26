@@ -6,7 +6,7 @@ import click
 
 from globus_cli.login_manager import LoginManager
 from globus_cli.parsing import command
-from globus_cli.termio import FORMAT_TEXT_RECORD, Field, formatted_print
+from globus_cli.termio import Field, TextMode, display
 
 from ._common import index_id_arg
 
@@ -45,8 +45,8 @@ def ingest_command(
     if datatype != "GIngest":
         doc = {"@datatype": "GIngest", "ingest_type": datatype, "ingest_data": doc}
 
-    formatted_print(
+    display(
         search_client.ingest(index_id, doc),
-        text_format=FORMAT_TEXT_RECORD,
+        text_mode=TextMode.text_record,
         fields=[Field("Task ID", "task_id"), Field("Acknowledged", "acknowledged")],
     )

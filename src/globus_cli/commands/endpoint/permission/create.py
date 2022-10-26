@@ -2,7 +2,7 @@ import click
 
 from globus_cli.login_manager import LoginManager
 from globus_cli.parsing import ENDPOINT_PLUS_REQPATH, command, security_principal_opts
-from globus_cli.termio import FORMAT_TEXT_RECORD, Field, formatted_print
+from globus_cli.termio import Field, TextMode, display
 
 
 @command(
@@ -101,8 +101,8 @@ def create_command(
     )
 
     res = transfer_client.add_endpoint_acl_rule(endpoint_id, rule_data)
-    formatted_print(
+    display(
         res,
-        text_format=FORMAT_TEXT_RECORD,
+        text_mode=TextMode.text_record,
         fields=[Field("Message", "message"), Field("Rule ID", "access_id")],
     )

@@ -4,7 +4,7 @@ import datetime
 import typing as t
 from urllib.parse import urlparse
 
-from globus_cli.termio import Field, field_formatters
+from globus_cli.termio import Field, formatters
 
 # List of datetime formats accepted as input. (`%z` means timezone.)
 DATETIME_FORMATS = [
@@ -17,7 +17,7 @@ DATETIME_FORMATS = [
 ]
 
 
-class CallbackActionTypeFormatter(field_formatters.StrFieldFormatter):
+class CallbackActionTypeFormatter(formatters.StrFieldFormatter):
     def render(self, value: str) -> str:
         url = urlparse(value)
         if (
@@ -31,7 +31,7 @@ class CallbackActionTypeFormatter(field_formatters.StrFieldFormatter):
             return value
 
 
-class TimedeltaFormatter(field_formatters.FieldFormatter[datetime.timedelta]):
+class TimedeltaFormatter(formatters.FieldFormatter[datetime.timedelta]):
     def parse(self, value: t.Any) -> datetime.timedelta:
         if not isinstance(value, int):
             raise ValueError("bad timedelta value")
@@ -45,15 +45,15 @@ _COMMON_FIELDS = [
     Field("Job ID", "job_id"),
     Field("Name", "name"),
     Field("Type", "callback_url", formatter=CallbackActionTypeFormatter()),
-    Field("Submitted At", "submitted_at", formatter=field_formatters.Date),
-    Field("Start", "start", formatter=field_formatters.Date),
+    Field("Submitted At", "submitted_at", formatter=formatters.Date),
+    Field("Start", "start", formatter=formatters.Date),
     Field("Interval", "interval", formatter=TimedeltaFormatter()),
 ]
 
 
 JOB_FORMAT_FIELDS = _COMMON_FIELDS + [
-    Field("Last Run", "last_ran_at", formatter=field_formatters.Date),
-    Field("Next Run", "next_run", formatter=field_formatters.Date),
+    Field("Last Run", "last_ran_at", formatter=formatters.Date),
+    Field("Next Run", "next_run", formatter=formatters.Date),
     Field("Stop After Date", "stop_after.date"),
     Field("Stop After Number of Runs", "stop_after.n_runs"),
     Field("Number of Runs", "n_runs"),

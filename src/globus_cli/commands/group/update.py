@@ -2,7 +2,7 @@ import typing as t
 
 from globus_cli.login_manager import LoginManager
 from globus_cli.parsing import command
-from globus_cli.termio import formatted_print
+from globus_cli.termio import display
 
 from ._common import group_create_and_update_params, group_id_arg
 
@@ -30,4 +30,4 @@ def group_update(*, login_manager: LoginManager, group_id: str, **kwargs: t.Any)
 
     response = groups_client.update_group(group_id, data)
 
-    formatted_print(response, simple_text="Group updated successfully")
+    display(response, simple_text="Group updated successfully")

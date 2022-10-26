@@ -4,7 +4,7 @@ import click
 
 from globus_cli.login_manager import LoginManager
 from globus_cli.parsing import CommaDelimitedList, command
-from globus_cli.termio import FORMAT_TEXT_TABLE, Field, formatted_print
+from globus_cli.termio import Field, TextMode, display
 
 from .._common import MEMBERSHIP_FIELDS, group_id_arg
 
@@ -37,9 +37,9 @@ def member_list(
     if fields:
         add_fields = [_str2field(x) for x in fields]
 
-    formatted_print(
+    display(
         group,
-        text_format=FORMAT_TEXT_TABLE,
+        text_mode=TextMode.text_table,
         fields=[
             Field("Username", "username"),
             Field("Role", "role"),

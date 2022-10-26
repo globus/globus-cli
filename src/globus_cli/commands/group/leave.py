@@ -7,7 +7,7 @@ import globus_sdk
 
 from globus_cli.login_manager import LoginManager
 from globus_cli.parsing import IdentityType, ParsedIdentity, command
-from globus_cli.termio import formatted_print
+from globus_cli.termio import display
 
 
 def group_leave_formatter(data: globus_sdk.GlobusHTTPResponse) -> None:
@@ -78,4 +78,4 @@ def group_leave(
         except LookupError:
             raise ValueError("Could not leave group")
 
-    formatted_print(response, text_format=group_leave_formatter)
+    display(response, text_mode=group_leave_formatter)

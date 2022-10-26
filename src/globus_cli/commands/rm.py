@@ -9,12 +9,7 @@ from globus_cli.parsing import (
     synchronous_task_wait_options,
     task_submission_options,
 )
-from globus_cli.termio import (
-    Field,
-    err_is_terminal,
-    formatted_print,
-    term_is_interactive,
-)
+from globus_cli.termio import Field, display, err_is_terminal, term_is_interactive
 
 from ._common import transfer_task_wait_with_io
 
@@ -117,9 +112,7 @@ def rm_command(
     delete_data.add_item(path)
 
     if dry_run:
-        formatted_print(
-            delete_data, response_key="DATA", fields=[Field("Path", "path")]
-        )
+        display(delete_data, response_key="DATA", fields=[Field("Path", "path")])
         # exit safely
         return
 

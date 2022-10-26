@@ -24,7 +24,7 @@ from globus_cli.parsing import (
     transfer_recursive_option,
     verify_checksum_option,
 )
-from globus_cli.termio import FORMAT_TEXT_RECORD, formatted_print
+from globus_cli.termio import TextMode, display
 
 from .._common import DATETIME_FORMATS, JOB_FORMAT_FIELDS
 
@@ -224,4 +224,4 @@ def transfer_command(
             scope=_TRANSFER_AP_SCOPE,
         )
     )
-    formatted_print(response, text_format=FORMAT_TEXT_RECORD, fields=JOB_FORMAT_FIELDS)
+    display(response, text_mode=TextMode.text_record, fields=JOB_FORMAT_FIELDS)

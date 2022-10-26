@@ -5,7 +5,7 @@ import globus_sdk
 
 from globus_cli.login_manager import LoginManager, is_remote_session
 from globus_cli.parsing import command, endpoint_id_arg, mutex_option_group
-from globus_cli.termio import FORMAT_TEXT_RAW, formatted_print
+from globus_cli.termio import TextMode, display
 
 
 @command(
@@ -201,7 +201,7 @@ def endpoint_activate(
         ) = transfer_client.endpoint_autoactivate(endpoint_id, if_expires_in=60)
 
         if "AlreadyActivated" == res["code"]:
-            formatted_print(
+            display(
                 res,
                 simple_text=(
                     "Endpoint is already activated. Activation "
@@ -216,7 +216,7 @@ def endpoint_activate(
         res = transfer_client.endpoint_autoactivate(endpoint_id)
 
         if "AutoActivated" in res["code"]:
-            formatted_print(
+            display(
                 res,
                 simple_text=(
                     "Autoactivation succeeded with message: {}".format(res["message"])
@@ -300,4 +300,4 @@ def endpoint_activate(
         )
 
     # output
-    formatted_print(res, text_format=FORMAT_TEXT_RAW, response_key="message")
+    display(res, text_mode=TextMode.text_raw, response_key="message")

@@ -5,10 +5,10 @@ import uuid
 
 from globus_cli.login_manager import LoginManager
 from globus_cli.parsing import command, endpoint_id_arg
-from globus_cli.termio import Field, field_formatters, formatted_print
+from globus_cli.termio import Field, display, formatters
 
 
-class AclPrincipalFormatter(field_formatters.PrincipalWithTypeKeyFormatter):
+class AclPrincipalFormatter(formatters.PrincipalWithTypeKeyFormatter):
     # customize the formatter to provide the `principal_type` as the fallback value for
     # unrecognized types. This handles various cases in which
     # `principal_type=all_authenticated_users` or similar
@@ -43,7 +43,7 @@ def list_command(*, login_manager: LoginManager, endpoint_id: uuid.UUID):
     )
     formatter.add_items(rules)
 
-    formatted_print(
+    display(
         rules,
         fields=[
             Field("Rule ID", "id"),

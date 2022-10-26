@@ -6,7 +6,7 @@ import globus_sdk
 
 from globus_cli.login_manager import LoginManager
 from globus_cli.parsing import command
-from globus_cli.termio import formatted_print
+from globus_cli.termio import display
 
 from .._common import index_id_arg
 
@@ -37,4 +37,4 @@ def show_command(
     """
     search_client = login_manager.get_search_client()
     res = search_client.get_subject(index_id, subject)
-    formatted_print(res, text_format=_print_subject)
+    display(res, text_mode=_print_subject)

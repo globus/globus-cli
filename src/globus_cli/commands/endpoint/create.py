@@ -10,7 +10,7 @@ from globus_cli.parsing import (
     mutex_option_group,
     one_use_option,
 )
-from globus_cli.termio import FORMAT_TEXT_RECORD, Field, formatted_print
+from globus_cli.termio import Field, TextMode, display
 
 from ._common import endpoint_create_params, validate_endpoint_create_and_update_params
 
@@ -122,8 +122,8 @@ def endpoint_create(
         res = transfer_client.create_endpoint(ep_doc)
 
     # output
-    formatted_print(
+    display(
         res,
         fields=(COMMON_FIELDS + GCP_FIELDS if personal else COMMON_FIELDS),
-        text_format=FORMAT_TEXT_RECORD,
+        text_mode=TextMode.text_record,
     )

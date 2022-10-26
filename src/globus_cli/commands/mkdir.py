@@ -2,7 +2,7 @@ import click
 
 from globus_cli.login_manager import LoginManager
 from globus_cli.parsing import ENDPOINT_PLUS_REQPATH, command
-from globus_cli.termio import FORMAT_TEXT_RAW, formatted_print
+from globus_cli.termio import TextMode, display
 
 
 @command(
@@ -32,4 +32,4 @@ def mkdir_command(*, login_manager: LoginManager, endpoint_plus_path):
     autoactivate(transfer_client, endpoint_id, if_expires_in=60)
 
     res = transfer_client.operation_mkdir(endpoint_id, path=path)
-    formatted_print(res, text_format=FORMAT_TEXT_RAW, response_key="message")
+    display(res, text_mode=TextMode.text_raw, response_key="message")

@@ -2,10 +2,10 @@ import globus_sdk
 
 from globus_cli.login_manager import LoginManager
 from globus_cli.parsing import command
-from globus_cli.termio import Field, field_formatters, formatted_print
+from globus_cli.termio import Field, display, formatters
 
 
-class EndpointIdToNameFormatter(field_formatters.StrFieldFormatter):
+class EndpointIdToNameFormatter(formatters.StrFieldFormatter):
     def __init__(self, client: globus_sdk.TransferClient) -> None:
         self.client = client
 
@@ -56,7 +56,7 @@ def bookmark_list(*, login_manager: LoginManager):
 
     bookmark_iterator = transfer_client.bookmark_list()
 
-    formatted_print(
+    display(
         bookmark_iterator,
         fields=[
             Field("Name", "name"),

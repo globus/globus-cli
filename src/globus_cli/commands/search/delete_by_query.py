@@ -9,12 +9,7 @@ import click
 
 from globus_cli.login_manager import LoginManager
 from globus_cli.parsing import command, mutex_option_group
-from globus_cli.termio import (
-    FORMAT_TEXT_RECORD,
-    Field,
-    field_formatters,
-    formatted_print,
-)
+from globus_cli.termio import Field, TextMode, display, formatters
 
 from ._common import index_id_arg
 
@@ -64,14 +59,14 @@ def delete_by_query_command(
         doc["advanced"] = advanced
 
     data = search_client.delete_by_query(index_id, doc)
-    formatted_print(
+    display(
         data,
-        text_format=FORMAT_TEXT_RECORD,
+        text_mode=TextMode.text_record,
         fields=[
             Field(
                 "Message",
                 "@",
-                formatter=field_formatters.StaticStringFormatter(
+                formatter=formatters.StaticStringFormatter(
                     "delete-by-query task successfully submitted"
                 ),
             ),

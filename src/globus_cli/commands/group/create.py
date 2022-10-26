@@ -2,7 +2,7 @@ import typing as t
 
 from globus_cli.login_manager import LoginManager
 from globus_cli.parsing import command
-from globus_cli.termio import formatted_print
+from globus_cli.termio import display
 
 from ._common import group_create_and_update_params
 
@@ -17,4 +17,4 @@ def group_create(*, login_manager: LoginManager, **kwargs: t.Any):
     response = groups_client.create_group(kwargs)
     group_id = response["id"]
 
-    formatted_print(response, simple_text=f"Group {group_id} created successfully")
+    display(response, simple_text=f"Group {group_id} created successfully")

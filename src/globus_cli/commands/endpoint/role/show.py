@@ -4,12 +4,7 @@ import typing as t
 
 from globus_cli.login_manager import LoginManager
 from globus_cli.parsing import command, endpoint_id_arg
-from globus_cli.termio import (
-    FORMAT_TEXT_RECORD,
-    Field,
-    field_formatters,
-    formatted_print,
-)
+from globus_cli.termio import Field, TextMode, display, formatters
 
 from ._common import role_id_arg
 
@@ -17,7 +12,7 @@ if t.TYPE_CHECKING:
     from globus_cli.services.auth import CustomAuthClient
 
 
-class _SimplePrincipalFormatter(field_formatters.StrFieldFormatter):
+class _SimplePrincipalFormatter(formatters.StrFieldFormatter):
     def __init__(self, auth_client: CustomAuthClient) -> None:
         self.auth_client = auth_client
 
@@ -62,9 +57,9 @@ def role_show(*, login_manager: LoginManager, endpoint_id, role_id):
     auth_client = login_manager.get_auth_client()
 
     role = transfer_client.get_endpoint_role(endpoint_id, role_id)
-    formatted_print(
+    display(
         role,
-        text_format=FORMAT_TEXT_RECORD,
+        text_mode=TextMode.text_record,
         fields=[
             Field("Principal Type", "principal_type"),
             Field(

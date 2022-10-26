@@ -18,7 +18,7 @@ from globus_cli.parsing import (
     transfer_recursive_option,
     verify_checksum_option,
 )
-from globus_cli.termio import FORMAT_TEXT_RECORD, Field, formatted_print
+from globus_cli.termio import Field, TextMode, display
 
 
 @command(
@@ -353,7 +353,7 @@ def transfer_command(
         raise click.UsageError("--exclude can only be used with --recursive transfers")
 
     if dry_run:
-        formatted_print(
+        display(
             transfer_data.data,
             response_key="DATA",
             fields=[
@@ -373,8 +373,8 @@ def transfer_command(
         autoactivate(transfer_client, dest_endpoint, if_expires_in=60)
 
     res = transfer_client.submit_transfer(transfer_data)
-    formatted_print(
+    display(
         res,
-        text_format=FORMAT_TEXT_RECORD,
+        text_mode=TextMode.text_record,
         fields=[Field("Message", "message"), Field("Task ID", "task_id")],
     )

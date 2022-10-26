@@ -4,7 +4,7 @@ import click
 
 from globus_cli.login_manager import LoginManager
 from globus_cli.parsing import CommaDelimitedList, command
-from globus_cli.termio import formatted_print
+from globus_cli.termio import display
 
 from ._common import MEMBERSHIP_FIELDS, group_id_arg
 
@@ -91,4 +91,4 @@ def group_set_policies(
     }
 
     response = groups_client.set_group_policies(group_id, data)
-    formatted_print(response, simple_text="Group policies updated successfully")
+    display(response, simple_text="Group policies updated successfully")

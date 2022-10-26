@@ -3,12 +3,7 @@ import click
 from globus_cli.endpointish import Endpointish
 from globus_cli.login_manager import LoginManager
 from globus_cli.parsing import command, endpoint_id_arg
-from globus_cli.termio import (
-    FORMAT_TEXT_RECORD,
-    Field,
-    field_formatters,
-    formatted_print,
-)
+from globus_cli.termio import Field, TextMode, display, formatters
 
 STANDARD_FIELDS = [
     Field("Display Name", "display_name"),
@@ -27,7 +22,7 @@ STANDARD_FIELDS = [
     Field("Visibility", "public"),
     Field("Default Directory", "default_directory"),
     Field("Force Encryption", "force_encryption"),
-    Field("Managed Endpoint", "subscription_id", formatter=field_formatters.FuzzyBool),
+    Field("Managed Endpoint", "subscription_id", formatter=formatters.FuzzyBool),
     Field("Subscription ID", "subscription_id"),
     Field("Legacy Name", "canonical_name"),
     Field("Local User Info Available", "local_user_info_available"),
@@ -55,8 +50,8 @@ def endpoint_show(
 
     res = transfer_client.get_endpoint(endpoint_id)
 
-    formatted_print(
+    display(
         res,
-        text_format=FORMAT_TEXT_RECORD,
+        text_mode=TextMode.text_record,
         fields=GCP_FIELDS if res["is_globus_connect"] else STANDARD_FIELDS,
     )

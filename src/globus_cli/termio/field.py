@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from . import field_formatters
+from . import formatters
 
 
 class Field:
@@ -19,7 +19,7 @@ class Field:
         key: str,
         *,
         wrap_enabled: bool = False,
-        formatter: field_formatters.FieldFormatter = field_formatters.Str,
+        formatter: formatters.FieldFormatter = formatters.Str,
     ):
         self.name = name
         self.key = key

@@ -2,7 +2,7 @@ import click
 
 from globus_cli.login_manager import LoginManager
 from globus_cli.parsing import command
-from globus_cli.termio import FORMAT_TEXT_RAW, formatted_print
+from globus_cli.termio import TextMode, display
 
 from ._common import task_id_arg
 
@@ -96,12 +96,12 @@ def cancel_task(*, login_manager: LoginManager, all, task_id):
             for (i, (task_id, data)) in enumerate(cancellation_iterator(), start=1):
                 click.echo(f"{task_id} ({i} of {task_count}): {data['message']}")
 
-        # FIXME: this is kind of an abuse of formatted_print because the
+        # FIXME: this is kind of an abuse of display because the
         # text format and json converter are doing their own thing, not really
         # interacting with the "response data" (None). Is there a better way of
         # handling this?
-        formatted_print(None, text_format=_custom_text, json_converter=json_converter)
+        display(None, text_mode=_custom_text, json_converter=json_converter)
 
     else:
         res = transfer_client.cancel_task(task_id)
-        formatted_print(res, text_format=FORMAT_TEXT_RAW, response_key="message")
+        display(res, text_mode=TextMode.text_raw, response_key="message")

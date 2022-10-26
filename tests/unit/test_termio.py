@@ -4,13 +4,7 @@ import re
 import click
 import pytest
 
-from globus_cli.termio import (
-    FORMAT_TEXT_RECORD_LIST,
-    Field,
-    field_formatters,
-    formatted_print,
-    term_is_interactive,
-)
+from globus_cli.termio import Field, TextMode, display, formatters, term_is_interactive
 
 
 @pytest.mark.parametrize(
@@ -47,7 +41,7 @@ def test_format_record_list(capsys):
     ]
     fields = [Field("Bird", "bird"), Field("Wingspan", "wingspan")]
     with click.Context(click.Command("fake-command")) as _:
-        formatted_print(data, text_format=FORMAT_TEXT_RECORD_LIST, fields=fields)
+        display(data, text_mode=TextMode.text_record_list, fields=fields)
     output = capsys.readouterr().out
     # Should have:
     # 5 lines in total,
@@ -66,24 +60,24 @@ def test_dot_nested_field_lookup():
 
 
 def test_date_format():
-    f = Field("foo", "foo", formatter=field_formatters.Date)
+    f = Field("foo", "foo", formatter=formatters.Date)
     assert f({"foo": None}) == "None"
     assert f({"foo": "2022-04-05T16:27:48.805427"}) == "2022-04-05 16:27:48"
 
 
 def test_bool_format():
-    f = Field("foo", "foo", formatter=field_formatters.Bool)
+    f = Field("foo", "foo", formatter=formatters.Bool)
     assert f({"foo": None}) == "None"
     assert f({}) == "None"
     assert f({"foo": True}) == "True"
     assert f({"foo": False}) == "False"
 
-    with pytest.warns(field_formatters.FormattingFailedWarning):
+    with pytest.warns(formatters.FormattingFailedWarning):
         assert f({"foo": "hi there"}) == "hi there"
 
 
 def test_fuzzy_bool_format():
-    f = Field("foo", "foo", formatter=field_formatters.FuzzyBool)
+    f = Field("foo", "foo", formatter=formatters.FuzzyBool)
     assert f({"foo": None}) == "False"
     assert f({}) == "False"
     assert f({"foo": True}) == "True"
