@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 import json
 import typing as t
 import uuid
@@ -72,7 +74,7 @@ def task_event_list(
     task_id: uuid.UUID,
     limit: int,
     filter_errors: bool,
-    filter_non_errors: bool
+    filter_non_errors: bool,
 ):
     """
     This command shows the recent events for a running task.
