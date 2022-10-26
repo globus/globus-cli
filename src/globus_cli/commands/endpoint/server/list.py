@@ -9,7 +9,7 @@ from globus_cli.parsing import command, endpoint_id_arg
 from globus_cli.termio import Field, TextMode, display, formatters
 
 
-class ServerURIFormatter(formatters.StrFieldFormatter):
+class ServerURIFormatter(formatters.StrFormatter):
     parse_null_values = True
 
     def parse(self, value: t.Any) -> str:

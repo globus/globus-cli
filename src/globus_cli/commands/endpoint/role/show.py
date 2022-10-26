@@ -1,23 +1,10 @@
 from __future__ import annotations
 
-import typing as t
-
 from globus_cli.login_manager import LoginManager
 from globus_cli.parsing import command, endpoint_id_arg
 from globus_cli.termio import Field, TextMode, display, formatters
 
 from ._common import role_id_arg
-
-if t.TYPE_CHECKING:
-    from globus_cli.services.auth import CustomAuthClient
-
-
-class _SimplePrincipalFormatter(formatters.StrFieldFormatter):
-    def __init__(self, auth_client: CustomAuthClient) -> None:
-        self.auth_client = auth_client
-
-    def render(self, value: str) -> str:
-        return str(self.auth_client.lookup_identity_name(value))
 
 
 @command(
@@ -65,7 +52,7 @@ def role_show(*, login_manager: LoginManager, endpoint_id, role_id):
             Field(
                 "Principal",
                 "principal",
-                formatter=_SimplePrincipalFormatter(auth_client),
+                formatter=formatters.IdentityFormatter(auth_client),
             ),
             Field("Role", "role"),
         ],

@@ -58,7 +58,5 @@ def group_create_and_update_params(
 SESSION_ENFORCEMENT_FIELD = Field(
     "Session Enforcement",
     "enforce_session",
-    formatter=formatters.FuzzyBoolFieldFormatter(
-        true_str="strict", false_str="not strict"
-    ),
+    formatter=formatters.FuzzyBoolFormatter(true_str="strict", false_str="not strict"),
 )

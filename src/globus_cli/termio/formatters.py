@@ -27,13 +27,30 @@ class FieldFormatter(abc.ABC, t.Generic[T]):
 
     @abc.abstractmethod
     def parse(self, value: t.Any) -> T:
-        ...
+        """
+        The `parse()` step is responsible for producing well-formed data for a field.
+        For example, parsing may convert a dictionary or mapping to a tuple by pulling
+        out the relevant fields and checking their types.
+
+        If parsing fails for any reason, it should raise a ValueError.
+        """
 
     @abc.abstractmethod
     def render(self, value: T) -> str:
-        ...
+        """
+        The `render()` step is responsible taking data which has already been parsed
+        and reshaped and converting it into a string.
+        For example, rendering may comma-join an array of strings into a
+        comma-delimited list.
+
+        If rendering fails for any reason, it should raise a ValueError.
+        """
 
     def format(self, value: t.Any) -> str:
+        """
+        Formatting data consists primarily of parsing and then rendering.
+        If either step fails, the default behavior warns and falls back on str().
+        """
         if value is None and self.parse_null_values is False:
             return "None"
         try:
@@ -44,7 +61,7 @@ class FieldFormatter(abc.ABC, t.Generic[T]):
             return str(value)
 
 
-class StrFieldFormatter(FieldFormatter[str]):
+class StrFormatter(FieldFormatter[str]):
     def parse(self, value: t.Any) -> str:
         return str(value)
 
@@ -52,7 +69,7 @@ class StrFieldFormatter(FieldFormatter[str]):
         return value
 
 
-class DateFieldFormatter(FieldFormatter[datetime.datetime]):
+class DateFormatter(FieldFormatter[datetime.datetime]):
     def parse(self, value: t.Any) -> datetime.datetime:
         return datetime.datetime.fromisoformat(value)
 
@@ -62,7 +79,7 @@ class DateFieldFormatter(FieldFormatter[datetime.datetime]):
         return value.astimezone().strftime("%Y-%m-%d %H:%M:%S")
 
 
-class BoolFieldFormatter(FieldFormatter[bool]):
+class BoolFormatter(FieldFormatter[bool]):
     def __init__(self, *, true_str: str = "True", false_str: str = "False") -> None:
         self.true_str = true_str
         self.false_str = false_str
@@ -78,7 +95,7 @@ class BoolFieldFormatter(FieldFormatter[bool]):
         return self.false_str
 
 
-class FuzzyBoolFieldFormatter(BoolFieldFormatter):
+class FuzzyBoolFormatter(BoolFormatter):
     parse_null_values = True
 
     def parse(self, value: t.Any) -> bool:
@@ -98,7 +115,7 @@ class SortedJsonFormatter(FieldFormatter[JSON]):
         return json.dumps(value, sort_keys=True)
 
 
-class StaticStringFormatter(StrFieldFormatter):
+class StaticStringFormatter(StrFormatter):
     def __init__(self, value: str) -> None:
         self.value = value
 
@@ -117,7 +134,7 @@ class ArrayFormatter(FieldFormatter[t.List[str]]):
         self.delimiter = delimiter
         self.sort = sort
         self.element_formatter: FieldFormatter = (
-            element_formatter if element_formatter is not None else StrFieldFormatter()
+            element_formatter if element_formatter is not None else StrFormatter()
         )
 
     def parse(self, value: t.Any) -> list[str]:
@@ -236,10 +253,10 @@ class ParentheticalDescriptionFormatter(FieldFormatter[t.Tuple[str, str]]):
         return f"{value[0]} ({value[1]})"
 
 
-Str = StrFieldFormatter()
-Date = DateFieldFormatter()
-Bool = BoolFieldFormatter()
-FuzzyBool = FuzzyBoolFieldFormatter()
+Str = StrFormatter()
+Date = DateFormatter()
+Bool = BoolFormatter()
+FuzzyBool = FuzzyBoolFormatter()
 SortedJson = SortedJsonFormatter()
 Array = ArrayFormatter()
 SortedArray = ArrayFormatter(sort=True)

@@ -18,17 +18,17 @@ from .delegate_proxy import fill_delegate_proxy_activation_requirements
 from .recursive_ls import RecursiveLsResponse
 
 
-class _DisplayNameFormatter(formatters.StrFieldFormatter):
+class _NameFormatter(formatters.StrFormatter):
     def parse(self, value: t.Any) -> str:
-        if not isinstance(value, dict):
-            raise ValueError("cannot parse display_name from non-dict data")
-        return str(value["display_name"] or value["canonical_name"])
+        if not isinstance(value, list) or len(value) != 2:
+            raise ValueError("cannot parse display_name from malformed data")
+        return str(value[0] or value[1])
 
 
 ENDPOINT_LIST_FIELDS = [
     Field("ID", "id"),
     Field("Owner", "owner_string"),
-    Field("Display Name", "@", formatter=_DisplayNameFormatter()),
+    Field("Display Name", "[display_name, canonical_name]", formatter=_NameFormatter()),
 ]
 
 

@@ -9,7 +9,7 @@ from globus_cli.parsing import ENDPOINT_PLUS_OPTPATH, command
 from globus_cli.termio import Field, display, formatters, is_verbose, outformat_is_text
 
 
-class PathItemFormatter(formatters.StrFieldFormatter):
+class PathItemFormatter(formatters.StrFormatter):
     def parse(self, data: t.Any) -> str:
         if not isinstance(data, dict):
             raise ValueError("cannot parse path item which is not a dict")

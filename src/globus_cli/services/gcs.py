@@ -76,7 +76,7 @@ def connector_id_to_display_name(connector_id: str) -> str:
     return display_name
 
 
-class ConnectorIdFormatter(formatters.StrFieldFormatter):
+class ConnectorIdFormatter(formatters.StrFormatter):
     def parse(self, value: t.Any) -> str:
         if not isinstance(value, str):
             raise ValueError("bad connector ID")

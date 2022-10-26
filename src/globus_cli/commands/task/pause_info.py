@@ -47,7 +47,7 @@ PAUSE_RULE_DISPLAY_FIELDS = [
     Field(
         "All Users",
         "identity_id",
-        formatter=formatters.BoolFieldFormatter(true_str="No", false_str="Yes"),
+        formatter=formatters.BoolFormatter(true_str="No", false_str="Yes"),
     ),
     Field("Message", "message"),
 ]

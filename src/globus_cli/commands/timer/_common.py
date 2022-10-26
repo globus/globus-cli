@@ -17,7 +17,7 @@ DATETIME_FORMATS = [
 ]
 
 
-class CallbackActionTypeFormatter(formatters.StrFieldFormatter):
+class CallbackActionTypeFormatter(formatters.StrFormatter):
     def render(self, value: str) -> str:
         url = urlparse(value)
         if (

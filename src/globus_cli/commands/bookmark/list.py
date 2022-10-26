@@ -5,7 +5,7 @@ from globus_cli.parsing import command
 from globus_cli.termio import Field, display, formatters
 
 
-class EndpointIdToNameFormatter(formatters.StrFieldFormatter):
+class EndpointIdToNameFormatter(formatters.StrFormatter):
     def __init__(self, client: globus_sdk.TransferClient) -> None:
         self.client = client
 

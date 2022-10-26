@@ -1,36 +1,14 @@
 from __future__ import annotations
 
-import typing as t
 import uuid
 
 import click
 
 from globus_cli.login_manager import LoginManager
 from globus_cli.parsing import command, endpoint_id_arg
-from globus_cli.termio import Field, TextMode, display, formatters
+from globus_cli.termio import Field, TextMode, display
 
-if t.TYPE_CHECKING:
-    from globus_cli.services.auth import CustomAuthClient
-
-
-class AclPrincipalFormatter(formatters.FieldFormatter[t.Tuple[str, str]]):
-    def __init__(self, auth_client: CustomAuthClient):
-        self.auth_client = auth_client
-
-    def parse(self, value: t.Any) -> tuple[str, str]:
-        if not isinstance(value, dict):
-            raise ValueError("bad value for ACL principal, not a dict")
-
-        return (str(value.get("principal_type")), str(value.get("principal")))
-
-    def render(self, value: tuple[str, str]) -> str:
-        principal_type, principal = value
-        if principal_type == "identity":
-            return str(self.auth_client.lookup_identity_name(principal))
-        elif principal_type == "group":
-            return f"https://app.globus.org/groups/{principal}"
-        else:
-            return principal_type
+from ._common import AclPrincipalFormatter
 
 
 @command(
