@@ -6,15 +6,14 @@ import typing as t
 from .base import FieldFormatter
 from .primitive import StrFormatter
 
-JSON = t.Union[dict, list, str, int, float, bool, None]
+JSON = t.Union[None, bool, dict, float, int, list, str]
 
 
 class SortedJsonFormatter(FieldFormatter[JSON]):
+    parse_null_values = True
+
     def parse(self, value: t.Any) -> JSON:
-        # mypy seems to not handle this tuple passed to isinstance correctly
-        if isinstance(
-            value, (dict, list, int, str, float, None)  # type: ignore[arg-type]
-        ):
+        if value is None or isinstance(value, (bool, dict, float, int, list, str)):
             return t.cast(JSON, value)
         raise ValueError("bad JSON value")
 

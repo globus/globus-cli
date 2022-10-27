@@ -4,7 +4,7 @@ import re
 import click
 import pytest
 
-from globus_cli.termio import Field, TextMode, display, formatters, term_is_interactive
+from globus_cli.termio import Field, TextMode, display, term_is_interactive
 
 
 @pytest.mark.parametrize(
@@ -49,37 +49,3 @@ def test_format_record_list(capsys):
     # and one empty line between the records
     assert "" in output.splitlines()
     assert re.match(r"Bird:\s+Killdeer", output)
-
-
-def test_dot_nested_field_lookup():
-    nested_field = Field("foobarbaz", "foo.bar.baz")
-    assert nested_field.get_value({"foo": {}}) is None
-    assert nested_field.get_value({"foo": {"bar": {}}}) is None
-    assert nested_field.get_value({"foo": {"bar": {"baz": None}}}) is None
-    assert nested_field.get_value({"foo": {"bar": {"baz": "buzz"}}}) == "buzz"
-
-
-def test_date_format():
-    f = Field("foo", "foo", formatter=formatters.Date)
-    assert f({"foo": None}) == "None"
-    assert f({"foo": "2022-04-05T16:27:48.805427"}) == "2022-04-05 16:27:48"
-
-
-def test_bool_format():
-    f = Field("foo", "foo", formatter=formatters.Bool)
-    assert f({"foo": None}) == "None"
-    assert f({}) == "None"
-    assert f({"foo": True}) == "True"
-    assert f({"foo": False}) == "False"
-
-    with pytest.warns(formatters.FormattingFailedWarning):
-        assert f({"foo": "hi there"}) == "hi there"
-
-
-def test_fuzzy_bool_format():
-    f = Field("foo", "foo", formatter=formatters.FuzzyBool)
-    assert f({"foo": None}) == "False"
-    assert f({}) == "False"
-    assert f({"foo": True}) == "True"
-    assert f({"foo": False}) == "False"
-    assert f({"foo": "hi there"}) == "True"
