@@ -11,6 +11,9 @@ import globus_sdk
 T = t.TypeVar("T")
 JSON = t.Union[dict, list, str, int, float, bool, None]
 
+_IDENTITY_URN_PREFIX = "urn:globus:auth:identity:"
+_GROUP_URN_PREFIX = "urn:globus:groups:id:"
+
 
 class FormattingFailedWarning(UserWarning):
     pass
@@ -150,92 +153,92 @@ class ArrayFormatter(FieldFormatter[t.List[str]]):
         return self.delimiter.join(value)
 
 
-class PrincipalWithTypeKeyFormatter(FieldFormatter[t.Tuple[str, str, str]]):
-    def __init__(
-        self,
-        auth_client: globus_sdk.AuthClient,
-        *,
-        type_key: str = "principal_type",
-        value_key: str = "principal",
-        values_are_urns: bool = True,
-        group_format_str: str = "Globus Group ({group_id})",
-    ) -> None:
-        self.type_key = type_key
-        self.value_key = value_key
-        self.values_are_urns = values_are_urns
-        self.group_format_str = group_format_str
-        self.resolved_ids = globus_sdk.IdentityMap(auth_client)
+class PrincipalFormatter(FieldFormatter[t.Tuple[str, str]]):
+    """
+    PrincipalFormatters work over (principal, type) tuples.
 
-    def _parse_unresolved_principal(self, value: str) -> str:
-        if self.values_are_urns:
-            return value.split(":")[-1]
-        return value
+    a "principal" could be an identity ID, a group ID, an identity URN, or a
+        special-cased value
 
-    def add_items(self, items: t.Iterable[t.Mapping[str, t.Any]]) -> None:
-        for x in items:
-            if x.get(self.type_key) != "identity":
-                continue
-            self.resolved_ids.add(
-                self._parse_unresolved_principal(t.cast(str, x[self.value_key]))
-            )
+    a "type" is typically a well-known string which instructs the formatter how to
+        do rendering like "group" or "identity"
 
-    def parse(self, value: t.Any) -> tuple[str, str, str]:
-        if not isinstance(value, dict):
-            raise ValueError("cannot format principal from non-dict data")
+    The base class defines three rendering cases:
+      - identity
+      - group
+      - fallback
+    """
 
-        unparsed_principal = t.cast(str, value[self.value_key])
-
-        return (
-            value[self.type_key],
-            self._parse_unresolved_principal(unparsed_principal),
-            unparsed_principal,
-        )
-
-    def render(self, value: tuple[str, str, str]) -> str:
-        parsed_type, parsed_value, fallback = value
-        if parsed_type == "identity":
-            try:
-                return t.cast(str, self.resolved_ids[parsed_value]["username"])
-            except LookupError:
-                return parsed_value
-        elif parsed_type == "group":
-            return self.group_format_str.format(group_id=parsed_value)
-        else:
-            return fallback
-
-
-# IdentityFormatters work over (principal, is_valid) tuples so that subclasses can
-# override parse() to opt-out of the identity lookups in the render() phase
-class IdentityFormatter(FieldFormatter[t.Tuple[str, bool]]):
     def __init__(self, auth_client: globus_sdk.AuthClient):
         self.auth_client = auth_client
         self.resolved_ids = globus_sdk.IdentityMap(auth_client)
 
-    def parse(self, value: t.Any) -> tuple[str, bool]:
-        if not isinstance(value, str):
-            raise ValueError("non-str identity value")
-        return (value, True)
+    def render_identity_id(self, identity_id: str) -> str:
+        try:
+            return t.cast(str, self.resolved_ids[identity_id]["username"])
+        except LookupError:
+            return identity_id
 
-    def render(self, value: tuple[str, bool]) -> str:
-        principal, is_valid = value
+    def render_group_id(self, group_id: str) -> str:
+        return f"Globus Group ({group_id})"
 
-        if is_valid:
-            try:
-                return t.cast(str, self.resolved_ids[principal]["username"])
-            except LookupError:
-                pass
+    def fallback_rendering(self, principal: str, principal_type: str) -> str:
         return principal
 
+    # the base PrincipalFormatter cannot be instantiated because parse() is variable
+    # by the exact type of data being read
+    @abc.abstractmethod
+    def parse(self, value: t.Any) -> tuple[str, str]:
+        ...
 
-class IdentityURNFormatter(IdentityFormatter):
-    _urn_prefix = "urn:globus:auth:identity:"
+    def add_item(self, value: t.Any) -> None:
+        try:
+            principal, principal_type = self.parse(value)
+        except ValueError:
+            pass
+        else:
+            if principal_type == "identity":
+                self.resolved_ids.add(principal)
 
-    def parse(self, value: t.Any) -> tuple[str, bool]:
+    def render(self, value: tuple[str, str]) -> str:
+        principal, principal_type = value
+
+        if principal_type == "identity":
+            return self.render_identity_id(principal)
+        elif principal_type == "group":
+            return self.render_group_id(principal)
+        else:
+            return self.fallback_rendering(principal, principal_type)
+
+
+class IdentityStrFormatter(PrincipalFormatter):
+    def parse(self, value: t.Any) -> tuple[str, str]:
         if not isinstance(value, str):
             raise ValueError("non-str identity value")
-        if value.startswith(self._urn_prefix):
-            return (value[len(self._urn_prefix) :], True)
-        return (value, False)
+        return (value, "identity")
+
+
+class PrincipalURNFormatter(PrincipalFormatter):
+    def parse(self, value: t.Any) -> tuple[str, str]:
+        if not isinstance(value, str):
+            raise ValueError("non-str principal URN value")
+        if value.startswith(_IDENTITY_URN_PREFIX):
+            return (value[len(_IDENTITY_URN_PREFIX) :], "identity")
+        if value.startswith(_GROUP_URN_PREFIX):
+            return (value[len(_GROUP_URN_PREFIX) :], "group")
+        return (value, "fallback")
+
+
+class PrincipalDictFormatter(PrincipalFormatter):
+    def parse(self, value: t.Any) -> tuple[str, str]:
+        if not isinstance(value, dict):
+            raise ValueError("cannot format principal from non-dict data")
+
+        principal = t.cast(str, value["principal"])
+        principal_type = t.cast(str, value["principal_type"])
+        if principal_type in ("identity", "group"):
+            return (principal, principal_type)
+        return (principal, "fallback")
 
 
 class ParentheticalDescriptionFormatter(FieldFormatter[t.Tuple[str, str]]):

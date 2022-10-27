@@ -21,7 +21,7 @@ def _get_standard_fields(auth_client: globus_sdk.AuthClient) -> list[Field]:
         Field(
             "Owner",
             "identity_id",
-            formatter=formatters.IdentityFormatter(auth_client),
+            formatter=formatters.IdentityStrFormatter(auth_client),
         ),
         Field("ID", "id"),
         Field("Collection Type", "collection_type"),

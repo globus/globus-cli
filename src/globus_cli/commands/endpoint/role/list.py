@@ -2,7 +2,9 @@ import uuid
 
 from globus_cli.login_manager import LoginManager
 from globus_cli.parsing import command, endpoint_id_arg
-from globus_cli.termio import Field, display, formatters
+from globus_cli.termio import Field, display
+
+from ._common import RolePrincipalFormatter
 
 
 @command(
@@ -38,12 +40,9 @@ def role_list(*, login_manager: LoginManager, endpoint_id: uuid.UUID):
     transfer_client = login_manager.get_transfer_client()
     roles = transfer_client.endpoint_role_list(endpoint_id)
 
-    formatter = formatters.PrincipalWithTypeKeyFormatter(
-        login_manager.get_auth_client(),
-        values_are_urns=False,
-        group_format_str="https://app.globus.org/groups/{group_id}",
-    )
-    formatter.add_items(roles)
+    formatter = RolePrincipalFormatter(login_manager.get_auth_client())
+    for r in roles:
+        formatter.add_item(r)
 
     display(
         roles,

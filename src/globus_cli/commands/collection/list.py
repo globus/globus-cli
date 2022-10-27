@@ -103,7 +103,9 @@ def collection_list(
             Field(
                 "Owner",
                 "identity_id",
-                formatter=formatters.IdentityFormatter(login_manager.get_auth_client()),
+                formatter=formatters.IdentityStrFormatter(
+                    login_manager.get_auth_client()
+                ),
             ),
             Field("Collection Type", "collection_type"),
             Field("Storage Gateway ID", "storage_gateway_id"),

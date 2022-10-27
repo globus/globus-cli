@@ -2,9 +2,9 @@ from __future__ import annotations
 
 from globus_cli.login_manager import LoginManager
 from globus_cli.parsing import command, endpoint_id_arg
-from globus_cli.termio import Field, TextMode, display, formatters
+from globus_cli.termio import Field, TextMode, display
 
-from ._common import role_id_arg
+from ._common import RolePrincipalFormatter, role_id_arg
 
 
 @command(
@@ -42,6 +42,7 @@ def role_show(*, login_manager: LoginManager, endpoint_id, role_id):
     """
     transfer_client = login_manager.get_transfer_client()
     auth_client = login_manager.get_auth_client()
+    formatter = RolePrincipalFormatter(auth_client)
 
     role = transfer_client.get_endpoint_role(endpoint_id, role_id)
     display(
@@ -49,11 +50,7 @@ def role_show(*, login_manager: LoginManager, endpoint_id, role_id):
         text_mode=TextMode.text_record,
         fields=[
             Field("Principal Type", "principal_type"),
-            Field(
-                "Principal",
-                "principal",
-                formatter=formatters.IdentityFormatter(auth_client),
-            ),
+            Field("Principal", "@", formatter=formatter),
             Field("Role", "role"),
         ],
     )

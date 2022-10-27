@@ -28,7 +28,7 @@ def user_credential_show(
         Field(
             "Globus Identity",
             "identity_id",
-            formatter=formatters.IdentityFormatter(login_manager.get_auth_client()),
+            formatter=formatters.IdentityStrFormatter(login_manager.get_auth_client()),
         ),
         Field("Local Username", "username"),
         Field("Connector", "connector_id", formatter=ConnectorIdFormatter()),

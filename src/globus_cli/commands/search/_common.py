@@ -20,11 +20,12 @@ def resolved_principals_field(
     auth_client: globus_sdk.AuthClient,
     items: t.Iterable[dict[str, t.Any]] | None = None,
 ) -> Field:
-    formatter = formatters.PrincipalWithTypeKeyFormatter(auth_client)
+    formatter = formatters.PrincipalURNFormatter(auth_client)
     if items is not None:
-        formatter.add_items(items)
+        for item in items:
+            formatter.add_item(item)
 
-    return Field("Principal", "@", formatter=formatter)
+    return Field("Principal", "principal", formatter=formatter)
 
 
 INDEX_FIELDS = [

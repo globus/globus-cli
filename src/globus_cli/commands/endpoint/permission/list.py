@@ -28,12 +28,9 @@ def list_command(*, login_manager: LoginManager, endpoint_id: uuid.UUID):
 
     rules = transfer_client.endpoint_acl_list(endpoint_id)
 
-    formatter = AclPrincipalFormatter(
-        auth_client,
-        values_are_urns=False,
-        group_format_str="https://app.globus.org/groups/{group_id}",
-    )
-    formatter.add_items(rules)
+    formatter = AclPrincipalFormatter(auth_client)
+    for r in rules:
+        formatter.add_item(r)
 
     display(
         rules,
