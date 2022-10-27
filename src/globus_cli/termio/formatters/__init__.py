@@ -39,9 +39,5 @@ __all__ = (
     "SortedJson",
     "Array",
     "SortedArray",
-    # directly re-expose this submodule as an attribute, allowing
-    #   from globus_cli.termio import formatters
-    #   ...
-    #   x = formatters.auth.Foo()
     "auth",
 )
