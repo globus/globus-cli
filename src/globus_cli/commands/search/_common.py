@@ -20,7 +20,7 @@ def resolved_principals_field(
     auth_client: globus_sdk.AuthClient,
     items: t.Iterable[dict[str, t.Any]] | None = None,
 ) -> Field:
-    formatter = formatters.PrincipalURNFormatter(auth_client)
+    formatter = formatters.auth.PrincipalURNFormatter(auth_client)
     if items is not None:
         for item in items:
             formatter.add_item(item)

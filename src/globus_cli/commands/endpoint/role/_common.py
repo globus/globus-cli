@@ -3,7 +3,7 @@ import click
 from globus_cli.termio import formatters
 
 
-class RolePrincipalFormatter(formatters.PrincipalDictFormatter):
+class RolePrincipalFormatter(formatters.auth.PrincipalDictFormatter):
     def render_group_id(self, group_id: str) -> str:
         return f"https://app.globus.org/groups/{group_id}"
 

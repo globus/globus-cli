@@ -57,7 +57,9 @@ def list_command(
         Field(
             "Owner",
             "flow_owner",
-            formatter=formatters.PrincipalURNFormatter(login_manager.get_auth_client()),
+            formatter=formatters.auth.PrincipalURNFormatter(
+                login_manager.get_auth_client()
+            ),
         ),
         Field("Created At", "created_at", formatter=formatters.Date),
         Field("Updated At", "updated_at", formatter=formatters.Date),

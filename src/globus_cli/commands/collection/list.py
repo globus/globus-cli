@@ -85,6 +85,7 @@ def collection_list(
     List the Collections on a given Globus Connect Server v5 Endpoint
     """
     gcs_client = login_manager.get_gcs_client(endpoint_id=endpoint_id)
+    auth_client = login_manager.get_auth_client()
     params = {}
     if mapped_collection_id:
         params["mapped_collection_id"] = mapped_collection_id
@@ -103,9 +104,7 @@ def collection_list(
             Field(
                 "Owner",
                 "identity_id",
-                formatter=formatters.IdentityStrFormatter(
-                    login_manager.get_auth_client()
-                ),
+                formatter=formatters.auth.IdentityIDFormatter(auth_client),
             ),
             Field("Collection Type", "collection_type"),
             Field("Storage Gateway ID", "storage_gateway_id"),

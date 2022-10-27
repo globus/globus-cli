@@ -22,13 +22,16 @@ def user_credential_show(
     """
     from globus_cli.services.gcs import ConnectorIdFormatter
 
+    gcs_client = login_manager.get_gcs_client(endpoint_id=endpoint_id)
+    auth_client = login_manager.get_auth_client()
+
     fields = [
         Field("ID", "id"),
         Field("Display Name", "display_name"),
         Field(
             "Globus Identity",
             "identity_id",
-            formatter=formatters.IdentityStrFormatter(login_manager.get_auth_client()),
+            formatter=formatters.auth.IdentityIDFormatter(auth_client),
         ),
         Field("Local Username", "username"),
         Field("Connector", "connector_id", formatter=ConnectorIdFormatter()),
@@ -36,8 +39,6 @@ def user_credential_show(
         Field("Provisioned", "provisioned"),
         Field("Policies", "policies", formatter=formatters.SortedJson),
     ]
-
-    gcs_client = login_manager.get_gcs_client(endpoint_id=endpoint_id)
 
     res = gcs_client.get_user_credential(user_credential_id)
     display(res, text_mode=TextMode.text_record, fields=fields)

@@ -32,6 +32,7 @@ def user_credential_list(
     List the User Credentials on a given Globus Connect Server v5 Endpoint
     """
     gcs_client = login_manager.get_gcs_client(endpoint_id=endpoint_id)
+    auth_client = login_manager.get_auth_client()
     res = gcs_client.get_user_credential_list(storage_gateway=storage_gateway)
     fields = [
         Field("ID", "id"),
@@ -39,7 +40,7 @@ def user_credential_list(
         Field(
             "Globus Identity",
             "identity_id",
-            formatter=formatters.IdentityStrFormatter(login_manager.get_auth_client()),
+            formatter=formatters.auth.IdentityIDFormatter(auth_client),
         ),
         Field("Local Username", "username"),
         Field("Invalid", "invalid"),
