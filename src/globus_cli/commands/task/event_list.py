@@ -28,6 +28,9 @@ class SquashedJsonFormatter(formatters.FieldFormatter[t.Tuple[t.Any, bool]]):
 
         return (loaded, is_json)
 
+    # TODO: reassess this rendering method
+    # the JSON side of it is okay, but the newline munging is questionable and doesn't
+    # handle other control characters
     def render(self, value: tuple[t.Any, bool]) -> str:
         data, is_json = value
         if is_json:
