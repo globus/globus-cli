@@ -16,6 +16,8 @@ class StrFormatter(FieldFormatter[str]):
 
 class DateFormatter(FieldFormatter[datetime.datetime]):
     def parse(self, value: t.Any) -> datetime.datetime:
+        if not isinstance(value, str):
+            raise ValueError("cannot parse date from non-str value")
         return datetime.datetime.fromisoformat(value)
 
     def render(self, value: datetime.datetime) -> str:
