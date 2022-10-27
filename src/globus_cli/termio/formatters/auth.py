@@ -37,6 +37,8 @@ class PrincipalFormatter(FieldFormatter[t.Tuple[str, str]]):
         except LookupError:
             return identity_id
 
+    # TODO: re-assess Group rendering in the CLI
+    # see also: any overrides for this function for other formatters
     def render_group_id(self, group_id: str) -> str:
         return f"Globus Group ({group_id})"
 
