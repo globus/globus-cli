@@ -10,7 +10,7 @@ from globus_cli.parsing import (
     mutex_option_group,
     one_use_option,
 )
-from globus_cli.termio import Field, TextMode, display
+from globus_cli.termio import Field, TextMode, display, print_command_hint
 
 from ._common import endpoint_create_params, validate_endpoint_create_and_update_params
 
@@ -19,32 +19,7 @@ COMMON_FIELDS = [Field("Message", "message"), Field("Endpoint ID", "id")]
 GCP_FIELDS = [Field("Setup Key", "globus_connect_setup_key")]
 
 
-@command(
-    "create",
-    short_help="Create a new endpoint",
-    adoc_examples="""Create a Globus Connect Personal endpoint:
-
-[source,bash]
-----
-$ globus endpoint create --personal my_gcp_endpoint
-----
-
-Create a Globus Connect Server endpoint:
-
-[source,bash]
-----
-$ globus endpoint create --server my_gcs_endpoint
-----
-
-Create a shared endpoint hosted on another endpoint:
-
-[source,bash]
-----
-$ host_ep=ddb59aef-6d04-11e5-ba46-22000b92c6ec
-$ globus endpoint create --shared host_ep:~/ my_shared_endpoint
-----
-""",
-)
+@command("create", hidden=True)
 @endpointish_create_and_update_params("create")
 @endpoint_create_params
 @one_use_option(
@@ -83,10 +58,11 @@ def endpoint_create(
     **kwargs: t.Any,
 ) -> None:
     """
-    Create a new endpoint. (deprecated)
-
+    WARNING:
     This command is deprecated. Either `globus gcp create` or the Globus Connect Server
-    CLI should be used instead for most cases.
+    CLI should be used instead.
+
+    Create a new endpoint.
 
     Requires a display name and exactly one of --personal, --server, or --shared to make
     a Globus Connect Personal, Globus Connect Server, or Shared endpoint respectively.
@@ -96,6 +72,17 @@ def endpoint_create(
     Globus Connect Personal during setup.
     """
     from globus_cli.services.transfer import assemble_generic_doc, autoactivate
+
+    print_command_hint(
+        """\
+WARNING: This command is deprecated!
+
+For GCP, use one of the following replacements instead:
+    globus gcp create mapped
+    globus gcp create guest
+
+For GCS, use the globus-connect-server CLI from your Endpoint."""
+    )
 
     transfer_client = login_manager.get_transfer_client()
 
