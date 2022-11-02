@@ -57,37 +57,6 @@ def common_options(
     return f
 
 
-def collection_id_arg(f: t.Callable | None = None, *, metavar: str = "COLLECTION_ID"):
-    if f is None:
-        return functools.partial(collection_id_arg, metavar=metavar)
-    return click.argument("collection_id", metavar=metavar, type=click.UUID)(f)
-
-
-def endpoint_id_arg(f: t.Callable | None = None, *, metavar: str = "ENDPOINT_ID"):
-    """
-    This is the `ENDPOINT_ID` argument consumed by many Transfer and GCS
-    endpoint related operations. It accepts alternate metavars for cases
-    when another name is desirable (e.x. `SHARE_ID`, `HOST_ENDPOINT_ID`), but
-    can also be applied as a direct decorator if no specialized metavar is
-    being passed.
-
-    Usage:
-
-    >>> @endpoint_id_arg
-    >>> def command_func(endpoint_id):
-    >>>     ...
-
-    or
-
-    >>> @endpoint_id_arg(metavar='HOST_ENDPOINT_ID')
-    >>> def command_func(endpoint_id):
-    >>>     ...
-    """
-    if f is None:
-        return functools.partial(endpoint_id_arg, metavar=metavar)
-    return click.argument("endpoint_id", metavar=metavar, type=click.UUID)(f)
-
-
 def task_notify_option(f: C) -> C:
     def notify_opt_callback(ctx, param, value):
         """

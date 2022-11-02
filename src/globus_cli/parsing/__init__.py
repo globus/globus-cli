@@ -16,9 +16,7 @@ from .param_types import (
     nullable_multi_callback,
 )
 from .shared_options import (
-    collection_id_arg,
     delete_and_rm_options,
-    endpoint_id_arg,
     no_local_server_option,
     security_principal_opts,
     synchronous_task_wait_options,
@@ -28,6 +26,7 @@ from .shared_options import (
 from .shared_options.endpoint_create_and_update import (
     endpointish_create_and_update_params,
 )
+from .shared_options.id_args import collection_id_arg, endpoint_id_arg, flow_id_arg
 from .shared_options.transfer_task_options import (
     encrypt_data_option,
     fail_on_quota_errors_option,
@@ -61,9 +60,10 @@ __all__ = [
     "mutex_option_group",
     "nullable_multi_callback",
     "one_use_option",
-    # Transfer options
+    # shared options
     "collection_id_arg",
     "endpoint_id_arg",
+    "flow_id_arg",
     "task_submission_options",
     "delete_and_rm_options",
     "synchronous_task_wait_options",

@@ -5,6 +5,7 @@ from globus_cli.parsing import group
     "flows",
     lazy_subcommands={
         "list": (".list", "list_command"),
+        "delete": (".delete", "delete_command"),
     },
 )
 def flows_command():
