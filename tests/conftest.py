@@ -80,8 +80,14 @@ def mock_login_token_response():
     mock_token_res.by_resource_server = {
         "auth.globus.org": _mock_token_response_data(
             "auth.globus.org",
-            "openid profile email "
-            "urn:globus:auth:scope:auth.globus.org:view_identity_set",
+            " ".join(
+                [
+                    "openid",
+                    "profile",
+                    "email",
+                    "urn:globus:auth:scope:auth.globus.org:view_identity_set",
+                ]
+            ),
         ),
         "transfer.api.globus.org": _mock_token_response_data(
             "transfer.api.globus.org",
@@ -133,6 +139,12 @@ def test_token_storage(mock_login_token_response):
     mockstore.store_config(
         "auth_client_data",
         {"client_id": "fakeClientIDString", "client_secret": "fakeClientSecret"},
+    )
+    # NB: this carefully matches the ID provided by our "foo_user_info" data fixture
+    # in the future, this should be moved to a dedicated fixture providing the current
+    # user's identity ID
+    mockstore.store_config(
+        "auth_user_data", {"sub": "25de0aed-aa83-4600-a1be-a62a910af116"}
     )
     mockstore.store(mock_login_token_response)
     return mockstore

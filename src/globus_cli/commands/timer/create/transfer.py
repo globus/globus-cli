@@ -9,7 +9,11 @@ import click
 import globus_sdk
 
 from globus_cli.endpointish import Endpointish
-from globus_cli.login_manager import LoginManager
+from globus_cli.login_manager import (
+    LoginManager,
+    is_client_login,
+    read_well_known_config,
+)
 from globus_cli.parsing import (
     ENDPOINT_PLUS_OPTPATH,
     TimedeltaType,
@@ -32,11 +36,6 @@ if sys.version_info >= (3, 8):
     from typing import Literal
 else:
     from typing_extensions import Literal
-
-# XXX: this may need to be parametrized over data_access scopes?
-_TRANSFER_AP_SCOPE = (
-    "https://auth.globus.org/scopes/actions.globus.org/transfer/transfer"
-)
 
 
 INTERVAL_HELP = """\
@@ -96,7 +95,7 @@ def resolve_start_time(start: datetime.datetime | None) -> datetime.datetime:
     type=click.IntRange(min=1),
     help="Stop running the transfer after this number of runs have happened",
 )
-@LoginManager.requires_login("timer", "transfer")
+@LoginManager.requires_login("auth", "timer", "transfer")
 def transfer_command(
     *,
     login_manager: LoginManager,
@@ -130,6 +129,7 @@ def transfer_command(
     """
     from globus_cli.services.transfer import add_batch_to_transfer_data, autoactivate
 
+    auth_client = login_manager.get_auth_client()
     timer_client = login_manager.get_timer_client()
     transfer_client = login_manager.get_transfer_client()
 
@@ -162,9 +162,13 @@ def transfer_command(
 
     # Check endpoint activation, figure out scopes needed.
 
+    # the autoactivate helper may present output and exit in the case of v4 endpoints
+    # which need activation (e.g. OA4MP)
+    autoactivate(transfer_client, source_endpoint, if_expires_in=86400)
+    autoactivate(transfer_client, dest_endpoint, if_expires_in=86400)
+
     # check if either source or dest requires the data_access scope, and if so
-    # FIXME: hard fail for now (in the future, we should pick up on the requirement and
-    # generate a scope string to check against our logins)
+    # prompt the user to go through the requisite login flow
     source_epish = Endpointish(source_endpoint, transfer_client=transfer_client)
     dest_epish = Endpointish(dest_endpoint, transfer_client=transfer_client)
     needs_data_access: list[str] = []
@@ -172,20 +176,41 @@ def transfer_command(
         needs_data_access.append(str(source_endpoint))
     if dest_epish.requires_data_access_scope:
         needs_data_access.append(str(dest_endpoint))
+
+    # this list will only be populated *if* one of the two endpoints requires
+    # data_access, so if it's empty, we can skip any handling
     if needs_data_access:
-        raise click.UsageError(
-            "Unsupported operation. 'globus timer create transfer' does not currently "
-            "support collections which use the data_access scope: "
-            f"{','.join(needs_data_access)}"
-        )
+        # if the user is using client credentials, we cannot support the incremental
+        # auth step in the current implementation
+        #
+        # TODO: think through how we can use the client creds to request the
+        # requisite token in this case; it should be possible
+        if is_client_login():
+            raise click.UsageError(
+                "Unsupported operation. When using client credentials, "
+                "'globus timer create transfer' does not currently support "
+                "collections which use the data_access scope: "
+                f"{','.join(needs_data_access)}"
+            )
 
-    # Note this will provide help text on activating endpoints.
-    autoactivate(transfer_client, source_endpoint, if_expires_in=86400)
-    autoactivate(transfer_client, dest_endpoint, if_expires_in=86400)
+        request_data_access = _derive_needed_scopes(auth_client, needs_data_access)
 
-    # XXX: this section needs to be re-evaluated when 'timer create transfer' gets more
-    # capabilities to handle endpoints with scope requirements
-    # this would likely be the place to insert scope related checks
+        if request_data_access:
+            scope_request_opts = " ".join(
+                f"--timer-data-access '{target}'" for target in request_data_access
+            )
+            click.echo(
+                f"""\
+A collection you are trying to use in this timer requires you to grant consent
+for the Globus CLI to access it.
+
+Please run
+
+  globus session consent {scope_request_opts}
+
+to login with the required scopes"""
+            )
+            click.get_current_context().exit(4)
 
     transfer_data = globus_sdk.TransferData(
         source_endpoint=source_endpoint,
@@ -222,7 +247,98 @@ def transfer_command(
             name=name,
             stop_after=stop_after_date,
             stop_after_n=stop_after_runs,
-            scope=_TRANSFER_AP_SCOPE,
+            # the transfer AP scope string (without any dependencies)
+            scope="https://auth.globus.org/scopes/actions.globus.org/transfer/transfer",
         )
     )
     display(response, text_mode=TextMode.text_record, fields=JOB_FORMAT_FIELDS)
+
+
+def _derive_needed_scopes(
+    auth_client: globus_sdk.AuthClient,
+    needs_data_access: list[str],
+) -> list[str]:
+    from globus_sdk.scopes import GCSCollectionScopeBuilder
+
+    # read the identity ID stored from the login flow
+    # we will semi-gracefully handle the case of the data having been damaged/corrupted
+    user_data = read_well_known_config("auth_user_data")
+    if user_data is None:
+        raise RuntimeError(
+            "Identity ID was unexpectedly not visible in storage. "
+            "A new login should fix the issue. "
+            "Consider using `globus login --force`"
+        )
+    user_identity_id = user_data["sub"]
+
+    # get the user's Globus CLI consents
+    consents = auth_client.get(f"/v2/api/identities/{user_identity_id}/consents")[
+        "consents"
+    ]
+
+    # we need to now find the relevant consents which might match the data_access scopes
+    #
+    # this takes the form of a tree traversal
+    # the first parts of the tree should always be present, as they indicate the Timer
+    # consent which the CLI requests statically on login...
+
+    # find the top-level Timer consent
+    for consent in consents:
+        if (
+            consent["scope_name"] == globus_sdk.TimerClient.scopes.timer
+            and len(consent["dependency_path"]) == 1
+        ):
+            timer_consent = consent
+            break
+    else:
+        raise LookupError("could not find timer consent")
+
+    # find the Timer->TransferAP consent
+    first_order_dependencies = {
+        c["scope_name"]: c
+        for c in consents
+        if len(c["dependency_path"]) == 2
+        and timer_consent["id"] in c["dependency_path"]
+    }
+    timer2transferAP_consent = first_order_dependencies[
+        "https://auth.globus.org/scopes/actions.globus.org/transfer/transfer"
+    ]
+
+    # find the Timer->TransferAP->Transfer consent
+    second_order_dependencies = {
+        c["scope_name"]: c
+        for c in consents
+        if len(c["dependency_path"]) == 3
+        and timer_consent["id"] in c["dependency_path"]
+        and timer2transferAP_consent["id"] in c["dependency_path"]
+    }
+    timer2transferAP2transfer_consent = second_order_dependencies[
+        globus_sdk.TransferClient.scopes.all
+    ]
+
+    # find all of the Timer->TransferAP->Transfer->* consents
+    third_order_dependencies = {
+        c["scope_name"]: c
+        for c in consents
+        if len(c["dependency_path"]) == 4
+        and timer_consent["id"] in c["dependency_path"]
+        and timer2transferAP_consent["id"] in c["dependency_path"]
+        and timer2transferAP2transfer_consent["id"] in c["dependency_path"]
+    }
+
+    # in that last step, we reached the leaves of the tree
+    # (Okay, actually, that's a lie. We don't know what other values might exist
+    # further down in the tree. But luckily, it doesn't matter. We only care about the
+    # children of the node we've reached.)
+    # now we need to evaluate those leaves against our requirements
+
+    # check the 'needs_data_access' scope names against the 3rd-order dependencies
+    # of the Timer scope and record the names of the ones which we need to request
+    will_request_data_access: list[str] = []
+    for name in needs_data_access:
+        scope_name = GCSCollectionScopeBuilder(name).data_access
+        if scope_name not in third_order_dependencies:
+            will_request_data_access.append(name)
+
+    # return these ultimately filtered requirements
+    return will_request_data_access

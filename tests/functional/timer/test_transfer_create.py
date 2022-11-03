@@ -4,13 +4,58 @@ import uuid
 
 import globus_sdk
 import pytest
-from globus_sdk._testing import RegisteredResponse, get_last_request, load_response
+from globus_sdk._testing import (
+    RegisteredResponse,
+    get_last_request,
+    load_response,
+    load_response_set,
+)
+from globus_sdk.scopes import GCSCollectionScopeBuilder
 
 
-@pytest.fixture
-def non_ha_mapped_collection():
-    mapped_collection_id = "1405823f-0597-4a16-b296-46d4f0ae4b15"
-    client_id = "cf37806c-572c-47ff-88e2-511c646ef1a4"
+def setup_timer_consent_tree_response(identity_id, *data_access_collection_ids):
+    load_response(
+        RegisteredResponse(
+            service="auth",
+            path=f"/v2/api/identities/{identity_id}/consents",
+            method="GET",
+            json={
+                "consents": [
+                    {
+                        "scope_name": globus_sdk.TimerClient.scopes.timer,
+                        "dependency_path": [100],
+                        "id": 100,
+                    },
+                    {
+                        "scope_name": (
+                            "https://auth.globus.org/scopes/"
+                            "actions.globus.org/transfer/transfer"
+                        ),
+                        "dependency_path": [100, 101],
+                        "id": 101,
+                    },
+                    {
+                        "scope_name": globus_sdk.TransferClient.scopes.all,
+                        "dependency_path": [100, 101, 102],
+                        "id": 102,
+                    },
+                ]
+                + [
+                    {
+                        "scope_name": GCSCollectionScopeBuilder(name).data_access,
+                        "dependency_path": [100, 101, 102, 1000 + idx],
+                        "id": 1000 + idx,
+                    }
+                    for idx, name in enumerate(data_access_collection_ids)
+                ]
+            },
+        )
+    )
+
+
+def make_non_ha_mapped_collection():
+    mapped_collection_id = str(uuid.uuid4())
+    client_id = str(uuid.uuid4())
     load_response(
         RegisteredResponse(
             service="transfer",
@@ -58,6 +103,11 @@ def non_ha_mapped_collection():
         )
     )
     return mapped_collection_id
+
+
+@pytest.fixture
+def non_ha_mapped_collection():
+    return make_non_ha_mapped_collection()
 
 
 @pytest.fixture
@@ -278,10 +328,60 @@ def test_start_time_without_timezone_converts_to_have_tzinfo(
     assert sent_data["start"] == expect_value
 
 
-def test_timer_creation_rejects_data_access_requirement(
-    run_line, ep_for_timer, non_ha_mapped_collection
+@pytest.mark.parametrize("data_access_position", ["source", "destination", "both"])
+@pytest.mark.parametrize(
+    "has_matching_consent", ("neither", "source", "destination", "both")
+)
+def test_timer_creation_supports_data_access_on_source_or_dest(
+    run_line, ep_for_timer, data_access_position, has_matching_consent
 ):
-    # explicit timezone is preserved in the formatted data sent to the service
+    if data_access_position == "source":
+        src = make_non_ha_mapped_collection()
+        dst = ep_for_timer
+    elif data_access_position == "destination":
+        src = ep_for_timer
+        dst = make_non_ha_mapped_collection()
+    elif data_access_position == "both":
+        src = make_non_ha_mapped_collection()
+        dst = make_non_ha_mapped_collection()
+    else:
+        raise NotImplementedError
+
+    userinfo_meta = load_response_set("cli.foo_user_info").metadata
+    identity_id = userinfo_meta["user_id"]
+    # setup the consent tree response
+    if has_matching_consent == "neither":
+        setup_timer_consent_tree_response(identity_id)
+    elif has_matching_consent == "source":
+        setup_timer_consent_tree_response(identity_id, src)
+    elif has_matching_consent == "destination":
+        setup_timer_consent_tree_response(identity_id, dst)
+    elif has_matching_consent == "both":
+        setup_timer_consent_tree_response(identity_id, src, dst)
+    else:
+        raise NotImplementedError
+
+    # determine what we expect to happen
+    # successful submission or prompt?
+    # if there is a prompt, what should it contain?
+    appears_in_consent_prompt = []
+    if has_matching_consent == "both":
+        pass
+    elif has_matching_consent == "neither":
+        if data_access_position in ("source", "both"):
+            appears_in_consent_prompt.append(src)
+        if data_access_position in ("destination", "both"):
+            appears_in_consent_prompt.append(dst)
+    elif has_matching_consent == "source":
+        if data_access_position in ("destination", "both"):
+            appears_in_consent_prompt.append(dst)
+    elif has_matching_consent == "destination":
+        if data_access_position in ("source", "both"):
+            appears_in_consent_prompt.append(src)
+    else:
+        raise NotImplementedError
+    expect_consent_error = bool(appears_in_consent_prompt)
+
     result = run_line(
         [
             "globus",
@@ -289,13 +389,44 @@ def test_timer_creation_rejects_data_access_requirement(
             "create",
             "transfer",
             "--recursive",
-            f"{ep_for_timer}:/foo/",
-            f"{non_ha_mapped_collection}:/bar/",
+            f"{src}:/foo/",
+            f"{dst}:/bar/",
             "--interval",
             "60m",
-            "--start",
-            "2022-01-01T00:00:00-05:00",
+        ],
+        assert_exit_code=4 if expect_consent_error else 0,
+    )
+    if expect_consent_error:
+        scope_opts = " ".join(
+            f"--timer-data-access '{collection_id}'"
+            for collection_id in appears_in_consent_prompt
+        )
+        assert f"globus session consent {scope_opts}" in result.output
+    else:
+        assert "Interval" in result.output
+        req = get_last_request()
+        assert req.url.startswith("https://timer")
+
+
+def test_timer_creation_errors_on_data_access_with_client_creds(
+    run_line, client_login, ep_for_timer
+):
+    src = make_non_ha_mapped_collection()
+    dst = ep_for_timer
+
+    result = run_line(
+        [
+            "globus",
+            "timer",
+            "create",
+            "transfer",
+            "--recursive",
+            f"{src}:/foo/",
+            f"{dst}:/bar/",
+            "--interval",
+            "60m",
         ],
         assert_exit_code=2,
     )
+
     assert "Unsupported operation." in result.stderr
