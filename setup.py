@@ -3,17 +3,17 @@ import re
 
 from setuptools import find_packages, setup
 
-DEV_REQUIREMENTS = [
-    # tests
-    "tox<4",
+TEST_REQUIREMENTS = [
+    "coverage<7",
     "pytest<7",
-    "pytest-cov<3",
     "pytest-xdist<3",
     "pytest-timeout<2",
     "responses==0.17.0",
     # loading test fixture data
     "ruamel.yaml==0.17.16",
-    # development
+]
+DEV_REQUIREMENTS = TEST_REQUIREMENTS + [
+    "tox<4",
     "scriv==0.17.0",
 ]
 
@@ -56,7 +56,7 @@ setup(
         # not have all of the typing features we use
         'typing_extensions>=4.0;python_version<"3.11"',
     ],
-    extras_require={"development": DEV_REQUIREMENTS},
+    extras_require={"test": TEST_REQUIREMENTS, "development": DEV_REQUIREMENTS},
     entry_points={"console_scripts": ["globus = globus_cli:main"]},
     # descriptive info, non-critical
     description="Globus CLI",

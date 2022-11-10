@@ -1,5 +1,6 @@
 [run]
 parallel = True
+include = src/*
 
 [report]
 show_missing = True
@@ -13,11 +14,7 @@ exclude_lines =
     assert_never()
     # don't check on executable components of importable modules
     if __name__ == .__main__.:
-    # don't check 'TYPE_CHECKING' blocks
-    if TYPE_CHECKING:
-    if typing.TYPE_CHECKING:
+    # don't check coverage on type checking conditionals
     if t.TYPE_CHECKING:
-    # don't check typing overloads
-    @overload
-    @typing.overload
+    # skip overloads
     @t.overload
