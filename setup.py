@@ -5,6 +5,7 @@ from setuptools import find_packages, setup
 
 DEV_REQUIREMENTS = [
     # tests
+    "tox<4",
     "pytest<7",
     "pytest-cov<3",
     "pytest-xdist<3",
@@ -12,6 +13,8 @@ DEV_REQUIREMENTS = [
     "responses==0.17.0",
     # loading test fixture data
     "ruamel.yaml==0.17.16",
+    # development
+    "scriv==0.17.0",
 ]
 
 
@@ -72,5 +75,6 @@ setup(
         "Programming Language :: Python :: 3.8",
         "Programming Language :: Python :: 3.9",
         "Programming Language :: Python :: 3.10",
+        "Programming Language :: Python :: 3.11",
     ],
 )
