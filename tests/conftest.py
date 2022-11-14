@@ -1,8 +1,11 @@
+from __future__ import annotations
+
 import logging
 import os
 import re
 import shlex
 import time
+import uuid
 from unittest import mock
 
 import globus_sdk
@@ -136,6 +139,21 @@ def add_gcs_login(test_token_storage):
         mock_token_res.by_resource_server = {
             gcs_id: _mock_token_response_data(
                 gcs_id, f"urn:globus:auth:scopes:{gcs_id}:manage_collections"
+            )
+        }
+        test_token_storage.store(mock_token_res)
+
+    return func
+
+
+@pytest.fixture
+def add_flow_login(test_token_storage):
+    def func(flow_id: uuid.UUID | str):
+        scopes = globus_sdk.SpecificFlowClient(flow_id).scopes
+        mock_token_res = mock.Mock()
+        mock_token_res.by_resource_server = {
+            scopes.resource_server: _mock_token_response_data(
+                scopes.resource_server, [scopes.user]
             )
         }
         test_token_storage.store(mock_token_res)

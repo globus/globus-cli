@@ -166,14 +166,16 @@ class LoginManager:
         if epilog is not None:
             click.echo(epilog)
 
-    def assert_logins(self, *resource_servers, assume_gcs=False):
+    def assert_logins(self, *resource_servers, assume_gcs=False, assume_flow=False):
         # determine the set of resource servers missing logins
         missing_servers = {s for s in resource_servers if not self.has_login(s)}
 
         # if we are missing logins, assemble error text
         # text is slightly different for 1, 2, or 3+ missing servers
         if missing_servers:
-            raise MissingLoginError(missing_servers, assume_gcs=assume_gcs)
+            raise MissingLoginError(
+                missing_servers, assume_gcs=assume_gcs, assume_flow=assume_flow
+            )
 
     @classmethod
     def requires_login(cls, *resource_servers: str):
@@ -312,6 +314,30 @@ class LoginManager:
         else:  # pragma: no cover
             raise ValueError("Internal Error! collection_id or endpoint_id is required")
         return (resolved_ep_id, epish)
+
+    def get_specific_flow_client(
+        self,
+        flow_id: uuid.UUID,
+    ) -> globus_sdk.SpecificFlowClient:
+        scope_name = f'flow_{str(flow_id).replace("-", "_")}_user'
+        self.add_requirement(
+            str(flow_id),
+            scopes=[f"https://auth.globus.org/scopes/{flow_id}/{scope_name}"],
+        )
+        self.assert_logins(str(flow_id), assume_flow=True)
+
+        authorizer = self._get_client_authorizer(
+            str(flow_id),
+            no_tokens_msg=(
+                f"Could not get login data for flow {flow_id}. "
+                f"Try login with '--flow {flow_id}' to fix."
+            ),
+        )
+        return globus_sdk.SpecificFlowClient(
+            flow_id,
+            authorizer=authorizer,
+            app_name=version.app_name,
+        )
 
     def get_gcs_client(
         self,

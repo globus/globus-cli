@@ -1,5 +1,8 @@
+from __future__ import annotations
+
 import click
 from globus_sdk.scopes import GCSEndpointScopeBuilder
+from globus_sdk.services.flows import SpecificFlowClient
 
 from globus_cli.login_manager import LoginManager, is_client_login
 from globus_cli.parsing import command, no_local_server_option
@@ -67,7 +70,17 @@ Clients are always "logged in"
     ),
     multiple=True,
 )
-def login_command(no_local_server, force, gcs_servers):
+@click.option(
+    "flow_ids",
+    "--flow",
+    type=click.UUID,
+    help="""
+        A flow ID, for which permissions will be requested.
+        This option may be given multiple times.
+    """,
+    multiple=True,
+)
+def login_command(no_local_server, force, gcs_servers, flow_ids: tuple[str]):
     """
     Get credentials for the Globus CLI.
 
@@ -104,6 +117,12 @@ def login_command(no_local_server, force, gcs_servers):
             rs_name = str(server_id)
             scopes = [GCSEndpointScopeBuilder(rs_name).manage_collections]
             manager.add_requirement(rs_name, scopes)
+
+    for flow_id in flow_ids:
+        # Rely on the SpecificFlowClient's scope builder.
+        flow_scope = SpecificFlowClient(flow_id).scopes
+        assert flow_scope is not None
+        manager.add_requirement(flow_scope.resource_server, [flow_scope.user])
 
     # if not forcing, stop if user already logged in
     if not force and manager.is_logged_in():

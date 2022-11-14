@@ -116,6 +116,21 @@ def test_requires_login_pass_manager(mock_get_adapter):
 
 
 @patch("globus_cli.login_manager.tokenstore.token_storage_adapter")
+def test_flow_error_message(mock_get_adapter):
+    mock_get_adapter._instance.get_token_data = mock_get_tokens
+    dummy_id = str(uuid.uuid1())
+
+    @LoginManager.requires_login()
+    def dummy_command(login_manager):
+        login_manager.assert_logins(dummy_id, assume_flow=True)
+
+    with pytest.raises(MissingLoginError) as excinfo:
+        dummy_command()
+
+    assert f"globus login --flow {dummy_id}" in str(excinfo.value)
+
+
+@patch("globus_cli.login_manager.tokenstore.token_storage_adapter")
 def test_gcs_error_message(mock_get_adapter):
     mock_get_adapter._instance.get_token_data = mock_get_tokens
     dummy_id = str(uuid.uuid1())
