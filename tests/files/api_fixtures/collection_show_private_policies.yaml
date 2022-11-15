@@ -15,6 +15,7 @@ transfer:
         ],
         "DATA_TYPE": "endpoint",
         "display_name": "Happy Fun Collection Name",
+        "entity_type": "GCSv5_mapped_collection",
         "gcs_version": "5.4.10",
         "host_endpoint_id": null,
         "id": "1405823f-0597-4a16-b296-46d4f0ae4b15",
@@ -32,6 +33,7 @@ transfer:
           }
         ],
         "DATA_TYPE": "endpoint",
+        "entity_type": "GCSv5_endpoint",
         "gcs_version": "5.4.10",
         "host_endpoint_id": null,
         "id": "cf37806c-572c-47ff-88e2-511c646ef1a4",

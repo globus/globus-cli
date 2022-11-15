@@ -53,7 +53,7 @@ def test_collection_delete_on_gcp(run_line):
     assert "success" not in result.output
     assert (
         f"Expected {epid} to be a collection ID.\n"
-        "Instead, found it was of type 'Globus Connect Personal'."
+        "Instead, found it was of type 'Globus Connect Personal Mapped Collection'."
     ) in result.stderr
     assert (
         "Please run the following command instead:\n\n"

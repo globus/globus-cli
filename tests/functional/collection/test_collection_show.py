@@ -47,7 +47,7 @@ def test_collection_show_private_policies(run_line, add_gcs_login):
 @pytest.mark.parametrize(
     "epid_key, ep_type",
     [
-        ("gcp_endpoint_id", "Globus Connect Personal"),
+        ("gcp_endpoint_id", "Globus Connect Personal Mapped Collection"),
         ("endpoint_id", "Globus Connect Server v5 Endpoint"),
     ],
 )

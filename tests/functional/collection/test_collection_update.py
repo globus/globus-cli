@@ -78,7 +78,7 @@ def test_collection_update_on_gcp(run_line):
     )
     assert (
         f"Expected {epid} to be a collection ID.\n"
-        "Instead, found it was of type 'Globus Connect Personal'."
+        "Instead, found it was of type 'Globus Connect Personal Mapped Collection'."
     ) in result.stderr
     assert (
         "Please run the following command instead:\n\n"
@@ -112,4 +112,7 @@ def test_gust_collection_update_rejects_invalid_opts(run_line, add_gcs_login):
         assert_exit_code=2,
     )
     assert "success" not in result.output
-    assert "Use of incompatible options with Guest Collection" in result.stderr
+    assert (
+        "Use of incompatible options with Globus Connect Server v5 Guest Collection"
+        in result.stderr
+    )

@@ -41,6 +41,7 @@ transfer:
       {
         "DATA_TYPE": "endpoint",
         "id": "1405823f-0597-4a16-b296-46d4f0ae4b15",
+        "entity_type": "GCSv4_host",
         "subscription_id": null,
         "display_name": "myserver",
         "organization": "My Org",
@@ -124,6 +125,7 @@ transfer:
       {
         "DATA_TYPE": "endpoint",
         "id": "b379e973-f5c5-4501-8377-5a0ecf37a99b",
+        "entity_type": "GCSv4_share",
         "subscription_id": null,
         "display_name": "myshare",
         "organization": "My Org",
@@ -188,6 +190,7 @@ transfer:
       {
         "DATA_TYPE": "endpoint",
         "id": "06e2c959-d311-4bab-b2ea-25ad77d9fc12",
+        "entity_type": "GCP_mapped_collection",
         "subscription_id": null,
         "display_name": "mygcp",
         "organization": "My Org",
@@ -275,6 +278,7 @@ transfer:
         "description": null,
         "disable_verify": false,
         "display_name": "Globus Tutorial Endpoint 2",
+        "entity_type": "GCSv4_host",
         "expire_time": null,
         "expires_in": -1,
         "force_encryption": false,
@@ -352,6 +356,7 @@ transfer:
             "description": null,
             "disable_verify": false,
             "display_name": "Globus S3 Tutorial Endpoint",
+            "entity_type": "GCSv4_host",
             "expire_time": null,
             "expires_in": -1,
             "force_encryption": false,
@@ -490,6 +495,7 @@ transfer:
             "description": null,
             "disable_verify": false,
             "display_name": "Globus Tutorial Endpoint 2",
+            "entity_type": "GCSv4_host",
             "expire_time": null,
             "expires_in": -1,
             "force_encryption": false,

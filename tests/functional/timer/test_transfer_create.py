@@ -29,6 +29,7 @@ def non_ha_mapped_collection():
                 "description": "example gcsv5 mapped collection",
                 "department": None,
                 "display_name": "Happy Fun Mapped Collection Name",
+                "entity_type": "GCSv5_mapped_collection",
                 "force_encryption": False,
                 "gcs_version": "5.4.10",
                 "host_endpoint_id": None,

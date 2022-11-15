@@ -32,7 +32,7 @@ def test_collection_list_on_gcp(run_line):
     assert "success" not in result.output
     assert (
         f"Expected {epid} to be a Globus Connect Server v5 Endpoint.\n"
-        "Instead, found it was of type 'Globus Connect Personal'."
+        "Instead, found it was of type 'Globus Connect Personal Mapped Collection'."
     ) in result.stderr
     assert "This operation is not supported on objects of this type." in result.stderr
 
@@ -45,7 +45,7 @@ def test_collection_list_on_mapped_collection(run_line):
     assert "success" not in result.output
     assert (
         f"Expected {epid} to be a Globus Connect Server v5 Endpoint.\n"
-        "Instead, found it was of type 'Mapped Collection'."
+        "Instead, found it was of type 'Globus Connect Server v5 Mapped Collection'."
     ) in result.stderr
     assert "This operation is not supported on objects of this type." in result.stderr
 

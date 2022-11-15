@@ -22,7 +22,7 @@ def test_delete_gcs_guest_collection(run_line):
     assert "success" not in result.output
     assert (
         f"Expected {epid} to be an endpoint ID.\n"
-        "Instead, found it was of type 'Guest Collection'."
+        "Instead, found it was of type 'Globus Connect Server v5 Guest Collection'."
     ) in result.stderr
     assert (
         "Please run the following command instead:\n\n"
@@ -38,7 +38,7 @@ def test_delete_gcs_mapped_collection(run_line):
     assert "success" not in result.output
     assert (
         f"Expected {epid} to be an endpoint ID.\n"
-        "Instead, found it was of type 'Mapped Collection'."
+        "Instead, found it was of type 'Globus Connect Server v5 Mapped Collection'."
     ) in result.stderr
     assert (
         "Please run the following command instead:\n\n"

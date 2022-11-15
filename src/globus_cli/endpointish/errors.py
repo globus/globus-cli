@@ -7,19 +7,19 @@ SHOULD_USE_MAP = {
         ("globus endpoint delete", EndpointType.traditional_endpoints()),
     ],
     "globus endpoint delete": [
-        ("globus collection delete", EndpointType.collections()),
+        ("globus collection delete", EndpointType.gcsv5_collections()),
     ],
     "globus collection show": [
-        ("globus endpoint show", EndpointType.non_collection_types()),
+        ("globus endpoint show", EndpointType.non_gcsv5_collection_types()),
     ],
     "globus endpoint show": [
-        ("globus collection show", EndpointType.collections()),
+        ("globus collection show", EndpointType.gcsv5_collections()),
     ],
     "globus collection update": [
         ("globus endpoint update", EndpointType.traditional_endpoints()),
     ],
     "globus endpoint update": [
-        ("globus collection update", EndpointType.collections()),
+        ("globus collection update", EndpointType.gcsv5_collections()),
     ],
 }
 

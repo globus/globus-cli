@@ -51,7 +51,7 @@ def test_show_on_gcsv5_collection(run_line):
     result = run_line(f"globus endpoint show {epid}", assert_exit_code=3)
     assert (
         f"Expected {epid} to be an endpoint ID.\n"
-        "Instead, found it was of type 'Mapped Collection'."
+        "Instead, found it was of type 'Globus Connect Server v5 Mapped Collection'."
     ) in result.stderr
     assert (
         "Please run the following command instead:\n\n"

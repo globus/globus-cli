@@ -211,7 +211,7 @@ def collection_update(
     """
     gcs_client = login_manager.get_gcs_client(collection_id=collection_id)
 
-    if gcs_client.source_epish.ep_type == EndpointType.GUEST_COLLECTION:
+    if gcs_client.source_epish.ep_type == EndpointType.GCSV5_GUEST:
         doc_class: (
             type[globus_sdk.GuestCollectionDocument]
             | type[globus_sdk.MappedCollectionDocument]

@@ -9,6 +9,7 @@ transfer:
       {
         "DATA_TYPE": "endpoint",
         "id": "1405823f-0597-4a16-b296-46d4f0ae4b15",
+        "entity_type": "GCSv4_host",
         "subscription_id": null,
         "display_name": "myserver",
         "organization": "My Org",

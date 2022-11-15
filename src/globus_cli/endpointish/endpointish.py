@@ -33,7 +33,7 @@ class Endpointish:
         log.debug("Endpointish.data=%s", self.data)
 
         log.debug("Endpointish determine ep type")
-        self.ep_type = EndpointType.determine_endpoint_type(self.data)
+        self.ep_type = EndpointType(self.data.get("entity_type"))
         log.debug("Endpointish.ep_type=%s", self.ep_type)
 
     @property
@@ -57,12 +57,12 @@ class Endpointish:
 
     def assert_is_gcsv5_collection(self) -> None:
         self.assert_ep_type(
-            EndpointType.collections(), error_class=ExpectedCollectionError
+            EndpointType.gcsv5_collections(), error_class=ExpectedCollectionError
         )
 
     def assert_is_not_collection(self) -> None:
         self.assert_ep_type(
-            EndpointType.non_collection_types(), error_class=ExpectedEndpointError
+            EndpointType.non_gcsv5_collection_types(), error_class=ExpectedEndpointError
         )
 
     def assert_is_traditional_endpoint(self) -> None:
@@ -80,7 +80,7 @@ class Endpointish:
 
     @property
     def requires_data_access_scope(self) -> bool:
-        if self.ep_type is EndpointType.MAPPED_COLLECTION:
+        if self.ep_type is EndpointType.GCSV5_MAPPED:
             if self.data.get("high_assurance") is False:
                 return True
         return False

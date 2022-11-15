@@ -1,77 +1,45 @@
 from __future__ import annotations
 
-from enum import Enum, auto
+from enum import Enum
 
 
 class EndpointType(Enum):
-    # endpoint / collection types
-    GCP = auto()
-    GCSV5_ENDPOINT = auto()
-    GUEST_COLLECTION = auto()
-    MAPPED_COLLECTION = auto()
-    SHARE = auto()
-    NON_GCSV5_ENDPOINT = auto()  # most likely GCSv4, but not necessarily
+    # endpoint / collection types, strings match entity_type value in
+    # transfer endpoint docs
+    GCP_MAPPED = "GCP_mapped_collection"
+    GCP_GUEST = "GCP_guest_collection"
+    GCSV5_ENDPOINT = "GCSv5_endpoint"
+    GCSV5_MAPPED = "GCSv5_mapped_collection"
+    GCSV5_GUEST = "GCSv5_guest_collection"
+    GCSv4_HOST = "GCSv4_host"  # most likely GCSv4, but not necessarily
+    GCSv4_SHARE = "GCSv4_share"
 
     @classmethod
-    def collections(cls) -> tuple[EndpointType, ...]:
-        return (cls.GUEST_COLLECTION, cls.MAPPED_COLLECTION)
+    def gcsv5_collections(cls) -> tuple[EndpointType, ...]:
+        return (cls.GCSV5_GUEST, cls.GCSV5_MAPPED)
 
     @classmethod
     def traditional_endpoints(cls) -> tuple[EndpointType, ...]:
-        return (cls.GCP, cls.SHARE, cls.NON_GCSV5_ENDPOINT)
+        return (cls.GCP_MAPPED, cls.GCP_GUEST, cls.GCSv4_HOST, cls.GCSv4_SHARE)
 
     @classmethod
-    def non_collection_types(cls) -> tuple[EndpointType, ...]:
-        return tuple(x for x in cls if x not in cls.collections())
+    def non_gcsv5_collection_types(cls) -> tuple[EndpointType, ...]:
+        return tuple(x for x in cls if x not in cls.gcsv5_collections())
 
     @classmethod
     def gcsv5_types(cls) -> tuple[EndpointType, ...]:
         return tuple(
-            x for x in cls if (x is cls.GCSV5_ENDPOINT or x in cls.collections())
+            x for x in cls if (x is cls.GCSV5_ENDPOINT or x in cls.gcsv5_collections())
         )
 
     @classmethod
     def nice_name(cls, eptype: EndpointType) -> str:
         return {
-            cls.GCP: "Globus Connect Personal",
+            cls.GCP_MAPPED: "Globus Connect Personal Mapped Collection",
+            cls.GCP_GUEST: "Globus Connect Personal Guest Collection",
             cls.GCSV5_ENDPOINT: "Globus Connect Server v5 Endpoint",
-            cls.GUEST_COLLECTION: "Guest Collection",
-            cls.MAPPED_COLLECTION: "Mapped Collection",
-            cls.SHARE: "Shared Endpoint",
-            cls.NON_GCSV5_ENDPOINT: "GCSv4 Endpoint",
+            cls.GCSV5_MAPPED: "Globus Connect Server v5 Mapped Collection",
+            cls.GCSV5_GUEST: "Globus Connect Server v5 Guest Collection",
+            cls.GCSv4_HOST: "Globus Connect Server v4 Host Endpoint",
+            cls.GCSv4_SHARE: "Globus Connect Server v4 Shared Endpoint",
         }.get(eptype, "UNKNOWN")
-
-    @classmethod
-    def determine_endpoint_type(cls, ep_doc: dict) -> EndpointType:
-        """
-        Given an endpoint document from transfer, determine what type of
-        endpoint or collection it is for
-        """
-        if ep_doc.get("is_globus_connect") is True:
-            return EndpointType.GCP
-
-        if ep_doc.get("non_functional") is True:
-            return EndpointType.GCSV5_ENDPOINT
-
-        shared = ep_doc.get("host_endpoint_id") is not None
-
-        if ep_doc.get("gcs_version"):
-            try:
-                major, _minor, _patch = ep_doc["gcs_version"].split(".")
-            except ValueError:  # split -> unpack didn't give 3 values
-                major = None
-
-            gcsv5 = major == "5"
-        else:
-            gcsv5 = False
-
-        if gcsv5:
-            if shared:
-                return EndpointType.GUEST_COLLECTION
-            else:
-                return EndpointType.MAPPED_COLLECTION
-
-        elif shared:
-            return EndpointType.SHARE
-
-        return EndpointType.NON_GCSV5_ENDPOINT

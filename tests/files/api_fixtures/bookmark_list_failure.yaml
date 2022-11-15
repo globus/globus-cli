@@ -51,6 +51,7 @@ transfer:
         "DATA_TYPE": "endpoint",
         "canonical_name": "foouser#http-test",
         "description": "Guest Collection on the testing HTTPS endpoint",
+        "entity_type": "GCSv5_guest_collection",
         "display_name": "HTTPS Test - Guest",
         "gcs_version": "5.4.10",
         "host_endpoint_id": null,
