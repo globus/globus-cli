@@ -16,7 +16,7 @@ from globus_sdk.scopes import (
     TransferScopes,
 )
 
-from globus_cli.endpointish import Endpointish, EndpointType
+from globus_cli.endpointish import Endpointish, EntityType
 
 from .. import version
 from .auth_flows import do_link_auth_flow, do_local_server_auth_flow
@@ -307,7 +307,7 @@ class LoginManager:
             resolved_ep_id = epish.get_collection_endpoint_id()
         elif endpoint_id is not None:
             epish = Endpointish(endpoint_id, transfer_client=transfer_client)
-            epish.assert_ep_type(EndpointType.GCSV5_ENDPOINT)
+            epish.assert_entity_type(EntityType.GCSV5_ENDPOINT)
             resolved_ep_id = str(endpoint_id)
         else:  # pragma: no cover
             raise ValueError("Internal Error! collection_id or endpoint_id is required")

@@ -6,7 +6,7 @@ import typing as t
 import click
 import globus_sdk
 
-from globus_cli.endpointish import WrongEndpointTypeError
+from globus_cli.endpointish import WrongEntityTypeError
 from globus_cli.login_manager import MissingLoginError
 from globus_cli.termio import PrintableErrorField, write_error_info
 
@@ -241,8 +241,8 @@ def globus_error_hook(exception: globus_sdk.GlobusError) -> None:
     )
 
 
-@error_handler(error_class=WrongEndpointTypeError, exit_status=3)
-def wrong_endpoint_type_error_hook(exception: WrongEndpointTypeError) -> None:
+@error_handler(error_class=WrongEntityTypeError, exit_status=3)
+def wrong_endpoint_type_error_hook(exception: WrongEntityTypeError) -> None:
     click.echo(
         click.style(
             exception.expected_message + "\n" + exception.actual_message,

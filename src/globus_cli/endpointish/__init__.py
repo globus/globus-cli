@@ -12,18 +12,14 @@ introspection and other niceties.
 Think of it as a TransferClient.get_endpoint call + a location to cache the result + any
 decoration we might want for this.
 """
-from .endpoint_type import EndpointType
 from .endpointish import Endpointish
-from .errors import (
-    ExpectedCollectionError,
-    ExpectedEndpointError,
-    WrongEndpointTypeError,
-)
+from .entity_type import EntityType
+from .errors import ExpectedCollectionError, ExpectedEndpointError, WrongEntityTypeError
 
 __all__ = [
     "Endpointish",
-    "WrongEndpointTypeError",
+    "WrongEntityTypeError",
     "ExpectedCollectionError",
     "ExpectedEndpointError",
-    "EndpointType",
+    "EntityType",
 ]

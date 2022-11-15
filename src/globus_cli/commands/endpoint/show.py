@@ -46,7 +46,7 @@ def endpoint_show(
     if not skip_endpoint_type_check:
         Endpointish(
             endpoint_id, transfer_client=transfer_client
-        ).assert_is_not_collection()
+        ).assert_is_not_gcsv5_collection()
 
     res = transfer_client.get_endpoint(endpoint_id)
 
