@@ -44,3 +44,10 @@ class EntityType(Enum):
             cls.GCSV4_HOST: "Globus Connect Server v4 Host Endpoint",
             cls.GCSV4_SHARE: "Globus Connect Server v4 Shared Endpoint",
         }.get(entitytype, "UNRECOGNIZED")
+
+    @classmethod
+    def determine_entity_type(cls, ep_doc: dict) -> EntityType:
+        try:
+            return cls(ep_doc.get("entity_type"))
+        except ValueError:
+            return cls.UNRECOGNIZED

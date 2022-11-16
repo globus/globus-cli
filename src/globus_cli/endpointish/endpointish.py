@@ -29,7 +29,7 @@ class Endpointish:
         log.debug("Endpointish.data=%s", self.data)
 
         log.debug("Endpointish determine entity type")
-        self.entity_type = EntityType(self.data.get("entity_type"))
+        self.entity_type = EntityType.determine_entity_type(self.data)
         log.debug("Endpointish.entity_type=%s", self.entity_type)
 
     @property
