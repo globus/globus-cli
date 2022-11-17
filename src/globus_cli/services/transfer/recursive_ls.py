@@ -49,8 +49,6 @@ class RecursiveLsResponse:
     :param endpoint_id: The endpoint that will be recursively ls'ed.
     :param ls_params: Query params sent to operation_ls
     :param max_depth: The maximum depth the recursive ls will go into the filesys
-    :param filter_after_first: If True, any filter in ``ls_params`` will be applied
-        to all calls. If False, any filter will be removed after the first ls.
     """
 
     def __init__(
@@ -60,13 +58,11 @@ class RecursiveLsResponse:
         ls_params: dict[str, t.Any],
         *,
         max_depth: int = 3,
-        filter_after_first: bool = True,
     ) -> None:
         self._client = client
         self._endpoint_id = endpoint_id
         self._ls_params = ls_params
         self._max_depth = max_depth
-        self._filter_after_first = filter_after_first
 
         start_path = t.cast(t.Optional[str], ls_params.get("path"))
         log.info(
@@ -146,11 +142,6 @@ class RecursiveLsResponse:
                         if item["type"] == "dir"
                     ]
                 )
-
-            # if filter_after_first is False, stop filtering after the first
-            # ls call has been made
-            if not self._filter_after_first:
-                self._ls_params.pop("filter", None)
 
             # for each item in the response data update the item's name with
             # the relative path popped from the queue, and yield the item

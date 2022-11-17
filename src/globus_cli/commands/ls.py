@@ -180,29 +180,32 @@ def ls_command(
     ls_params: dict[str, t.Any] = {"show_hidden": int(show_hidden)}
     if path:
         ls_params["path"] = path
-    if filter_val:
-        # this char has special meaning in the LS API's filter clause
-        # can't be part of the pattern (but we don't support globbing across
-        # dir structures anyway)
-        if "/" in filter_val:
-            raise click.UsageError('--filter cannot contain "/"')
-        # format into a simple filter clause which operates on filenames
-        ls_params["filter"] = f"name:{filter_val}"
+
+    # this char has special meaning in the LS API's filter clause
+    # can't be part of the pattern (but we don't support globbing across
+    # dir structures anyway)
+    if filter_val and "/" in filter_val:
+        raise click.UsageError('--filter cannot contain "/"')
 
     # get the `ls` result
     if recursive:
-        # NOTE:
-        # --recursive and --filter have an interplay that some users may find
-        # surprising
-        # if we're asked to change or "improve" the behavior in the future, we
-        # could do so with "type:dir" or "type:file" filters added in, and
-        # potentially work out some viable behavior based on what people want
+
+        # if we are doing filtering we need to pass multiple filter params. The
+        # first allows all directories, as we need them for recursive
+        # expansion. The second then filters name by the filter_val
+        if filter_val:
+            ls_params["filter"] = ["type:dir", f"name:{filter_val}"]
+
         res: (
             IterableTransferResponse | RecursiveLsResponse
         ) = transfer_client.recursive_operation_ls(
             endpoint_id, ls_params, depth=recursive_depth_limit
         )
     else:
+        # format filter_val into a simple filter clause which operates on name
+        if filter_val:
+            ls_params["filter"] = f"name:{filter_val}"
+
         res = transfer_client.operation_ls(endpoint_id, **ls_params)
 
     # and then print it, per formatting rules
