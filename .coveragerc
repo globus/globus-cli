@@ -5,6 +5,7 @@ include = src/*
 [report]
 show_missing = True
 skip_covered = True
+fail_under = 87
 
 exclude_lines =
     # the pragma to disable coverage
