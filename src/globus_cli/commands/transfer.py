@@ -225,7 +225,7 @@ def transfer_command(
     Using `--batch`, `globus transfer` can submit a task which transfers multiple files
     or directories. The value for `--batch` can be a file to read from, or the
     character `-` which will read from stdin. From either the file or stdin, each line
-    is treated as a path to a file or directory to delete, respecting quotes.
+    is treated as a path to a file or directory to transfer, respecting quotes.
 
     \b
     Lines are of the form
