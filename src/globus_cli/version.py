@@ -29,12 +29,10 @@ def get_versions() -> tuple[LooseVersion | None, LooseVersion]:
     import requests
 
     try:
-        version_data = requests.get(
-            "https://pypi.python.org/pypi/globus-cli/json"
-        ).json()
-        parsed_versions = [LooseVersion(v) for v in version_data["releases"]]
-        latest = max(parsed_versions)
-        return latest, LooseVersion(__version__)
+        response = requests.get("https://pypi.python.org/pypi/globus-cli/json")
     # if the fetch from pypi fails
     except requests.RequestException:
         return None, LooseVersion(__version__)
+    parsed_versions = [LooseVersion(v) for v in response.json()["releases"]]
+    latest = max(parsed_versions)
+    return latest, LooseVersion(__version__)
