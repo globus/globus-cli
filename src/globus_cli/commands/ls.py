@@ -194,7 +194,7 @@ def ls_command(
         # first allows all directories, as we need them for recursive
         # expansion. The second then filters name by the filter_val
         if filter_val:
-            ls_params["filter"] = ["type:dir", f"name:{filter_val}"]
+            ls_params["filter"] = [{"type": "dir"}, {"name": filter_val}]
 
         res: (
             IterableTransferResponse | RecursiveLsResponse
