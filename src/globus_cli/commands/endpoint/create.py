@@ -6,7 +6,7 @@ from globus_cli.login_manager import LoginManager
 from globus_cli.parsing import (
     ENDPOINT_PLUS_REQPATH,
     command,
-    endpointish_create_and_update_params,
+    endpointish_setattr_params,
     mutex_option_group,
     one_use_option,
 )
@@ -20,7 +20,7 @@ GCP_FIELDS = [Field("Setup Key", "globus_connect_setup_key")]
 
 
 @command("create", hidden=True)
-@endpointish_create_and_update_params("create")
+@endpointish_setattr_params("create")
 @endpoint_create_params
 @one_use_option(
     "--personal",

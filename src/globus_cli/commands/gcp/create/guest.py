@@ -6,13 +6,13 @@ from globus_cli.login_manager import LoginManager
 from globus_cli.parsing import (
     ENDPOINT_PLUS_REQPATH,
     command,
-    endpointish_create_and_update_params,
+    endpointish_setattr_params,
 )
 from globus_cli.termio import Field, TextMode, display
 
 
 @command("guest", short_help="Create a new Guest Collection on GCP")
-@endpointish_create_and_update_params("create", "collection")
+@endpointish_setattr_params("create", "collection")
 @click.argument("HOST_GCP_PATH", type=ENDPOINT_PLUS_REQPATH)
 @LoginManager.requires_login(LoginManager.TRANSFER_RS)
 def guest_command(
@@ -29,7 +29,7 @@ def guest_command(
     keywords: str | None,
     default_directory: str | None,
     force_encryption: bool | None,
-    disable_verify: bool | None,
+    verify: dict[str, bool],
 ) -> None:
     """
     Create a new Guest Collection on a Globus Connect Personal Endpoint
@@ -56,7 +56,7 @@ def guest_command(
         keywords=keywords,
         default_directory=default_directory,
         force_encryption=force_encryption,
-        disable_verify=disable_verify,
+        **verify,
     )
 
     autoactivate(transfer_client, host_endpoint_id, if_expires_in=60)

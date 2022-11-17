@@ -4,6 +4,11 @@ It should not depend on any other part of the globus-cli codebase.
 
 (If you need to import something else, maybe it's not simple enough to be a constant...)
 """
+from __future__ import annotations
+
+import typing as t
+
+T = t.TypeVar("T")
 
 
 class ExplicitNullType:
@@ -18,6 +23,12 @@ class ExplicitNullType:
 
     def __repr__(self) -> str:
         return "null"
+
+    @staticmethod
+    def nullify(value: T | ExplicitNullType) -> T | None:
+        if isinstance(value, ExplicitNullType):
+            return None
+        return value
 
 
 EXPLICIT_NULL = ExplicitNullType()

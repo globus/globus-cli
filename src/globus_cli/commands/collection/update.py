@@ -1,5 +1,7 @@
 from __future__ import annotations
 
+import typing as t
+
 import click
 import globus_sdk
 
@@ -8,12 +10,12 @@ from globus_cli.constants import EXPLICIT_NULL
 from globus_cli.endpointish import EntityType
 from globus_cli.login_manager import LoginManager
 from globus_cli.parsing import (
-    CommaDelimitedList,
     JSONStringOrFile,
     StringOrNull,
     UrlOrNull,
     collection_id_arg,
     command,
+    endpointish_setattr_params,
     mutex_option_group,
     nullable_multi_callback,
 )
@@ -47,32 +49,6 @@ def collection_update_params(f):
         default=None,
         help="Set the collection to be public or private",
     )(f)
-    f = click.option(
-        "--description", type=StringOrNull(), help=_mkhelp("description for")
-    )(f)
-    f = click.option(
-        "--info-link", type=StringOrNull(), help=_mkhelp("link for info about")
-    )(f)
-    f = click.option(
-        "--contact-info", type=StringOrNull(), help=_mkhelp("contact Info for")
-    )(f)
-    f = click.option(
-        "--contact-email",
-        type=StringOrNull(),
-        help=_mkhelp("contact email for"),
-    )(f)
-    f = click.option(
-        "--organization", type=StringOrNull(), help=_mkhelp("organization for")
-    )(f)
-    f = click.option(
-        "--department", type=StringOrNull(), help=_mkhelp("department which operates")
-    )(f)
-    f = click.option(
-        "--keywords",
-        type=CommaDelimitedList(),
-        help=_mkhelp("comma separated list of keywords to help searches for"),
-    )(f)
-    f = click.option("--display-name", help=_mkhelp("name for"))(f)
     f = click.option(
         "--force-encryption/--no-force-encryption",
         "force_encryption",
@@ -121,11 +97,6 @@ def collection_update_params(f):
             "or a fully-qualified domain name, but if it is the latter "
             "it must be a subdomain of the endpoint's domain"
         ),
-    )(f)
-    f = click.option(
-        "--default-directory",
-        default=None,
-        help="Default directory when browsing the collection",
     )(f)
     f = click.option(
         "--enable-https",
@@ -184,23 +155,12 @@ def collection_update_params(f):
         ),
     )(f)
 
-    f = click.option(
-        "--verify",
-        type=click.Choice(["force", "disable", "default"], case_sensitive=False),
-        help=(
-            "Set the policy for this collection for file integrity verification "
-            "after transfer. 'force' requires all transfers to perform "
-            "verfication. 'disable' disables all verification checks. 'default' "
-            "allows the user to decide on verification at Transfer task submit  "
-            "time. When set on mapped collections, this policy is inherited by any "
-            "guest collections"
-        ),
-    )(f)
     return f
 
 
 @command("update", short_help="Update a Collection definition")
 @collection_id_arg
+@endpointish_setattr_params("update", "collection")
 @collection_update_params
 @mutex_option_group("--enable-https", "--disable-https")
 @LoginManager.requires_login(LoginManager.TRANSFER_RS, LoginManager.AUTH_RS)
@@ -208,7 +168,17 @@ def collection_update(
     *,
     login_manager: LoginManager,
     collection_id,
-    verify,
+    display_name: str | None,
+    description: str | None,
+    info_link: str | None,
+    contact_info: str | None,
+    contact_email: str | None,
+    organization: str | None,
+    department: str | None,
+    keywords: str | None,
+    default_directory: str | None,
+    force_encryption: bool | None,
+    verify: dict[str, bool],
     **kwargs,
 ):
     """
@@ -227,9 +197,21 @@ def collection_update(
     # convert keyword args as follows:
     # - filter out Nones
     # - pass through EXPLICIT_NULL as None
-    converted_kwargs = {
+    converted_kwargs: dict[str, t.Any] = {
         k: (v if v != EXPLICIT_NULL else None)
-        for k, v in kwargs.items()
+        for k, v in {
+            "display_name": display_name,
+            "description": description,
+            "info_link": info_link,
+            "contact_info": contact_info,
+            "contact_email": contact_email,
+            "organization": organization,
+            "department": department,
+            "keywords": keywords,
+            "default_directory": default_directory,
+            "force_encryption": force_encryption,
+            **kwargs,
+        }.items()
         if v is not None
     }
 
@@ -238,16 +220,7 @@ def collection_update(
     if converted_kwargs.pop("disable_https", None):
         converted_kwargs["enable_https"] = False
 
-    if verify is not None:
-        if verify.lower() == "force":
-            converted_kwargs["force_verify"] = True
-            converted_kwargs["disable_verify"] = False
-        elif verify.lower() == "disable":
-            converted_kwargs["force_verify"] = False
-            converted_kwargs["disable_verify"] = True
-        else:
-            converted_kwargs["force_verify"] = False
-            converted_kwargs["disable_verify"] = False
+    converted_kwargs.update(verify)
 
     # now that any conversions are done, check params against what is (or is not)
     # supported by the document type in use
