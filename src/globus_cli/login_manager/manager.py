@@ -322,6 +322,7 @@ class LoginManager:
         # Create a SpecificFlowClient without an authorizer
         # to take advantage of its scope creation code.
         client = globus_sdk.SpecificFlowClient(flow_id, app_name=version.app_name)
+        assert client.scopes is not None
         self.add_requirement(client.scopes.resource_server, [client.scopes.user])
         self.assert_logins(client.scopes.resource_server, assume_flow=True)
 
