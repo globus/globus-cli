@@ -91,7 +91,6 @@ def test_login_with_flow(monkeypatch, run_line):
     """Verify that flow ID's are added as resource servers with correct scopes."""
 
     uuid1 = str(uuid.uuid4())
-    scope_name = f'flow_{uuid1.replace("-", "_")}_user'
     manager: LoginManager | None = None
 
     def intercept_run_login_flow(self, *_, **__):
@@ -109,8 +108,6 @@ def test_login_with_flow(monkeypatch, run_line):
 
     # Verify that the expected resource server and scope were added as requirements.
     # This can only happen if the `--flow <uuid>` CLI argument is working correctly.
-    expected_rs_name_and_scope = (
-        uuid1,
-        [f"https://auth.globus.org/scopes/{uuid1}/{scope_name}"],
-    )
+    client = globus_sdk.SpecificFlowClient(uuid1)
+    expected_rs_name_and_scope = (client.scopes.resource_server, [client.scopes.user])
     assert expected_rs_name_and_scope in list(manager.login_requirements)

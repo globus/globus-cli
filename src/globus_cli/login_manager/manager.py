@@ -319,25 +319,21 @@ class LoginManager:
         self,
         flow_id: uuid.UUID,
     ) -> globus_sdk.SpecificFlowClient:
-        scope_name = f'flow_{str(flow_id).replace("-", "_")}_user'
-        self.add_requirement(
-            str(flow_id),
-            scopes=[f"https://auth.globus.org/scopes/{flow_id}/{scope_name}"],
-        )
-        self.assert_logins(str(flow_id), assume_flow=True)
+        # Create a SpecificFlowClient without an authorizer
+        # to take advantage of its scope creation code.
+        client = globus_sdk.SpecificFlowClient(flow_id, app_name=version.app_name)
+        self.add_requirement(client.scopes.resource_server, [client.scopes.user])
+        self.assert_logins(client.scopes.resource_server, assume_flow=True)
 
-        authorizer = self._get_client_authorizer(
-            str(flow_id),
+        # Create and assign an authorizer now that scope requirements are registered.
+        client.authorizer = self._get_client_authorizer(
+            client.scopes.resource_server,
             no_tokens_msg=(
                 f"Could not get login data for flow {flow_id}. "
                 f"Try login with '--flow {flow_id}' to fix."
             ),
         )
-        return globus_sdk.SpecificFlowClient(
-            flow_id,
-            authorizer=authorizer,
-            app_name=version.app_name,
-        )
+        return client
 
     def get_gcs_client(
         self,
