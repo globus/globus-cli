@@ -146,3 +146,28 @@ def shlex_process_stream(process_command: click.Command, stream: t.TextIO) -> No
             except SystemExit as e:
                 if e.code != 0:
                     raise
+
+
+def walk_contexts(name, cmd, parent_ctx=None):
+    """
+    A recursive walk over click Contexts for all commands in a tree
+    Returns the results in a tree-like structure as triples,
+      (context, subcommands, subgroups)
+
+    subcommands is a list of contexts
+    subgroups is a list of (context, subcommands, subgroups) triples
+    """
+    current_ctx = click.Context(cmd, info_name=name, parent=parent_ctx)
+    cmds, groups = [], []
+    for subcmdname in cmd.list_commands(current_ctx):
+        subcmd = cmd.get_command(current_ctx, subcmdname)
+        # explicitly skip hidden commands
+        if subcmd.hidden:
+            continue
+
+        if not isinstance(subcmd, click.Group):
+            cmds.append(click.Context(subcmd, info_name=subcmdname, parent=current_ctx))
+        else:
+            groups.append(walk_contexts(subcmdname, subcmd, current_ctx))
+
+    return (current_ctx, cmds, groups)

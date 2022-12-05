@@ -11,6 +11,8 @@ import click
 import requests
 from pkg_resources import load_entry_point
 
+from globus_cli.utils import walk_contexts
+
 CLI = load_entry_point("globus-cli", "console_scripts", "globus")
 TARGET_DIR = os.path.dirname(__file__)
 
@@ -54,37 +56,8 @@ EXIT_STATUS_NOHTTP_TEXT = (
 )
 
 
-def walk_contexts(name="globus", cmd=CLI, parent_ctx=None):
-    """
-    A recursive walk over click Contexts for all commands in a tree
-    Returns the results in a tree-like structure as triples,
-      (context, subcommands, subgroups)
-
-    subcommands is a list of contexts
-    subgroups is a list of (context, subcommands, subgroups) triples
-    """
-    current_ctx = click.Context(cmd, info_name=name, parent=parent_ctx)
-    cmds, groups = [], []
-    for subcmdname in cmd.list_commands(current_ctx):
-        subcmd = cmd.get_command(current_ctx, subcmdname)
-        # explicitly skip hidden commands and `globus config`
-        if subcmd.hidden or (name + " " + subcmdname) == "globus config":
-            continue
-        # non-group commands which don't set adoc_skip=False are not properly subclassed
-        # from GlobusCommand, skip them
-        if not isinstance(subcmd, click.Group) and getattr(subcmd, "adoc_skip", True):
-            continue
-
-        if not isinstance(subcmd, click.Group):
-            cmds.append(click.Context(subcmd, info_name=subcmdname, parent=current_ctx))
-        else:
-            groups.append(walk_contexts(subcmdname, subcmd, current_ctx))
-
-    return (current_ctx, cmds, groups)
-
-
 def iter_all_commands(tree=None):
-    ctx, subcmds, subgroups = tree or walk_contexts()
+    ctx, subcmds, subgroups = tree or walk_contexts("globus", CLI)
     yield from subcmds
     for g in subgroups:
         yield from iter_all_commands(g)
@@ -163,7 +136,7 @@ def write_pages():
 
 
 def commands_with_headings(heading, tree=None):
-    ctx, subcmds, subgroups = tree or walk_contexts()
+    ctx, subcmds, subgroups = tree or walk_contexts("globus", CLI)
     if subcmds:
         yield heading, subcmds
     for subgrouptree in subgroups:

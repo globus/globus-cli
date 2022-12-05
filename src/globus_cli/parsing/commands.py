@@ -41,7 +41,6 @@ class GlobusCommand(click.Command):
     for more details."""
 
     def __init__(self, *args, **kwargs):
-        self.adoc_skip = kwargs.pop("adoc_skip", False)
         self.adoc_output = kwargs.pop("adoc_output", None)
         self.adoc_examples = kwargs.pop("adoc_examples", None)
         self.globus_disable_opts = kwargs.pop("globus_disable_opts", [])
