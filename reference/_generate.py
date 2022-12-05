@@ -3,6 +3,8 @@
 
 based originally on click-man, but significantly specialized for the globus-cli
 """
+import argparse
+import logging
 import os
 import textwrap
 import time
@@ -15,6 +17,8 @@ from globus_cli.utils import walk_contexts
 
 CLI = load_entry_point("globus-cli", "console_scripts", "globus")
 TARGET_DIR = os.path.dirname(__file__)
+
+log = logging.getLogger(__name__)
 
 try:
     # try to fetch last release date
@@ -126,9 +130,11 @@ class AdocPage:
 
 def write_pages():
     for ctx in iter_all_commands():
-        if not isinstance(ctx.command, click.Group) and not getattr(
-            ctx.command, "adoc_skip", True
-        ):
+        log.debug("write_pages() handling: '%s'", ctx.command_path)
+        if not isinstance(ctx.command, click.Group):
+            log.info(
+                "write_pages() identified non-group command: '%s'", ctx.command_path
+            )
             cmd_name = ctx.command_path.replace(" ", "_")[len("globus_") :]
             path = os.path.join(TARGET_DIR, cmd_name + ".adoc")
             with open(path, "w") as f:
@@ -160,6 +166,21 @@ def generate_index():
                 f.write(ctx.command.get_short_help_str() + "\n\n")
 
 
-if __name__ == "__main__":
+def main():
+    parser = argparse.ArgumentParser(
+        description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter
+    )
+    parser.add_argument("--debug", help="enable debug logging", action="store_true")
+    args = parser.parse_args()
+
+    if args.debug:
+        logging.basicConfig(level=logging.DEBUG)
+    else:
+        logging.basicConfig(level=logging.INFO)
+
     write_pages()
     generate_index()
+
+
+if __name__ == "__main__":
+    main()

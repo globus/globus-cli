@@ -18,7 +18,7 @@ jobs:
           python -m pip install -e .
       - name: Generate Autodoc
         run: |
-          ./reference/_generate.py
+          ./reference/_generate.py --debug
           # bundle as tarball without the _generate.py script or .gitignore
           # use `-h` to dereference the changelog link
           tar --exclude "*.py" --exclude '.gitignore' -czf cli-reference.tar.gz -h reference/
