@@ -1,12 +1,13 @@
 from __future__ import annotations
 
 import typing as t
+import uuid
 
 import click
 import globus_sdk
 
 from globus_cli import utils
-from globus_cli.constants import EXPLICIT_NULL
+from globus_cli.constants import EXPLICIT_NULL, ExplicitNullType
 from globus_cli.endpointish import EntityType
 from globus_cli.login_manager import LoginManager
 from globus_cli.parsing import (
@@ -34,12 +35,6 @@ def _mkhelp(txt):
 def collection_update_params(f):
     """
     Collection of options consumed by GCS Collection update
-
-    Usage:
-
-    >>> @collection_create_and_update_params(create=False)
-    >>> def command_func(**kwargs):
-    >>>     ...
     """
     multi_use_option_str = "Give this option multiple times in a single command"
 
@@ -99,22 +94,15 @@ def collection_update_params(f):
         ),
     )(f)
     f = click.option(
-        "--enable-https",
-        is_flag=True,
+        "--enable-https/--disable-https",
+        "enable_https",
+        default=None,
         help=(
-            "Explicitly enable HTTPS supprt (requires a managed endpoint "
+            "Explicitly enable or disable  HTTPS support (requires a managed endpoint "
             "with API v1.1.0)"
         ),
     )(f)
 
-    f = click.option(
-        "--disable-https",
-        is_flag=True,
-        help=(
-            "Explicitly disable HTTPS supprt (requires a managed endpoint "
-            "with API v1.1.0)"
-        ),
-    )(f)
     f = click.option(
         "--user-message",
         help=(
@@ -167,23 +155,38 @@ def collection_update_params(f):
 def collection_update(
     *,
     login_manager: LoginManager,
-    collection_id,
+    collection_id: uuid.UUID,
     display_name: str | None,
-    description: str | None,
-    info_link: str | None,
-    contact_info: str | None,
-    contact_email: str | None,
-    organization: str | None,
-    department: str | None,
-    keywords: str | None,
+    description: str | None | ExplicitNullType,
+    info_link: str | None | ExplicitNullType,
+    contact_info: str | None | ExplicitNullType,
+    contact_email: str | None | ExplicitNullType,
+    organization: str | None | ExplicitNullType,
+    department: str | None | ExplicitNullType,
+    keywords: list[str] | None,
     default_directory: str | None,
     force_encryption: bool | None,
     verify: dict[str, bool],
-    **kwargs,
-):
+    public: bool,
+    sharing_restrict_paths: t.Any | None,
+    allow_guest_collections: bool | None,
+    disable_anonymous_writes: bool | None,
+    domain_name: str | None,
+    enable_https: bool | None,
+    user_message: str | None | ExplicitNullType,
+    user_message_link: str | None | ExplicitNullType,
+    sharing_users_allow: list[str] | None | ExplicitNullType,
+    sharing_users_deny: list[str] | None | ExplicitNullType,
+) -> None:
     """
     Update a Mapped or Guest Collection
     """
+    if sharing_restrict_paths is not None:
+        if not isinstance(sharing_restrict_paths, dict):
+            raise click.UsageError(
+                "--sharing-restrict-paths may not contain non-object JSON data"
+            )
+
     gcs_client = login_manager.get_gcs_client(collection_id=collection_id)
 
     if gcs_client.source_epish.entity_type == EntityType.GCSV5_GUEST:
@@ -210,15 +213,19 @@ def collection_update(
             "keywords": keywords,
             "default_directory": default_directory,
             "force_encryption": force_encryption,
-            **kwargs,
+            "public": public,
+            "sharing_restrict_paths": sharing_restrict_paths,
+            "allow_guest_collections": allow_guest_collections,
+            "disable_anonymous_writes": disable_anonymous_writes,
+            "domain_name": domain_name,
+            "enable_https": enable_https,
+            "user_message": user_message,
+            "user_message_link": user_message_link,
+            "sharing_users_allow": sharing_users_allow,
+            "sharing_users_deny": sharing_users_deny,
         }.items()
         if v is not None
     }
-
-    if converted_kwargs.get("enable_https") is False:
-        converted_kwargs.pop("enable_https")
-    if converted_kwargs.pop("disable_https", None):
-        converted_kwargs["enable_https"] = False
 
     converted_kwargs.update(verify)
 
