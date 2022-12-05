@@ -1,5 +1,7 @@
 from __future__ import annotations
 
+import typing as t
+
 from . import formatters
 
 
@@ -26,13 +28,13 @@ class Field:
         self.wrap_enabled = wrap_enabled
         self.formatter = formatter
 
-    def get_value(self, data):
+    def get_value(self, data: t.Any) -> t.Any:
         import jmespath
 
         return jmespath.search(self.key, data)
 
-    def format(self, value):
+    def format(self, value: t.Any) -> str:
         return self.formatter.format(value)
 
-    def __call__(self, data):
+    def __call__(self, data: t.Any) -> str:
         return self.format(self.get_value(data))
