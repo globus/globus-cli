@@ -75,4 +75,4 @@ Releasing a Version
 -------------------
 
 If you are a CLI maintainer, you need to be able to do a release.
-For steps, see the link:./RELEASING[RELEASING doc].
+For steps, see the link:./RELEASING.adoc[RELEASING doc].
