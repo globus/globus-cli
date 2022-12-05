@@ -2,13 +2,14 @@ from __future__ import annotations
 
 import os
 import sys
+import typing as t
 
 import click
 
 from globus_cli.parsing.command_state import CommandState
 
 
-def outformat_is_json():
+def outformat_is_json() -> bool:
     """
     Only safe to call within a click context.
     """
@@ -17,7 +18,7 @@ def outformat_is_json():
     return state.outformat_is_json()
 
 
-def outformat_is_unix():
+def outformat_is_unix() -> bool:
     """
     Only safe to call within a click context.
     """
@@ -26,7 +27,7 @@ def outformat_is_unix():
     return state.outformat_is_unix()
 
 
-def outformat_is_text():
+def outformat_is_text() -> bool:
     """
     Only safe to call within a click context.
     """
@@ -35,7 +36,7 @@ def outformat_is_text():
     return state.outformat_is_text()
 
 
-def get_jmespath_expression():
+def get_jmespath_expression() -> t.Any:
     """
     Only safe to call within a click context.
     """
@@ -44,7 +45,7 @@ def get_jmespath_expression():
     return state.jmespath_expr
 
 
-def verbosity():
+def verbosity() -> int:
     """
     Only safe to call within a click context.
     """
@@ -53,7 +54,7 @@ def verbosity():
     return state.verbosity
 
 
-def is_verbose():
+def is_verbose() -> bool:
     """
     Only safe to call within a click context.
     """
@@ -62,11 +63,11 @@ def is_verbose():
     return state.is_verbose()
 
 
-def out_is_terminal():
+def out_is_terminal() -> bool:
     return sys.stdout.isatty()
 
 
-def err_is_terminal():
+def err_is_terminal() -> bool:
     return sys.stderr.isatty()
 
 

@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 import logging.config
 import typing as t
 import warnings
@@ -39,28 +41,28 @@ def _setup_logging(level="DEBUG"):
 
 
 class CommandState:
-    def __init__(self):
+    def __init__(self) -> None:
         # default is TEXT
-        self.output_format = TEXT_FORMAT
+        self.output_format: str = TEXT_FORMAT
         # a jmespath expression to process on the json output
-        self.jmespath_expr = None
+        self.jmespath_expr: t.Any | None = None
         # default is always False
         self.debug = False
         # default is 0
         self.verbosity = 0
         # by default, empty dict
-        self.http_status_map = {}
+        self.http_status_map: dict[int, int] = {}
 
-    def outformat_is_text(self):
+    def outformat_is_text(self) -> bool:
         return self.output_format == TEXT_FORMAT
 
-    def outformat_is_json(self):
+    def outformat_is_json(self) -> bool:
         return self.output_format == JSON_FORMAT
 
-    def outformat_is_unix(self):
+    def outformat_is_unix(self) -> bool:
         return self.output_format == UNIX_FORMAT
 
-    def is_verbose(self):
+    def is_verbose(self) -> bool:
         return self.verbosity > 0
 
 
