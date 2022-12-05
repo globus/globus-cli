@@ -4,7 +4,7 @@ import typing as t
 
 import click
 
-from globus_cli.types import DATA_CONTAINER_T
+from globus_cli.types import DATA_CONTAINER_T, ClickContextTree
 
 
 def get_current_option_help(
@@ -148,7 +148,9 @@ def shlex_process_stream(process_command: click.Command, stream: t.TextIO) -> No
                     raise
 
 
-def walk_contexts(name, cmd, parent_ctx=None):
+def walk_contexts(
+    name: str, cmd: click.MultiCommand, parent_ctx: click.Context | None = None
+) -> ClickContextTree:
     """
     A recursive walk over click Contexts for all commands in a tree
     Returns the results in a tree-like structure as triples,
@@ -161,6 +163,9 @@ def walk_contexts(name, cmd, parent_ctx=None):
     cmds, groups = [], []
     for subcmdname in cmd.list_commands(current_ctx):
         subcmd = cmd.get_command(current_ctx, subcmdname)
+        # it should be impossible, but if there is no such command, skip
+        if subcmd is None:
+            continue
         # explicitly skip hidden commands
         if subcmd.hidden:
             continue
