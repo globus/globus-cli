@@ -4,23 +4,23 @@
 
 == 3.10.0 (2022-12-05)
 
-## Bugfixes
+Bugfixes:
 
 * Fix a bug which caused `globus list-commands` not to show proper information
 
-## Enhancements
+Enhancements:
 
 * Add the `globus api flows` command for direct interactions with the Globus
   Flows service
 
 * Added commands for interacting with GCSv5 user credentials
-    * `globus endpoint user-credential list`
-    * `globus endpoint user-credential show`
-    * `globus endpoint user-credential delete`
-    * `globus endpoint user-credential create`
-        * `globus endpoint user-credential create from-json`
-        * `globus endpoint user-credential create posix`
-        * `globus endpoint user-credential create s3`
+** `globus endpoint user-credential list`
+** `globus endpoint user-credential show`
+** `globus endpoint user-credential delete`
+** `globus endpoint user-credential create`
+*** `globus endpoint user-credential create from-json`
+*** `globus endpoint user-credential create posix`
+*** `globus endpoint user-credential create s3`
 
 * Added `globus endpoint storage-gateway list`
 
@@ -36,19 +36,19 @@
 * `globus ls` has improved behavior when the `--filter` and `--recursive` options
    are used in combination
 
-  * directory names are not matched against the filter, allowing the operation to
-    traverse directories regardless of their names
+** directory names are not matched against the filter, allowing the operation to
+   traverse directories regardless of their names
 
-  * the `--filter` is still applied to filenames in all directories traversed by
-    the `ls` operation
+** the `--filter` is still applied to filenames in all directories traversed by
+   the `ls` operation
 
-  * directory names can be filtered out of the text output by eliminating
-    lines which end in `/`
+** directory names can be filtered out of the text output by eliminating
+   lines which end in `/`
 
-  * the behaviors of `globus ls` commands with `--recursive` or `--filter`, but not
-    both, are unchanged
+** the behaviors of `globus ls` commands with `--recursive` or `--filter`, but not
+   both, are unchanged
 
-## Other
+Other:
 
 * `globus endpoint create` is now hidden and displays a deprecation warning
   when used
