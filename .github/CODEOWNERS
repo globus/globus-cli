@@ -1,0 +1,15 @@
+#
+# codeowners reference:
+#   https://docs.github.com/en/repositories/managing-your-repositorys-settings-and-features/customizing-your-repository/about-code-owners
+#
+# for ease of comparison, usernames are kept alphabetized
+#
+
+# default rule
+* @aaschaer @ada-globus @derek-globus @kurtmckee @sirosen
+
+# Flows service
+**/flows/ @ada-globus @derek-globus @kurtmckee @sirosen
+
+# Timer service
+**/timer/ @ada-globus @derek-globus @kurtmckee @sirosen
