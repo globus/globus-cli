@@ -47,7 +47,7 @@ setup(
     install_requires=[
         "globus-sdk==3.15.0",
         "click>=8.0.0,<9",
-        "jmespath==0.10.0",
+        "jmespath==1.0.1",
         # these are dependencies of the SDK, but they are used directly in the CLI
         # declare them here in case the underlying lib ever changes
         "requests>=2.19.1,<3.0.0",
