@@ -8,7 +8,7 @@ from globus_cli.parsing import group
         "delete": (".delete", "delete_command"),
         "list": (".list", "list_command"),
         "show": (".show", "show_command"),
-        "udpate": (".update", "update_command"),
+        "update": (".update", "update_command"),
     },
 )
 def permission_command() -> None:
