@@ -31,7 +31,10 @@ def test_mix_user_and_domains(run_line, userparam):
 def test_all_mutex(run_line, idparam):
     load_response_set("cli.foo_user_info")
     result = run_line(f"globus session update --all {idparam}", assert_exit_code=2)
-    assert "IDENTITY values and --all are mutually exclusive" in result.stderr
+    assert (
+        "IDENTITY values, --all, and --policy are all mutually exclusive"
+        in result.stderr
+    )
 
 
 def test_username_flow(run_line, mock_remote_session, mock_link_flow):
@@ -89,3 +92,19 @@ def test_all_flow(run_line, mock_remote_session, mock_local_server_flow):
     assert set(
         call_kwargs["session_params"]["session_required_identities"].split(",")
     ) == set(ids)
+
+
+def test_policy_flow(run_line, mock_remote_session, mock_link_flow):
+    mock_remote_session.return_value = True
+
+    load_response_set("cli.foo_user_info")
+
+    result = run_line("globus session update --policy foo,bar")
+
+    assert "You have successfully updated your CLI session." in result.output
+
+    mock_link_flow.assert_called_once()
+    _call_args, call_kwargs = mock_link_flow.call_args
+    assert "session_params" in call_kwargs
+    assert "session_required_policies" in call_kwargs["session_params"]
+    assert call_kwargs["session_params"]["session_required_policies"] == "foo,bar"

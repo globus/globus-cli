@@ -39,6 +39,8 @@ def session_hook(exception: globus_sdk.GlobusAPIError) -> None:
 
     identities = exception.info.authorization_parameters.session_required_identities
     domains = exception.info.authorization_parameters.session_required_single_domain
+    policy = exception.info.authorization_parameters.session_required_policies
+
     if identities or domains:
         # cast: mypy can't deduce that `domains` is not None if `identities` is None
         update_target = (
@@ -49,6 +51,12 @@ def session_hook(exception: globus_sdk.GlobusAPIError) -> None:
         click.echo(
             "Please run\n\n"
             f"    globus session update {update_target}\n\n"
+            "to re-authenticate with the required identities"
+        )
+    elif policy:
+        click.echo(
+            "Please run\n\n"
+            f"    globus session update --policy {policy}\n\n"
             "to re-authenticate with the required identities"
         )
     else:
