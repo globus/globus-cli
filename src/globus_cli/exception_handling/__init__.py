@@ -7,7 +7,11 @@ format an exception.
 Define an except hook per exception type that we want to treat specially,
 generally types of SDK errors, and dispatch onto tht set of hooks.
 """
+from __future__ import annotations
+
 import sys
+import types
+import typing as t
 
 import click
 import click.exceptions
@@ -20,7 +24,9 @@ from .registry import find_handler
 register_all_hooks()
 
 
-def custom_except_hook(exc_info):
+def custom_except_hook(
+    exc_info: tuple[type[Exception], Exception, types.TracebackType]
+) -> t.NoReturn:
     """
     A custom excepthook to present python errors produced by the CLI.
     We don't want to show end users big scary stacktraces if they aren't python
