@@ -86,9 +86,8 @@ def create_introspect_data(user_attrs):
                     "amr": None,
                     "idp": user_attrs["idp_id"],
                     "auth_time": int(
-                        time.strftime(
-                            "%s",
-                            time.strptime(user_attrs["auth_time"], "%Y-%m-%d %H:%M %Z"),
+                        time.mktime(
+                            time.strptime(user_attrs["auth_time"], "%Y-%m-%d %H:%M %Z")
                         )
                     ),
                     "custom_claims": {},
