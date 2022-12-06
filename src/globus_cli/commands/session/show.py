@@ -1,4 +1,4 @@
-import time
+import datetime
 
 import globus_sdk
 
@@ -88,8 +88,10 @@ def session_show(*, login_manager):
         {
             "id": key,
             "username": resolved_ids.get(key, {}).get("username"),
-            "auth_time": time.strftime(
-                "%Y-%m-%d %H:%M %Z", time.localtime(vals["auth_time"])
+            "auth_time": (
+                datetime.datetime.fromtimestamp(vals["auth_time"])
+                .astimezone()
+                .strftime("%Y-%m-%d %H:%M %Z")
             ),
         }
         for key, vals in authentications.items()
@@ -99,8 +101,6 @@ def session_show(*, login_manager):
         "For information on your primary identity or full identity set see\n"
         "  globus whoami\n"
     )
-
-    print(list_data)
 
     display(
         list_data,
