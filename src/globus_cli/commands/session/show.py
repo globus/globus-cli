@@ -10,7 +10,13 @@ from globus_cli.login_manager import (
     token_storage_adapter,
 )
 from globus_cli.parsing import command
-from globus_cli.termio import display, print_command_hint
+from globus_cli.termio import Field, display, print_command_hint
+
+SESSION_FIELDS = [
+    Field("Username", "username"),
+    Field("ID", "id"),
+    Field("Auth Time", "auth_time"),
+]
 
 
 @command(
@@ -94,8 +100,10 @@ def session_show(*, login_manager):
         "  globus whoami\n"
     )
 
+    print(list_data)
+
     display(
         list_data,
         json_converter=lambda x: session_info,
-        fields=[("Username", "username"), ("ID", "id"), ("Auth Time", "auth_time")],
+        fields=SESSION_FIELDS,
     )
