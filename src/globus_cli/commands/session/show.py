@@ -100,8 +100,6 @@ def session_show(*, login_manager):
         "  globus whoami\n"
     )
 
-    print(list_data)
-
     display(
         list_data,
         json_converter=lambda x: session_info,
