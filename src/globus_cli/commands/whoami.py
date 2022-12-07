@@ -49,7 +49,7 @@ $ globus whoami --linked-identities
     help="Also show identities linked to the currently logged-in primary identity.",
 )
 @LoginManager.requires_login(LoginManager.AUTH_RS)
-def whoami_command(*, login_manager: LoginManager, linked_identities: bool):
+def whoami_command(*, login_manager: LoginManager, linked_identities: bool) -> None:
     """
     Display information for the currently logged-in user.
     """
