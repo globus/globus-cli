@@ -13,12 +13,12 @@ if t.TYPE_CHECKING:
 
 def transfer_task_wait_with_io(
     transfer_client: CustomTransferClient,
-    meow,
-    heartbeat,
-    polling_interval,
-    timeout,
-    task_id,
-    timeout_exit_code,
+    meow: bool,
+    heartbeat: bool,
+    polling_interval: int,
+    timeout: int | None,
+    task_id: str,
+    timeout_exit_code: int,
 ) -> None:
     """
     Options are the core "task wait" options, including the `--meow` easter
@@ -29,13 +29,13 @@ def transfer_task_wait_with_io(
     `noabort=True` param or somesuch in the future if necessary.)
     """
 
-    def timed_out(waited_time):
+    def timed_out(waited_time: int) -> bool:
         if timeout is None:
             return False
         else:
             return waited_time >= timeout
 
-    def check_completed():
+    def check_completed() -> bool:
         completed = transfer_client.task_wait(
             task_id, timeout=polling_interval, polling_interval=polling_interval
         )
