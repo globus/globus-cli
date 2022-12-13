@@ -13,10 +13,15 @@ from globus_cli.termio import display
 
 
 class QueryParamType(click.ParamType):
-    def get_metavar(self, param):
+    def get_metavar(self, param: click.Parameter) -> str:
         return "Key=Value"
 
-    def convert(self, value, param, ctx):
+    def convert(
+        self,
+        value: str | None,
+        param: click.Parameter | None,
+        ctx: click.Context | None,
+    ) -> t.Tuple[str, str] | None:
         value = super().convert(value, param, ctx)
         if value is None:
             return None
@@ -27,10 +32,15 @@ class QueryParamType(click.ParamType):
 
 
 class HeaderParamType(click.ParamType):
-    def get_metavar(self, param):
+    def get_metavar(self, param: click.Parameter) -> str:
         return "Key:Value"
 
-    def convert(self, value, param, ctx):
+    def convert(
+        self,
+        value: str | None,
+        param: click.Parameter | None,
+        ctx: click.Context | None,
+    ) -> t.Tuple[str, str] | None:
         value = super().convert(value, param, ctx)
         if value is None:
             return None
@@ -229,7 +239,7 @@ sends a 'GET' request to '{_get_url(service_name)}foo/bar'
         allow_errors: bool,
         allow_redirects: bool,
         no_retry: bool,
-    ):
+    ) -> None:
         # the overall flow of this command will be as follows:
         # - prepare a client
         # - prepare parameters for the request
