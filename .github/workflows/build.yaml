@@ -107,8 +107,8 @@ jobs:
       - uses: actions/setup-python@v4
         with:
           python-version: "3.7"
-      - name: Install Requirements
-        run: python -m pip install -U pip setuptools tox
+      # use tox v3 to support the old virtualenv version
+      - run: python -m pip install -U pip setuptools 'tox<4'
       - name: Downgrade Virtualenv
         run: python -m pip install 'virtualenv==16.7.12'
       - name: Run Tests
