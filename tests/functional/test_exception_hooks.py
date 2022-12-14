@@ -5,8 +5,8 @@ from globus_sdk._testing import RegisteredResponse, load_response, load_response
 
 def test_session_required_policies(run_line):
     """
-    ls on hits a 403 with session_required_policies set
-    confirms correct globus session update command in helptext
+    confirms a correct `globus session update` command is shown in helptext
+    after hitting a 403 with session_required_policies set
     """
     meta = load_response_set("cli.transfer_activate_success").metadata
     ep_id = meta["endpoint_id"]
