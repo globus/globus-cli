@@ -35,7 +35,7 @@ def _is_pipx_install() -> bool:
     return __file__.startswith(str(_PIPX_HOME))
 
 
-def _call_pip(*args):
+def _call_pip(*args: str) -> None:
     """
     Invoke pip *safely* and in the *supported* way:
     https://pip.pypa.io/en/latest/user_guide/#using-pip-from-your-program
@@ -45,7 +45,7 @@ def _call_pip(*args):
     subprocess.check_call(all_args)
 
 
-def _check_pip_installed():
+def _check_pip_installed() -> bool:
     """
     Invoke `pip --version` and make sure it doesn't error.
     Use check_output to capture stdout and stderr
@@ -152,7 +152,7 @@ def update_command(yes: bool, force: bool) -> None:
     # old-fashioned direct inspection of `__file__` and the like DURING an
     # atexit method. Anything outside of atexit methods remains safe!
     @atexit.register
-    def do_upgrade():
+    def do_upgrade() -> None:
         install_args = ["install", "--upgrade", target_version]
         if _is_user_install() and not _is_pipx_install():
             install_args.insert(1, "--user")
