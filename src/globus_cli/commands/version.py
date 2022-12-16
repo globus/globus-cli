@@ -1,6 +1,9 @@
+from __future__ import annotations
+
 import platform
 import site
 import sys
+import typing as t
 
 import click
 
@@ -8,8 +11,11 @@ from globus_cli.parsing import command
 from globus_cli.termio import is_verbose, verbosity
 from globus_cli.version import get_versions
 
+if t.TYPE_CHECKING:
+    from distutils.version import LooseVersion
 
-def _get_package_data():
+
+def _get_package_data() -> list[list[str]]:
     """
     Import a set of important packages and return relevant data about them in a
     dict.
@@ -17,7 +23,7 @@ def _get_package_data():
     problems, and to make iteration simpler.
     """
     moddata = []
-    modlist = (
+    modlist: tuple[str, ...] = (
         "click",
         "cryptography",
         "globus_cli",
@@ -51,13 +57,13 @@ def _get_package_data():
     return moddata
 
 
-def _get_versionblock_message(current, latest):
+def _get_versionblock_message(current: LooseVersion, latest: LooseVersion) -> str:
     return f"""\
 Installed version:  {current}
 Latest version:     {latest}"""
 
 
-def _get_post_message(current, latest):
+def _get_post_message(current: LooseVersion, latest: LooseVersion) -> str:
     if current == latest:
         return "You are running the latest version of the Globus CLI"
     if current > latest:
@@ -70,7 +76,7 @@ def _get_post_message(current, latest):
     disable_options=["format", "map_http_status"],
     short_help="Show the version and exit",
 )
-def version_command():
+def version_command() -> None:
     """
     Displays the current and latest versions of the Globus CLI.
 
