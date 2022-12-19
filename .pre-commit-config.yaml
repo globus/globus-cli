@@ -22,7 +22,7 @@ repos:
         - 'flake8-bugbear==22.10.27'
         - 'flake8-typing-as-t==0.0.3'
 - repo: https://github.com/PyCQA/isort
-  rev: 5.11.0
+  rev: v5.11.3
   hooks:
     - id: isort
 - repo: https://github.com/asottile/pyupgrade
