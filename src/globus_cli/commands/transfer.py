@@ -181,7 +181,7 @@ fi
 def transfer_command(
     *,
     login_manager: LoginManager,
-    batch: t.TextIO,
+    batch: t.TextIO | None,
     sync_level: Literal["exists", "size", "mtime", "checksum"] | None,
     recursive: bool,
     source: tuple[uuid.UUID, str | None],

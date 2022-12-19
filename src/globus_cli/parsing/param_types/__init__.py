@@ -6,6 +6,7 @@ from .endpoint_plus_path import (
 )
 from .identity_type import IdentityType, ParsedIdentity
 from .location import LocationType
+from .notify_param import NotificationParamType
 from .nullable import StringOrNull, UrlOrNull, nullable_multi_callback
 from .prefix_mapper import JSONStringOrFile
 from .task_path import TaskPath
@@ -22,6 +23,7 @@ __all__ = (
     "StringOrNull",
     "UrlOrNull",
     "nullable_multi_callback",
+    "NotificationParamType",
     "JSONStringOrFile",
     "TaskPath",
     "TimedeltaType",

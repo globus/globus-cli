@@ -32,3 +32,7 @@ DATA_CONTAINER_T = t.Union[
     "globus_sdk.GlobusHTTPResponse",
     "CLIStubResponse",
 ]
+
+JsonValue: TypeAlias = t.Union[
+    int, float, str, bool, None, t.List["JsonValue"], t.Dict[str, "JsonValue"]
+]

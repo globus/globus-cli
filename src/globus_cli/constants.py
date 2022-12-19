@@ -5,10 +5,8 @@ It should not depend on any other part of the globus-cli codebase.
 (If you need to import something else, maybe it's not simple enough to be a constant...)
 """
 
-__all__ = ("EXPLICIT_NULL",)
 
-
-class _ExplicitNullClass:
+class ExplicitNullType:
     """
     Magic sentinel value used to disambiguate values which are being
     intentionally nulled from values which are `None` because no argument was
@@ -22,4 +20,4 @@ class _ExplicitNullClass:
         return "null"
 
 
-EXPLICIT_NULL = _ExplicitNullClass()
+EXPLICIT_NULL = ExplicitNullType()
