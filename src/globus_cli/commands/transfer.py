@@ -1,5 +1,10 @@
 from __future__ import annotations
 
+import datetime
+import sys
+import typing as t
+import uuid
+
 import click
 import globus_sdk
 
@@ -19,6 +24,11 @@ from globus_cli.parsing import (
     verify_checksum_option,
 )
 from globus_cli.termio import Field, TextMode, display
+
+if sys.version_info < (3, 8):
+    from typing_extensions import Literal
+else:
+    from typing import Literal
 
 
 @command(
@@ -171,31 +181,31 @@ fi
 def transfer_command(
     *,
     login_manager: LoginManager,
-    batch,
-    sync_level,
-    recursive,
-    destination,
-    source,
-    checksum_algorithm,
-    external_checksum,
-    skip_source_errors,
-    fail_on_quota_errors,
-    exclude,
-    label,
-    preserve_timestamp,
-    verify_checksum,
-    encrypt_data,
-    submission_id,
-    dry_run,
-    delete,
-    deadline,
-    skip_activation_check,
-    notify,
-    perf_cc,
-    perf_p,
-    perf_pp,
-    perf_udt,
-):
+    batch: t.TextIO,
+    sync_level: Literal["exists", "size", "mtime", "checksum"] | None,
+    recursive: bool,
+    source: tuple[uuid.UUID, str | None],
+    destination: tuple[uuid.UUID, str | None],
+    checksum_algorithm: str | None,
+    external_checksum: str | None,
+    skip_source_errors: bool,
+    fail_on_quota_errors: bool,
+    exclude: list[str] | None,
+    label: str | None,
+    preserve_timestamp: bool,
+    verify_checksum: bool,
+    encrypt_data: bool,
+    submission_id: str | None,
+    dry_run: bool,
+    delete: bool,
+    deadline: datetime.datetime | None,
+    skip_activation_check: bool,
+    notify: dict[str, bool],
+    perf_cc: int | None,
+    perf_p: int | None,
+    perf_pp: int | None,
+    perf_udt: bool | None,
+) -> None:
     """
     Copy a file or directory from one endpoint to another as an asynchronous
     task.
@@ -264,6 +274,8 @@ def transfer_command(
     """
     from globus_cli.services.transfer import add_batch_to_transfer_data, autoactivate
 
+    transfer_client = login_manager.get_transfer_client()
+
     source_endpoint, cmd_source_path = source
     dest_endpoint, cmd_dest_path = destination
 
@@ -282,11 +294,6 @@ def transfer_command(
             "which need it"
         )
 
-    if (cmd_source_path is None or cmd_dest_path is None) and (not batch):
-        raise click.UsageError(
-            "transfer requires either SOURCE_PATH and DEST_PATH or --batch"
-        )
-
     # the performance options (of which there are a few), have elements which should be
     # omitted in some cases
     # put them together before passing to TransferData
@@ -298,19 +305,9 @@ def transfer_command(
         if v is not None
     }
 
-    def _make_exclude_rule(name_pattern):
-        return {"DATA_TYPE": "filter_rule", "method": "exclude", "name": name_pattern}
-
-    if exclude:
-        filter_rules: list[str] | None = [_make_exclude_rule(s) for s in exclude]
-    else:
-        filter_rules = None
-
-    transfer_client = login_manager.get_transfer_client()
     transfer_data = globus_sdk.TransferData(
-        transfer_client,
-        source_endpoint,
-        dest_endpoint,
+        source_endpoint=source_endpoint,
+        destination_endpoint=dest_endpoint,
         label=label,
         sync_level=sync_level,
         verify_checksum=verify_checksum,
@@ -320,20 +317,23 @@ def transfer_command(
         deadline=deadline,
         skip_source_errors=skip_source_errors,
         fail_on_quota_errors=fail_on_quota_errors,
-        additional_fields={
-            "delete_destination_extra": delete,
-            "skip_activation_check": skip_activation_check,
-            "filter_rules": filter_rules,
-            **notify,
-            **perf_opts,
-        },
+        skip_activation_check=skip_activation_check,
+        delete_destination_extra=delete,
+        additional_fields={**perf_opts, **notify},
     )
+
+    for exclude_name in exclude or ():
+        transfer_data.add_filter_rule(exclude_name)
 
     if batch:
         add_batch_to_transfer_data(
             cmd_source_path, cmd_dest_path, checksum_algorithm, transfer_data, batch
         )
     else:
+        if cmd_source_path is None or cmd_dest_path is None:
+            raise click.UsageError(
+                "transfer requires either SOURCE_PATH and DEST_PATH or --batch"
+            )
         transfer_data.add_item(
             cmd_source_path,
             cmd_dest_path,
