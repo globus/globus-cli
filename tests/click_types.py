@@ -2,6 +2,7 @@
 check annotations on click commands
 requires python3.8+
 """
+from __future__ import annotations
 
 import datetime
 import types
