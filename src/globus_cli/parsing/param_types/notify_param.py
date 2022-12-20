@@ -16,10 +16,8 @@ class NotificationParamType(click.ParamType):
 
         In code, produces True, False, or a set
         """
-        # if no value was set, don't set any explicit options
-        # the API default is "everything on"
         if value is None:
-            return {}
+            return None
 
         value = value.lower()
         value = [x.strip() for x in value.split(",")]

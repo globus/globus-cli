@@ -11,6 +11,7 @@ import uuid
 import click
 
 from globus_cli.constants import ExplicitNullType
+from globus_cli.parsing.known_callbacks import none_to_empty_dict
 from globus_cli.parsing.param_types import (
     CommaDelimitedList,
     EndpointPlusPath,
@@ -88,7 +89,17 @@ def _param2types(param_obj: click.Parameter) -> tuple[type, ...]:
     raise NotImplementedError(f"unsupported parameter type: {param_type}")
 
 
-_NEVER_NULL_TYPES = (NotificationParamType,)
+_NEVER_NULL_CALLBACKS = (none_to_empty_dict,)
+
+
+def _option_defaults_to_none(o: click.Option) -> bool:
+    if o.default is not None:
+        return False
+    if o.callback is None:
+        return True
+    if o.callback in _NEVER_NULL_CALLBACKS:
+        return False
+    return True
 
 
 def check_has_correct_annotations_for_click_args(f):
@@ -115,9 +126,7 @@ def check_has_correct_annotations_for_click_args(f):
         #   '--foo' is a count option with a default of 0
         #   '--foo' uses a param type which converts None to a default value
         if isinstance(param_obj, click.Option):
-            if param_obj.default is None and not isinstance(
-                param_obj.type, _NEVER_NULL_TYPES
-            ):
+            if _option_defaults_to_none(param_obj):
                 possible_types.add(None.__class__)
 
         for param_type in _param2types(param_obj):
