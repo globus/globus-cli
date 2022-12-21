@@ -87,3 +87,23 @@ def test_notify_cannot_mix_opt_with_off(runner):
     result = runner.invoke(foo, ["--notify", "off,inactive"])
     assert result.exit_code == 2
     assert '--notify cannot accept "off" and another value' in result.output
+
+
+@pytest.mark.parametrize(
+    "incomplete_value, expected_completions",
+    (
+        ("", {"on", "off", "succeeded", "failed", "inactive"}),
+        ("o", {"on", "off"}),
+        ("fail", {"failed"}),
+        ("failed", {"failed"}),
+        ("failed,inactive", {"failed,inactive"}),
+        ("failed,inacti", {"failed,inactive"}),
+        ("succeeded,", {"succeeded,failed", "succeeded,inactive"}),
+    ),
+)
+def test_notify_shell_complete(runner, incomplete_value, expected_completions):
+    param_type = NotificationParamType()
+    param = click.Option(["--notify"], type=param_type)
+    completions = param_type.shell_complete(click.Context(foo), param, incomplete_value)
+    got_values = {c.value for c in completions}
+    assert got_values == expected_completions
