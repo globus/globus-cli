@@ -5,7 +5,6 @@ requires python3.8+
 from __future__ import annotations
 
 import datetime
-import types
 import typing as t
 import uuid
 
@@ -29,7 +28,22 @@ from globus_cli.parsing.param_types import (
 from globus_cli.types import JsonValue
 
 
-def _param2types(param_obj: click.Parameter) -> tuple[type, ...]:
+def _paramtypes_from_param_type(param_obj: click.Parameter) -> tuple[type, ...]:
+    """
+    Given a Parameter instance, read the 'type' attribute and deduce the tuple of
+    possible types which it describes
+
+    Supports both `click` native types and `globus_cli` custom types
+
+    For example:
+        IntParamType -> (int,)
+        IntRange -> (int,)
+        StringOrNull -> (str, None)
+
+    Returning types as a tuple rather than building a union when there is more than one
+    ensures that we build "flat" unions of the form `Union[x, y, z]` and avoid nested
+    unions like `Union[x, Union[y, z]]`.
+    """
     param_type = param_obj.type
 
     # click types
@@ -93,71 +107,93 @@ def _param2types(param_obj: click.Parameter) -> tuple[type, ...]:
 _NEVER_NULL_CALLBACKS = (none_to_empty_dict,)
 
 
+def _is_multi_param(p: click.Parameter) -> bool:
+    if isinstance(p, click.Option) and p.multiple:
+        return True
+
+    if isinstance(p, click.Argument) and p.nargs == -1:
+        return True
+
+    return False
+
+
 def _option_defaults_to_none(o: click.Option) -> bool:
+    # if `default=1`, then the default can't be `None`
     if o.default is not None:
         return False
-    if o.callback is None:
-        return True
-    if o.callback in _NEVER_NULL_CALLBACKS:
+
+    # a multiple option defaults to () if default is unset or None
+    if o.multiple:
         return False
+
+    # got a known non-nullable callback? then it's not None
+    if o.callback is not None and o.callback in _NEVER_NULL_CALLBACKS:
+        return False
+
+    # fallthrough case: True
     return True
+
+
+def deduce_type_from_parameter(param: click.Paramter) -> type:
+    """
+    Convert a click.Paramter object to a type or union of types
+    """
+    possible_types = set()
+
+    # only implicitly add NoneType to the types if the default is None
+    # some possible cases to consider:
+    #   '--foo' is a string with an automatic default of None
+    #   '--foo/--no-foo' is a bool flag with an automatic default of False
+    #   '--foo/--no-foo' is a bool flag with an explicit default of None
+    #   '--foo' is a count option with a default of 0
+    #   '--foo' uses a param type which converts None to a default value
+    if isinstance(param, click.Option):
+        if _option_defaults_to_none(param):
+            possible_types.add(None.__class__)
+
+    # if a parameter has `multiple=True` or `nargs=-1`, then the types which can be
+    # deduced from the parameter should be exposed as an any-length tuple of unions
+    if _is_multi_param(param):
+        param_types_tuple = _paramtypes_from_param_type(param)
+        if len(param_types_tuple) == 1:
+            param_type = tuple[param_types_tuple[0], ...]
+        else:
+            param_type = tuple[t.Union[param_types_tuple], ...]
+        possible_types.add(param_type)
+    # if not multiple, then each of the possible types should be added to the
+    # collection for a *potential* top-level union
+    else:
+        for param_type in _paramtypes_from_param_type(param):
+            possible_types.add(param_type)
+
+    # should be unreachable
+    if len(possible_types) == 0:
+        raise ValueError(f"parameter '{param.name}' had no deduced parameter types")
+
+    # exactly one type: not a union, so unpack the only element
+    if len(possible_types) == 1:
+        return possible_types.pop()
+
+    # more than one type: a union of the elements
+    return t.Union[tuple(possible_types)]
 
 
 def check_has_correct_annotations_for_click_args(f):
     hints = t.get_type_hints(f.callback)
-    param_map = {}
     for param in f.params:
         # skip params which do not get passed to the callback
         if param.expose_value is False:
             continue
+        if param.name not in hints:
+            raise ValueError(f"expected parameter '{param.name}' was not in type hints")
 
-        param_map[param.name] = param
+        expected_type = deduce_type_from_parameter(param)
+        annotated_param_type = hints[param.name]
 
-    for name in param_map:
-        if name not in hints:
-            raise ValueError(f"expected parameter '{name}' was not in type hints")
-
-    for name, param_obj in param_map.items():
-        possible_types = set()
-        # only implicitly add NoneType to the types if the default is None
-        # some possible cases to consider:
-        #   '--foo' is a string with an automatic default of None
-        #   '--foo/--no-foo' is a bool flag with an automatic default of False
-        #   '--foo/--no-foo' is a bool flag with an explicit default of None
-        #   '--foo' is a count option with a default of 0
-        #   '--foo' uses a param type which converts None to a default value
-        if isinstance(param_obj, click.Option):
-            if _option_defaults_to_none(param_obj):
-                possible_types.add(None.__class__)
-
-        for param_type in _param2types(param_obj):
-            if param_obj.multiple:
-                param_type = list[(param_type,)]
-            possible_types.add(param_type)
-
-        annotated_param_type = hints[name]
-        annotation_base = t.get_origin(annotated_param_type)
-        if (
-            annotation_base is t.Union
-            or annotation_base is types.UnionType  # noqa: E721
-        ):
-            annotated_types = t.get_args(annotated_param_type)
-            if set(annotated_types) != possible_types:
-                raise ValueError(
-                    f"parameter '{name}' has unexpected parameter types "
-                    f"'{annotated_types}' rather than '{possible_types}'"
-                )
-        else:
-            if len(possible_types) != 1:
-                raise ValueError(
-                    f"parameter '{name}' has unexpected parameter types "
-                    f"'{annotated_param_type}' rather than '{possible_types}'"
-                )
-            expected_type = possible_types.pop()
-            if annotated_param_type != expected_type:
-                raise ValueError(
-                    f"parameter '{name}' has unexpected parameter types "
-                    f"'{annotated_param_type}' rather than '{expected_type}'"
-                )
+        if annotated_param_type != expected_type:
+            raise ValueError(
+                f"parameter '{param.name}' has unexpected parameter type "
+                f"'{annotated_param_type}' rather than '{expected_type}'"
+            )
 
     return True
