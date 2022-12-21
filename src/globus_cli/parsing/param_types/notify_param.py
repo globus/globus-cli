@@ -1,12 +1,16 @@
+from __future__ import annotations
+
 import click
 from click.shell_completion import CompletionItem
 
 
 class NotificationParamType(click.ParamType):
-    def get_metavar(self, param) -> str:
+    def get_metavar(self, param: click.Parameter) -> str:
         return "{on,off,succeeded,failed,inactive}"
 
-    def convert(self, value, param, ctx):
+    def convert(
+        self, value: str, param: click.Parameter | None, ctx: click.Context | None
+    ) -> dict[str, bool]:
         """
         Parse --notify
         - "" is the same as "off"
@@ -23,48 +27,45 @@ class NotificationParamType(click.ParamType):
           - notify_on_inactive
           - notify_on_succeeded
         """
-        value = value.lower()
-        value = [x.strip() for x in value.split(",")]
-        # [""] is what you'll get if value is "" to start with
-        # special-case it into "off", which helps avoid surprising scripts
-        # which take a notification settings as inputs and build --notify
-        if value == [""]:
-            value = ["off"]
+        # Build a set of all values, excluding empty strings.
+        values = {v.strip() for v in value.lower().split(",")} - {""}
 
-        off = "off" in value
-        on = "on" in value
-        # set-ize it -- duplicates are fine
-        vals = {x for x in value if x not in ("off", "on")}
+        # You'll get an empty set if value is "" or "," to start with.
+        # Special-case it into "off", which helps avoid surprising scripts
+        # which take notification settings as inputs and build '--notify ""'.
+        if not values:
+            values = {"off"}
 
-        if (vals or on) and off:
-            raise click.UsageError('--notify cannot accept "off" and another value')
-
-        allowed_vals = {"on", "succeeded", "failed", "inactive"}
-        if not vals <= allowed_vals:
+        # Disallow invalid values.
+        invalid_values = values - {"off", "on", "succeeded", "failed", "inactive"}
+        if invalid_values:
             raise click.UsageError(
-                "--notify received at least one invalid value among {}".format(
-                    list(vals)
-                )
+                f"--notify received these invalid values: {list(invalid_values)}"
             )
+
+        # Disallow combining "off" with other values.
+        values_other_than_off = values - {"off"}
+        if "off" in values and values_other_than_off:
+            raise click.UsageError('--notify cannot accept "off" and another value')
 
         # return the notification options to send!
         # on means don't set anything (default)
-        if on:
+        if "on" in values:
             return {}
         # off means turn off everything
-        if off:
+        if "off" in values:
             return {
                 "notify_on_succeeded": False,
                 "notify_on_failed": False,
                 "notify_on_inactive": False,
             }
+
         # otherwise, return the exact set of values seen
-        else:
-            return {
-                "notify_on_succeeded": "succeeded" in vals,
-                "notify_on_failed": "failed" in vals,
-                "notify_on_inactive": "inactive" in vals,
-            }
+        return {
+            "notify_on_succeeded": "succeeded" in values,
+            "notify_on_failed": "failed" in values,
+            "notify_on_inactive": "inactive" in values,
+        }
 
     def shell_complete(
         self, ctx: click.Context, param: click.Parameter, incomplete: str

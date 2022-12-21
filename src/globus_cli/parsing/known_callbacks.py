@@ -1,4 +1,11 @@
-def none_to_empty_dict(ctx, param, value):
+import typing as t
+
+import click
+
+
+def none_to_empty_dict(
+    ctx: click.Context, param: click.Parameter, value: t.Any
+) -> t.Any:
     """
     This is a "preset" callback which converts None to the empty dict
 

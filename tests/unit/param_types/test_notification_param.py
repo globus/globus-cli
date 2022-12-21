@@ -79,7 +79,7 @@ def test_notify_unrecognized_opt(runner):
     # invalid opts get rejected
     result = runner.invoke(foo, ["--notify", "whenever"])
     assert result.exit_code == 2
-    assert "--notify received at least one invalid value" in result.output
+    assert "--notify received these invalid values: ['whenever']" in result.output
 
 
 def test_notify_cannot_mix_opt_with_off(runner):
