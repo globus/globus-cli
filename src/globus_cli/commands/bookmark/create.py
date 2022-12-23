@@ -1,5 +1,7 @@
 from __future__ import annotations
 
+import uuid
+
 import click
 
 from globus_cli.login_manager import LoginManager
@@ -38,7 +40,7 @@ $ globus bookmark create \
 def bookmark_create(
     *,
     login_manager: LoginManager,
-    endpoint_plus_path: tuple[str, str],
+    endpoint_plus_path: tuple[uuid.UUID, str],
     bookmark_name: str,
 ) -> None:
     """

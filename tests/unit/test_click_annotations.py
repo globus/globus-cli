@@ -10,6 +10,11 @@ from tests.click_types import check_has_correct_annotations_for_click_args
 @pytest.mark.parametrize(
     "modname, command_name",
     (
+        ("bookmark.create", "bookmark_create"),
+        ("bookmark.delete", "bookmark_delete"),
+        ("bookmark.list", "bookmark_list"),
+        ("bookmark.rename", "bookmark_rename"),
+        ("bookmark.show", "bookmark_show"),
         ("cli_profile_list", "cli_profile_list"),
         ("transfer", "transfer_command"),
         ("update", "update_command"),
