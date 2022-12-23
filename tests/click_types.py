@@ -28,6 +28,15 @@ from globus_cli.parsing.param_types import (
 from globus_cli.types import JsonValue
 
 
+class BadAnnotationError(ValueError):
+    def __init__(self, errors: list[str]) -> None:
+        self.errors = errors
+        if len(errors) == 1:
+            super().__init__(errors[0])
+        else:
+            super().__init__("\n  " + "\n  ".join(errors))
+
+
 def _paramtypes_from_param_type(param_obj: click.Parameter) -> tuple[type, ...]:
     """
     Given a Parameter instance, read the 'type' attribute and deduce the tuple of
@@ -180,20 +189,28 @@ def deduce_type_from_parameter(param: click.Paramter) -> type:
 
 def check_has_correct_annotations_for_click_args(f):
     hints = t.get_type_hints(f.callback)
+    errors = []
     for param in f.params:
         # skip params which do not get passed to the callback
         if param.expose_value is False:
             continue
         if param.name not in hints:
-            raise ValueError(f"expected parameter '{param.name}' was not in type hints")
+            errors.append(f"expected parameter '{param.name}' was not in type hints")
+            continue
 
         expected_type = deduce_type_from_parameter(param)
         annotated_param_type = hints[param.name]
 
         if annotated_param_type != expected_type:
-            raise ValueError(
+            if expected_type == JsonValue:
+                expected_type = "globus_cli.types.JsonValue"
+            errors.append(
                 f"parameter '{param.name}' has unexpected parameter type "
                 f"'{annotated_param_type}' rather than '{expected_type}'"
             )
+            continue
+
+    if errors:
+        raise BadAnnotationError(errors)
 
     return True

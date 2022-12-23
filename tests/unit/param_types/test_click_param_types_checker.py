@@ -12,6 +12,7 @@ from globus_cli.constants import ExplicitNullType
 from globus_cli.parsing.param_types import JSONStringOrFile, StringOrNull
 from globus_cli.types import JsonValue
 from tests.click_types import (
+    BadAnnotationError,
     check_has_correct_annotations_for_click_args,
     deduce_type_from_parameter,
 )
@@ -69,7 +70,7 @@ def test_check_annotations_fails_on_missing_arg():
         pass
 
     with pytest.raises(
-        ValueError, match="expected parameter 'foo' was not in type hints"
+        BadAnnotationError, match="expected parameter 'foo' was not in type hints"
     ):
         check_has_correct_annotations_for_click_args(mycmd)
 
@@ -81,6 +82,6 @@ def test_check_annotations_fails_on_bad_arg_type():
         pass
 
     with pytest.raises(
-        ValueError, match="parameter 'foo' has unexpected parameter type"
+        BadAnnotationError, match="parameter 'foo' has unexpected parameter type"
     ):
         check_has_correct_annotations_for_click_args(mycmd)
