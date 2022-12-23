@@ -99,6 +99,9 @@ def test_notify_cannot_mix_opt_with_off(runner):
         ("failed,inactive", {"failed,inactive"}),
         ("failed,inacti", {"failed,inactive"}),
         ("succeeded,", {"succeeded,failed", "succeeded,inactive"}),
+        (",,succeeded,", {"succeeded,failed", "succeeded,inactive"}),
+        (",,succeeded,,f", {"succeeded,failed"}),
+        (",", {"succeeded", "failed", "inactive"}),
     ),
 )
 def test_notify_shell_complete(runner, incomplete_value, expected_completions):

@@ -83,35 +83,48 @@ class NotificationParamType(click.ParamType):
         # e.g. if the caller used `--notify inactive,succ<TAB>`, then
         #      collect `succ` as the last incomplete fragment
         #
-        # also collect the valid completed parts into a set for comparisons
-        last_incomplete_fragment = incomplete.split(",")[-1]
-        already_contains = set(incomplete.split(",")[:-1])
+        # also collect the valid completed parts for comparisons
+        *already_contains, last_incomplete_fragment = incomplete.split(",")
 
-        # if the option was complete, do not offer a further completion
-        # `--notify failed,inactive<TAB>` indicates valid  usage
-        if last_incomplete_fragment in all_options:
-            return [CompletionItem(incomplete)]
+        # trim out empty strings; this will be reassembled later into the completed
+        # option and this removal will help result in translating `failed,,inactive`
+        # into `failed,inactive`
+        already_contains = [s for s in already_contains if s != ""]
 
         # for possible options to complete, remove the set of already completed values
         #
         # e.g. `--notify succeeded,s<TAB>` will offer no completion, since `succeeded`
         # was already used
-        # this also means that `--notify failed,<TAB>` will offer `failed` and
+        # this also means that `--notify succeeded,<TAB>` will offer `failed` and
         # `inactive` but not `succeeded`
         #
         # convert to a sorted list in case completion behavior is order-sensitive
-        possible_options = sorted(set(all_compoundable_options) - already_contains)
+        possible_options = sorted(set(all_compoundable_options) - set(already_contains))
 
-        # if the last fragment is empty, usage was like `--notify failed,<TAB>`
-        if last_incomplete_fragment == "":
-            with_trailing_comma = incomplete.rstrip(",") + ","
-            return [CompletionItem(with_trailing_comma + o) for o in possible_options]
+        # now limit those options to those which start with the last fragment
+        #
+        # if the option was complete, it may be considered the only possible option
+        # i.e. `--notify failed,inactive<TAB>` indicates valid  usage
+        #
+        # if the option was blank, as in `--notify inactive,<TAB>`, then
+        # last_incomplete_fragment is "" and this filter won't remove anything
+        possible_options = [
+            o for o in possible_options if o.startswith(last_incomplete_fragment)
+        ]
 
-        # if the last fragment is nonempty, trim it and replace it with the valid
-        # completions
-        without_last_incomplete = incomplete[: -len(last_incomplete_fragment)]
+        # if the list became empty, we trust that the user has input a value
+        # which has some meaning unknown to the completer
+        # e.g. `--notify inactive,UNKNOWN`
+        if possible_options == []:
+            possible_options = [last_incomplete_fragment]
+
+        # handle a corner case!
+        #
+        # all options were used with a trailing comma:
+        #    --notify inactive,failed,succeeded,
+        if possible_options == [""]:
+            return [CompletionItem(",".join(already_contains))]
+
         return [
-            CompletionItem(without_last_incomplete + o)
-            for o in possible_options
-            if o.startswith(last_incomplete_fragment)
+            CompletionItem(",".join(already_contains + [o])) for o in possible_options
         ]
