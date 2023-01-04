@@ -7,13 +7,10 @@ if sys.version_info >= (3, 8):
     from typing import Literal
 else:
     from typing_extensions import Literal
-if sys.version_info >= (3, 11):
-    from typing import Never, assert_never
-else:
-    from typing_extensions import assert_never, Never
 
 import click
 
+from globus_cli.endpointish import EntityType
 from globus_cli.parsing.param_types import CommaDelimitedList, StringOrNull
 
 C = t.TypeVar("C", bound=t.Union[t.Callable, click.Command])
@@ -21,7 +18,10 @@ C = t.TypeVar("C", bound=t.Union[t.Callable, click.Command])
 
 def endpointish_setattr_params(
     operation: Literal["create", "update"],
+    *,
+    entity_types: tuple[EntityType, ...],
     name: Literal["endpoint", "collection"] = "endpoint",
+    overrides: dict[str, str] | None = None,
 ) -> t.Callable[[C], C]:
     """
     This helper provides arguments and options for "endpointish" entity types.
@@ -34,76 +34,50 @@ def endpointish_setattr_params(
     :param operation: Is the command a "create" or an "update"?
     :param name: What is the entity name, "collection" or "endpoint"?
     """
-    if operation == "create" and name == "endpoint":
-
-        def decorator(f: C) -> C:
-            return _apply_universal_endpointish_params(
-                f,
-                name,
-                display_name="argument",
-                keyword_style="string",
-                verify_style="flag",
-            )
-
-    elif operation == "update" and name == "endpoint":
-
-        def decorator(f: C) -> C:
-            return _apply_universal_endpointish_params(
-                f,
-                name,
-                display_name="option",
-                keyword_style="string",
-                verify_style="flag",
-            )
-
-    elif operation == "create" and name == "collection":
-
-        def decorator(f: C) -> C:
-            return _apply_universal_endpointish_params(
-                f,
-                name,
-                display_name="argument",
-                keyword_style="list",
-                verify_style="choice",
-            )
-
-    elif operation == "update" and name == "collection":
-
-        def decorator(f: C) -> C:
-            return _apply_universal_endpointish_params(
-                f,
-                name,
-                display_name="option",
-                keyword_style="list",
-                verify_style="choice",
-            )
-
+    display_name_style = "argument" if operation == "create" else "option"
+    if all((e in EntityType.traditional_endpoints()) for e in entity_types):
+        keyword_style = "string"
+        verify_style = "flag"
+    elif all((e not in EntityType.traditional_endpoints()) for e in entity_types):
+        keyword_style = "list"
+        verify_style = "choice"
     else:
-        assert_never(_never())
+        raise NotImplementedError(
+            "entity types in a mix of styles, cannot build options"
+        )
+
+    # apply overrides
+    overrides = overrides or {}
+    display_name_style = overrides.get("display_name_style", display_name_style)
+    keyword_style = overrides.get("keyword_style", keyword_style)
+    verify_style = overrides.get("verify_style", verify_style)
+
+    def decorator(f: C) -> C:
+        return _apply_universal_endpointish_params(
+            f,
+            name,
+            display_name_style=display_name_style,
+            keyword_style=keyword_style,
+            verify_style=verify_style,
+        )
 
     return decorator
-
-
-def _never() -> Never:
-    raise NotImplementedError("code should have been unreachable")
 
 
 def _apply_universal_endpointish_params(
     f: C,
     name: Literal["endpoint", "collection"],
     *,
-    display_name: Literal["argument", "option", "null"],
-    keyword_style: Literal["string", "list"],
-    verify_style: Literal["choice", "flag"],
+    display_name_style: str,
+    keyword_style: str,
+    verify_style: str,
 ) -> C:
-    if display_name == "argument":
+    if display_name_style == "argument":
         f = click.argument("DISPLAY_NAME")(f)
-    elif display_name == "option":
+    elif display_name_style == "option":
         f = click.option("--display-name", help=f"Name for the {name}")(f)
-    elif display_name == "null":
-        pass
     else:
-        assert_never()
+        raise NotImplementedError()
 
     f = click.option(
         "--description", help=f"Description for the {name}", type=StringOrNull()
@@ -133,6 +107,7 @@ def _apply_universal_endpointish_params(
 
     f = click.option(
         "--default-directory",
+        type=StringOrNull(),
         help=f"Default directory when browsing or executing tasks on the {name}",
     )(f)
 
@@ -170,7 +145,9 @@ def _apply_universal_endpointish_params(
     return f
 
 
-def _verify_choice_to_dict(ctx, param, value):
+def _verify_choice_to_dict(
+    ctx: click.Context, param: click.Parameter, value: t.Any
+) -> dict[str, bool]:
     if value is None:
         return {}
     value = value.lower()

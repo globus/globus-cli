@@ -152,7 +152,7 @@ def validate_endpoint_create_and_update_params(
     # options only allowed for GCS endpoints
     if endpoint_type != "server":
         # catch params with two option flags
-        if params["public"] is False:
+        if params.get("public") is False:
             raise click.UsageError(
                 "Option --private only allowed for Globus Connect Server endpoints"
             )
@@ -169,7 +169,7 @@ def validate_endpoint_create_and_update_params(
             "max_parallelism",
             "preferred_parallelism",
         ]:
-            if params[option] is not None:
+            if params.get(option) is not None:
                 raise click.UsageError(
                     f"Option --{option.replace('_', '-')} can only be used with "
                     "Globus Connect Server endpoints"
@@ -177,7 +177,7 @@ def validate_endpoint_create_and_update_params(
 
     # if the endpoint was not previously managed, and is not being passed
     # a subscription id, it cannot use managed endpoint only fields
-    if (not managed) and not (params["subscription_id"] or params["managed"]):
+    if (not managed) and not (params.get("subscription_id") or params.get("managed")):
         for option in [
             "network_use",
             "max_concurrency",
@@ -185,7 +185,7 @@ def validate_endpoint_create_and_update_params(
             "max_parallelism",
             "preferred_parallelism",
         ]:
-            if params[option] is not None:
+            if params.get(option) is not None:
                 raise click.UsageError(
                     f"Option --{option.replace('_', '-')} can only be used with "
                     "managed endpoints"
@@ -205,9 +205,9 @@ def validate_endpoint_create_and_update_params(
         "max_parallelism",
         "preferred_parallelism",
     )
-    if params["network_use"] != "custom":
+    if params.get("network_use") != "custom":
         for option in custom_network_use_params:
-            if params[option] is not None:
+            if params.get(option) is not None:
                 raise click.UsageError(
                     "The {} options require you use --network-use=custom.".format(
                         "/".join(

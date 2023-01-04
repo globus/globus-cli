@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import click
 
+from globus_cli.endpointish import EntityType
 from globus_cli.login_manager import LoginManager
 from globus_cli.parsing import (
     ENDPOINT_PLUS_REQPATH,
@@ -12,7 +13,12 @@ from globus_cli.termio import Field, TextMode, display
 
 
 @command("guest", short_help="Create a new Guest Collection on GCP")
-@endpointish_setattr_params("create", "collection")
+@endpointish_setattr_params(
+    "create",
+    name="collection",
+    entity_types=(EntityType.GCP_GUEST,),
+    overrides={"verify_style": "choice"},
+)
 @click.argument("HOST_GCP_PATH", type=ENDPOINT_PLUS_REQPATH)
 @LoginManager.requires_login(LoginManager.TRANSFER_RS)
 def guest_command(

@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import typing as t
 
+from globus_cli.endpointish import EntityType
 from globus_cli.login_manager import LoginManager
 from globus_cli.parsing import (
     ENDPOINT_PLUS_REQPATH,
@@ -20,7 +21,15 @@ GCP_FIELDS = [Field("Setup Key", "globus_connect_setup_key")]
 
 
 @command("create", hidden=True)
-@endpointish_setattr_params("create")
+@endpointish_setattr_params(
+    "create",
+    entity_types=(
+        EntityType.GCSV4_HOST,
+        EntityType.GCSV4_SHARE,
+        EntityType.GCP_MAPPED,
+        EntityType.GCP_GUEST,
+    ),
+)
 @endpoint_create_params
 @one_use_option(
     "--personal",

@@ -2,13 +2,19 @@ from __future__ import annotations
 
 import click
 
+from globus_cli.endpointish import EntityType
 from globus_cli.login_manager import LoginManager
 from globus_cli.parsing import command, endpointish_setattr_params
 from globus_cli.termio import Field, TextMode, display
 
 
 @command("mapped", short_help="Create a new GCP Mapped Collection")
-@endpointish_setattr_params("create", "collection")
+@endpointish_setattr_params(
+    "create",
+    name="collection",
+    entity_types=(EntityType.GCP_MAPPED,),
+    overrides={"verify_style": "choice"},
+)
 @click.option(
     "--subscription-id",
     help="Set the collection as managed with the given subscription ID",
