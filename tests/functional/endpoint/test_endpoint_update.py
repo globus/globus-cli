@@ -5,9 +5,123 @@ import pytest
 import responses
 from globus_sdk._testing import load_response_set
 
+# options with option value and expected value
+# if expected value is not set, it will be copied from the option value
+_OPTION_DICTS = {
+    "display_name": {"opt": "--display-name", "key": "display_name", "val": "newname"},
+    "description": {"opt": "--description", "key": "description", "val": "newtext"},
+    "default_dir": {
+        "opt": "--default-directory",
+        "key": "default_directory",
+        "val": "/share/",
+    },
+    "null_default_dir": {
+        "opt": "--default-directory",
+        "key": "default_directory",
+        "val": "",
+        "expected": None,
+    },
+    "organization": {"opt": "--organization", "key": "organization", "val": "neworg"},
+    "department": {"opt": "--department", "key": "department", "val": "newdept"},
+    "keywords": {"opt": "--keywords", "key": "keywords", "val": "new,key,words"},
+    "contact_email": {"opt": "--contact-email", "key": "contact_email", "val": "a@b.c"},
+    "contact_info": {"opt": "--contact-info", "key": "contact_info", "val": "newinfo"},
+    "info_link": {"opt": "--info-link", "key": "info_link", "val": "http://a.b"},
+    "force_encryption": {
+        "opt": "--force-encryption",
+        "key": "force_encryption",
+        "val": None,
+        "expected": True,
+    },
+    "disable_verify": {
+        "opt": "--disable-verify",
+        "key": "disable_verify",
+        "val": None,
+        "expected": True,
+    },
+    # server only options
+    "myproxy_dn": {
+        "opt": "--myproxy-dn",
+        "key": "myproxy_dn",
+        "val": "/dn",
+    },
+    "private": {
+        "opt": "--private",
+        "key": "public",
+        "val": None,
+        "expected": False,
+    },
+    "location": {
+        "opt": "--location",
+        "key": "location",
+        "val": "1.1,2",
+        "expected": "1.1,2",
+    },
+}
 
-@pytest.mark.parametrize("ep_type", ["personal", "share", "server"])
-def test_general_options(run_line, ep_type):
+for optdict in _OPTION_DICTS.values():
+    if "expected" not in optdict:
+        optdict["expected"] = optdict["val"]
+
+
+@pytest.mark.parametrize(
+    "ep_type, options",
+    [
+        (
+            "personal",
+            [
+                "display_name",
+                "description",
+                "default_dir",
+                "organization",
+                "department",
+                "keywords",
+                "contact_email",
+                "contact_info",
+                "info_link",
+                "force_encryption",
+                "disable_verify",
+            ],
+        ),
+        (
+            "share",
+            [
+                "display_name",
+                "description",
+                "default_dir",
+                "organization",
+                "department",
+                "keywords",
+                "contact_email",
+                "contact_info",
+                "info_link",
+                "force_encryption",
+                "disable_verify",
+            ],
+        ),
+        (
+            "server",
+            [
+                "display_name",
+                "description",
+                "default_dir",
+                "organization",
+                "department",
+                "keywords",
+                "contact_email",
+                "contact_info",
+                "info_link",
+                "force_encryption",
+                "disable_verify",
+                "myproxy_dn",
+                "private",
+                "location",
+            ],
+        ),
+        ("personal", ["display_name", "description", "null_default_dir"]),
+    ],
+)
+def test_general_options(run_line, ep_type, options):
     """
     Runs endpoint update with parameters allowed for all endpoint types
     Confirms all endpoint types are successfully updated
@@ -20,61 +134,15 @@ def test_general_options(run_line, ep_type):
     else:
         epid = meta["endpoint_id"]
 
-    # options with option value and expected value
-    # if expected value is not set, it will be copied from the option value
-    option_dicts = [
-        {"opt": "--display-name", "key": "display_name", "val": "newname"},
-        {"opt": "--description", "key": "description", "val": "newtext"},
-        {"opt": "--default-directory", "key": "default_directory", "val": "/share/"},
-        {"opt": "--organization", "key": "organization", "val": "neworg"},
-        {"opt": "--department", "key": "department", "val": "newdept"},
-        {"opt": "--keywords", "key": "keywords", "val": "new,key,words"},
-        {"opt": "--contact-email", "key": "contact_email", "val": "a@b.c"},
-        {"opt": "--contact-info", "key": "contact_info", "val": "newinfo"},
-        {"opt": "--info-link", "key": "info_link", "val": "http://a.b"},
-        {
-            "opt": "--force-encryption",
-            "key": "force_encryption",
-            "val": None,
-            "expected": True,
-        },
-        {
-            "opt": "--disable-verify",
-            "key": "disable_verify",
-            "val": None,
-            "expected": True,
-        },
-    ]
-    if ep_type == "server":
-        option_dicts.extend(
-            [
-                {"opt": "--myproxy-dn", "key": "myproxy_dn", "val": "/dn"},
-                {
-                    "opt": "--myproxy-server",
-                    "key": "myproxy_server",
-                    "val": "srv.example.com",
-                },
-                {"opt": "--private", "key": "public", "val": None, "expected": False},
-                {
-                    "opt": "--location",
-                    "key": "location",
-                    "val": "1.1,2",
-                    "expected": "1.1,2",
-                },
-            ]
-        )
-
-    for x in option_dicts:
-        if "expected" not in x:
-            x["expected"] = x["val"]
+    option_dicts = [_OPTION_DICTS[o] for o in options]
 
     # make and run the line
     line = ["globus", "endpoint", "update", epid, "-F", "json"]
     for item in option_dicts:
         line.append(item["opt"])
-        if item["val"]:
+        if item["val"] is not None:
             line.append(item["val"])
-    run_line(" ".join(line))
+    run_line(line)
 
     # get and confirm values which were sent as JSON
     sent_data = json.loads(responses.calls[-1].request.body)

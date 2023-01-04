@@ -95,7 +95,13 @@ For GCS, use the globus-connect-server CLI from your Endpoint."""
 
     transfer_client = login_manager.get_transfer_client()
 
-    endpoint_type = "personal" if personal else "server" if server else "shared"
+    endpoint_type = (
+        EntityType.GCP_MAPPED
+        if personal
+        else EntityType.GCSV4_HOST
+        if server
+        else EntityType.GCSV4_SHARE
+    )
 
     # validate options
     kwargs["is_globus_connect"] = personal or None

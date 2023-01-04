@@ -67,15 +67,6 @@ def endpoint_update(
     epish = Endpointish(endpoint_id, transfer_client=transfer_client)
     epish.assert_is_traditional_endpoint()
 
-    if epish.data["host_endpoint_id"]:
-        endpoint_type = "shared"
-    elif epish.data["is_globus_connect"]:
-        endpoint_type = "personal"
-    elif epish.data["s3_url"]:
-        endpoint_type = "s3"
-    else:
-        endpoint_type = "server"
-
     ep_doc = assemble_generic_doc(
         "endpoint",
         contact_email=contact_email,
@@ -105,7 +96,7 @@ def endpoint_update(
     )
 
     validate_endpoint_create_and_update_params(
-        endpoint_type, bool(epish.data["subscription_id"]), ep_doc
+        epish.entity_type, epish.is_managed, ep_doc
     )
 
     # make the update

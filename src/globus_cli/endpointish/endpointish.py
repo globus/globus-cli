@@ -80,3 +80,9 @@ class Endpointish:
             if self.data.get("high_assurance") is False:
                 return True
         return False
+
+    @property
+    def is_managed(self) -> bool:
+        if self.data.get("subscription_id") is None:
+            return False
+        return True

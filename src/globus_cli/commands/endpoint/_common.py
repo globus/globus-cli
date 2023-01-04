@@ -5,6 +5,7 @@ import typing as t
 import click
 
 from globus_cli.constants import EXPLICIT_NULL
+from globus_cli.endpointish import EntityType
 from globus_cli.parsing import LocationType, MutexInfo, mutex_option_group
 
 C = t.TypeVar("C", bound=t.Union[t.Callable, click.Command])
@@ -143,14 +144,17 @@ def endpoint_update_params(f: C) -> C:
 
 
 def validate_endpoint_create_and_update_params(
-    endpoint_type: str, managed: bool, params: dict
+    entity_type: EntityType, managed: bool, params: dict
 ) -> None:
     """
-    Given an endpoint type of "shared" "server" or "personal" and option values
+    Given an endpoint type and option values
+
     Confirms the option values are valid for the given endpoint
+
+    NOTE: this is a legacy method which only applies to GCSv4 and GCP
     """
-    # options only allowed for GCS endpoints
-    if endpoint_type != "server":
+    # options only allowed for GCSv4 endpoints
+    if entity_type != EntityType.GCSV4_HOST:
         # catch params with two option flags
         if params.get("public") is False:
             raise click.UsageError(
