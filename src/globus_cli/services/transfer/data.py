@@ -6,7 +6,7 @@ import uuid
 import click
 import globus_sdk
 
-from globus_cli.constants import EXPLICIT_NULL
+from globus_cli.constants import ExplicitNullType
 from globus_cli.parsing import TaskPath, mutex_option_group
 from globus_cli.utils import shlex_process_stream
 
@@ -62,8 +62,6 @@ def assemble_generic_doc(datatype, **kwargs):
         if isinstance(val, uuid.UUID):
             val = str(val)
 
-        if val == EXPLICIT_NULL:
-            doc[key] = None
-        elif val is not None:
-            doc[key] = val
+        if val is not None:
+            doc[key] = ExplicitNullType.nullify(val)
     return doc

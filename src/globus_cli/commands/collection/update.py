@@ -7,7 +7,7 @@ import click
 import globus_sdk
 
 from globus_cli import utils
-from globus_cli.constants import EXPLICIT_NULL, ExplicitNullType
+from globus_cli.constants import ExplicitNullType
 from globus_cli.endpointish import EntityType
 from globus_cli.login_manager import LoginManager
 from globus_cli.parsing import (
@@ -208,7 +208,7 @@ def collection_update(
     # - filter out Nones
     # - pass through EXPLICIT_NULL as None
     converted_kwargs: dict[str, t.Any] = {
-        k: (v if v != EXPLICIT_NULL else None)
+        k: ExplicitNullType.nullify(v)
         for k, v in {
             "display_name": display_name,
             "description": description,
