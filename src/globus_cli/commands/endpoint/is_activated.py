@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import typing as t
+import uuid
 
 import click
 
@@ -85,7 +86,7 @@ fi
 def endpoint_is_activated(
     *,
     login_manager: LoginManager,
-    endpoint_id: str,
+    endpoint_id: uuid.UUID,
     until: int | None,
     absolute_time: bool,
 ) -> None:
@@ -102,35 +103,36 @@ def endpoint_is_activated(
     transfer_client = login_manager.get_transfer_client()
     res = transfer_client.endpoint_get_activation_requirements(endpoint_id)
 
-    def fail(deadline=None) -> t.NoReturn:
+    def fail(deadline: int | None = None) -> t.NoReturn:
         exp_string = ""
         if deadline is not None:
             exp_string = f" or will expire within {deadline} seconds"
+        requirements_help = activation_requirements_help_text(res, endpoint_id)
 
-        message = "The endpoint is not activated{}.\n\n".format(
-            exp_string
-        ) + activation_requirements_help_text(res, endpoint_id)
+        message = (
+            f"'{endpoint_id}' is not activated{exp_string}.\n\n{requirements_help}"
+        )
         display(res, simple_text=message)
         click.get_current_context().exit(1)
 
-    def success(msg, *format_params):
-        display(res, simple_text=(msg.format(endpoint_id, *format_params)))
+    def success(msg: str) -> t.NoReturn:
+        display(res, simple_text=msg)
         click.get_current_context().exit(0)
 
     # eternally active endpoints have a special expires_in value
     if res["expires_in"] == -1:
-        success("{} does not require activation")
+        success(f"'{endpoint_id}' does not require activation")
 
     # autoactivation is not supported and --until was not passed
     if until is None:
         # and we are active right now (0s in the future)...
         if res.active_until(0):
-            success("{} is activated")
+            success(f"'{endpoint_id}' is activated")
         # or we are not active
         fail()
 
     # autoactivation is not supported and --until was passed
     if res.active_until(until, relative_time=not absolute_time):
-        success("{} will be active for at least {} seconds", until)
+        success(f"'{endpoint_id}' will be active for at least {until} seconds")
     else:
         fail(deadline=until)
