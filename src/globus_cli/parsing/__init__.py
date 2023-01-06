@@ -1,6 +1,6 @@
 from .commands import command, group, main_group
 from .mutex_group import MutexInfo, mutex_option_group
-from .param_classes import one_use_option
+from .param_classes import AnnotatedOption, one_use_option
 from .param_types import (
     ENDPOINT_PLUS_OPTPATH,
     ENDPOINT_PLUS_REQPATH,
@@ -42,6 +42,8 @@ __all__ = [
     "group",
     "main_group",
     "one_use_option",
+    # param classes
+    "AnnotatedOption",
     # param types
     "ENDPOINT_PLUS_OPTPATH",
     "ENDPOINT_PLUS_REQPATH",
