@@ -2,7 +2,9 @@ from urllib.parse import urlparse
 
 import click
 
-from globus_cli.constants import EXPLICIT_NULL
+from globus_cli.constants import EXPLICIT_NULL, ExplicitNullType
+
+from .annotated_param import AnnotatedParamType
 
 
 def nullable_multi_callback(null="null"):
@@ -32,11 +34,14 @@ def nullable_multi_callback(null="null"):
     return callback
 
 
-class StringOrNull(click.ParamType):
+class StringOrNull(AnnotatedParamType):
     """
     Very similar to a basic string type, but one in which the empty string will
     be converted into an EXPLICIT_NULL
     """
+
+    def get_type_annotation(self, param: click.Parameter) -> type:
+        return str | ExplicitNullType
 
     def get_metavar(self, param):
         return "TEXT"

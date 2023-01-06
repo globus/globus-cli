@@ -1,5 +1,7 @@
 import click
 
+from .annotated_param import AnnotatedParamType
+
 
 def _normpath(path):
     """
@@ -57,7 +59,7 @@ def _pathjoin(a, b):
         return a + "/" + b
 
 
-class TaskPath(click.ParamType):
+class TaskPath(AnnotatedParamType):
     def __init__(
         self, base_dir=None, coerce_to_dir=False, normalize=True, require_absolute=False
     ):
@@ -80,6 +82,9 @@ class TaskPath(click.ParamType):
         self.path = None
         # the original path, as consumed before processing
         self.orig_path = None
+
+    def get_type_annotation(self, param: click.Parameter) -> type:
+        return TaskPath
 
     def convert(self, value, param, ctx):
         if value is None or (ctx and ctx.resilient_parsing):

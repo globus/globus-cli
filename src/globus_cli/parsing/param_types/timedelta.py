@@ -3,6 +3,8 @@ import re
 
 import click
 
+from .annotated_param import AnnotatedParamType
+
 _timedelta_regex = re.compile(
     r"""
     ^
@@ -23,7 +25,7 @@ _timedelta_regex = re.compile(
 )
 
 
-class TimedeltaType(click.ParamType):
+class TimedeltaType(AnnotatedParamType):
     """
     Parse a number of seconds, minutes, hours, days, and weeks from a string into a
     timedelta object
@@ -33,6 +35,11 @@ class TimedeltaType(click.ParamType):
 
     def __init__(self, *, convert_to_seconds: bool = True):
         self._convert_to_seconds = convert_to_seconds
+
+    def get_type_annotation(self, param: click.Parameter) -> type:
+        if self._convert_to_seconds:
+            return int
+        return datetime.timedelta
 
     def convert(self, value, param, ctx):
         matches = _timedelta_regex.match(value)

@@ -5,27 +5,14 @@ requires python3.8+
 from __future__ import annotations
 
 import datetime
+import types
 import typing as t
 import uuid
 
 import click
 
-from globus_cli.constants import ExplicitNullType
-from globus_cli.parsing.known_callbacks import none_to_empty_dict
 from globus_cli.parsing.param_classes import AnnotatedOption
-from globus_cli.parsing.param_types import (
-    CommaDelimitedList,
-    EndpointPlusPath,
-    IdentityType,
-    JSONStringOrFile,
-    LocationType,
-    NotificationParamType,
-    ParsedIdentity,
-    StringOrNull,
-    TaskPath,
-    TimedeltaType,
-    UrlOrNull,
-)
+from globus_cli.parsing.param_types import AnnotatedParamType
 from globus_cli.types import JsonValue
 
 
@@ -38,83 +25,54 @@ class BadAnnotationError(ValueError):
             super().__init__("\n  " + "\n  ".join(errors))
 
 
-def _paramtypes_from_param_type(param_obj: click.Parameter) -> tuple[type, ...]:
+_CLICK_STATIC_TYPE_MAP: dict[type[click.ParamType], type] = {
+    click.types.StringParamType: str,
+    click.types.BoolParamType: bool,
+    click.types.IntParamType: int,
+    click.IntRange: int,
+    click.types.FloatParamType: float,
+    click.FloatRange: float,
+    click.DateTime: datetime.datetime,
+    click.types.UUIDParameterType: uuid.UUID,
+    click.File: t.TextIO,
+}
+
+
+def _type_from_param_type(param_obj: click.Parameter) -> type:
     """
-    Given a Parameter instance, read the 'type' attribute and deduce the tuple of
-    possible types which it describes
+    Given a Parameter instance, read the 'type' attribute and deduce the type or union
+    of possible types which it describes
 
     Supports both `click` native types and `globus_cli` custom types
 
     For example:
-        IntParamType -> (int,)
-        IntRange -> (int,)
-        StringOrNull -> (str, None)
-
-    Returning types as a tuple rather than building a union when there is more than one
-    ensures that we build "flat" unions of the form `Union[x, y, z]` and avoid nested
-    unions like `Union[x, Union[y, z]]`.
+        IntParamType -> int
+        IntRange -> int
+        StringOrNull -> str | ExplicitNullType
     """
     param_type = param_obj.type
 
     # click types
-    if isinstance(param_type, click.types.StringParamType):
-        return (str,)
-    if isinstance(param_type, click.types.BoolParamType):
-        return (bool,)
-    elif isinstance(param_type, (click.types.IntParamType, click.IntRange)):
-        return (int,)
-    elif isinstance(param_type, (click.types.FloatParamType, click.FloatRange)):
-        return (float,)
-    elif isinstance(param_type, click.Choice):
-        return (t.Literal[tuple(param_type.choices)],)
-    elif isinstance(param_type, click.DateTime):
-        return (datetime.datetime,)
-    if isinstance(param_type, click.types.UUIDParameterType):
-        return (uuid.UUID,)
-    if isinstance(param_type, click.File):
-        return (t.TextIO,)
+    if type(param_type) in _CLICK_STATIC_TYPE_MAP:
+        return _CLICK_STATIC_TYPE_MAP[type(param_type)]
+    if isinstance(param_type, click.Choice):
+        return t.Literal[tuple(param_type.choices)]
     if isinstance(param_type, click.Path):
         if param_type.path_type is not None:
             if isinstance(param_obj.path_type, type):
-                return (param_obj.path_type,)
+                return param_obj.path_type
             else:
                 raise NotImplementedError(
                     "todo: support the return type of a converter func"
                 )
         else:
-            return (str,)
+            return str
 
     # globus-cli types
-    if isinstance(param_type, CommaDelimitedList):
-        return (list[str],)
-    elif isinstance(param_type, EndpointPlusPath):
-        if param_type.path_required:
-            return (tuple[uuid.UUID, str],)
-        else:
-            return (tuple[uuid.UUID, str | None],)
-    elif isinstance(param_type, IdentityType):
-        return (ParsedIdentity,)
-    elif isinstance(param_type, JSONStringOrFile):
-        return (JsonValue,)
-    elif isinstance(param_type, LocationType):
-        return (tuple[float, float],)
-    elif isinstance(param_type, StringOrNull):
-        return (str, ExplicitNullType)
-    elif isinstance(param_type, UrlOrNull):
-        return (str, ExplicitNullType)
-    elif isinstance(param_type, TaskPath):
-        return (TaskPath,)
-    elif isinstance(param_type, NotificationParamType):
-        return (dict[str, bool],)
-    elif isinstance(param_type, TimedeltaType):
-        if param_type._convert_to_seconds:
-            return (int,)
-        return (datetime.timedelta,)
+    if isinstance(param_type, AnnotatedParamType):
+        return param_type.get_type_annotation(param_obj)
 
     raise NotImplementedError(f"unsupported parameter type: {param_type}")
-
-
-_NEVER_NULL_CALLBACKS = (none_to_empty_dict,)
 
 
 def _is_multi_param(p: click.Parameter) -> bool:
@@ -134,10 +92,6 @@ def _option_defaults_to_none(o: click.Option) -> bool:
 
     # a multiple option defaults to () if default is unset or None
     if o.multiple:
-        return False
-
-    # got a known non-nullable callback? then it's not None
-    if o.callback is not None and o.callback in _NEVER_NULL_CALLBACKS:
         return False
 
     # fallthrough case: True
@@ -165,19 +119,22 @@ def deduce_type_from_parameter(param: click.Paramter) -> type:
         if _option_defaults_to_none(param):
             possible_types.add(None.__class__)
 
-    # if a parameter has `multiple=True` or `nargs=-1`, then the types which can be
-    # deduced from the parameter should be exposed as an any-length tuple of unions
+    # if a parameter has `multiple=True` or `nargs=-1`, then the type which can be
+    # deduced from the parameter should be exposed as an any-length tuple
     if _is_multi_param(param):
-        param_types_tuple = _paramtypes_from_param_type(param)
-        if len(param_types_tuple) == 1:
-            param_type = tuple[param_types_tuple[0], ...]
-        else:
-            param_type = tuple[t.Union[param_types_tuple], ...]
+        param_type = tuple[_type_from_param_type(param), ...]
         possible_types.add(param_type)
-    # if not multiple, then each of the possible types should be added to the
-    # collection for a *potential* top-level union
+    # if not multiple, then the type may need to be unioned with `None`
+    # but if the type is, itself, a union, then it will need to be unpacked
     else:
-        for param_type in _paramtypes_from_param_type(param):
+        param_type = _type_from_param_type(param)
+        if (  # detect Union[X, Y] and "union type expressions" (X | Y)
+            isinstance(param_type, types.UnionType)
+            or t.get_origin(param_type) == t.Union
+        ):
+            for member_type in t.get_args(param_type):
+                possible_types.add(member_type)
+        else:
             possible_types.add(param_type)
 
     # should be unreachable

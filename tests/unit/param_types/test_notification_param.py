@@ -1,12 +1,15 @@
 import click
 import pytest
 
-from globus_cli.parsing.known_callbacks import none_to_empty_dict
 from globus_cli.parsing.param_types import NotificationParamType
 
 
 @click.command()
-@click.option("--notify", type=NotificationParamType(), callback=none_to_empty_dict)
+@click.option(
+    "--notify",
+    type=NotificationParamType(),
+    callback=NotificationParamType.STANDARD_CALLBACK,
+)
 def notify_cmd(notify):
     assert isinstance(notify, dict)
     click.echo(f"len(notify)={len(notify)}")

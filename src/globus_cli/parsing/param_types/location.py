@@ -1,16 +1,22 @@
 import re
+import typing as t
 
 import click
 
+from .annotated_param import AnnotatedParamType
 
-class LocationType(click.ParamType):
+
+class LocationType(AnnotatedParamType):
     """
     Validates that given location string is two comma separated floats
     """
 
     name = "LATITUDE,LONGITUDE"
 
-    def convert(self, value, param, ctx):
+    def get_type_annotation(self, param: click.Parameter) -> type:
+        return tuple[float, float]
+
+    def convert(self, value: t.Any, param: click.Parameter, ctx: click.Context):
         try:
             match = re.match("^(.*),(.*)$", value)
             float(match.group(1))

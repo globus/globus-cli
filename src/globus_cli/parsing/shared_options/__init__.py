@@ -11,8 +11,9 @@ from globus_cli.parsing.command_state import (
     map_http_status_option,
     verbose_option,
 )
-from globus_cli.parsing.known_callbacks import none_to_empty_dict
+from globus_cli.parsing.param_classes import AnnotatedOption
 from globus_cli.parsing.param_types import NotificationParamType
+from globus_cli.types import DictType
 
 C = t.TypeVar("C", bound=t.Union[t.Callable, click.Command])
 
@@ -63,13 +64,15 @@ def task_notify_option(f: C) -> C:
     return click.option(
         "--notify",
         type=NotificationParamType(),
-        callback=none_to_empty_dict,
+        callback=NotificationParamType.STANDARD_CALLBACK,
         help=(
             "Comma separated list of task events which notify by email. "
             "'on' and 'off' may be used to enable or disable notifications "
             "for all event types. Otherwise, use 'succeeded', 'failed', or "
             "'inactive'"
         ),
+        cls=AnnotatedOption,
+        type_annotation=DictType[str, bool],
     )(f)
 
 

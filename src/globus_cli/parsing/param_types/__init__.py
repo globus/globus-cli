@@ -1,3 +1,4 @@
+from .annotated_param import AnnotatedParamType
 from .comma_delimited import CommaDelimitedList
 from .endpoint_plus_path import (
     ENDPOINT_PLUS_OPTPATH,
@@ -13,6 +14,7 @@ from .task_path import TaskPath
 from .timedelta import TimedeltaType
 
 __all__ = (
+    "AnnotatedParamType",
     "CommaDelimitedList",
     "ENDPOINT_PLUS_OPTPATH",
     "ENDPOINT_PLUS_REQPATH",

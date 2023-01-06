@@ -4,8 +4,10 @@ import typing as t
 
 import click
 
+from .annotated_param import AnnotatedParamType
 
-class CommaDelimitedList(click.ParamType):
+
+class CommaDelimitedList(AnnotatedParamType):
     def __init__(
         self,
         *,
@@ -15,6 +17,9 @@ class CommaDelimitedList(click.ParamType):
         super().__init__()
         self.convert_values = convert_values
         self.choices = list(choices) if choices is not None else None
+
+    def get_type_annotation(self, param: click.Parameter) -> type:
+        return list[str]
 
     def get_metavar(self, param):
         if self.choices is not None:
