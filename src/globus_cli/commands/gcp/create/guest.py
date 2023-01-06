@@ -1,5 +1,7 @@
 from __future__ import annotations
 
+import uuid
+
 import click
 
 from globus_cli.constants import ExplicitNullType
@@ -20,7 +22,7 @@ def guest_command(
     *,
     login_manager: LoginManager,
     display_name: str,
-    host_gcp_path: tuple[str, str],
+    host_gcp_path: tuple[uuid.UUID, str],
     contact_email: str | None | ExplicitNullType,
     contact_info: str | None | ExplicitNullType,
     default_directory: str | None | ExplicitNullType,

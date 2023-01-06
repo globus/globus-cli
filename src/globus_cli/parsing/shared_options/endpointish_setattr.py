@@ -8,8 +8,14 @@ if sys.version_info >= (3, 8):
 else:
     from typing_extensions import Literal
 
+if sys.version_info < (3, 9):
+    DictType = t.Dict
+else:
+    DictType = dict
+
 import click
 
+from globus_cli.parsing.param_classes import AnnotatedOption
 from globus_cli.parsing.param_types import CommaDelimitedList, StringOrNull
 
 C = t.TypeVar("C", bound=t.Union[t.Callable, click.Command])
@@ -121,6 +127,8 @@ def _apply_universal_endpointish_params(
             type=click.Choice(["force", "disable", "default"], case_sensitive=False),
             callback=_verify_choice_to_dict,
             help=verify_help,
+            type_annotation=DictType[str, bool],
+            cls=AnnotatedOption,
         )(f)
     else:
         f = click.option(

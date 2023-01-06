@@ -12,6 +12,7 @@ import click
 
 from globus_cli.constants import ExplicitNullType
 from globus_cli.parsing.known_callbacks import none_to_empty_dict
+from globus_cli.parsing.param_classes import AnnotatedOption
 from globus_cli.parsing.param_types import (
     CommaDelimitedList,
     EndpointPlusPath,
@@ -147,6 +148,10 @@ def deduce_type_from_parameter(param: click.Paramter) -> type:
     """
     Convert a click.Paramter object to a type or union of types
     """
+    # if there is an explicit annotation, use that
+    if isinstance(param, AnnotatedOption) and param.has_explicit_annotation():
+        return param.type_annotation
+
     possible_types = set()
 
     # only implicitly add NoneType to the types if the default is None

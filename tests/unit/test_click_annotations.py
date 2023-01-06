@@ -18,6 +18,8 @@ from tests.click_types import check_has_correct_annotations_for_click_args
         ("cli_profile_list", "cli_profile_list"),
         ("endpoint.is_activated", "endpoint_is_activated"),
         ("endpoint.update", "endpoint_update"),
+        ("gcp.create.guest", "guest_command"),
+        ("gcp.create.mapped", "mapped_command"),
         ("transfer", "transfer_command"),
         ("update", "update_command"),
         ("version", "version_command"),

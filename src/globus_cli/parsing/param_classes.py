@@ -1,14 +1,50 @@
+from __future__ import annotations
+
+import typing as t
+
 import click
 
+C = t.TypeVar("C", bound=t.Union[click.BaseCommand, t.Callable])
 
-class OneUseOption(click.Option):
+
+class _Sentinel:
+    pass
+
+
+_SENTINEL = _Sentinel()
+
+
+class AnnotatedOption(click.Option):
+    def __init__(
+        self,
+        *args: t.Any,
+        type_annotation: type | _Sentinel = _SENTINEL,
+        **kwargs: t.Any,
+    ) -> None:
+        super().__init__(*args, **kwargs)
+        self._type_annotation = type_annotation
+
+    def has_explicit_annotation(self) -> bool:
+        if self._type_annotation == _SENTINEL:
+            return False
+        return True
+
+    @property
+    def type_annotation(self) -> type:
+        if self._type_annotation == _SENTINEL:
+            raise ValueError("cannot get annotation from option when it is not set")
+
+        return t.cast(type, self._type_annotation)
+
+
+class OneUseOption(AnnotatedOption):
     """
     Overwrites the type_cast_value function inherited from click.Parameter
     to assert an option was only used once, and then converts it back
     to the original value type.
     """
 
-    def type_cast_value(self, ctx, value):
+    def type_cast_value(self, ctx: click.Context, value: t.Any) -> t.Any:
 
         # get the result of a normal type_cast
         converted_val = super().type_cast_value(ctx, value)
@@ -38,7 +74,7 @@ class OneUseOption(click.Option):
             )
 
 
-def one_use_option(*args, **kwargs):
+def one_use_option(*args: t.Any, **kwargs: t.Any) -> t.Callable[[C], C]:
     """
     Wrapper of the click.option decorator that replaces any instances of
     the Option class with the custom OneUseOption class
@@ -71,7 +107,4 @@ def one_use_option(*args, **kwargs):
         kwargs["multiple"] = True
 
     # decorate with the click.option decorator, but with our custom kwargs
-    def decorator(f):
-        return click.option(*args, **kwargs)(f)
-
-    return decorator
+    return click.option(*args, **kwargs)
