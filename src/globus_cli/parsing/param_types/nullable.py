@@ -1,3 +1,4 @@
+import typing as t
 from urllib.parse import urlparse
 
 import click
@@ -41,7 +42,7 @@ class StringOrNull(AnnotatedParamType):
     """
 
     def get_type_annotation(self, param: click.Parameter) -> type:
-        return str | ExplicitNullType
+        return t.cast(type, str | ExplicitNullType)
 
     def get_metavar(self, param):
         return "TEXT"

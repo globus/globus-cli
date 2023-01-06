@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 import re
 import typing as t
 
@@ -14,11 +16,17 @@ class LocationType(AnnotatedParamType):
     name = "LATITUDE,LONGITUDE"
 
     def get_type_annotation(self, param: click.Parameter) -> type:
-        return tuple[float, float]
+        # mypy does not recognize this as a valid usage at runtime
+        # ignore for now
+        return tuple[float, float]  # type: ignore[no-any-return,misc]
 
-    def convert(self, value: t.Any, param: click.Parameter, ctx: click.Context):
+    def convert(
+        self, value: t.Any, param: click.Parameter | None, ctx: click.Context | None
+    ) -> t.Any:
         try:
             match = re.match("^(.*),(.*)$", value)
+            if not match:
+                raise ValueError()
             float(match.group(1))
             float(match.group(2))
             return value

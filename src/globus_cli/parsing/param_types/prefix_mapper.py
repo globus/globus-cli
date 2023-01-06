@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import json
+import typing as t
 
 import click
 
@@ -67,7 +68,7 @@ class JSONStringOrFile(StringPrefixMapper):
     __prefix_metavars__ = ["JSON", "file:JSON_FILE"]
 
     def get_type_annotation(self, param: click.Parameter) -> type:
-        return JsonValue
+        return t.cast(type, JsonValue)
 
     def prefix_mapper_parse_json_file(self, value):
         try:
