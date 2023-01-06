@@ -4,7 +4,7 @@ import sys
 import uuid
 
 from globus_cli.constants import ExplicitNullType
-from globus_cli.endpointish import Endpointish, EntityType
+from globus_cli.endpointish import Endpointish
 from globus_cli.login_manager import LoginManager
 from globus_cli.parsing import command, endpoint_id_arg, endpointish_setattr_params
 from globus_cli.termio import TextMode, display
@@ -20,15 +20,7 @@ else:
 @command("update")
 @endpoint_id_arg
 @endpoint_update_params
-@endpointish_setattr_params(
-    "update",
-    entity_types=(
-        EntityType.GCSV4_HOST,
-        EntityType.GCSV4_SHARE,
-        EntityType.GCP_MAPPED,
-        EntityType.GCP_GUEST,
-    ),
-)
+@endpointish_setattr_params("update", keyword_style="string", verify_style="flag")
 @LoginManager.requires_login(LoginManager.TRANSFER_RS)
 def endpoint_update(
     *,
@@ -58,7 +50,7 @@ def endpoint_update(
     preferred_parallelism: int | None,
     public: bool | None,
     subscription_id: uuid.UUID | None,
-):
+) -> None:
     """Update attributes of an endpoint"""
     from globus_cli.services.transfer import assemble_generic_doc
 

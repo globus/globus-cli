@@ -2,7 +2,7 @@ from __future__ import annotations
 
 import click
 
-from globus_cli.endpointish import EntityType
+from globus_cli.constants import ExplicitNullType
 from globus_cli.login_manager import LoginManager
 from globus_cli.parsing import (
     ENDPOINT_PLUS_REQPATH,
@@ -13,12 +13,7 @@ from globus_cli.termio import Field, TextMode, display
 
 
 @command("guest", short_help="Create a new Guest Collection on GCP")
-@endpointish_setattr_params(
-    "create",
-    name="collection",
-    entity_types=(EntityType.GCP_GUEST,),
-    overrides={"verify_style": "choice"},
-)
+@endpointish_setattr_params("create", name="collection", keyword_style="string")
 @click.argument("HOST_GCP_PATH", type=ENDPOINT_PLUS_REQPATH)
 @LoginManager.requires_login(LoginManager.TRANSFER_RS)
 def guest_command(
@@ -26,15 +21,15 @@ def guest_command(
     login_manager: LoginManager,
     display_name: str,
     host_gcp_path: tuple[str, str],
-    description: str | None,
-    info_link: str | None,
-    contact_info: str | None,
-    contact_email: str | None,
-    organization: str | None,
-    department: str | None,
-    keywords: str | None,
-    default_directory: str | None,
+    contact_email: str | None | ExplicitNullType,
+    contact_info: str | None | ExplicitNullType,
+    default_directory: str | None | ExplicitNullType,
+    department: str | None | ExplicitNullType,
+    description: str | None | ExplicitNullType,
     force_encryption: bool | None,
+    info_link: str | None | ExplicitNullType,
+    keywords: str | None,
+    organization: str | None | ExplicitNullType,
     verify: dict[str, bool],
 ) -> None:
     """

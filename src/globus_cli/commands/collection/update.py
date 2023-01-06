@@ -148,14 +148,7 @@ def collection_update_params(f):
 
 @command("update", short_help="Update a Collection definition")
 @collection_id_arg
-@endpointish_setattr_params(
-    "update",
-    name="collection",
-    entity_types=(
-        EntityType.GCSV5_MAPPED,
-        EntityType.GCSV5_GUEST,
-    ),
-)
+@endpointish_setattr_params("update", name="collection")
 @collection_update_params
 @mutex_option_group("--enable-https", "--disable-https")
 @LoginManager.requires_login(LoginManager.TRANSFER_RS, LoginManager.AUTH_RS)

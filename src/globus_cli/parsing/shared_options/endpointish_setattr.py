@@ -10,7 +10,6 @@ else:
 
 import click
 
-from globus_cli.endpointish import EntityType
 from globus_cli.parsing.param_types import CommaDelimitedList, StringOrNull
 
 C = t.TypeVar("C", bound=t.Union[t.Callable, click.Command])
@@ -19,9 +18,11 @@ C = t.TypeVar("C", bound=t.Union[t.Callable, click.Command])
 def endpointish_setattr_params(
     operation: Literal["create", "update"],
     *,
-    entity_types: tuple[EntityType, ...],
     name: Literal["endpoint", "collection"] = "endpoint",
-    overrides: dict[str, str] | None = None,
+    # default for display_name_style is that it is deduced from 'operation'
+    display_name_style: Literal["argument", "option"] | None = None,
+    keyword_style: Literal["string", "list"] = "list",
+    verify_style: Literal["flag", "choice"] = "choice",
 ) -> t.Callable[[C], C]:
     """
     This helper provides arguments and options for "endpointish" entity types.
@@ -34,29 +35,15 @@ def endpointish_setattr_params(
     :param operation: Is the command a "create" or an "update"?
     :param name: What is the entity name, "collection" or "endpoint"?
     """
-    display_name_style = "argument" if operation == "create" else "option"
-    if all((e in EntityType.traditional_endpoints()) for e in entity_types):
-        keyword_style = "string"
-        verify_style = "flag"
-    elif all((e not in EntityType.traditional_endpoints()) for e in entity_types):
-        keyword_style = "list"
-        verify_style = "choice"
-    else:
-        raise NotImplementedError(
-            "entity types in a mix of styles, cannot build options"
-        )
-
-    # apply overrides
-    overrides = overrides or {}
-    display_name_style = overrides.get("display_name_style", display_name_style)
-    keyword_style = overrides.get("keyword_style", keyword_style)
-    verify_style = overrides.get("verify_style", verify_style)
+    display_name_style_non_null = "argument" if operation == "create" else "option"
+    if display_name_style is not None:
+        display_name_style_non_null = display_name_style
 
     def decorator(f: C) -> C:
         return _apply_universal_endpointish_params(
             f,
             name,
-            display_name_style=display_name_style,
+            display_name_style=display_name_style_non_null,
             keyword_style=keyword_style,
             verify_style=verify_style,
         )

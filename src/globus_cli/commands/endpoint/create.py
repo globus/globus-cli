@@ -23,12 +23,8 @@ GCP_FIELDS = [Field("Setup Key", "globus_connect_setup_key")]
 @command("create", hidden=True)
 @endpointish_setattr_params(
     "create",
-    entity_types=(
-        EntityType.GCSV4_HOST,
-        EntityType.GCSV4_SHARE,
-        EntityType.GCP_MAPPED,
-        EntityType.GCP_GUEST,
-    ),
+    keyword_style="string",
+    verify_style="flag",
 )
 @endpoint_create_params
 @one_use_option(
