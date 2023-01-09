@@ -17,7 +17,7 @@ from globus_cli.parsing import (
 from globus_cli.termio import Field, TextMode, display, print_command_hint
 from globus_cli.types import TupleType
 
-from ._common import endpoint_create_params, validate_endpoint_create_and_update_params
+from ._common import endpoint_setattr_params, validate_endpoint_create_and_update_params
 
 if sys.version_info < (3, 8):
     from typing_extensions import Literal
@@ -35,7 +35,7 @@ GCP_FIELDS = [Field("Setup Key", "globus_connect_setup_key")]
     keyword_style="string",
     verify_style="flag",
 )
-@endpoint_create_params
+@endpoint_setattr_params
 @one_use_option(
     "--personal",
     is_flag=True,

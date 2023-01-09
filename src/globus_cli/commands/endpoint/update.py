@@ -3,13 +3,20 @@ from __future__ import annotations
 import sys
 import uuid
 
+import click
+
 from globus_cli.constants import ExplicitNullType
 from globus_cli.endpointish import Endpointish
 from globus_cli.login_manager import LoginManager
-from globus_cli.parsing import command, endpoint_id_arg, endpointish_setattr_params
+from globus_cli.parsing import (
+    command,
+    endpoint_id_arg,
+    endpointish_setattr_params,
+    mutex_option_group,
+)
 from globus_cli.termio import TextMode, display
 
-from ._common import endpoint_update_params, validate_endpoint_create_and_update_params
+from ._common import endpoint_setattr_params, validate_endpoint_create_and_update_params
 
 if sys.version_info < (3, 8):
     from typing_extensions import Literal
@@ -19,8 +26,16 @@ else:
 
 @command("update")
 @endpoint_id_arg
-@endpoint_update_params
+@endpoint_setattr_params
 @endpointish_setattr_params("update", keyword_style="string", verify_style="flag")
+@click.option(
+    "--no-default-directory",
+    is_flag=True,
+    flag_value=True,
+    default=None,
+    help="Unset any default directory on the endpoint",
+)
+@mutex_option_group("--default-directory", "--no-default-directory")
 @LoginManager.requires_login(LoginManager.TRANSFER_RS)
 def endpoint_update(
     *,

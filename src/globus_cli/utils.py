@@ -6,6 +6,14 @@ import click
 
 from globus_cli.types import DATA_CONTAINER_T, ClickContextTree
 
+F = t.TypeVar("F", bound=t.Callable)
+
+
+def fold_decorators(f: F, decorators: list[t.Callable[[F], F]]) -> F:
+    for deco in decorators:
+        f = deco(f)
+    return f
+
 
 def get_current_option_help(
     *, filter_names: t.Iterable[str] | None = None
