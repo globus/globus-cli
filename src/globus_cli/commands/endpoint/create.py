@@ -133,9 +133,8 @@ For GCS, use the globus-connect-server CLI from your Endpoint."""
     )
 
     # build options into a dict for kwarg-expansion
-    kwargs = {
-        k: ExplicitNullType.nullify(v)
-        for k, v in dict(
+    kwargs = ExplicitNullType.nullify_dict(
+        dict(
             contact_email=contact_email,
             contact_info=contact_info,
             default_directory=default_directory,
@@ -159,9 +158,8 @@ For GCS, use the globus-connect-server CLI from your Endpoint."""
             preferred_parallelism=preferred_parallelism,
             public=public,
             subscription_id=subscription_id,
-        ).items()
-        if v is not None
-    }
+        )
+    )
     kwargs["is_globus_connect"] = personal or None
 
     # validate options

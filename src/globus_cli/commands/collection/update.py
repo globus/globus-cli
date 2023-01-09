@@ -186,12 +186,8 @@ def collection_update(
     else:
         doc_class = globus_sdk.MappedCollectionDocument
 
-    # convert keyword args as follows:
-    # - filter out Nones
-    # - pass through EXPLICIT_NULL as None
-    converted_kwargs: dict[str, t.Any] = {
-        k: ExplicitNullType.nullify(v)
-        for k, v in {
+    converted_kwargs: dict[str, t.Any] = ExplicitNullType.nullify_dict(
+        {
             "display_name": display_name,
             "description": description,
             "info_link": info_link,
@@ -212,10 +208,8 @@ def collection_update(
             "user_message_link": user_message_link,
             "sharing_users_allow": sharing_users_allow,
             "sharing_users_deny": sharing_users_deny,
-        }.items()
-        if v is not None
-    }
-
+        }
+    )
     converted_kwargs.update(verify)
 
     # now that any conversions are done, check params against what is (or is not)

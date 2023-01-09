@@ -9,6 +9,8 @@ from __future__ import annotations
 import typing as t
 
 T = t.TypeVar("T")
+K = t.TypeVar("K")
+V = t.TypeVar("V")
 
 
 class ExplicitNullType:
@@ -29,6 +31,14 @@ class ExplicitNullType:
         if isinstance(value, ExplicitNullType):
             return None
         return value
+
+    @staticmethod
+    def nullify_dict(value: dict[K, V | ExplicitNullType]) -> dict[K, V]:
+        # - filter out Nones
+        # - pass through EXPLICIT_NULL as None
+        return {
+            k: ExplicitNullType.nullify(v) for k, v in value.items() if v is not None
+        }
 
 
 EXPLICIT_NULL = ExplicitNullType()
