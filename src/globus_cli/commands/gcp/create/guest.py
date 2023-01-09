@@ -13,10 +13,13 @@ from globus_cli.parsing import (
 )
 from globus_cli.termio import Field, TextMode, display
 
+from ._common import deprecated_verify_option
+
 
 @command("guest", short_help="Create a new Guest Collection on GCP")
 @endpointish_setattr_params("create", name="collection", keyword_style="string")
 @click.argument("HOST_GCP_PATH", type=ENDPOINT_PLUS_REQPATH)
+@deprecated_verify_option
 @LoginManager.requires_login(LoginManager.TRANSFER_RS)
 def guest_command(
     *,
@@ -33,6 +36,7 @@ def guest_command(
     keywords: str | None,
     organization: str | None | ExplicitNullType,
     verify: dict[str, bool],
+    disable_verify: bool | None,
 ) -> None:
     """
     Create a new Guest Collection on a Globus Connect Personal Endpoint
@@ -40,6 +44,9 @@ def guest_command(
     The host ID and a path to the root for the Guest Collection are required.
     """
     from globus_cli.services.transfer import assemble_generic_doc, autoactivate
+
+    if disable_verify is not None:
+        verify["disable_verify"] = disable_verify
 
     transfer_client = login_manager.get_transfer_client()
 

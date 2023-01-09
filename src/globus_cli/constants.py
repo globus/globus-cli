@@ -33,7 +33,7 @@ class ExplicitNullType:
         return value
 
     @staticmethod
-    def nullify_dict(value: dict[K, V | ExplicitNullType]) -> dict[K, V]:
+    def nullify_dict(value: dict[K, V | ExplicitNullType]) -> dict[K, V | None]:
         # - filter out Nones
         # - pass through EXPLICIT_NULL as None
         return {

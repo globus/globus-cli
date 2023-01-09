@@ -11,4 +11,4 @@
    supported
 ** `globus gcp create guest` and `globus gcp create mapped` now accept
    `--verify [force|disable|default]` for verification options. This replaces
-   `--disable-verify/--no-disable-verify`
+   `--disable-verify/--no-disable-verify`, which is now deprecated

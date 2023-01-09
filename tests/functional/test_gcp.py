@@ -2,7 +2,11 @@ import json
 import uuid
 
 import pytest
-from globus_sdk._testing import load_response_set, register_response_set
+from globus_sdk._testing import (
+    get_last_request,
+    load_response_set,
+    register_response_set,
+)
 
 
 @pytest.fixture(scope="session", autouse=True)
@@ -90,3 +94,36 @@ def test_gcp_create_share(run_line, output_format):
         assert res["id"] == meta["share_id"]
     else:
         assert meta["share_id"] in result.output
+
+
+@pytest.mark.parametrize("gcp_type", ["guest", "mapped"])
+@pytest.mark.parametrize("deprecated_opt", ["--disable-verify", "--no-disable-verify"])
+def test_gcp_create_with_deprecated_verify_option(
+    monkeypatch, run_line, gcp_type, deprecated_opt
+):
+    # force interactive and patch detection methods to get command hints to print
+    monkeypatch.setenv("GLOBUS_CLI_INTERACTIVE", "1")
+    monkeypatch.setattr("globus_cli.termio.err_is_terminal", lambda: True)
+    monkeypatch.setattr("globus_cli.termio.out_is_terminal", lambda: True)
+
+    if gcp_type == "guest":
+        meta = load_response_set("gcp_create_guest").metadata
+        addopts = f"{meta['host_id']}:/~/ "
+    else:
+        meta = load_response_set("gcp_create_mapped").metadata
+        addopts = ""
+
+    result = run_line(f"globus gcp create {gcp_type} mygcp {addopts}{deprecated_opt}")
+
+    if gcp_type == "mapped":
+        assert meta["ep_id"] in result.output
+        assert meta["setup_key"] in result.output
+    else:
+        assert meta["share_id"] in result.output
+
+    # warning was shown
+    assert "'--disable-verify/--no-disable-verify' is deprecated" in result.stderr
+    # sent data should include 'disable_verify: <option-value>'
+    sent_data = json.loads(get_last_request().body)
+    assert "disable_verify" in sent_data
+    assert sent_data["disable_verify"] == (deprecated_opt == "--disable-verify")

@@ -7,6 +7,8 @@ from globus_cli.login_manager import LoginManager
 from globus_cli.parsing import command, endpointish_setattr_params
 from globus_cli.termio import Field, TextMode, display
 
+from ._common import deprecated_verify_option
+
 
 @command("mapped", short_help="Create a new GCP Mapped Collection")
 @endpointish_setattr_params("create", name="collection", keyword_style="string")
@@ -14,6 +16,7 @@ from globus_cli.termio import Field, TextMode, display
     "--subscription-id",
     help="Set the collection as managed with the given subscription ID",
 )
+@deprecated_verify_option
 @LoginManager.requires_login(LoginManager.TRANSFER_RS)
 def mapped_command(
     *,
@@ -30,6 +33,7 @@ def mapped_command(
     force_encryption: bool | None,
     verify: dict[str, bool],
     subscription_id: str | None,
+    disable_verify: bool | None,
 ) -> None:
     """
     Create a new Globus Connect Personal Mapped Collection.
@@ -42,6 +46,9 @@ def mapped_command(
     that registration.
     """
     from globus_cli.services.transfer import assemble_generic_doc
+
+    if disable_verify is not None:
+        verify["disable_verify"] = disable_verify
 
     transfer_client = login_manager.get_transfer_client()
 
