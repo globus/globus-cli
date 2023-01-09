@@ -32,14 +32,6 @@ class _FullDataField(Field):
         return super().get_value(data.full_data)
 
 
-def collection_update_params(f):
-    """
-    Collection of options consumed by GCS Collection update
-    """
-
-    return f
-
-
 @command("update", short_help="Update a Collection definition")
 @collection_id_arg
 @endpointish_setattr_params("update", name="collection")
