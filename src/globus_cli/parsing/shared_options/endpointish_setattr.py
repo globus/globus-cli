@@ -15,6 +15,7 @@ else:
 
 import click
 
+from globus_cli import utils
 from globus_cli.parsing.param_classes import AnnotatedOption
 from globus_cli.parsing.param_types import CommaDelimitedList, StringOrNull
 
@@ -41,15 +42,13 @@ def endpointish_setattr_params(
     :param operation: Is the command a "create" or an "update"?
     :param name: What is the entity name, "collection" or "endpoint"?
     """
-    display_name_style_non_null = "argument" if operation == "create" else "option"
-    if display_name_style is not None:
-        display_name_style_non_null = display_name_style
+    default_display_name_style = "argument" if operation == "create" else "option"
 
     def decorator(f: C) -> C:
         return _apply_universal_endpointish_params(
             f,
             name,
-            display_name_style=display_name_style_non_null,
+            display_name_style=display_name_style or default_display_name_style,
             keyword_style=keyword_style,
             verify_style=verify_style,
         )
@@ -65,50 +64,65 @@ def _apply_universal_endpointish_params(
     keyword_style: str,
     verify_style: str,
 ) -> C:
+    decorators: list[t.Callable[[C], C]] = []
+
     if display_name_style == "argument":
-        f = click.argument("DISPLAY_NAME")(f)
+        decorators.append(click.argument("DISPLAY_NAME"))
     elif display_name_style == "option":
-        f = click.option("--display-name", help=f"Name for the {name}")(f)
+        decorators.append(click.option("--display-name", help=f"Name for the {name}"))
     else:
         raise NotImplementedError()
 
-    f = click.option(
-        "--description", help=f"Description for the {name}", type=StringOrNull()
-    )(f)
-    f = click.option(
-        "--info-link", help=f"Link for info about the {name}", type=StringOrNull()
-    )(f)
-    f = click.option(
-        "--contact-info", help=f"Contact info for the {name}", type=StringOrNull()
-    )(f)
-    f = click.option(
-        "--contact-email", help=f"Contact email for the {name}", type=StringOrNull()
-    )(f)
-    f = click.option(
-        "--organization", help=f"Organization for the {name}", type=StringOrNull()
-    )(f)
-    f = click.option(
-        "--department",
-        help=f"Department which operates the {name}",
-        type=StringOrNull(),
-    )(f)
-    f = click.option(
-        "--keywords",
-        type=str if keyword_style == "string" else CommaDelimitedList(),
-        help=f"Comma separated list of keywords to help searches for the {name}",
-    )(f)
+    decorators.extend(
+        [
+            click.option(
+                "--description", help=f"Description for the {name}", type=StringOrNull()
+            ),
+            click.option(
+                "--info-link",
+                help=f"Link for info about the {name}",
+                type=StringOrNull(),
+            ),
+            click.option(
+                "--contact-info",
+                help=f"Contact info for the {name}",
+                type=StringOrNull(),
+            ),
+            click.option(
+                "--contact-email",
+                help=f"Contact email for the {name}",
+                type=StringOrNull(),
+            ),
+            click.option(
+                "--organization",
+                help=f"Organization for the {name}",
+                type=StringOrNull(),
+            ),
+            click.option(
+                "--department",
+                help=f"Department which operates the {name}",
+                type=StringOrNull(),
+            ),
+            click.option(
+                "--keywords",
+                type=str if keyword_style == "string" else CommaDelimitedList(),
+                help="Comma separated list of keywords to help searches "
+                f"for the {name}",
+            ),
+            click.option(
+                "--default-directory",
+                type=StringOrNull(),
+                help="Default directory when browsing or executing tasks "
+                f"on the {name}",
+            ),
+            click.option(
+                "--force-encryption/--no-force-encryption",
+                default=None,
+                help=f"Force the {name} to encrypt transfers",
+            ),
+        ]
+    )
 
-    f = click.option(
-        "--default-directory",
-        type=StringOrNull(),
-        help=f"Default directory when browsing or executing tasks on the {name}",
-    )(f)
-
-    f = click.option(
-        "--force-encryption/--no-force-encryption",
-        default=None,
-        help=f"Force the {name} to encrypt transfers",
-    )(f)
     if verify_style == "choice":
         verify_help = (
             f"Set the policy for this {name} for file integrity verification "
@@ -122,22 +136,29 @@ def _apply_universal_endpointish_params(
                 " When set on mapped collections, this policy is inherited by any "
                 "guest collections"
             )
-        f = click.option(
-            "--verify",
-            type=click.Choice(["force", "disable", "default"], case_sensitive=False),
-            callback=_verify_choice_to_dict,
-            help=verify_help,
-            type_annotation=DictType[str, bool],
-            cls=AnnotatedOption,
-        )(f)
+        decorators.append(
+            click.option(
+                "--verify",
+                type=click.Choice(
+                    ["force", "disable", "default"], case_sensitive=False
+                ),
+                callback=_verify_choice_to_dict,
+                help=verify_help,
+                type_annotation=DictType[str, bool],
+                cls=AnnotatedOption,
+            )
+        )
     else:
-        f = click.option(
-            "--disable-verify/--no-disable-verify",
-            default=None,
-            is_flag=True,
-            help=f"Set the {name} to ignore checksum verification",
-        )(f)
-    return f
+        decorators.append(
+            click.option(
+                "--disable-verify/--no-disable-verify",
+                default=None,
+                is_flag=True,
+                help=f"Set the {name} to ignore checksum verification",
+            )
+        )
+
+    return utils.fold_decorators(f, decorators)
 
 
 def _verify_choice_to_dict(
