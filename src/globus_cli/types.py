@@ -17,9 +17,11 @@ else:
 if sys.version_info < (3, 9):
     DictType = t.Dict
     ListType = t.List
+    TupleType = t.Tuple
 else:
     DictType = dict
     ListType = list
+    TupleType = tuple
 
 # all imports from globus_cli modules done here are done under TYPE_CHECKING
 # in order to ensure that the use of type annotations never introduces circular

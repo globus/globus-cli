@@ -17,6 +17,7 @@ from tests.click_types import check_has_correct_annotations_for_click_args
         ("bookmark.show", "bookmark_show"),
         ("cli_profile_list", "cli_profile_list"),
         ("collection.update", "collection_update"),
+        ("endpoint.create", "endpoint_create"),
         ("endpoint.is_activated", "endpoint_is_activated"),
         ("endpoint.update", "endpoint_update"),
         ("gcp.create.guest", "guest_command"),

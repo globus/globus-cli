@@ -1,7 +1,10 @@
 from __future__ import annotations
 
+import sys
 import typing as t
+import uuid
 
+from globus_cli.constants import ExplicitNullType
 from globus_cli.endpointish import EntityType
 from globus_cli.login_manager import LoginManager
 from globus_cli.parsing import (
@@ -12,8 +15,14 @@ from globus_cli.parsing import (
     one_use_option,
 )
 from globus_cli.termio import Field, TextMode, display, print_command_hint
+from globus_cli.types import TupleType
 
 from ._common import endpoint_create_params, validate_endpoint_create_and_update_params
+
+if sys.version_info < (3, 8):
+    from typing_extensions import Literal
+else:
+    from typing import Literal
 
 COMMON_FIELDS = [Field("Message", "message"), Field("Endpoint ID", "id")]
 
@@ -51,6 +60,7 @@ GCP_FIELDS = [Field("Setup Key", "globus_connect_setup_key")]
         "Create a shared endpoint hosted on the given endpoint and path. "
         "Mutually exclusive with --personal and --server."
     ),
+    type_annotation=t.Optional[TupleType[uuid.UUID, str]],  # type: ignore[type-arg]
 )
 @mutex_option_group("--shared", "--server", "--personal")
 @LoginManager.requires_login(LoginManager.TRANSFER_RS)
@@ -59,8 +69,31 @@ def endpoint_create(
     login_manager: LoginManager,
     personal: bool,
     server: bool,
-    shared: tuple[str, str] | None,
-    **kwargs: t.Any,
+    shared: tuple[uuid.UUID, str] | None,
+    # endpointish setattr params
+    display_name: str,
+    contact_email: str | None | ExplicitNullType,
+    contact_info: str | None | ExplicitNullType,
+    default_directory: str | None | ExplicitNullType,
+    department: str | None | ExplicitNullType,
+    description: str | None | ExplicitNullType,
+    disable_verify: bool | None,
+    force_encryption: bool | None,
+    info_link: str | None | ExplicitNullType,
+    keywords: str | None,
+    location: tuple[float, float] | None,
+    managed: bool | None,
+    max_concurrency: int | None,
+    max_parallelism: int | None,
+    myproxy_dn: str | None,
+    myproxy_server: str | None,
+    network_use: Literal["normal", "minimal", "aggressive", "custom"] | None,
+    oauth_server: str | None,
+    organization: str | None | ExplicitNullType,
+    preferred_concurrency: int | None,
+    preferred_parallelism: int | None,
+    public: bool | None,
+    subscription_id: uuid.UUID | None,
 ) -> None:
     """
     WARNING:
@@ -99,8 +132,39 @@ For GCS, use the globus-connect-server CLI from your Endpoint."""
         else EntityType.GCSV4_SHARE
     )
 
-    # validate options
+    # build options into a dict for kwarg-expansion
+    kwargs = {
+        k: ExplicitNullType.nullify(v)
+        for k, v in dict(
+            contact_email=contact_email,
+            contact_info=contact_info,
+            default_directory=default_directory,
+            department=department,
+            description=description,
+            disable_verify=disable_verify,
+            display_name=display_name,
+            force_encryption=force_encryption,
+            info_link=info_link,
+            keywords=keywords,
+            location=location,
+            managed=managed,
+            max_concurrency=max_concurrency,
+            max_parallelism=max_parallelism,
+            myproxy_dn=myproxy_dn,
+            myproxy_server=myproxy_server,
+            network_use=network_use,
+            oauth_server=oauth_server,
+            organization=organization,
+            preferred_concurrency=preferred_concurrency,
+            preferred_parallelism=preferred_parallelism,
+            public=public,
+            subscription_id=subscription_id,
+        ).items()
+        if v is not None
+    }
     kwargs["is_globus_connect"] = personal or None
+
+    # validate options
     validate_endpoint_create_and_update_params(endpoint_type, False, kwargs)
 
     # shared endpoint creation

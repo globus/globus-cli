@@ -100,6 +100,8 @@ def one_use_option(*args: t.Any, **kwargs: t.Any) -> t.Callable[[C], C]:
     if kwargs.get("is_flag"):
         kwargs["is_flag"] = False  # mutually exclusive with count
         kwargs["count"] = True
+        if "type_annotation" not in kwargs:
+            kwargs["type_annotation"] = bool
 
     # if not a flag, this option takes an argument(s), switch to a multiple
     # option, assert the len is 1, and treat the first element as the value
