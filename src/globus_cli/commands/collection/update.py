@@ -17,7 +17,7 @@ from globus_cli.parsing import (
     UrlOrNull,
     collection_id_arg,
     command,
-    endpointish_setattr_params,
+    endpointish_params,
     mutex_option_group,
     nullable_multi_callback,
 )
@@ -34,7 +34,7 @@ class _FullDataField(Field):
 
 @command("update", short_help="Update a Collection definition")
 @collection_id_arg
-@endpointish_setattr_params("update", name="collection")
+@endpointish_params.update(name="collection")
 @click.option(
     "--public/--private",
     "public",

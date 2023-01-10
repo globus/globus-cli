@@ -6,18 +6,14 @@ import click
 
 from globus_cli.constants import ExplicitNullType
 from globus_cli.login_manager import LoginManager
-from globus_cli.parsing import (
-    ENDPOINT_PLUS_REQPATH,
-    command,
-    endpointish_setattr_params,
-)
+from globus_cli.parsing import ENDPOINT_PLUS_REQPATH, command, endpointish_params
 from globus_cli.termio import Field, TextMode, display
 
 from ._common import deprecated_verify_option
 
 
 @command("guest", short_help="Create a new Guest Collection on GCP")
-@endpointish_setattr_params("create", name="collection", keyword_style="string")
+@endpointish_params.create(name="collection", keyword_style="string")
 @click.argument("HOST_GCP_PATH", type=ENDPOINT_PLUS_REQPATH)
 @deprecated_verify_option
 @LoginManager.requires_login(LoginManager.TRANSFER_RS)

@@ -10,14 +10,14 @@ from globus_cli.login_manager import LoginManager
 from globus_cli.parsing import (
     ENDPOINT_PLUS_REQPATH,
     command,
-    endpointish_setattr_params,
+    endpointish_params,
     mutex_option_group,
     one_use_option,
 )
 from globus_cli.termio import Field, TextMode, display, print_command_hint
 from globus_cli.types import TupleType
 
-from ._common import endpoint_setattr_params, validate_endpoint_create_and_update_params
+from ._common import validate_endpoint_create_and_update_params
 
 if sys.version_info < (3, 8):
     from typing_extensions import Literal
@@ -30,12 +30,12 @@ GCP_FIELDS = [Field("Setup Key", "globus_connect_setup_key")]
 
 
 @command("create", hidden=True)
-@endpointish_setattr_params(
-    "create",
+@endpointish_params.create(
+    name="endpoint",
     keyword_style="string",
     verify_style="flag",
 )
-@endpoint_setattr_params
+@endpointish_params.legacy_transfer_params()
 @one_use_option(
     "--personal",
     is_flag=True,

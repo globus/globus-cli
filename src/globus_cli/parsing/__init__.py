@@ -23,7 +23,7 @@ from .shared_options import (
     task_notify_option,
     task_submission_options,
 )
-from .shared_options.endpointish_setattr import endpointish_setattr_params
+from .shared_options.endpointish import endpointish_params
 from .shared_options.id_args import collection_id_arg, endpoint_id_arg, flow_id_arg
 from .shared_options.transfer_task_options import (
     encrypt_data_option,
@@ -78,5 +78,5 @@ __all__ = [
     "preserve_timestamp_option",
     "skip_source_errors_option",
     "verify_checksum_option",
-    "endpointish_setattr_params",
+    "endpointish_params",
 ]

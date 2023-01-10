@@ -11,12 +11,12 @@ from globus_cli.login_manager import LoginManager
 from globus_cli.parsing import (
     command,
     endpoint_id_arg,
-    endpointish_setattr_params,
+    endpointish_params,
     mutex_option_group,
 )
 from globus_cli.termio import TextMode, display
 
-from ._common import endpoint_setattr_params, validate_endpoint_create_and_update_params
+from ._common import validate_endpoint_create_and_update_params
 
 if sys.version_info < (3, 8):
     from typing_extensions import Literal
@@ -26,8 +26,8 @@ else:
 
 @command("update")
 @endpoint_id_arg
-@endpoint_setattr_params
-@endpointish_setattr_params("update", keyword_style="string", verify_style="flag")
+@endpointish_params.update(name="endpoint", keyword_style="string", verify_style="flag")
+@endpointish_params.legacy_transfer_params()
 @click.option(
     "--no-default-directory",
     is_flag=True,
