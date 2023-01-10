@@ -193,12 +193,10 @@ def _verify_choice_to_dict(
     if value is None:
         return {}
     value = value.lower()
-    if value == "force":
-        return {"force_verify": True, "disable_verify": False}
-    elif value == "disable":
-        return {"force_verify": False, "disable_verify": True}
-    else:
-        return {"force_verify": False, "disable_verify": False}
+    return {
+        "force_verify": value == "force",
+        "disable_verify": value == "disable"
+    }
 
 
 def _apply_legacy_transfer_params(f: C) -> C:
