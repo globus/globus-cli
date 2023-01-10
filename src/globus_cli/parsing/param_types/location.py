@@ -18,20 +18,27 @@ class LocationType(AnnotatedParamType):
     def get_type_annotation(self, param: click.Parameter) -> type:
         # mypy does not recognize this as a valid usage at runtime
         # ignore for now
-        return tuple[float, float]  # type: ignore[no-any-return,misc]
+        return str
 
     def convert(
         self, value: t.Any, param: click.Parameter | None, ctx: click.Context | None
     ) -> t.Any:
-        try:
-            match = re.match("^(.*),(.*)$", value)
-            if not match:
-                raise ValueError()
-            float(match.group(1))
-            float(match.group(2))
-            return value
-        except (ValueError, AttributeError):
+        match_result = re.match(r"^([^,]+),([^,]+)$", value)
+        if not match_result:
             self.fail(
-                f"location {value} is not two comma separated floats "
-                "for latitude and longitude"
+                f"location '{value}' does not match the expected "
+                "'latitude,longitude' format"
             )
+
+        maybe_lat = match_result.group(1)
+        maybe_lon = match_result.group(2)
+
+        try:
+            float(maybe_lat)
+            float(maybe_lon)
+        except ValueError:
+            self.fail(
+                f"location '{value}' is not a well-formed 'latitude,longitude' pair"
+            )
+        else:
+            return f"{maybe_lat},{maybe_lon}"

@@ -81,7 +81,7 @@ def endpoint_create(
     force_encryption: bool | None,
     info_link: str | None | ExplicitNullType,
     keywords: str | None,
-    location: tuple[float, float] | None,
+    location: str | None,
     managed: bool | None,
     max_concurrency: int | None,
     max_parallelism: int | None,
