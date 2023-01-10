@@ -39,6 +39,7 @@ GCP_FIELDS = [Field("Setup Key", "globus_connect_setup_key")]
 @one_use_option(
     "--personal",
     is_flag=True,
+    type_annotation=bool,
     help=(
         "Create a Globus Connect Personal endpoint. "
         "Mutually exclusive with --server and --shared."
@@ -47,6 +48,7 @@ GCP_FIELDS = [Field("Setup Key", "globus_connect_setup_key")]
 @one_use_option(
     "--server",
     is_flag=True,
+    type_annotation=bool,
     help=(
         "Create a Globus Connect Server endpoint. "
         "Mutually exclusive with --personal and --shared."
