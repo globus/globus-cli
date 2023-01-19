@@ -15,13 +15,46 @@ jobs:
     runs-on: ${{ matrix.os }}
     steps:
       - uses: actions/checkout@v3
+      - name: Identify week number
+        shell: bash
+        run: |
+          date +'%V' > week-number.txt
+          date +'week-number=%V' >> $GITHUB_ENV
       - uses: actions/setup-python@v4
+        id: setup-python
         with:
           python-version: "3.10"
+          cache: "pip"
+          cache-dependency-path: |
+            .github/workflows/build.yaml
+            setup.cfg
+            setup.py
+            tox.ini
+            week-number.txt
+      - name: Restore cache
+        id: restore-cache
+        uses: actions/cache@v3
+        with:
+          path: |
+            .tox/
+            .venv/
+          key: >
+            lint
+            week=${{ env.week-number }}
+            os=${{ matrix.os }}
+            python=${{ steps.setup-python.outputs.python-version }}
+            hash=${{ hashFiles('.github/workflows/build.yaml', 'tox.ini', 'setup.cfg', 'setup.py') }}
+      - name: Identify venv path
+        shell: bash
+        run: echo 'venv-path=${{ runner.os == 'Windows' && '.venv/Scripts' || '.venv/bin' }}' >> $GITHUB_ENV
       - name: install tox
-        run: python -m pip install -U tox
+        if: steps.restore-cache.outputs.cache-hit == false
+        run: |
+          python -m venv .venv
+          ${{ env.venv-path }}/pip install --upgrade pip setuptools wheel
+          ${{ env.venv-path }}/pip install tox
       - name: run mypy
-        run: tox -e mypy
+        run: ${{ env.venv-path }}/tox -e mypy
 
   test:
     strategy:
@@ -39,50 +72,170 @@ jobs:
     runs-on: ${{ matrix.os }}
     steps:
       - uses: actions/checkout@v3
+      - name: Identify week number
+        shell: bash
+        run: |
+          date +'%V' > week-number.txt
+          date +'week-number=%V' >> $GITHUB_ENV
       - uses: actions/setup-python@v4
+        id: setup-python
         with:
           python-version: ${{ matrix.python-version }}
+          cache: "pip"
+          cache-dependency-path: |
+            .github/workflows/build.yaml
+            setup.cfg
+            setup.py
+            tox.ini
+            week-number.txt
+      - name: Restore cache
+        id: restore-cache
+        uses: actions/cache@v3
+        with:
+          path: |
+            .tox
+            .venv
+          key: >
+            test
+            week=${{ env.week-number }}
+            os=${{ matrix.os }}
+            python=${{ steps.setup-python.outputs.python-version }}
+            hash=${{ hashFiles('.github/workflows/build.yaml', 'setup.cfg', 'setup.py', 'tox.ini') }}
+      - name: Identify venv path
+        shell: bash
+        run: echo 'venv-path=${{ runner.os == 'Windows' && '.venv/Scripts' || '.venv/bin' }}' >> $GITHUB_ENV
       - name: install tox
-        run: python -m pip install -U tox
+        if: steps.restore-cache.outputs.cache-hit == false
+        run: |
+          python -m venv .venv
+          ${{ env.venv-path }}/pip install --upgrade pip setuptools wheel
+          ${{ env.venv-path }}/pip install tox
       - name: run tests
-        run: python -m tox -e py
+        run: ${{ env.venv-path }}/tox -e py
 
   docs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
+      - name: Identify week number
+        shell: bash
+        run: |
+          date +'%V' > week-number.txt
+          date +'week-number=%V' >> $GITHUB_ENV
       - uses: actions/setup-python@v4
+        id: setup-python
         with:
           python-version: "3.10"
+          cache: "pip"
+          cache-dependency-path: |
+            .github/workflows/build.yaml
+            setup.cfg
+            setup.py
+            tox.ini
+            week-number.txt
+      - name: Restore cache
+        id: restore-cache
+        uses: actions/cache@v3
+        with:
+          path: |
+            .tox
+            .venv
+          key: >
+            docs
+            week=${{ env.week-number }}
+            python=${{ steps.setup-python.outputs.python-version }}
+            hash=${{ hashFiles('.github/workflows/build.yaml', 'setup.cfg', 'setup.py', 'tox.ini') }}
       - name: install tox
-        run: python -m pip install -U tox
+        if: steps.restore-cache.outputs.cache-hit == false
+        run: |
+          python -m venv .venv
+          .venv/bin/pip install --upgrade pip setuptools wheel
+          .venv/bin/pip install tox
       - name: test reference docs generation
-        run: python -m tox -e reference
+        run: .venv/bin/tox -e reference
 
   test-package-metadata:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
+      - name: Identify week number
+        shell: bash
+        run: |
+          date +'%V' > week-number.txt
+          date +'week-number=%V' >> $GITHUB_ENV
       - uses: actions/setup-python@v4
+        id: setup-python
         with:
           python-version: "3.10"
+          cache: "pip"
+          cache-dependency-path: |
+            .github/workflows/build.yaml
+            setup.cfg
+            setup.py
+            tox.ini
+            week-number.txt
+      - name: Restore cache
+        id: restore-cache
+        uses: actions/cache@v3
+        with:
+          path: |
+            .tox
+            .venv
+          key: >
+            test-package-metadata
+            week=${{ env.week-number }}
+            python=${{ steps.setup-python.outputs.python-version }}
+            hash=${{ hashFiles('.github/workflows/build.yaml', 'setup.cfg', 'setup.py', 'tox.ini') }}
       - name: install tox
-        run: python -m pip install -U tox
+        if: steps.restore-cache.outputs.cache-hit == false
+        run: |
+          python -m venv .venv
+          .venv/bin/pip install --upgrade pip setuptools wheel
+          .venv/bin/pip install tox
       - name: check package metadata
-        run: python -m tox -e twine-check
+        run: .venv/bin/tox -e twine-check
 
   test-mindeps:
     runs-on: ubuntu-latest
     name: "mindeps"
     steps:
       - uses: actions/checkout@v3
+      - name: Identify week number
+        shell: bash
+        run: |
+          date +'%V' > week-number.txt
+          date +'week-number=%V' >> $GITHUB_ENV
       - uses: actions/setup-python@v4
+        id: setup-python
         with:
           python-version: "3.7"
+          cache: "pip"
+          cache-dependency-path: |
+            .github/workflows/build.yaml
+            setup.cfg
+            setup.py
+            tox.ini
+            week-number.txt
+      - name: Restore cache
+        id: restore-cache
+        uses: actions/cache@v3
+        with:
+          path: |
+            .tox
+            .venv
+          key: >
+            test-mindeps
+            week=${{ env.week-number }}
+            python=${{ steps.setup-python.outputs.python-version }}
+            hash=${{ hashFiles('.github/workflows/build.yaml', 'setup.cfg', 'setup.py', 'tox.ini') }}
       - name: install tox
-        run: python -m pip install -U tox
+        if: steps.restore-cache.outputs.cache-hit == false
+        run: |
+          python -m venv .venv
+          .venv/bin/pip install --upgrade pip setuptools wheel
+          .venv/bin/pip install tox
       - name: test
-        run: tox -e py-mindeps
+        run: .venv/bin/tox -e py-mindeps
 
   test-sdk-main:
     strategy:
@@ -92,11 +245,41 @@ jobs:
     name: "sdk-main"
     steps:
       - uses: actions/checkout@v3
+      - name: Identify week number
+        shell: bash
+        run: |
+          date +'%V' > week-number.txt
+          date +'week-number=%V' >> $GITHUB_ENV
       - uses: actions/setup-python@v4
+        id: setup-python
         with:
           python-version: ${{ matrix.python-version }}
-      - run: python -m pip install -U tox
-      - run: tox -e py-sdkmain
+          cache: "pip"
+          cache-dependency-path: |
+            .github/workflows/build.yaml
+            setup.cfg
+            setup.py
+            tox.ini
+            week-number.txt
+      - name: Restore cache
+        id: restore-cache
+        uses: actions/cache@v3
+        with:
+          path: |
+            .tox
+            .venv
+          key: >
+            test-sdk-main
+            week=${{ env.week-number }}
+            python=${{ steps.setup-python.outputs.python-version }}
+            hash=${{ hashFiles('.github/workflows/build.yaml', 'setup.cfg', 'setup.py', 'tox.ini') }}
+      - name: install tox
+        if: steps.restore-cache.outputs.cache-hit == false
+        run: |
+          python -m venv .venv
+          .venv/bin/pip install --upgrade pip setuptools wheel
+          .venv/bin/pip install tox
+      - run: .venv/bin/tox -e py-sdkmain
 
   # use the oldest python version we support for this build
   test-ancient-virtualenv:
@@ -104,9 +287,18 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
+      - name: Identify week number
+        run: date +'%V' > week-number.txt
       - uses: actions/setup-python@v4
         with:
           python-version: "3.7"
+          cache: "pip"
+          cache-dependency-path: |
+            .github/workflows/build.yaml
+            setup.cfg
+            setup.py
+            tox.ini
+            week-number.txt
       - run: python -m pip install -U pip setuptools
       - name: Downgrade Virtualenv
         run: python -m pip install 'virtualenv==16.7.12'
