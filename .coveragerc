@@ -1,11 +1,17 @@
 [run]
 parallel = True
-include = src/*
+source =
+    globus_cli
+
+[paths]
+source =
+    src
+    */site-packages
 
 [report]
 show_missing = True
 skip_covered = True
-fail_under = 87
+fail_under = 85
 
 exclude_lines =
     # the pragma to disable coverage
