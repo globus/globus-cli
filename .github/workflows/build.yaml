@@ -107,9 +107,12 @@ jobs:
       - uses: actions/setup-python@v4
         with:
           python-version: "3.7"
-      # use tox v3 to support the old virtualenv version
-      - run: python -m pip install -U pip setuptools 'tox<4'
+      - run: python -m pip install -U pip setuptool
       - name: Downgrade Virtualenv
         run: python -m pip install 'virtualenv==16.7.12'
-      - name: Run Tests
-        run: python -m tox -e py
+      - name: Create virtualenv
+        run: virtualenv venv
+      - name: Install Into Virtualenv
+        run: venv/bin/python -m pip install '.[test]'
+      - name: Run tests
+        run: venv/bin/pytest
