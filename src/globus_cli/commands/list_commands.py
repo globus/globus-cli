@@ -26,7 +26,7 @@ def _print_tree(
     click.echo(f"\n=== {ctx.command_path} ===\n")
     for cmd_ctx in subcommands:
         _print_command(cmd_ctx)
-    for (subctx, subsubcommands, subsubgroups) in subgroups:
+    for subctx, subsubcommands, subsubgroups in subgroups:
         _print_tree(subctx, subsubcommands, subsubgroups)
 
 

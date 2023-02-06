@@ -89,7 +89,6 @@ def autoactivate(client, endpoint_id, if_expires_in=None):
 
     res = client.endpoint_autoactivate(endpoint_id, **kwargs)
     if res["code"] == "AutoActivationFailed":
-
         message = (
             "The endpoint could not be auto-activated and must be "
             "activated before it can be used.\n\n"

@@ -93,7 +93,7 @@ def cancel_task(*, login_manager: LoginManager, all, task_id):
             }
 
         def _custom_text(res):
-            for (i, (task_id, data)) in enumerate(cancellation_iterator(), start=1):
+            for i, (task_id, data) in enumerate(cancellation_iterator(), start=1):
                 click.echo(f"{task_id} ({i} of {task_count}): {data['message']}")
 
         # FIXME: this is kind of an abuse of display because the

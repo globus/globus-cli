@@ -189,7 +189,6 @@ def ls_command(
 
     # get the `ls` result
     if recursive:
-
         # if we are doing filtering we need to pass multiple filter params. The
         # first allows all directories, as we need them for recursive
         # expansion. The second then filters name by the filter_val

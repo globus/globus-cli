@@ -45,7 +45,6 @@ class OneUseOption(AnnotatedOption):
     """
 
     def type_cast_value(self, ctx: click.Context, value: t.Any) -> t.Any:
-
         # get the result of a normal type_cast
         converted_val = super().type_cast_value(ctx, value)
 

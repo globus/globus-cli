@@ -212,7 +212,6 @@ def endpoint_activate(
 
     # attempt autoactivation unless --no-autoactivate
     if not no_autoactivate:
-
         res = transfer_client.endpoint_autoactivate(endpoint_id)
 
         if "AutoActivated" in res["code"]:

@@ -25,7 +25,7 @@ class RuleOperationsFormatter(formatters.FieldFormatter[t.List[str]]):
             raise ValueError("cannot format rule operations from non-dict value")
 
         ret: list[str] = []
-        for (label, key) in [
+        for label, key in [
             ("write", "pause_task_transfer_write"),
             ("read", "pause_task_transfer_read"),
             ("delete", "pause_task_delete"),

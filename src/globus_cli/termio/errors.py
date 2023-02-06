@@ -39,7 +39,6 @@ class PrintableErrorField:
 
 
 def write_error_info(error_name, fields, message=None):
-
     if outformat_is_json():
         # dictify joined tuple lists and dump to json string
         message = click.style(

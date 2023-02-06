@@ -45,7 +45,6 @@ globus ls "${ep_id}:/${dir_to_ls}"
     help="Use local Globus Connect Personal endpoint (default)",
 )
 def local_id(personal: bool) -> None:
-
     """
     Look for data referring to a local installation of Globus Connect Personal software
     and display the associated endpoint ID.

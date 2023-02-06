@@ -177,7 +177,7 @@ def test_timedelta_type(runner):
         click.echo(f"t={t}")
 
     # various individual time units in seconds
-    for (arg, val) in (
+    for arg, val in (
         # 10 seconds is 10 seconds
         ("10s", 10),
         # 2 minutes is 2 * 60 = 120 seconds
@@ -193,7 +193,7 @@ def test_timedelta_type(runner):
         assert result.output == f"t={val}\n"
 
     # combined values
-    for (arg, val) in (
+    for arg, val in (
         # 1 minutes 10 seconds is 70 seconds
         ("1m10s", 70),
         # 2 weeks 3 days 4 hours 5 minutes 6 seconds
