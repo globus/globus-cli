@@ -22,6 +22,7 @@ from tests.click_types import check_has_correct_annotations_for_click_args
         ("endpoint.update", "endpoint_update"),
         ("gcp.create.guest", "guest_command"),
         ("gcp.create.mapped", "mapped_command"),
+        ("session.update", "session_update"),
         ("transfer", "transfer_command"),
         ("timer.delete", "delete_command"),
         ("timer.list", "list_command"),

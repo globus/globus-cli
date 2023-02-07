@@ -23,7 +23,11 @@ def _update_session_params_all_case(
     session_params["session_required_identities"] = ",".join(identity_ids)
 
 
-def _update_session_params_identities_case(identity_set, session_params, identities):
+def _update_session_params_identities_case(
+    identity_set: list[dict[str, t.Any]],
+    session_params: dict[str, t.Any],
+    identities: tuple[ParsedIdentity, ...],
+) -> None:
     """
     given a set of identities (which must be either a mix of usernames and IDs or a list
     of domains), use that to update the session as appropriate
@@ -96,7 +100,7 @@ def _update_session_params_identities_case(identity_set, session_params, identit
 def session_update(
     *,
     login_manager: LoginManager,
-    identities: list[ParsedIdentity],
+    identities: tuple[ParsedIdentity, ...],
     no_local_server: bool,
     policies: list[str] | None,
     all: bool,
