@@ -23,9 +23,9 @@ class EndpointPlusPath(AnnotatedParamType):
 
     def get_type_annotation(self, param: click.Parameter) -> type:
         if self.path_required:
-            return tuple[uuid.UUID, str]  # type: ignore[no-any-return,misc]
+            return tuple[uuid.UUID, str]
         else:
-            return tuple[uuid.UUID, str | None]  # type: ignore[no-any-return,misc]
+            return tuple[uuid.UUID, str | None]
 
     def get_metavar(self, param):
         """

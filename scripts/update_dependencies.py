@@ -30,7 +30,7 @@ def bump_pkg_version_on_file(
     print(f"updating {pkg_name} in {path.relative_to(REPO_ROOT)} ... ", end="")
     with open(path) as fp:
         content = fp.read()
-    match = re.search(re.escape(pkg_name) + "==" + version_format, content)
+    match = re.search(re.escape(pkg_name) + "==" + version_format + r"(\W|$)", content)
     if not match:
         raise Abort(f"{path} did not contain {pkg_name} version pattern")
 
@@ -50,9 +50,7 @@ def bump_sdk_version() -> None:
 
 def bump_mypy_version() -> None:
     mypy_version = get_pkg_latest("mypy")
-    bump_pkg_version_on_file(
-        REPO_ROOT / "tox.ini", "mypy", mypy_version, version_format=r"(\d+\.\d+)"
-    )
+    bump_pkg_version_on_file(REPO_ROOT / "tox.ini", "mypy", mypy_version)
 
 
 def main() -> None:
