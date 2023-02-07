@@ -96,6 +96,8 @@ def endpoint_create(
     preferred_parallelism: int | None,
     public: bool | None,
     subscription_id: uuid.UUID | None,
+    user_message: str | None | ExplicitNullType,
+    user_message_link: str | None | ExplicitNullType,
 ) -> None:
     """
     WARNING:
@@ -160,6 +162,8 @@ For GCS, use the globus-connect-server CLI from your Endpoint."""
             preferred_parallelism=preferred_parallelism,
             public=public,
             subscription_id=subscription_id,
+            user_message=user_message,
+            user_message_link=user_message_link,
         )
     )
     kwargs["is_globus_connect"] = personal or None

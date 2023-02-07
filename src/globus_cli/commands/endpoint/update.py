@@ -65,6 +65,8 @@ def endpoint_update(
     preferred_parallelism: int | None,
     public: bool | None,
     subscription_id: uuid.UUID | None,
+    user_message: str | None | ExplicitNullType,
+    user_message_link: str | None | ExplicitNullType,
 ) -> None:
     """Update attributes of an endpoint"""
     from globus_cli.services.transfer import assemble_generic_doc
@@ -100,6 +102,8 @@ def endpoint_update(
         preferred_parallelism=preferred_parallelism,
         public=public,
         subscription_id=subscription_id,
+        user_message=user_message,
+        user_message_link=user_message_link,
     )
 
     validate_endpoint_create_and_update_params(

@@ -34,6 +34,8 @@ def mapped_command(
     verify: dict[str, bool],
     subscription_id: str | None,
     disable_verify: bool | None,
+    user_message: str | None | ExplicitNullType,
+    user_message_link: str | None | ExplicitNullType,
 ) -> None:
     """
     Create a new Globus Connect Personal Mapped Collection.
@@ -67,6 +69,8 @@ def mapped_command(
         default_directory=default_directory,
         force_encryption=force_encryption,
         subscription_id=subscription_id,
+        user_message=user_message,
+        user_message_link=user_message_link,
         **verify,
     )
 

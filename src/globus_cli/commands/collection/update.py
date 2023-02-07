@@ -13,8 +13,6 @@ from globus_cli.login_manager import LoginManager
 from globus_cli.parsing import (
     AnnotatedOption,
     JSONStringOrFile,
-    StringOrNull,
-    UrlOrNull,
     collection_id_arg,
     command,
     endpointish_params,
@@ -95,23 +93,6 @@ class _FullDataField(Field):
         "Explicitly enable or disable  HTTPS support (requires a managed endpoint "
         "with API v1.1.0)"
     ),
-)
-@click.option(
-    "--user-message",
-    help=(
-        "A message for clients to display to users when interacting "
-        "with this collection"
-    ),
-    type=StringOrNull(),
-)
-@click.option(
-    "--user-message-link",
-    help=(
-        "Link to additional messaging for clients to display to users "
-        "when interacting with this endpoint, linked to an http or https URL "
-        "with this collection"
-    ),
-    type=UrlOrNull(),
 )
 @click.option(
     "--sharing-user-allow",

@@ -22,6 +22,7 @@ from globus_cli.parsing.param_types import (
     CommaDelimitedList,
     LocationType,
     StringOrNull,
+    UrlOrNull,
 )
 
 C = t.TypeVar("C", bound=t.Union[t.Callable, click.Command])
@@ -43,6 +44,7 @@ class endpointish_params:
         display_name_style: Literal["argument", "option"] = "argument",
         keyword_style: Literal["string", "list"] = "list",
         verify_style: Literal["flag", "choice"] = "choice",
+        skip: tuple[str, ...] = (),
     ) -> t.Callable[[C], C]:
         def decorator(f: C) -> C:
             return _apply_endpointish_create_or_update_params(
@@ -51,6 +53,7 @@ class endpointish_params:
                 display_name_style=display_name_style,
                 keyword_style=keyword_style,
                 verify_style=verify_style,
+                skip=skip,
             )
 
         return decorator
@@ -63,6 +66,7 @@ class endpointish_params:
         display_name_style: Literal["argument", "option"] = "option",
         keyword_style: Literal["string", "list"] = "list",
         verify_style: Literal["flag", "choice"] = "choice",
+        skip: tuple[str, ...] = (),
     ) -> t.Callable[[C], C]:
         def decorator(f: C) -> C:
             return _apply_endpointish_create_or_update_params(
@@ -71,6 +75,7 @@ class endpointish_params:
                 display_name_style=display_name_style,
                 keyword_style=keyword_style,
                 verify_style=verify_style,
+                skip=skip,
             )
 
         return decorator
@@ -89,64 +94,83 @@ def _apply_endpointish_create_or_update_params(
     display_name_style: str,
     keyword_style: str,
     verify_style: str,
+    skip: tuple[str, ...] = (),
 ) -> C:
-    decorators: list[t.Callable[[C], C]] = []
+    decorators: dict[str, t.Callable[[C], C]] = {}
 
     if display_name_style == "argument":
-        decorators.append(click.argument("DISPLAY_NAME"))
+        decorators["display_name"] = click.argument("DISPLAY_NAME")
     elif display_name_style == "option":
-        decorators.append(click.option("--display-name", help=f"Name for the {name}"))
+        decorators["display_name"] = click.option(
+            "--display-name", help=f"Name for the {name}"
+        )
     else:
         raise NotImplementedError()
 
-    decorators.extend(
-        [
-            click.option(
+    decorators.update(
+        dict(
+            description=click.option(
                 "--description", help=f"Description for the {name}", type=StringOrNull()
             ),
-            click.option(
+            info_link=click.option(
                 "--info-link",
                 help=f"Link for info about the {name}",
                 type=StringOrNull(),
             ),
-            click.option(
+            contact_info=click.option(
                 "--contact-info",
                 help=f"Contact info for the {name}",
                 type=StringOrNull(),
             ),
-            click.option(
+            contact_email=click.option(
                 "--contact-email",
                 help=f"Contact email for the {name}",
                 type=StringOrNull(),
             ),
-            click.option(
+            organization=click.option(
                 "--organization",
                 help=f"Organization for the {name}",
                 type=StringOrNull(),
             ),
-            click.option(
+            department=click.option(
                 "--department",
                 help=f"Department which operates the {name}",
                 type=StringOrNull(),
             ),
-            click.option(
+            keywords=click.option(
                 "--keywords",
                 type=str if keyword_style == "string" else CommaDelimitedList(),
                 help="Comma separated list of keywords to help searches "
                 f"for the {name}",
             ),
-            click.option(
+            default_directory=click.option(
                 "--default-directory",
                 type=StringOrNull(),
                 help="Default directory when browsing or executing tasks "
                 f"on the {name}",
             ),
-            click.option(
+            force_encryption=click.option(
                 "--force-encryption/--no-force-encryption",
                 default=None,
                 help=f"Force the {name} to encrypt transfers",
             ),
-        ]
+            user_message=click.option(
+                "--user-message",
+                help=(
+                    "A message for clients to display to users when interacting "
+                    "with this {name}"
+                ),
+                type=StringOrNull(),
+            ),
+            user_message_link=click.option(
+                "--user-message-link",
+                help=(
+                    "Link to additional messaging for clients to display to users "
+                    "when interacting with this {name}. Should be an HTTP or HTTPS URL "
+                ),
+                type=UrlOrNull(),
+            ),
+        )
     )
 
     if verify_style == "choice":
@@ -162,29 +186,25 @@ def _apply_endpointish_create_or_update_params(
                 " When set on mapped collections, this policy is inherited by any "
                 "guest collections"
             )
-        decorators.append(
-            click.option(
-                "--verify",
-                type=click.Choice(
-                    ["force", "disable", "default"], case_sensitive=False
-                ),
-                callback=_verify_choice_to_dict,
-                help=verify_help,
-                type_annotation=DictType[str, bool],
-                cls=AnnotatedOption,
-            )
+        decorators["verify"] = click.option(
+            "--verify",
+            type=click.Choice(["force", "disable", "default"], case_sensitive=False),
+            callback=_verify_choice_to_dict,
+            help=verify_help,
+            type_annotation=DictType[str, bool],
+            cls=AnnotatedOption,
         )
     else:
-        decorators.append(
-            click.option(
-                "--disable-verify/--no-disable-verify",
-                default=None,
-                is_flag=True,
-                help=f"Set the {name} to ignore checksum verification",
-            )
+        decorators["verify"] = click.option(
+            "--disable-verify/--no-disable-verify",
+            default=None,
+            is_flag=True,
+            help=f"Set the {name} to ignore checksum verification",
         )
 
-    return utils.fold_decorators(f, decorators)
+    decorator_list = [v for k, v in decorators.items() if k not in skip]
+
+    return utils.fold_decorators(f, decorator_list)
 
 
 def _verify_choice_to_dict(
