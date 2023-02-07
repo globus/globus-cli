@@ -10,5 +10,5 @@ from globus_cli.parsing import group
         "show": (".show", "show_command"),
     },
 )
-def timer_command():
+def timer_command() -> None:
     """Schedule and manage jobs in Globus Timer"""

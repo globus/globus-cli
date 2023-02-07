@@ -98,6 +98,7 @@ def resolve_start_time(start: datetime.datetime | None) -> datetime.datetime:
 )
 @LoginManager.requires_login(LoginManager.TIMER_RS, LoginManager.TRANSFER_RS)
 def transfer_command(
+    *,
     login_manager: LoginManager,
     name: str | None,
     source: tuple[uuid.UUID, str | None],
@@ -116,7 +117,7 @@ def transfer_command(
     skip_source_errors: bool,
     fail_on_quota_errors: bool,
     notify: dict[str, bool],
-):
+) -> None:
     """
     Create a Timer job which will run a transfer on a recurring schedule
     according to the parameters provided.

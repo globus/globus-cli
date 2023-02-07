@@ -7,5 +7,5 @@ from globus_cli.parsing import group
     hidden=True,
     lazy_subcommands={"transfer": (".transfer", "transfer_command")},
 )
-def create_command():
+def create_command() -> None:
     pass
