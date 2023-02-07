@@ -23,6 +23,12 @@ import globus_cli
 yaml = YAML()
 log = logging.getLogger(__name__)
 
+_test_file_dir = os.path.normpath(os.path.join(os.path.dirname(__file__), "files"))
+
+
+def pytest_configure(config):
+    _register_all_response_sets()
+
 
 @pytest.fixture(autouse=True)
 def mocksleep():
@@ -163,7 +169,7 @@ def add_flow_login(test_token_storage):
 
 @pytest.fixture(scope="session")
 def test_file_dir():
-    return os.path.normpath(os.path.join(os.path.dirname(__file__), "files"))
+    return _test_file_dir
 
 
 @pytest.fixture
@@ -282,9 +288,8 @@ def _iter_fixture_routes(routes):
         yield path, method, params
 
 
-@pytest.fixture(autouse=True, scope="session")
-def _register_all_response_sets(test_file_dir):
-    fixture_dir = os.path.join(test_file_dir, "api_fixtures")
+def _register_all_response_sets():
+    fixture_dir = os.path.join(_test_file_dir, "api_fixtures")
 
     def do_register(filename):
         with open(os.path.join(fixture_dir, filename)) as fp:
