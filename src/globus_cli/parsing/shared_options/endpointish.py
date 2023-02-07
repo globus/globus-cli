@@ -166,7 +166,8 @@ def _apply_endpointish_create_or_update_params(
                 "--user-message-link",
                 help=(
                     "Link to additional messaging for clients to display to users "
-                    f"when interacting with this {name}. Should be an HTTP or HTTPS URL "
+                    f"when interacting with this {name}. "
+                    "Should be an HTTP or HTTPS URL "
                 ),
                 type=UrlOrNull(),
             ),
