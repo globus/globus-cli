@@ -1,16 +1,18 @@
 import uuid
 
+import pytest
 from globus_sdk._testing import RegisteredResponse, load_response, load_response_set
 
 
-def test_session_required_policies(run_line):
+@pytest.mark.parametrize("num_policies", (1, 3))
+def test_session_required_policies(run_line, num_policies):
     """
     confirms a correct `globus session update` command is shown in helptext
     after hitting a 403 with session_required_policies set
     """
     meta = load_response_set("cli.transfer_activate_success").metadata
     ep_id = meta["endpoint_id"]
-    policy_id = str(uuid.uuid4())
+    policies = ",".join(str(uuid.uuid4()) for _ in range(num_policies))
 
     load_response(
         RegisteredResponse(
@@ -20,7 +22,7 @@ def test_session_required_policies(run_line):
             json={
                 "authorization_parameters": {
                     "session_message": "Failing collection authentication policy",
-                    "session_required_policies": policy_id,
+                    "session_required_policies": policies,
                 },
                 "code": "AuthPolicyFailed",
                 "message": "Failing collection authentication policy",
@@ -31,4 +33,4 @@ def test_session_required_policies(run_line):
     )
     result = run_line(f"globus ls {ep_id}:/", assert_exit_code=4)
 
-    assert f"globus session update --policy {policy_id}" in result.output
+    assert f"globus session update --policy '{policies}'" in result.output
