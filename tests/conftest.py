@@ -4,6 +4,7 @@ import logging
 import os
 import re
 import shlex
+import textwrap
 import time
 import uuid
 from unittest import mock
@@ -233,22 +234,31 @@ def run_line(cli_runner, request, patch_tokenstorage):
             raise (
                 Exception(
                     (
-                        "CliTest run_line exit_code assertion failed!\n"
-                        "Line:\n{}\nexited with {} when expecting {}\n"
-                        "stdout:\n{}\nstderr:\n{}\nnetwork calls recorded:"
-                        "\n  {}"
+                        """
+CliTest run_line exit_code assertion failed!
+Line:
+  {}
+exited with {} when expecting {}
+
+stdout:
+{}
+stderr:
+{}
+network calls recorded:
+{}"""
                     ).format(
                         line,
                         result.exit_code,
                         assert_exit_code,
-                        result.stdout,
-                        result.stderr,
-                        (
-                            "\n  ".join(
+                        textwrap.indent(result.stdout, "  "),
+                        textwrap.indent(result.stderr, "  "),
+                        textwrap.indent(
+                            "\n".join(
                                 f"{r.request.method} {r.request.url}"
                                 for r in responses.calls
                             )
-                            or "  <none>"
+                            or "<none>",
+                            "  ",
                         ),
                     )
                 )
