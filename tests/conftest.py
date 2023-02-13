@@ -231,38 +231,26 @@ def run_line(cli_runner, request, patch_tokenstorage):
             main, args[1:], input=stdin, catch_exceptions=bool(assert_exit_code)
         )
         if result.exit_code != assert_exit_code:
-            raise (
-                Exception(
-                    (
-                        """
+            formatted_network_calls = textwrap.indent(
+                "\n".join(
+                    f"{r.request.method} {r.request.url}" for r in responses.calls
+                )
+                or "<none>",
+                "  ",
+            )
+            message = f"""
 CliTest run_line exit_code assertion failed!
 Line:
-  {}
-exited with {} when expecting {}
+  {line}
+exited with {result.exit_code} when expecting {assert_exit_code}
 
 stdout:
-{}
+{textwrap.indent(result.stdout, "  ")}
 stderr:
-{}
+{textwrap.indent(result.stderr, "  ")}
 network calls recorded:
-{}"""
-                    ).format(
-                        line,
-                        result.exit_code,
-                        assert_exit_code,
-                        textwrap.indent(result.stdout, "  "),
-                        textwrap.indent(result.stderr, "  "),
-                        textwrap.indent(
-                            "\n".join(
-                                f"{r.request.method} {r.request.url}"
-                                for r in responses.calls
-                            )
-                            or "<none>",
-                            "  ",
-                        ),
-                    )
-                )
-            )
+{formatted_network_calls}"""
+            raise Exception(message)
         if matcher:
             return result, OutputMatcher(result)
         return result
