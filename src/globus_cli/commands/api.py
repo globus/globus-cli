@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import json
 import typing as t
+from collections import defaultdict
 
 import click
 import globus_sdk
@@ -254,9 +255,9 @@ sends a 'GET' request to '{_get_url(service_name)}foo/bar'
             client.transport.max_retries = 0
 
         # Prepare Query Params
-        query_params_d = {}
+        query_params_d = defaultdict(list)
         for param_name, param_value in query_param:
-            query_params_d[param_name] = param_value
+            query_params_d[param_name].append(param_value)
 
         # Prepare Request Body
         # the value in 'body' will be passed in the request
