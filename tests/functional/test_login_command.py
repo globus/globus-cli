@@ -12,9 +12,11 @@ from globus_cli.login_manager.auth_flows import (
 from tests.conftest import _mock_token_response_data
 
 
-def test_login_validates_token(run_line, mock_login_token_response):
-    # turn off test mode, to allow token validation
-    LoginManager._TEST_MODE = False
+def test_login_validates_token(
+    run_line, mock_login_token_response, disable_login_manager_validate_token
+):
+    # undo the validate_token disabling patch which is done for most tests
+    disable_login_manager_validate_token.undo()
 
     with mock.patch("globus_cli.login_manager.manager.internal_auth_client") as m:
         ac = mock.MagicMock(spec=globus_sdk.NativeAppAuthClient)

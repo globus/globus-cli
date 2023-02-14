@@ -32,9 +32,6 @@ if t.TYPE_CHECKING:
 
 
 class LoginManager:
-    # TEST_MODE skips token validation
-    _TEST_MODE: bool = False
-
     AUTH_RS = AuthScopes.resource_server
     FLOWS_RS = FlowsScopes.resource_server
     GROUPS_RS = GroupsScopes.resource_server
@@ -102,9 +99,6 @@ class LoginManager:
         return all(res)
 
     def _validate_token(self, token: str) -> bool:
-        if self._TEST_MODE:
-            return True
-
         auth_client = internal_auth_client()
         try:
             res = auth_client.oauth2_validate_token(token)

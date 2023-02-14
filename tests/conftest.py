@@ -37,8 +37,17 @@ def mocksleep():
 
 
 @pytest.fixture(autouse=True)
-def set_login_manager_testmode():
-    globus_cli.login_manager.LoginManager._TEST_MODE = True
+def disable_login_manager_validate_token():
+    def fake_validate_token(self, token):
+        return True
+
+    with pytest.MonkeyPatch().context() as mp:
+        mp.setattr(
+            globus_cli.login_manager.LoginManager,
+            "_validate_token",
+            fake_validate_token,
+        )
+        yield mp
 
 
 @pytest.fixture(scope="session")
