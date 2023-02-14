@@ -125,6 +125,15 @@ class LoginManager:
         tokens = self._token_storage.get_token_data(resource_server)
         if tokens is None or "refresh_token" not in tokens:
             return False
+
+        # for resource servers in the static scope set, check that the scope
+        # requirements are satisfied by the token data
+        if resource_server in self.STATIC_SCOPES:
+            token_scopes = set(tokens["scope"].split(" "))
+            required_scopes = set(self.STATIC_SCOPES[resource_server])
+            if required_scopes - token_scopes:
+                return False
+
         rt = tokens["refresh_token"]
         return self._validate_token(rt)
 

@@ -13,14 +13,36 @@ def mock_get_tokens(resource_server):
         "a.globus.org": {
             "access_token": "fake_a_access_token",
             "refresh_token": "fake_a_refresh_token",
+            "scope": "scopeA1 scopeA2",
         },
         "b.globus.org": {
             "access_token": "fake_b_access_token",
             "refresh_token": "fake_b_refresh_token",
+            "scope": "scopeB1 scopeB2",
         },
     }
 
     return fake_tokens.get(resource_server)
+
+
+@pytest.fixture(autouse=True)
+def patch_static_scopes():
+    with pytest.MonkeyPatch().context() as mp:
+        mp.setattr(
+            LoginManager,
+            "STATIC_SCOPES",
+            {
+                "a.globus.org": [
+                    "scopeA1",
+                    "scopeA2",
+                ],
+                "b.globus.org": [
+                    "scopeB1",
+                    "scopeB2",
+                ],
+            },
+        )
+        yield mp
 
 
 @patch("globus_cli.login_manager.tokenstore.token_storage_adapter")
@@ -59,6 +81,23 @@ def test_requires_login_single_server_fail(mock_get_adapter):
 
     assert str(ex.value) == (
         "Missing login for c.globus.org, please run\n\n  globus login\n"
+    )
+
+
+@patch("globus_cli.login_manager.tokenstore.token_storage_adapter")
+def test_requiring_new_scope_fails(mock_get_adapter):
+    mock_get_adapter._instance.get_token_data = mock_get_tokens
+    LoginManager.STATIC_SCOPES["a.globus.org"].append("scopeA3")
+
+    @LoginManager.requires_login("a.globus.org")
+    def dummy_command(login_manager):
+        return True
+
+    with pytest.raises(MissingLoginError) as ex:
+        dummy_command()
+
+    assert str(ex.value) == (
+        "Missing login for a.globus.org, please run\n\n  globus login\n"
     )
 
 
@@ -145,7 +184,10 @@ def test_gcs_error_message(mock_get_adapter):
     assert f"globus login --gcs {dummy_id}" in str(excinfo.value)
 
 
-def test_client_login_two_requirements(client_login):
+def test_client_login_two_requirements(client_login, patch_static_scopes):
+    # undo the scope requirements patch
+    patch_static_scopes.undo()
+
     @LoginManager.requires_login(LoginManager.TRANSFER_RS, LoginManager.AUTH_RS)
     def dummy_command(*, login_manager):
         transfer_client = login_manager.get_transfer_client()
@@ -164,7 +206,11 @@ def test_client_login_two_requirements(client_login):
 
 
 @patch.object(LoginManager, "_get_gcs_info")
-def test_client_login_gcs(mock_get_gcs_info, client_login, add_gcs_login):
+def test_client_login_gcs(
+    mock_get_gcs_info, client_login, add_gcs_login, patch_static_scopes
+):
+    patch_static_scopes.undo()
+
     class fake_endpointish:
         def get_gcs_address(self):
             return "fake_adress"
