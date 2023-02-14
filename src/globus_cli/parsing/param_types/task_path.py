@@ -87,7 +87,7 @@ class TaskPath(AnnotatedParamType):
         return TaskPath
 
     def convert(self, value, param, ctx):
-        if value is None or (ctx and ctx.resilient_parsing):
+        if ctx.resilient_parsing:
             return
         if isinstance(value, TaskPath):
             return value

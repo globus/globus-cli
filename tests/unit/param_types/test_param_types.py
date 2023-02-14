@@ -4,12 +4,7 @@ import json
 import click
 
 from globus_cli.constants import EXPLICIT_NULL
-from globus_cli.parsing import (
-    CommaDelimitedList,
-    JSONStringOrFile,
-    StringOrNull,
-    TimedeltaType,
-)
+from globus_cli.parsing import JSONStringOrFile, StringOrNull, TimedeltaType
 from globus_cli.parsing.param_types.prefix_mapper import StringPrefixMapper
 
 
@@ -41,40 +36,6 @@ def test_string_or_null(runner):
     # given a string, it returns that string
     result = runner.invoke(foo, ["--bar", "alpha"])
     assert result.output == "alpha\n"
-
-
-def test_comma_delimited_list(runner):
-    @click.command()
-    @click.option(
-        "--bar", type=CommaDelimitedList(), default=None, help="a comma delimited list"
-    )
-    def foo(bar):
-        if bar is None:
-            click.echo("nil")
-        else:
-            click.echo(len(bar))
-            for x in bar:
-                click.echo(x)
-
-    # in helptext, it shows up with "string,string,..." as the metavar
-    result = runner.invoke(foo, ["--help"])
-    assert "--bar TEXT,TEXT,...  a comma delimited list" in result.output
-
-    # absent, it returns None
-    result = runner.invoke(foo, [])
-    assert result.output == "nil\n"
-
-    # given empty string (this is ambiguous!) returns empty array
-    result = runner.invoke(foo, ["--bar", ""])
-    assert result.output == "0\n"
-
-    # given "alpha" it returns "['alpha']"
-    result = runner.invoke(foo, ["--bar", "alpha"])
-    assert result.output == "1\nalpha\n"
-
-    # given a UUID it returns that UUID
-    result = runner.invoke(foo, ["--bar", "alpha,beta"])
-    assert result.output == "2\nalpha\nbeta\n"
 
 
 def test_string_prefix_mapper(runner, tmpdir):

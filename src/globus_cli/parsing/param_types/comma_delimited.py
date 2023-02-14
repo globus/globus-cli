@@ -28,8 +28,6 @@ class CommaDelimitedList(AnnotatedParamType):
 
     def convert(self, value, param, ctx):
         value = super().convert(value, param, ctx)
-        if value is None:
-            return None
 
         # if `--foo` is a comma delimited list and someone passes
         # `--foo ""`, take that as `foo=[]` rather than foo=[""]

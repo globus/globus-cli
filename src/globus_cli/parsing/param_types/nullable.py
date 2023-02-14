@@ -48,9 +48,7 @@ class StringOrNull(AnnotatedParamType):
         return "TEXT"
 
     def convert(self, value, param, ctx):
-        if value is None:
-            return None
-        elif value == "":
+        if value == "":
             return EXPLICIT_NULL
         else:
             return value
@@ -66,9 +64,7 @@ class UrlOrNull(StringOrNull):
         return "TEXT"
 
     def convert(self, value, param, ctx):
-        if value is None:
-            return None
-        elif value == "":
+        if value == "":
             return EXPLICIT_NULL
         else:
             try:

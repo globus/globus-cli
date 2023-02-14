@@ -30,8 +30,6 @@ class StringPrefixMapper(AnnotatedParamType):
         return "[" + "|".join(self.__prefix_metavars__) + "]"
 
     def convert(self, value, param, ctx):
-        if value is None:
-            return None
         if self.null is not None and value == self.null:
             return EXPLICIT_NULL
 

@@ -49,7 +49,7 @@ class EndpointPlusPath(AnnotatedParamType):
         provided parameter and parses it.
         """
         # passthrough conditions: None or already processed
-        if value is None or isinstance(value, tuple):
+        if isinstance(value, tuple):
             return value
 
         # split the value on the first colon, leave the rest intact
