@@ -86,7 +86,7 @@ def one_use_option(*args: t.Any, **kwargs: t.Any) -> t.Callable[[C], C]:
 
     # cannot force a non Option Paramater (argument) to be a OneUseOption
     if kwargs.get("cls"):
-        raise TypeError(
+        raise ValueError(
             "Internal error, one_use_option cannot overwrite "
             "cls {}.".format(kwargs.get("cls"))
         )
