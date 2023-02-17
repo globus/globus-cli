@@ -1,16 +1,20 @@
+from __future__ import annotations
+
 import os
 import sys
 import typing as t
 
 import globus_sdk
 
-if t.TYPE_CHECKING:
-    from globus_sdk.tokenstorage import SQLiteAdapter
-
 from .client_login import get_client_login, is_client_login
 
-# internal constants
-_CLIENT_DATA_CONFIG_KEY = "auth_client_data"
+if sys.version_info < (3, 8):
+    from typing_extensions import Literal
+else:
+    from typing import Literal
+
+if t.TYPE_CHECKING:
+    from globus_sdk.tokenstorage import SQLiteAdapter
 
 # env vars used throughout this module
 GLOBUS_ENV = os.environ.get("GLOBUS_SDK_ENVIRONMENT")
@@ -18,10 +22,10 @@ GLOBUS_ENV = os.environ.get("GLOBUS_SDK_ENVIRONMENT")
 
 # stub to allow type casting of a function to an object with an attribute
 class _TokenStoreFuncProto:
-    _instance: "SQLiteAdapter"
+    _instance: SQLiteAdapter
 
 
-def _template_client_id():
+def _template_client_id() -> str:
     template_id = "95fdeba8-fac2-42bd-a357-e068d82ff78e"
     if GLOBUS_ENV:
         template_id = {
@@ -34,7 +38,7 @@ def _template_client_id():
     return template_id
 
 
-def internal_native_client():
+def internal_native_client() -> globus_sdk.NativeAppAuthClient:
     """
     This is the client that represents the CLI itself (prior to templating)
     """
@@ -44,7 +48,7 @@ def internal_native_client():
     )
 
 
-def _get_data_dir():
+def _get_data_dir() -> str:
     # get the dir to store Globus CLI data
     #
     # on Windows, the datadir is typically
@@ -67,7 +71,7 @@ def _get_data_dir():
         return os.path.expanduser("~/.globus/cli/")
 
 
-def _ensure_data_dir():
+def _ensure_data_dir() -> str:
     dirname = _get_data_dir()
     try:
         os.makedirs(dirname)
@@ -76,12 +80,12 @@ def _ensure_data_dir():
     return dirname
 
 
-def _get_storage_filename():
+def _get_storage_filename() -> str:
     datadir = _ensure_data_dir()
     return os.path.join(datadir, "storage.db")
 
 
-def _resolve_namespace():
+def _resolve_namespace() -> str:
     """
     expected user namespaces are:
 
@@ -105,7 +109,7 @@ def _resolve_namespace():
         return "userprofile/" + env + (f"/{profile}" if profile else "")
 
 
-def token_storage_adapter() -> "SQLiteAdapter":
+def token_storage_adapter() -> SQLiteAdapter:
     from globus_sdk.tokenstorage import SQLiteAdapter
 
     as_proto = t.cast(_TokenStoreFuncProto, token_storage_adapter)
@@ -122,7 +126,7 @@ def token_storage_adapter() -> "SQLiteAdapter":
     return as_proto._instance
 
 
-def internal_auth_client():
+def internal_auth_client() -> globus_sdk.ConfidentialAppAuthClient:
     """
     Pull template client credentials from storage and use them to create a
     ConfidentialAppAuthClient.
@@ -133,8 +137,7 @@ def internal_auth_client():
     if is_client_login():
         raise ValueError("client logins shouldn't create internal auth clients")
 
-    adapter = token_storage_adapter()
-    client_data = adapter.read_config(_CLIENT_DATA_CONFIG_KEY)
+    client_data = read_well_known_config("auth_client_data")
     if client_data is not None:
         client_id = client_data["client_id"]
         client_secret = client_data["client_secret"]
@@ -150,8 +153,8 @@ def internal_auth_client():
         client_id = credential_data["client"]
         client_secret = credential_data["secret"]
 
-        adapter.store_config(
-            _CLIENT_DATA_CONFIG_KEY,
+        store_well_known_config(
+            "auth_client_data",
             {"client_id": client_id, "client_secret": client_secret},
         )
 
@@ -160,16 +163,42 @@ def internal_auth_client():
     )
 
 
-def delete_templated_client():
-    adapter = token_storage_adapter()
-
+def delete_templated_client() -> None:
     # first, get the templated credentialed client
     ac = internal_auth_client()
 
     # now, remove its relevant data from storage
-    adapter.remove_config(_CLIENT_DATA_CONFIG_KEY)
+    remove_well_known_config("auth_client_data")
 
     # finally, try to delete via the API
     # note that this could raise an exception if the creds are already invalid -- the
     # caller may or may not want to ignore, so allow it to raise from here
     ac.delete(f"/v2/api/clients/{ac.client_id}")
+
+
+def store_well_known_config(
+    name: Literal["auth_client_data", "auth_user_data"],
+    data: dict[str, t.Any],
+    *,
+    adapter: SQLiteAdapter | None = None,
+) -> None:
+    adapter = adapter or token_storage_adapter()
+    adapter.store_config(name, data)
+
+
+def read_well_known_config(
+    name: Literal["auth_client_data", "auth_user_data"],
+    *,
+    adapter: SQLiteAdapter | None = None,
+) -> dict[str, t.Any] | None:
+    adapter = adapter or token_storage_adapter()
+    return adapter.read_config(name)
+
+
+def remove_well_known_config(
+    name: Literal["auth_client_data", "auth_user_data"],
+    *,
+    adapter: SQLiteAdapter | None = None,
+) -> None:
+    adapter = adapter or token_storage_adapter()
+    adapter.remove_config(name)

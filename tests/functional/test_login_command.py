@@ -4,11 +4,12 @@ from unittest import mock
 import globus_sdk
 from globus_sdk._testing import load_response_set
 
-from globus_cli.login_manager import LoginManager
-from globus_cli.login_manager.auth_flows import (
-    _STORE_CONFIG_USERINFO,
-    exchange_code_and_store,
+from globus_cli.login_manager import (
+    LoginManager,
+    read_well_known_config,
+    store_well_known_config,
 )
+from globus_cli.login_manager.auth_flows import exchange_code_and_store
 from tests.conftest import _mock_token_response_data
 
 
@@ -62,8 +63,8 @@ def test_login_gcs_different_identity(
     remove the `sub` in config storage (which is what originally raises that error).
     """
     load_response_set("cli.user_info_logout")
-    test_token_storage.store_config(
-        _STORE_CONFIG_USERINFO, {"sub": str(uuid.UUID(int=0))}
+    store_well_known_config(
+        "auth_user_data", {"sub": str(uuid.UUID(int=0))}, adapter=test_token_storage
     )
     mock_auth_client = mock.MagicMock(spec=globus_sdk.NativeAppAuthClient)
     mock_auth_client.oauth2_exchange_code_for_tokens = lambda _: MockToken()
@@ -86,7 +87,7 @@ def test_login_gcs_different_identity(
         "globus_cli.commands.logout.internal_native_client", lambda: mock_auth_client
     )
     run_line("globus logout --yes")
-    assert test_token_storage.read_config(_STORE_CONFIG_USERINFO) is None
+    assert read_well_known_config("auth_user_data", adapter=test_token_storage) is None
 
 
 def test_login_with_flow(monkeypatch, run_line):

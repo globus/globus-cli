@@ -1,11 +1,21 @@
+from __future__ import annotations
+
+import typing as t
+
 import click
+import globus_sdk
 
-from .tokenstore import internal_auth_client, token_storage_adapter
+from .tokenstore import (
+    internal_auth_client,
+    read_well_known_config,
+    store_well_known_config,
+    token_storage_adapter,
+)
 
-_STORE_CONFIG_USERINFO = "auth_user_data"
 
-
-def do_link_auth_flow(scopes, *, session_params=None):
+def do_link_auth_flow(
+    scopes: str | t.Sequence[str], *, session_params: dict[str, t.Any] | None = None
+) -> bool:
     """
     Prompts the user with a link to authenticate with globus auth
     and authorize the CLI to act on their behalf.
@@ -42,7 +52,9 @@ def do_link_auth_flow(scopes, *, session_params=None):
     return True
 
 
-def do_local_server_auth_flow(scopes, *, session_params=None):
+def do_local_server_auth_flow(
+    scopes: str | t.Sequence[str], *, session_params: dict[str, t.Any] | None = None
+) -> bool:
     """
     Starts a local http server, opens a browser to have the user authenticate,
     and gets the code redirected to the server (no copy and pasting required)
@@ -86,7 +98,7 @@ def do_local_server_auth_flow(scopes, *, session_params=None):
     return True
 
 
-def exchange_code_and_store(auth_client, auth_code):
+def exchange_code_and_store(auth_client: globus_sdk.AuthClient, auth_code: str) -> None:
     """
     Finishes auth flow after code is gotten from command line or local server.
     Exchanges code for tokens and stores them.
@@ -98,7 +110,7 @@ def exchange_code_and_store(auth_client, auth_code):
     adapter = token_storage_adapter()
     tkn = auth_client.oauth2_exchange_code_for_tokens(auth_code)
     sub_new = tkn.decode_id_token()["sub"]
-    auth_user_data = adapter.read_config(_STORE_CONFIG_USERINFO)
+    auth_user_data = read_well_known_config("auth_user_data")
     if auth_user_data and sub_new != auth_user_data.get("sub"):
         try:
             for tokens in tkn.by_resource_server.values():
@@ -113,5 +125,5 @@ def exchange_code_and_store(auth_client, auth_code):
             )
         click.get_current_context().exit(1)
     if not auth_user_data:
-        adapter.store_config(_STORE_CONFIG_USERINFO, {"sub": sub_new})
+        store_well_known_config("auth_user_data", {"sub": sub_new})
     adapter.store(tkn)

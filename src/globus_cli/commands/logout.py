@@ -6,13 +6,13 @@ from globus_cli.login_manager import (
     delete_templated_client,
     internal_native_client,
     is_client_login,
+    remove_well_known_config,
     token_storage_adapter,
 )
-from globus_cli.login_manager.auth_flows import _STORE_CONFIG_USERINFO
 from globus_cli.parsing import command
 
 
-def warnecho(msg):
+def warnecho(msg: str) -> None:
     click.echo(click.style(msg, fg="yellow"), err=True)
 
 
@@ -55,7 +55,7 @@ flow.
     default=False,
 )
 @LoginManager.requires_login()
-def logout_command(*, login_manager: LoginManager, ignore_errors):
+def logout_command(*, login_manager: LoginManager, ignore_errors: bool) -> None:
     """
     Logout of the Globus CLI
 
@@ -142,7 +142,7 @@ def logout_command(*, login_manager: LoginManager, ignore_errors):
 
         adapter.remove_tokens_for_resource_server(rs)
 
-    adapter.remove_config(_STORE_CONFIG_USERINFO)
+    remove_well_known_config("auth_user_data")
 
     if is_client_login():
         click.echo(_CLIENT_LOGOUT_EPILOG)
