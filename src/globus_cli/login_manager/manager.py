@@ -11,6 +11,7 @@ from globus_sdk.scopes import (
     FlowsScopes,
     GCSEndpointScopeBuilder,
     GroupsScopes,
+    MutableScope,
     SearchScopes,
     TimerScopes,
     TransferScopes,
@@ -22,6 +23,7 @@ from .. import version
 from .auth_flows import do_link_auth_flow, do_local_server_auth_flow
 from .client_login import get_client_login, is_client_login
 from .errors import MissingLoginError
+from .scopes import TIMER_SCOPE_WITH_DEPENDENCIES
 from .tokenstore import internal_auth_client, token_storage_adapter
 from .utils import is_remote_session
 
@@ -39,7 +41,7 @@ class LoginManager:
     TIMER_RS = TimerScopes.resource_server
     TRANSFER_RS = TransferScopes.resource_server
 
-    STATIC_SCOPES: dict[str, list[str]] = {
+    STATIC_SCOPES: dict[str, list[str | MutableScope]] = {
         AUTH_RS: [
             AuthScopes.openid,
             AuthScopes.profile,
@@ -56,7 +58,7 @@ class LoginManager:
             SearchScopes.all,
         ],
         TIMER_RS: [
-            TimerScopes.timer,
+            TIMER_SCOPE_WITH_DEPENDENCIES,
         ],
         FLOWS_RS: [
             FlowsScopes.manage_flows,
@@ -67,20 +69,32 @@ class LoginManager:
         ],
     }
 
+    # the contract version number for the LoginManager's scope behavior
+    # this will be annotated on every token acquired and stored, in order to see what
+    # version we were at when we got a token
+    SCOPE_CONTRACT_VERSION: int = 1
+    # a map of resource servers to their current contract version requirement
+    # omission implies a default of 0
+    SCOPE_CONTRACT_REQUIREMENTS: dict[str, int] = {
+        TIMER_RS: 1,
+    }
+
     def __init__(self) -> None:
         self._token_storage = token_storage_adapter()
-        self._nonstatic_requirements: dict[str, list[str]] = {}
+        self._nonstatic_requirements: dict[str, list[str | MutableScope]] = {}
 
-    def add_requirement(self, rs_name: str, scopes: list[str]) -> None:
-        self._nonstatic_requirements[rs_name] = scopes
+    def add_requirement(
+        self, rs_name: str, scopes: t.Sequence[str | MutableScope]
+    ) -> None:
+        self._nonstatic_requirements[rs_name] = list(scopes)
 
     @property
-    def login_requirements(self) -> t.Iterator[tuple[str, list[str]]]:
+    def login_requirements(self) -> t.Iterator[tuple[str, list[str | MutableScope]]]:
         yield from self.STATIC_SCOPES.items()
         yield from self._nonstatic_requirements.items()
 
     @property
-    def always_required_scopes(self) -> t.Iterator[str]:
+    def always_required_scopes(self) -> t.Iterator[str | MutableScope]:
         """
         scopes which are required on all login flows, regardless of the specified
         scopes for that flow
@@ -120,11 +134,22 @@ class LoginManager:
         if tokens is None or "refresh_token" not in tokens:
             return False
 
+        if resource_server in self.SCOPE_CONTRACT_REQUIREMENTS:
+            version_required = self.SCOPE_CONTRACT_REQUIREMENTS[resource_server]
+            # TODO!
+            assert version_required > 0
+
         # for resource servers in the static scope set, check that the scope
         # requirements are satisfied by the token data
         if resource_server in self.STATIC_SCOPES:
             token_scopes = set(tokens["scope"].split(" "))
-            required_scopes = set(self.STATIC_SCOPES[resource_server])
+            required_scopes: set[str] = set()
+            for scope in self.STATIC_SCOPES[resource_server]:
+                if isinstance(scope, str):
+                    required_scopes.add(scope)
+                else:
+                    # TODO: update after next SDK release to use `.scope_string`
+                    required_scopes.add(scope._scope_string)
             if required_scopes - token_scopes:
                 return False
 

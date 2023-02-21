@@ -3,9 +3,14 @@ import uuid
 from unittest.mock import patch
 
 import globus_sdk
+import globus_sdk.scopes
 import pytest
 
-from globus_cli.login_manager import LoginManager, MissingLoginError
+from globus_cli.login_manager import (
+    LoginManager,
+    MissingLoginError,
+    compute_timer_scope,
+)
 
 
 def mock_get_tokens(resource_server):
@@ -43,6 +48,14 @@ def patch_static_scopes():
             },
         )
         yield mp
+
+
+def urlfmt_scope(rs: str, name: str) -> str:
+    return f"https://auth.globus.org/scopes/{rs}/{name}"
+
+
+BASE_TIMER_SCOPE = urlfmt_scope("524230d7-ea86-4a52-8312-86065a9e0417", "timer")
+TRANSFER_AP_SCOPE = urlfmt_scope("actions.globus.org", "transfer/transfer")
 
 
 @patch("globus_cli.login_manager.tokenstore.token_storage_adapter")
@@ -228,3 +241,42 @@ def test_client_login_gcs(
         return True
 
     assert dummy_command(collection_id=gcs_id)
+
+
+def test_compute_timer_scope_no_data_access():
+    transfer_scope = globus_sdk.scopes.TransferScopes.all
+
+    computed = str(compute_timer_scope())
+    assert computed.startswith(BASE_TIMER_SCOPE)
+    assert computed == f"{BASE_TIMER_SCOPE}[{TRANSFER_AP_SCOPE}[{transfer_scope}]]"
+
+
+def test_compute_timer_scope_one_data_access():
+    transfer_scope = globus_sdk.scopes.TransferScopes.all
+    foo_scope = urlfmt_scope("foo", "data_access")
+
+    computed = str(compute_timer_scope(data_access_collection_ids=["foo"]))
+    assert computed.startswith(BASE_TIMER_SCOPE)
+    assert foo_scope in computed
+    assert (
+        computed
+        == f"{BASE_TIMER_SCOPE}[{TRANSFER_AP_SCOPE}[{transfer_scope}[*{foo_scope}]]]"
+    )
+
+
+def test_compute_timer_scope_multiple_data_access():
+    transfer_scope = globus_sdk.scopes.TransferScopes.all
+    foo_scope = urlfmt_scope("foo", "data_access")
+    bar_scope = urlfmt_scope("bar", "data_access")
+    baz_scope = urlfmt_scope("baz", "data_access")
+
+    computed = str(
+        compute_timer_scope(data_access_collection_ids=["foo", "bar", "baz"])
+    )
+    assert computed.startswith(BASE_TIMER_SCOPE)
+    assert foo_scope in computed
+    assert bar_scope in computed
+    assert baz_scope in computed
+    start_part = f"{BASE_TIMER_SCOPE}[{TRANSFER_AP_SCOPE}[{transfer_scope}["
+    end_part = "]]]"
+    assert computed == f"{start_part}*{foo_scope} *{bar_scope} *{baz_scope}{end_part}"
