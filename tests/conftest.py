@@ -15,11 +15,11 @@ import responses
 from click.testing import CliRunner
 from globus_sdk._testing import register_response_set
 from globus_sdk.scopes import TimerScopes
-from globus_sdk.tokenstorage import SQLiteAdapter
 from globus_sdk.transport import RequestsTransport
 from ruamel.yaml import YAML
 
 import globus_cli
+from globus_cli.login_manager.tokenstore import build_storage_adapter
 
 yaml = YAML()
 log = logging.getLogger(__name__)
@@ -129,7 +129,7 @@ def user_profile(monkeypatch):
 @pytest.fixture
 def test_token_storage(mock_login_token_response):
     """Put memory-backed sqlite token storage in place for the testsuite to use."""
-    mockstore = SQLiteAdapter(":memory:")
+    mockstore = build_storage_adapter(":memory:")
     mockstore.store_config(
         "auth_client_data",
         {"client_id": "fakeClientIDString", "client_secret": "fakeClientSecret"},

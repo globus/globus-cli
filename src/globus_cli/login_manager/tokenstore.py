@@ -7,6 +7,7 @@ import typing as t
 import globus_sdk
 
 from .client_login import get_client_login, is_client_login
+from .utils import CURRENT_SCOPE_CONTRACT_VERSION
 
 if sys.version_info < (3, 8):
     from typing_extensions import Literal
@@ -109,9 +110,43 @@ def _resolve_namespace() -> str:
         return "userprofile/" + env + (f"/{profile}" if profile else "")
 
 
-def token_storage_adapter() -> SQLiteAdapter:
+def build_storage_adapter(fname: str) -> SQLiteAdapter:
+    """
+    Customize the SQLiteAdapter with extra storage operation steps
+    In order to avoid eager imports, which have a perf impact on the CLI, we need to
+    define the class dynamically in this function.
+    """
     from globus_sdk.tokenstorage import SQLiteAdapter
 
+    class GeneratedAdapterClass(SQLiteAdapter):
+        def store(self, token_response: globus_sdk.OAuthTokenResponse) -> None:
+            super().store(token_response)
+            # store contract versions for all of the tokens which were acquired
+            # this could overwrite data from another CLI version *earlier or later* than
+            # the current one
+            #
+            # in the case that the old data was from a prior version, this makes sense
+            # because we have added new constraints or behaviors
+            #
+            # if the data was from a *newer* CLI version than what we are currently
+            # running we can't really know with certainty that "downgrading" the version
+            # numbers is correct, but because we can't know we need to just do our best
+            # to indicate that the tokens in storage may have lost capabilities
+            contract_versions: dict[str, t.Any] | None = read_well_known_config(
+                "scope_contract_versions", adapter=self
+            )
+            if contract_versions is None:
+                contract_versions = {}
+            for rs_name in token_response.by_resource_server:
+                contract_versions[rs_name] = CURRENT_SCOPE_CONTRACT_VERSION
+            store_well_known_config(
+                "scope_contract_versions", contract_versions, adapter=self
+            )
+
+    return GeneratedAdapterClass(fname, namespace=_resolve_namespace())
+
+
+def token_storage_adapter() -> SQLiteAdapter:
     as_proto = t.cast(_TokenStoreFuncProto, token_storage_adapter)
     if not hasattr(as_proto, "_instance"):
         # when initializing the token storage adapter, check if the storage file exists
@@ -122,7 +157,7 @@ def token_storage_adapter() -> SQLiteAdapter:
 
             invalidate_old_config(internal_native_client())
         # namespace is equal to the current environment
-        as_proto._instance = SQLiteAdapter(fname, namespace=_resolve_namespace())
+        as_proto._instance = build_storage_adapter(fname)
     return as_proto._instance
 
 
@@ -169,6 +204,7 @@ def delete_templated_client() -> None:
 
     # now, remove its relevant data from storage
     remove_well_known_config("auth_client_data")
+    remove_well_known_config("scope_contract_versions")
 
     # finally, try to delete via the API
     # note that this could raise an exception if the creds are already invalid -- the
@@ -177,7 +213,7 @@ def delete_templated_client() -> None:
 
 
 def store_well_known_config(
-    name: Literal["auth_client_data", "auth_user_data"],
+    name: Literal["auth_client_data", "auth_user_data", "scope_contract_versions"],
     data: dict[str, t.Any],
     *,
     adapter: SQLiteAdapter | None = None,
@@ -187,7 +223,7 @@ def store_well_known_config(
 
 
 def read_well_known_config(
-    name: Literal["auth_client_data", "auth_user_data"],
+    name: Literal["auth_client_data", "auth_user_data", "scope_contract_versions"],
     *,
     adapter: SQLiteAdapter | None = None,
 ) -> dict[str, t.Any] | None:
@@ -196,7 +232,7 @@ def read_well_known_config(
 
 
 def remove_well_known_config(
-    name: Literal["auth_client_data", "auth_user_data"],
+    name: Literal["auth_client_data", "auth_user_data", "scope_contract_versions"],
     *,
     adapter: SQLiteAdapter | None = None,
 ) -> None:

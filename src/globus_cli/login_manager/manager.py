@@ -24,7 +24,11 @@ from .auth_flows import do_link_auth_flow, do_local_server_auth_flow
 from .client_login import get_client_login, is_client_login
 from .errors import MissingLoginError
 from .scopes import TIMER_SCOPE_WITH_DEPENDENCIES
-from .tokenstore import internal_auth_client, token_storage_adapter
+from .tokenstore import (
+    internal_auth_client,
+    read_well_known_config,
+    token_storage_adapter,
+)
 from .utils import is_remote_session
 
 if t.TYPE_CHECKING:
@@ -69,12 +73,8 @@ class LoginManager:
         ],
     }
 
-    # the contract version number for the LoginManager's scope behavior
-    # this will be annotated on every token acquired and stored, in order to see what
-    # version we were at when we got a token
-    SCOPE_CONTRACT_VERSION: int = 1
     # a map of resource servers to their current contract version requirement
-    # omission implies a default of 0
+    # omission implies that there is no requirement enforced by this mechanism
     SCOPE_CONTRACT_REQUIREMENTS: dict[str, int] = {
         TIMER_RS: 1,
     }
@@ -134,10 +134,22 @@ class LoginManager:
         if tokens is None or "refresh_token" not in tokens:
             return False
 
+        # if there's a scope contract version requirement for this service, evaluate the
+        # relevant data about requirements
         if resource_server in self.SCOPE_CONTRACT_REQUIREMENTS:
+            # first, fetch the version data and if it is missing, fail right away
+            # (we cannot satisfy a requirement if the data is empty)
+            contract_versions = read_well_known_config("scope_contract_versions")
+            if contract_versions is None:
+                return False
+
+            # determine which version we need, and compare against the version in
+            # storage with a default of 0
+            # if the comparison fails, reject the token as not a valid login for the
+            # service
             version_required = self.SCOPE_CONTRACT_REQUIREMENTS[resource_server]
-            # TODO!
-            assert version_required > 0
+            if contract_versions.get(resource_server, 0) < version_required:
+                return False
 
         # for resource servers in the static scope set, check that the scope
         # requirements are satisfied by the token data
