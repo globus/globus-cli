@@ -12,7 +12,7 @@ from .._common import index_id_arg
 @command("delete")
 @index_id_arg
 @click.argument("subject")
-@LoginManager.requires_login(LoginManager.SEARCH_RS)
+@LoginManager.requires_login("search")
 def delete_command(
     *,
     index_id: uuid.UUID,

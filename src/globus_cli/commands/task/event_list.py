@@ -70,7 +70,7 @@ $ globus task pause-info TASK_ID --format JSON
 )
 @click.option("--filter-errors", is_flag=True, help="Filter results to errors")
 @click.option("--filter-non-errors", is_flag=True, help="Filter results to non errors")
-@LoginManager.requires_login(LoginManager.TRANSFER_RS)
+@LoginManager.requires_login("transfer")
 def task_event_list(
     *,
     login_manager: LoginManager,

@@ -53,7 +53,7 @@ def _print_subjects(data):
 )
 @index_id_arg
 @mutex_option_group("-q", "--query-document")
-@LoginManager.requires_login(LoginManager.SEARCH_RS)
+@LoginManager.requires_login("search")
 def query_command(
     *,
     login_manager: LoginManager,

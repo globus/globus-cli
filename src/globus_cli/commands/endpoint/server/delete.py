@@ -62,7 +62,7 @@ $ globus endpoint server delete $ep_id $server_id
 )
 @endpoint_id_arg
 @click.argument("server")
-@LoginManager.requires_login(LoginManager.TRANSFER_RS)
+@LoginManager.requires_login("transfer")
 def server_delete(*, login_manager: LoginManager, endpoint_id, server):
     """
     Delete a server belonging to an endpoint.

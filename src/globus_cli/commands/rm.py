@@ -38,7 +38,7 @@ $ globus rm $ep_id:~/mydir --recursive
 @delete_and_rm_options(supports_batch=False, default_enable_globs=True)
 @synchronous_task_wait_options
 @click.argument("endpoint_plus_path", type=ENDPOINT_PLUS_REQPATH)
-@LoginManager.requires_login(LoginManager.TRANSFER_RS)
+@LoginManager.requires_login("transfer")
 def rm_command(
     *,
     login_manager: LoginManager,

@@ -21,7 +21,7 @@ $ globus endpoint server update $ep_id $server_id --scheme ftp
 @server_add_and_update_opts
 @endpoint_id_arg
 @server_id_arg
-@LoginManager.requires_login(LoginManager.TRANSFER_RS)
+@LoginManager.requires_login("transfer")
 def server_update(
     *,
     login_manager: LoginManager,

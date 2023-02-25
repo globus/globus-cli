@@ -65,7 +65,7 @@ GCP_FIELDS = [Field("Setup Key", "globus_connect_setup_key")]
     type_annotation=t.Optional[TupleType[uuid.UUID, str]],  # type: ignore[type-arg]
 )
 @mutex_option_group("--shared", "--server", "--personal")
-@LoginManager.requires_login(LoginManager.TRANSFER_RS)
+@LoginManager.requires_login("transfer")
 def endpoint_create(
     *,
     login_manager: LoginManager,

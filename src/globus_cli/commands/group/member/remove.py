@@ -14,7 +14,7 @@ REMOVED_USER_FIELDS = [
 @command("remove", short_help="Remove a member from a group")
 @click.argument("group_id", type=click.UUID)
 @click.argument("user", type=IdentityType())
-@LoginManager.requires_login(LoginManager.GROUPS_RS)
+@LoginManager.requires_login("groups")
 def member_remove(group_id: str, user: ParsedIdentity, login_manager):
     """
     Remove a member from a group.

@@ -21,7 +21,7 @@ TASK_FIELDS = [
 
 @command("show")
 @task_id_arg
-@LoginManager.requires_login(LoginManager.SEARCH_RS)
+@LoginManager.requires_login("search")
 def show_command(*, login_manager: LoginManager, task_id: uuid.UUID):
     """Display a Task"""
     search_client = login_manager.get_search_client()

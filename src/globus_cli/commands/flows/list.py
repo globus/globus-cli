@@ -30,7 +30,7 @@ ROLE_TYPES = ("flow_viewer", "flow_starter", "flow_administrator", "flow_owner")
     type=click.IntRange(1),
     help="The maximum number of results to return.",
 )
-@LoginManager.requires_login(LoginManager.FLOWS_RS)
+@LoginManager.requires_login("flows")
 def list_command(
     login_manager: LoginManager,
     filter_role: str | None,

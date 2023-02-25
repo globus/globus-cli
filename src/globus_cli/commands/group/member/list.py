@@ -21,7 +21,7 @@ def _str2field(fieldname: str) -> Field:
     type=CommaDelimitedList(choices=MEMBERSHIP_FIELDS, convert_values=str.lower),
 )
 @command("list")
-@LoginManager.requires_login(LoginManager.GROUPS_RS)
+@LoginManager.requires_login("groups")
 def member_list(
     *,
     login_manager: LoginManager,

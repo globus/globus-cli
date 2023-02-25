@@ -20,7 +20,7 @@ from ._common import deprecated_verify_option
 )
 @click.argument("HOST_GCP_PATH", type=ENDPOINT_PLUS_REQPATH)
 @deprecated_verify_option
-@LoginManager.requires_login(LoginManager.TRANSFER_RS)
+@LoginManager.requires_login("transfer")
 def guest_command(
     *,
     login_manager: LoginManager,

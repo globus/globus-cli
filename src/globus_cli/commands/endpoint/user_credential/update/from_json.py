@@ -11,7 +11,7 @@ from .._common import user_credential_id_arg
 @endpoint_id_arg
 @user_credential_id_arg
 @click.argument("user_credential_json", type=JSONStringOrFile())
-@LoginManager.requires_login(LoginManager.TRANSFER_RS, LoginManager.AUTH_RS)
+@LoginManager.requires_login("transfer", "auth")
 def from_json(
     *,
     login_manager: LoginManager,

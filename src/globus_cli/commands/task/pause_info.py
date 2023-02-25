@@ -87,7 +87,7 @@ $ globus task pause-info TASK_ID --format JSON
 """,
 )
 @task_id_arg()
-@LoginManager.requires_login(LoginManager.TRANSFER_RS)
+@LoginManager.requires_login("transfer")
 def task_pause_info(*, login_manager: LoginManager, task_id: uuid.UUID) -> None:
     """
     Show messages from activity managers who have explicitly paused the given

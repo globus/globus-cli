@@ -72,7 +72,7 @@ PRIVATE_FIELDS: list[Field] = [
         "Some policy data may only be visible in `--format JSON` output"
     ),
 )
-@LoginManager.requires_login(LoginManager.TRANSFER_RS, LoginManager.AUTH_RS)
+@LoginManager.requires_login("transfer", "auth")
 def collection_show(
     *, login_manager: LoginManager, include_private_policies, collection_id
 ):

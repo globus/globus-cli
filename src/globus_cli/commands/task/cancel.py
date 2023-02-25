@@ -51,7 +51,7 @@ $ globus task cancel --all
 @click.option(
     "--all", "-a", is_flag=True, help="Cancel all in-progress tasks that you own"
 )
-@LoginManager.requires_login(LoginManager.TRANSFER_RS)
+@LoginManager.requires_login("transfer")
 def cancel_task(*, login_manager: LoginManager, all: bool, task_id: uuid.UUID) -> None:
     """
     Cancel a task you own or all tasks which you own.

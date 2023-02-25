@@ -8,7 +8,7 @@ from ._common import user_credential_id_arg
 @command("delete", short_help="Delete a specific User Credential on an Endpoint")
 @endpoint_id_arg
 @user_credential_id_arg
-@LoginManager.requires_login(LoginManager.TRANSFER_RS, LoginManager.AUTH_RS)
+@LoginManager.requires_login("transfer", "auth")
 def user_credential_delete(
     *,
     login_manager: LoginManager,

@@ -17,7 +17,7 @@ from .._common import user_credential_create_and_update_params
 @user_credential_create_and_update_params(create=True)
 @click.argument("s3_key_id")
 @click.argument("s3_secret_key")
-@LoginManager.requires_login(LoginManager.TRANSFER_RS, LoginManager.AUTH_RS)
+@LoginManager.requires_login("transfer", "auth")
 def s3(
     *,
     login_manager: LoginManager,

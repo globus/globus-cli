@@ -7,7 +7,7 @@ from ._common import SESSION_ENFORCEMENT_FIELD, group_id_arg
 
 @group_id_arg
 @command("show")
-@LoginManager.requires_login(LoginManager.GROUPS_RS)
+@LoginManager.requires_login("groups")
 def group_show(
     *,
     login_manager: LoginManager,

@@ -109,7 +109,7 @@ $ globus endpoint activate $ep_id --myproxy -U username
     help="Force activation even if endpoint is already activated.",
 )
 @mutex_option_group("--web", "--myproxy", "--delegate-proxy")
-@LoginManager.requires_login(LoginManager.TRANSFER_RS)
+@LoginManager.requires_login("transfer")
 def endpoint_activate(
     *,
     login_manager: LoginManager,

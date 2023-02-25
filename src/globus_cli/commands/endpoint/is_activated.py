@@ -82,7 +82,7 @@ fi
         "since Epoch), not a number of seconds into the future."
     ),
 )
-@LoginManager.requires_login(LoginManager.TRANSFER_RS)
+@LoginManager.requires_login("transfer")
 def endpoint_is_activated(
     *,
     login_manager: LoginManager,

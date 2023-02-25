@@ -7,7 +7,7 @@ from ._common import group_id_arg
 
 @group_id_arg
 @command("delete")
-@LoginManager.requires_login(LoginManager.GROUPS_RS)
+@LoginManager.requires_login("groups")
 def group_delete(
     *,
     login_manager: LoginManager,

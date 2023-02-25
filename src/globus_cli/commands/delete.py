@@ -66,7 +66,7 @@ $ globus task wait "$task_id"
 @task_submission_options
 @delete_and_rm_options
 @click.argument("endpoint_plus_path", type=ENDPOINT_PLUS_OPTPATH)
-@LoginManager.requires_login(LoginManager.TRANSFER_RS)
+@LoginManager.requires_login("transfer")
 def delete_command(
     *,
     login_manager: LoginManager,

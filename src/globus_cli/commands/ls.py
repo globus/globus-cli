@@ -122,7 +122,7 @@ $ globus ls $ep_id:/share/godata/ --filter '~*.txt'  # done with --filter, bette
         "this should behave like a non-recursive `ls`"
     ),
 )
-@LoginManager.requires_login(LoginManager.TRANSFER_RS)
+@LoginManager.requires_login("transfer")
 def ls_command(
     *,
     login_manager: LoginManager,

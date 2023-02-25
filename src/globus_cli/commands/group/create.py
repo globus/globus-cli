@@ -9,7 +9,7 @@ from ._common import group_create_and_update_params
 
 @group_create_and_update_params(create=True)
 @command("create")
-@LoginManager.requires_login(LoginManager.GROUPS_RS)
+@LoginManager.requires_login("groups")
 def group_create(*, login_manager: LoginManager, **kwargs: t.Any):
     """Create a new group"""
     groups_client = login_manager.get_groups_client()

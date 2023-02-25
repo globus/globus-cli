@@ -38,7 +38,7 @@ def group_leave_formatter(data: globus_sdk.GlobusHTTPResponse) -> None:
     type=IdentityType(),
     help="Only remove membership for a specific identity, not all identities",
 )
-@LoginManager.requires_login(LoginManager.GROUPS_RS)
+@LoginManager.requires_login("groups")
 def group_leave(
     *,
     group_id: uuid.UUID,

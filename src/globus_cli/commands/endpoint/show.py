@@ -37,7 +37,7 @@ GCP_FIELDS = STANDARD_FIELDS + [
 @command("show")
 @endpoint_id_arg
 @click.option("--skip-endpoint-type-check", is_flag=True, hidden=True)
-@LoginManager.requires_login(LoginManager.TRANSFER_RS)
+@LoginManager.requires_login("transfer")
 def endpoint_show(
     *, login_manager: LoginManager, endpoint_id: str, skip_endpoint_type_check: bool
 ) -> None:

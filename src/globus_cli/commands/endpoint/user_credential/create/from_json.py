@@ -8,7 +8,7 @@ from globus_cli.termio import display
 @command("from-json", short_help="Create a User Credential from a JSON document")
 @endpoint_id_arg
 @click.argument("user_credential_json", type=JSONStringOrFile())
-@LoginManager.requires_login(LoginManager.TRANSFER_RS, LoginManager.AUTH_RS)
+@LoginManager.requires_login("transfer", "auth")
 def from_json(
     *,
     login_manager: LoginManager,

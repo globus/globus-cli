@@ -55,7 +55,7 @@ from ._common import MEMBERSHIP_FIELDS, group_id_arg
 )
 @group_id_arg
 @command("set-policies")
-@LoginManager.requires_login(LoginManager.GROUPS_RS)
+@LoginManager.requires_login("groups")
 def group_set_policies(
     *,
     login_manager: LoginManager,

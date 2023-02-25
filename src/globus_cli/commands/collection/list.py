@@ -72,7 +72,7 @@ created-by-me:
         "the ID of the Mapped Collection"
     ),
 )
-@LoginManager.requires_login(LoginManager.TRANSFER_RS, LoginManager.AUTH_RS)
+@LoginManager.requires_login("transfer", "auth")
 def collection_list(
     *,
     login_manager: LoginManager,

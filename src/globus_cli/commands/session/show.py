@@ -43,7 +43,7 @@ $ globus session show --format json
 ----
 """,
 )
-@LoginManager.requires_login(LoginManager.AUTH_RS)
+@LoginManager.requires_login("auth")
 def session_show(*, login_manager):
     """List all identities in your current CLI auth session.
 
@@ -60,7 +60,7 @@ def session_show(*, login_manager):
     except AttributeError:  # if we have no RefreshTokenAuthorizor
         pass
 
-    tokendata = adapter.get_token_data(LoginManager.AUTH_RS)
+    tokendata = adapter.get_token_data("auth.globus.org")
     # if there's no token (e.g. not logged in), stub with empty data
     if not tokendata:
         session_info = {}

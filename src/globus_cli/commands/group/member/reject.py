@@ -14,7 +14,7 @@ REJECTED_USER_FIELDS = [
 @command("reject", short_help="Reject a member from a group")
 @click.argument("group_id", type=click.UUID)
 @click.argument("user", type=IdentityType())
-@LoginManager.requires_login(LoginManager.GROUPS_RS)
+@LoginManager.requires_login("groups")
 def member_reject(*, group_id: str, user: ParsedIdentity, login_manager: LoginManager):
     """
     Reject a pending member from a group.

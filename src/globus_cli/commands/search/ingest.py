@@ -14,7 +14,7 @@ from ._common import index_id_arg
 @command("ingest", short_help="Ingest a document into Globus Search")
 @index_id_arg
 @click.argument("DOCUMENT", type=click.File("r"))
-@LoginManager.requires_login(LoginManager.SEARCH_RS)
+@LoginManager.requires_login("search")
 def ingest_command(
     *, login_manager: LoginManager, index_id: uuid.UUID, document: TextIOWrapper
 ):

@@ -36,7 +36,7 @@ $ globus get-identities --verbose go@globusid.org clitester1a@globusid.org \
     "values", type=IdentityType(allow_b32_usernames=True), required=True, nargs=-1
 )
 @click.option("--provision", hidden=True, is_flag=True)
-@LoginManager.requires_login(LoginManager.AUTH_RS)
+@LoginManager.requires_login("auth")
 def get_identities_command(*, login_manager: LoginManager, values, provision):
     """
     Lookup Globus Auth Identities given one or more uuids

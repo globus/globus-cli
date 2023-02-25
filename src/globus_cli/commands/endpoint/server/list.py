@@ -29,7 +29,7 @@ $ globus endpoint server list $ep_id
 """,
 )
 @endpoint_id_arg
-@LoginManager.requires_login(LoginManager.TRANSFER_RS)
+@LoginManager.requires_login("transfer")
 def server_list(*, login_manager: LoginManager, endpoint_id):
     """List all servers belonging to an endpoint."""
     transfer_client = login_manager.get_transfer_client()

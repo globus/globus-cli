@@ -96,7 +96,7 @@ def _update_session_params_identities_case(
     is_flag=True,
     help="Add every identity in your identity set to your session",
 )
-@LoginManager.requires_login(LoginManager.AUTH_RS)
+@LoginManager.requires_login("auth")
 def session_update(
     *,
     login_manager: LoginManager,

@@ -18,7 +18,7 @@ $ globus transfer --submission-id "$sub_id" ...
 ----
 """,
 )
-@LoginManager.requires_login(LoginManager.TRANSFER_RS)
+@LoginManager.requires_login("transfer")
 def generate_submission_id(*, login_manager: LoginManager) -> None:
     """
     Generate a new task submission ID for use in  `globus transfer` and `globus delete`.

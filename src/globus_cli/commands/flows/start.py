@@ -78,7 +78,7 @@ ROLE_TYPES = ("flow_viewer", "flow_starter", "flow_administrator", "flow_owner")
         to create a list of tags.
     """,
 )
-@LoginManager.requires_login(LoginManager.FLOWS_RS)
+@LoginManager.requires_login("flows")
 def start_command(
     login_manager: LoginManager,
     flow_id: uuid.UUID,

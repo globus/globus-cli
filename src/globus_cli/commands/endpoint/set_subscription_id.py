@@ -27,7 +27,7 @@ class SubscriptionIdType(click.ParamType):
 @command("set-subscription-id", short_help="Set an endpoint's subscription")
 @endpoint_id_arg
 @click.argument("SUBSCRIPTION_ID", type=SubscriptionIdType())
-@LoginManager.requires_login(LoginManager.TRANSFER_RS)
+@LoginManager.requires_login("transfer")
 def set_endpoint_subscription_id(
     *, login_manager: LoginManager, endpoint_id: str, subscription_id: str | None
 ) -> None:

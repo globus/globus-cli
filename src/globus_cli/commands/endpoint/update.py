@@ -36,7 +36,7 @@ else:
     help="Unset any default directory on the endpoint",
 )
 @mutex_option_group("--default-directory", "--no-default-directory")
-@LoginManager.requires_login(LoginManager.TRANSFER_RS)
+@LoginManager.requires_login("transfer")
 def endpoint_update(
     *,
     login_manager: LoginManager,

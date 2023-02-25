@@ -8,7 +8,7 @@ from .._common import INDEX_FIELDS
 
 
 @command("create")
-@LoginManager.requires_login(LoginManager.SEARCH_RS)
+@LoginManager.requires_login("search")
 @click.argument("DISPLAY_NAME")
 @click.argument("DESCRIPTION")
 def create_command(*, login_manager: LoginManager, display_name: str, description: str):

@@ -19,7 +19,7 @@ $ globus endpoint server add $ep_id --hostname gridftp.example.org
 )
 @endpoint_id_arg
 @server_add_and_update_opts(add=True)
-@LoginManager.requires_login(LoginManager.TRANSFER_RS)
+@LoginManager.requires_login("transfer")
 def server_add(
     *,
     login_manager: LoginManager,

@@ -66,7 +66,7 @@ $ globus endpoint search --filter-scope my-endpoints
     help="The maximum number of results to return.",
 )
 @click.argument("filter_fulltext", required=False)
-@LoginManager.requires_login(LoginManager.AUTH_RS, LoginManager.TRANSFER_RS)
+@LoginManager.requires_login("auth", "transfer")
 def endpoint_search(
     *,
     login_manager: LoginManager,

@@ -45,7 +45,7 @@ $ globus endpoint permission create $ep_id:/ --permissions rw --identity go@glob
     help="A custom message to add to email notifications",
 )
 @click.argument("endpoint_plus_path", type=ENDPOINT_PLUS_REQPATH)
-@LoginManager.requires_login(LoginManager.AUTH_RS, LoginManager.TRANSFER_RS)
+@LoginManager.requires_login("auth", "transfer")
 def create_command(
     *,
     login_manager: LoginManager,

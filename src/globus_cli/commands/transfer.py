@@ -176,7 +176,7 @@ fi
 @click.option("--perf-pp", type=int, hidden=True)
 @click.option("--perf-udt", is_flag=True, default=None, hidden=True)
 @mutex_option_group("--recursive", "--external-checksum")
-@LoginManager.requires_login(LoginManager.TRANSFER_RS)
+@LoginManager.requires_login("transfer")
 def transfer_command(
     *,
     login_manager: LoginManager,

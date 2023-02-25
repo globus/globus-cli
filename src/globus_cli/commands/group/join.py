@@ -28,7 +28,7 @@ JOIN_USER_FIELDS = [
     help="Instead of attempting to join the group directly, create a join "
     "request which can be approved by a group administrator",
 )
-@LoginManager.requires_login(LoginManager.GROUPS_RS)
+@LoginManager.requires_login("groups")
 def group_join(
     *,
     group_id: uuid.UUID,

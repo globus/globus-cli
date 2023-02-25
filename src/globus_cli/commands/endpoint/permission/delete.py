@@ -18,7 +18,7 @@ $ globus endpoint permission delete $ep_id $rule_id
 )
 @endpoint_id_arg
 @click.argument("rule_id")
-@LoginManager.requires_login(LoginManager.TRANSFER_RS)
+@LoginManager.requires_login("transfer")
 def delete_command(*, login_manager: LoginManager, endpoint_id, rule_id):
     """
     Delete an existing access control rule, removing whatever permissions it previously

@@ -169,7 +169,7 @@ $ globus task show TASK_ID
     ),
 )
 @mutex_option_group("--successful-transfers", "--skipped-errors")
-@LoginManager.requires_login(LoginManager.TRANSFER_RS)
+@LoginManager.requires_login("transfer")
 def show_task(
     *,
     login_manager: LoginManager,

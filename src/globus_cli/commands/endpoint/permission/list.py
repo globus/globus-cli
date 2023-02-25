@@ -20,7 +20,7 @@ $ globus endpoint permission list $ep_id
 """,
 )
 @endpoint_id_arg
-@LoginManager.requires_login(LoginManager.AUTH_RS, LoginManager.TRANSFER_RS)
+@LoginManager.requires_login("auth", "transfer")
 def list_command(*, login_manager: LoginManager, endpoint_id: uuid.UUID):
     """List all rules in an endpoint's access control list."""
     transfer_client = login_manager.get_transfer_client()

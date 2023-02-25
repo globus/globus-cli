@@ -22,7 +22,7 @@ def _print_subject(subject_doc: "globus_sdk.GlobusHTTPResponse"):
 @command("show")
 @index_id_arg
 @click.argument("subject")
-@LoginManager.requires_login(LoginManager.SEARCH_RS, LoginManager.AUTH_RS)
+@LoginManager.requires_login("search", "auth")
 def show_command(
     *, login_manager: LoginManager, index_id: uuid.UUID, subject: str
 ) -> None:

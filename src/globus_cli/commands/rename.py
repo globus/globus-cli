@@ -20,7 +20,7 @@ $ globus rename $ep_id:~/tempdir $ep_id:~/project-foo
 @endpoint_id_arg
 @click.argument("source", metavar="SOURCE_PATH")
 @click.argument("destination", metavar="DEST_PATH")
-@LoginManager.requires_login(LoginManager.TRANSFER_RS)
+@LoginManager.requires_login("transfer")
 def rename_command(*, login_manager: LoginManager, endpoint_id, source, destination):
     """Rename a file or directory on an endpoint.
 

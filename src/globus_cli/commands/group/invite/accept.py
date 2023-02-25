@@ -18,7 +18,7 @@ from ._common import build_invite_actions, get_invite_formatter
     type=IdentityType(),
     help="Only accept invitations for a specific identity",
 )
-@LoginManager.requires_login(LoginManager.GROUPS_RS)
+@LoginManager.requires_login("groups")
 def invite_accept(
     *, group_id: uuid.UUID, identity: ParsedIdentity | None, login_manager: LoginManager
 ):

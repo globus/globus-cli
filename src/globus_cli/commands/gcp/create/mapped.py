@@ -17,7 +17,7 @@ from ._common import deprecated_verify_option
     help="Set the collection as managed with the given subscription ID",
 )
 @deprecated_verify_option
-@LoginManager.requires_login(LoginManager.TRANSFER_RS)
+@LoginManager.requires_login("transfer")
 def mapped_command(
     *,
     login_manager: LoginManager,

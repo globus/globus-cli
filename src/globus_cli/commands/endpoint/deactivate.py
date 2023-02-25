@@ -16,7 +16,7 @@ $ globus endpoint deactivate $ep_id
 """,
 )
 @endpoint_id_arg
-@LoginManager.requires_login(LoginManager.TRANSFER_RS)
+@LoginManager.requires_login("transfer")
 def endpoint_deactivate(*, login_manager: LoginManager, endpoint_id: str) -> None:
     """
     Remove the credential previously assigned to an endpoint via

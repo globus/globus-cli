@@ -9,7 +9,7 @@ from .._common import INDEX_FIELDS, index_id_arg
 
 @command("show")
 @index_id_arg
-@LoginManager.requires_login(LoginManager.SEARCH_RS)
+@LoginManager.requires_login("search")
 def show_command(*, login_manager: LoginManager, index_id: uuid.UUID):
     """Display information about an index"""
     search_client = login_manager.get_search_client()

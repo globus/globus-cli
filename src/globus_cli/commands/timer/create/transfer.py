@@ -96,7 +96,7 @@ def resolve_start_time(start: datetime.datetime | None) -> datetime.datetime:
     type=click.IntRange(min=1),
     help="Stop running the transfer after this number of runs have happened",
 )
-@LoginManager.requires_login(LoginManager.TIMER_RS, LoginManager.TRANSFER_RS)
+@LoginManager.requires_login("timer", "transfer")
 def transfer_command(
     *,
     login_manager: LoginManager,

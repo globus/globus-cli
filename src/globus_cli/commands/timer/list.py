@@ -6,7 +6,7 @@ from ._common import JOB_FORMAT_FIELDS
 
 
 @command("list", short_help="List your jobs")
-@LoginManager.requires_login(LoginManager.TIMER_RS)
+@LoginManager.requires_login("timer")
 def list_command(*, login_manager: LoginManager) -> None:
     """
     List your Timer jobs.

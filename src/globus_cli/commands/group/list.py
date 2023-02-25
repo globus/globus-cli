@@ -6,7 +6,7 @@ from ._common import SESSION_ENFORCEMENT_FIELD
 
 
 @command("list", short_help="List groups you belong to")
-@LoginManager.requires_login(LoginManager.GROUPS_RS)
+@LoginManager.requires_login("groups")
 def group_list(*, login_manager: LoginManager):
     """List all groups for the current user"""
     groups_client = login_manager.get_groups_client()

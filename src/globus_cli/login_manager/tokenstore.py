@@ -7,7 +7,7 @@ import typing as t
 import globus_sdk
 
 from .client_login import get_client_login, is_client_login
-from .utils import CURRENT_SCOPE_CONTRACT_VERSION
+from .scopes import CURRENT_SCOPE_CONTRACT_VERSION
 
 if sys.version_info < (3, 8):
     from typing_extensions import Literal

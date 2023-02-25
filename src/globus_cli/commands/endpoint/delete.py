@@ -15,7 +15,7 @@ $ globus endpoint delete $ep_id
 """,
 )
 @endpoint_id_arg
-@LoginManager.requires_login(LoginManager.TRANSFER_RS)
+@LoginManager.requires_login("transfer")
 def endpoint_delete(*, login_manager: LoginManager, endpoint_id: str) -> None:
     """Delete a given endpoint.
 

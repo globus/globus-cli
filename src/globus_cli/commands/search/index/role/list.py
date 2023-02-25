@@ -9,7 +9,7 @@ from ..._common import index_id_arg, resolved_principals_field
 
 @command("list")
 @index_id_arg
-@LoginManager.requires_login(LoginManager.SEARCH_RS, LoginManager.AUTH_RS)
+@LoginManager.requires_login("search", "auth")
 def list_command(*, login_manager: LoginManager, index_id: uuid.UUID):
     """List roles on an index (requires admin)"""
     search_client = login_manager.get_search_client()

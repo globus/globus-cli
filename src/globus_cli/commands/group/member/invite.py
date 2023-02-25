@@ -26,7 +26,7 @@ INVITED_USER_FIELDS = [
     help="The role for the added user",
     show_default=True,
 )
-@LoginManager.requires_login(LoginManager.GROUPS_RS)
+@LoginManager.requires_login("groups")
 def member_invite(
     *,
     group_id: str,

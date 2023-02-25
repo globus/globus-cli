@@ -36,7 +36,7 @@ $ globus bookmark create \
 )
 @click.argument("endpoint_plus_path", type=ENDPOINT_PLUS_REQPATH)
 @click.argument("bookmark_name")
-@LoginManager.requires_login(LoginManager.TRANSFER_RS)
+@LoginManager.requires_login("transfer")
 def bookmark_create(
     *,
     login_manager: LoginManager,

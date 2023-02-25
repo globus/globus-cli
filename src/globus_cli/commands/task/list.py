@@ -167,7 +167,7 @@ globus task list --format=unix --jmespath='DATA[*].[task_id, status]' | \
     cls=AnnotatedOption,
     type_annotation=str,
 )
-@LoginManager.requires_login(LoginManager.TRANSFER_RS)
+@LoginManager.requires_login("transfer")
 def task_list(
     *,
     login_manager: LoginManager,

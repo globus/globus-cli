@@ -9,6 +9,7 @@ import globus_sdk
 
 from globus_cli import termio, version
 from globus_cli.login_manager import LoginManager
+from globus_cli.login_manager.scopes import CLI_SCOPE_REQUIREMENTS
 from globus_cli.parsing import command, group, mutex_option_group
 from globus_cli.termio import display
 
@@ -110,16 +111,6 @@ def print_error_or_response(
         display(data, simple_text=data.text)
 
 
-_SERVICE_MAP = {
-    "auth": LoginManager.AUTH_RS,
-    "flows": LoginManager.FLOWS_RS,
-    "groups": LoginManager.GROUPS_RS,
-    "search": LoginManager.SEARCH_RS,
-    "transfer": LoginManager.TRANSFER_RS,
-    "timer": LoginManager.TIMER_RS,
-}
-
-
 def _get_client(
     login_manager: LoginManager, service_name: str
 ) -> globus_sdk.BaseClient:
@@ -172,7 +163,7 @@ For example, a call of
 sends a 'GET' request to '{_get_url(service_name)}foo/bar'
 """,
     )
-    @LoginManager.requires_login(_SERVICE_MAP[service_name])
+    @LoginManager.requires_login(service_name)
     @click.argument(
         "method",
         type=click.Choice(
@@ -307,5 +298,5 @@ sends a 'GET' request to '{_get_url(service_name)}foo/bar'
     return t.cast(click.Command, service_command)
 
 
-for service_name in _SERVICE_MAP:
+for service_name in CLI_SCOPE_REQUIREMENTS.keys():
     api_command.add_command(build_command(service_name))

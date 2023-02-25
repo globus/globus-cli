@@ -14,7 +14,7 @@ $ globus endpoint my-shared-endpoint-list $ep_id
 """,
 )
 @endpoint_id_arg
-@LoginManager.requires_login(LoginManager.TRANSFER_RS)
+@LoginManager.requires_login("transfer")
 def my_shared_endpoint_list(*, login_manager: LoginManager, endpoint_id: str) -> None:
     """
     Show a list of all shared endpoints hosted on the target endpoint for which the user

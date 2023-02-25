@@ -24,7 +24,7 @@ $ globus endpoint permission show $ep_id $rule_id
 )
 @endpoint_id_arg
 @click.argument("rule_id")
-@LoginManager.requires_login(LoginManager.AUTH_RS, LoginManager.TRANSFER_RS)
+@LoginManager.requires_login("auth", "transfer")
 def show_command(*, login_manager: LoginManager, endpoint_id: uuid.UUID, rule_id: str):
     """
     Show detailed information about a single access control rule on an endpoint.

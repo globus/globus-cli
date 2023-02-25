@@ -32,7 +32,7 @@ $ globus endpoint role show EP_ID ROLE_ID
 )
 @endpoint_id_arg
 @role_id_arg
-@LoginManager.requires_login(LoginManager.AUTH_RS, LoginManager.TRANSFER_RS)
+@LoginManager.requires_login("auth", "transfer")
 def role_show(
     *, login_manager: LoginManager, endpoint_id: uuid.UUID, role_id: str
 ) -> None:

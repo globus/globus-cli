@@ -18,7 +18,7 @@ $ mkdir ep_id:~/testfolder
 """,
 )
 @click.argument("endpoint_plus_path", type=ENDPOINT_PLUS_REQPATH)
-@LoginManager.requires_login(LoginManager.TRANSFER_RS)
+@LoginManager.requires_login("transfer")
 def mkdir_command(*, login_manager: LoginManager, endpoint_plus_path):
     """Make a directory on an endpoint at the given path.
 

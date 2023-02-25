@@ -1,6 +1,6 @@
 import re
 import uuid
-from unittest.mock import patch
+from unittest import mock
 
 import globus_sdk
 import globus_sdk.scopes
@@ -11,40 +11,67 @@ from globus_cli.login_manager import (
     MissingLoginError,
     compute_timer_scope,
 )
+from globus_cli.login_manager.scopes import CLI_SCOPE_REQUIREMENTS
 
 
-def mock_get_tokens(resource_server):
-    fake_tokens = {
-        "a.globus.org": {
-            "access_token": "fake_a_access_token",
-            "refresh_token": "fake_a_refresh_token",
-            "scope": "scopeA1 scopeA2",
-        },
-        "b.globus.org": {
-            "access_token": "fake_b_access_token",
-            "refresh_token": "fake_b_refresh_token",
-            "scope": "scopeB1 scopeB2",
-        },
-    }
+@pytest.fixture
+def patched_tokenstorage():
+    def mock_get_tokens(resource_server):
+        fake_tokens = {
+            "a.globus.org": {
+                "access_token": "fake_a_access_token",
+                "refresh_token": "fake_a_refresh_token",
+                "scope": "scopeA1 scopeA2",
+            },
+            "b.globus.org": {
+                "access_token": "fake_b_access_token",
+                "refresh_token": "fake_b_refresh_token",
+                "scope": "scopeB1 scopeB2",
+            },
+        }
 
-    return fake_tokens.get(resource_server)
+        return fake_tokens.get(resource_server)
+
+    def mock_read_config(config_name):
+        if config_name == "scope_contract_versions":
+            return {
+                "a.globus.org": 1,
+                "b.globus.org": 1,
+            }
+        else:
+            raise NotImplementedError
+
+    with mock.patch(
+        "globus_cli.login_manager.tokenstore.token_storage_adapter._instance"
+    ) as mock_adapter:
+        mock_adapter.get_token_data = mock_get_tokens
+        mock_adapter.read_config = mock_read_config
+        yield mock_adapter
 
 
 @pytest.fixture(autouse=True)
-def patch_static_scopes():
+def patch_scope_requirements():
     with pytest.MonkeyPatch().context() as mp:
         mp.setattr(
-            LoginManager,
-            "STATIC_SCOPES",
+            CLI_SCOPE_REQUIREMENTS,
+            "requirement_map",
             {
-                "a.globus.org": [
-                    "scopeA1",
-                    "scopeA2",
-                ],
-                "b.globus.org": [
-                    "scopeB1",
-                    "scopeB2",
-                ],
+                "a": {
+                    "min_contract_version": 0,
+                    "resource_server": "a.globus.org",
+                    "scopes": [
+                        "scopeA1",
+                        "scopeA2",
+                    ],
+                },
+                "b": {
+                    "min_contract_version": 0,
+                    "resource_server": "b.globus.org",
+                    "scopes": [
+                        "scopeB1",
+                        "scopeB2",
+                    ],
+                },
             },
         )
         yield mp
@@ -58,33 +85,26 @@ BASE_TIMER_SCOPE = urlfmt_scope("524230d7-ea86-4a52-8312-86065a9e0417", "timer")
 TRANSFER_AP_SCOPE = urlfmt_scope("actions.globus.org", "transfer/transfer")
 
 
-@patch("globus_cli.login_manager.tokenstore.token_storage_adapter")
-def test_requires_login_success(mock_get_adapter):
-    mock_get_adapter._instance.get_token_data = mock_get_tokens
-
+@pytest.mark.parametrize("use_rs_name", ("a", "a.globus.org"))
+def test_requires_login_success(patched_tokenstorage, use_rs_name):
     # single server
-    @LoginManager.requires_login("a.globus.org")
+    @LoginManager.requires_login(use_rs_name)
     def dummy_command(login_manager):
         return True
 
     assert dummy_command()
 
 
-@patch("globus_cli.login_manager.tokenstore.token_storage_adapter")
-def test_requires_login_multi_server_success(mock_get_adapter):
-    mock_get_adapter._instance.get_token_data = mock_get_tokens
-
-    @LoginManager.requires_login("a.globus.org", "b.globus.org")
+@pytest.mark.parametrize("use_rs_names", (("a", "b.globus.org"), ("b", "a")))
+def test_requires_login_multi_server_success(patched_tokenstorage, use_rs_names):
+    @LoginManager.requires_login(*use_rs_names)
     def dummy_command(login_manager):
         return True
 
     assert dummy_command()
 
 
-@patch("globus_cli.login_manager.tokenstore.token_storage_adapter")
-def test_requires_login_single_server_fail(mock_get_adapter):
-    mock_get_adapter._instance.get_token_data = mock_get_tokens
-
+def test_requires_login_single_server_fail(patched_tokenstorage):
     @LoginManager.requires_login("c.globus.org")
     def dummy_command(login_manager):
         return True
@@ -97,12 +117,11 @@ def test_requires_login_single_server_fail(mock_get_adapter):
     )
 
 
-@patch("globus_cli.login_manager.tokenstore.token_storage_adapter")
-def test_requiring_new_scope_fails(mock_get_adapter):
-    mock_get_adapter._instance.get_token_data = mock_get_tokens
-    LoginManager.STATIC_SCOPES["a.globus.org"].append("scopeA3")
+@pytest.mark.parametrize("use_rs_name", ("a", "a.globus.org"))
+def test_requiring_new_scope_fails(patched_tokenstorage, use_rs_name):
+    CLI_SCOPE_REQUIREMENTS.requirement_map["a"]["scopes"].append("scopeA3")
 
-    @LoginManager.requires_login("a.globus.org")
+    @LoginManager.requires_login(use_rs_name)
     def dummy_command(login_manager):
         return True
 
@@ -114,10 +133,23 @@ def test_requiring_new_scope_fails(mock_get_adapter):
     )
 
 
-@patch("globus_cli.login_manager.tokenstore.token_storage_adapter")
-def test_requires_login_fail_two_servers(mock_get_adapter):
-    mock_get_adapter._instance.get_token_data = mock_get_tokens
+@pytest.mark.parametrize("use_rs_name", ("a", "a.globus.org"))
+def test_scope_contract_version_bump_forces_login(patched_tokenstorage, use_rs_name):
+    CLI_SCOPE_REQUIREMENTS.requirement_map["a"]["min_contract_version"] = 2
 
+    @LoginManager.requires_login(use_rs_name)
+    def dummy_command(login_manager):
+        return True
+
+    with pytest.raises(MissingLoginError) as ex:
+        dummy_command()
+
+    assert str(ex.value) == (
+        "Missing login for a.globus.org, please run\n\n  globus login\n"
+    )
+
+
+def test_requires_login_fail_two_servers(patched_tokenstorage):
     @LoginManager.requires_login("c.globus.org", "d.globus.org")
     def dummy_command(login_manager):
         return True
@@ -134,10 +166,7 @@ def test_requires_login_fail_two_servers(mock_get_adapter):
         assert server in str(ex.value)
 
 
-@patch("globus_cli.login_manager.tokenstore.token_storage_adapter")
-def test_requires_login_fail_multi_server(mock_get_adapter):
-    mock_get_adapter._instance.get_token_data = mock_get_tokens
-
+def test_requires_login_fail_multi_server(patched_tokenstorage):
     @LoginManager.requires_login("c.globus.org", "d.globus.org", "e.globus.org")
     def dummy_command(login_manager):
         return True
@@ -153,10 +182,7 @@ def test_requires_login_fail_multi_server(mock_get_adapter):
         assert server in str(ex.value)
 
 
-@patch("globus_cli.login_manager.tokenstore.token_storage_adapter")
-def test_requires_login_pass_manager(mock_get_adapter):
-    mock_get_adapter._instance.get_token_data = mock_get_tokens
-
+def test_requires_login_pass_manager(patched_tokenstorage):
     @LoginManager.requires_login()
     def dummy_command(login_manager):
         assert login_manager.has_login("a.globus.org")
@@ -167,9 +193,7 @@ def test_requires_login_pass_manager(mock_get_adapter):
     assert dummy_command()
 
 
-@patch("globus_cli.login_manager.tokenstore.token_storage_adapter")
-def test_flow_error_message(mock_get_adapter):
-    mock_get_adapter._instance.get_token_data = mock_get_tokens
+def test_flow_error_message(patched_tokenstorage):
     dummy_id = str(uuid.uuid1())
 
     @LoginManager.requires_login()
@@ -182,9 +206,7 @@ def test_flow_error_message(mock_get_adapter):
     assert f"globus login --flow {dummy_id}" in str(excinfo.value)
 
 
-@patch("globus_cli.login_manager.tokenstore.token_storage_adapter")
-def test_gcs_error_message(mock_get_adapter):
-    mock_get_adapter._instance.get_token_data = mock_get_tokens
+def test_gcs_error_message(patched_tokenstorage):
     dummy_id = str(uuid.uuid1())
 
     @LoginManager.requires_login()
@@ -197,11 +219,11 @@ def test_gcs_error_message(mock_get_adapter):
     assert f"globus login --gcs {dummy_id}" in str(excinfo.value)
 
 
-def test_client_login_two_requirements(client_login, patch_static_scopes):
+def test_client_login_two_requirements(client_login, patch_scope_requirements):
     # undo the scope requirements patch
-    patch_static_scopes.undo()
+    patch_scope_requirements.undo()
 
-    @LoginManager.requires_login(LoginManager.TRANSFER_RS, LoginManager.AUTH_RS)
+    @LoginManager.requires_login("transfer", "auth")
     def dummy_command(*, login_manager):
         transfer_client = login_manager.get_transfer_client()
         auth_client = login_manager.get_auth_client()
@@ -218,29 +240,29 @@ def test_client_login_two_requirements(client_login, patch_static_scopes):
     assert dummy_command()
 
 
-@patch.object(LoginManager, "_get_gcs_info")
-def test_client_login_gcs(
-    mock_get_gcs_info, client_login, add_gcs_login, patch_static_scopes
-):
-    patch_static_scopes.undo()
+def test_client_login_gcs(client_login, add_gcs_login, patch_scope_requirements):
+    patch_scope_requirements.undo()
+    with mock.patch.object(LoginManager, "_get_gcs_info") as mock_get_gcs_info:
 
-    class fake_endpointish:
-        def get_gcs_address(self):
-            return "fake_adress"
+        class fake_endpointish:
+            def get_gcs_address(self):
+                return "fake_adress"
 
-    gcs_id = "fake_gcs_id"
-    mock_get_gcs_info.return_value = gcs_id, fake_endpointish()
-    add_gcs_login(gcs_id)
+        gcs_id = "fake_gcs_id"
+        mock_get_gcs_info.return_value = gcs_id, fake_endpointish()
+        add_gcs_login(gcs_id)
 
-    @LoginManager.requires_login(LoginManager.TRANSFER_RS)
-    def dummy_command(*, login_manager, collection_id):
-        gcs_client = login_manager.get_gcs_client(collection_id=collection_id)
+        @LoginManager.requires_login("transfer")
+        def dummy_command(*, login_manager, collection_id):
+            gcs_client = login_manager.get_gcs_client(collection_id=collection_id)
 
-        assert isinstance(gcs_client.authorizer, globus_sdk.ClientCredentialsAuthorizer)
+            assert isinstance(
+                gcs_client.authorizer, globus_sdk.ClientCredentialsAuthorizer
+            )
 
-        return True
+            return True
 
-    assert dummy_command(collection_id=gcs_id)
+        assert dummy_command(collection_id=gcs_id)
 
 
 def test_compute_timer_scope_no_data_access():

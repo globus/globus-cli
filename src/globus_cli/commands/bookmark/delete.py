@@ -23,7 +23,7 @@ $ globus bookmark delete "Bookmark Name"
     short_help="Delete a bookmark",
 )
 @click.argument("bookmark_id_or_name")
-@LoginManager.requires_login(LoginManager.TRANSFER_RS)
+@LoginManager.requires_login("transfer")
 def bookmark_delete(*, login_manager: LoginManager, bookmark_id_or_name: str) -> None:
     """
     Delete one bookmark, given its ID or name.
