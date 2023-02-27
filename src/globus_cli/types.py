@@ -23,6 +23,11 @@ else:
     ListType = list
     TupleType = tuple
 
+if sys.version_info < (3, 8):
+    from typing_extensions import Literal
+else:
+    from typing import Literal
+
 # all imports from globus_cli modules done here are done under TYPE_CHECKING
 # in order to ensure that the use of type annotations never introduces circular
 # imports at runtime
@@ -45,4 +50,9 @@ DATA_CONTAINER_T = t.Union[
 
 JsonValue: TypeAlias = t.Union[
     int, float, str, bool, None, t.List["JsonValue"], t.Dict[str, "JsonValue"]
+]
+
+
+ServiceNameLiteral: TypeAlias = Literal[
+    "auth", "transfer", "groups", "search", "timer", "flows"
 ]

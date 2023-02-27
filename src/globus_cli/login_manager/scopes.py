@@ -14,10 +14,12 @@ from globus_sdk.scopes import (
     TransferScopes,
 )
 
+from globus_cli.types import ServiceNameLiteral
+
 if sys.version_info < (3, 8):
-    from typing_extensions import Literal, TypedDict
+    from typing_extensions import TypedDict
 else:
-    from typing import Literal, TypedDict
+    from typing import TypedDict
 
 TRANSFER_AP_SCOPE_STR: str = (
     "https://auth.globus.org/scopes/actions.globus.org/transfer/transfer"
@@ -54,7 +56,7 @@ class _ServiceRequirement(TypedDict):
 
 class _CLIScopeRequirements:
     def __init__(self) -> None:
-        self.requirement_map: dict[str, _ServiceRequirement] = {
+        self.requirement_map: dict[ServiceNameLiteral, _ServiceRequirement] = {
             "auth": {
                 "min_contract_version": 0,
                 "resource_server": AuthScopes.resource_server,
@@ -106,9 +108,7 @@ class _CLIScopeRequirements:
             },
         }
 
-    def __getitem__(
-        self, key: Literal["auth", "transfer", "groups", "search", "timer", "flows"]
-    ) -> _ServiceRequirement:
+    def __getitem__(self, key: ServiceNameLiteral) -> _ServiceRequirement:
         return self.requirement_map[key]
 
     def get_by_resource_server(self, rs_name: str) -> _ServiceRequirement:
@@ -124,7 +124,7 @@ class _CLIScopeRequirements:
     def resource_servers(self) -> frozenset[str]:
         return frozenset(req["resource_server"] for req in self.values())
 
-    def keys(self) -> t.Iterable[str]:
+    def keys(self) -> t.Iterable[ServiceNameLiteral]:
         yield from self.requirement_map.keys()
 
     def values(self) -> t.Iterable[_ServiceRequirement]:

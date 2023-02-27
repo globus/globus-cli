@@ -18,6 +18,7 @@ from globus_sdk.scopes import (
 )
 
 from globus_cli.endpointish import Endpointish, EntityType
+from globus_cli.types import ServiceNameLiteral
 
 from .. import version
 from .auth_flows import do_link_auth_flow, do_local_server_auth_flow
@@ -176,7 +177,7 @@ class LoginManager:
             )
 
     @classmethod
-    def requires_login(cls, *resource_servers: str):
+    def requires_login(cls, *resource_servers: ServiceNameLiteral):
         """
         Command decorator for specifying a resource server that the user must have
         tokens for in order to run the command.
@@ -203,11 +204,9 @@ class LoginManager:
 
         """
         resolved_resource_server_names = [
-            rs_name if rs_name not in CLI_SCOPE_REQUIREMENTS
-            # ignore the type error (Literal vs str)
-            else CLI_SCOPE_REQUIREMENTS[rs_name][  # type: ignore[index]
-                "resource_server"
-            ]
+            rs_name
+            if rs_name not in CLI_SCOPE_REQUIREMENTS
+            else CLI_SCOPE_REQUIREMENTS[rs_name]["resource_server"]
             for rs_name in resource_servers
         ]
 

@@ -12,6 +12,7 @@ from globus_cli.login_manager import LoginManager
 from globus_cli.login_manager.scopes import CLI_SCOPE_REQUIREMENTS
 from globus_cli.parsing import command, group, mutex_option_group
 from globus_cli.termio import display
+from globus_cli.types import ServiceNameLiteral
 
 
 class QueryParamType(click.ParamType):
@@ -148,7 +149,7 @@ def api_command() -> None:
 
 # note: this must be written as a separate call and not inlined into the loop body
 # this ensures that it acts as a closure over 'service_name'
-def build_command(service_name: str) -> click.Command:
+def build_command(service_name: ServiceNameLiteral) -> click.Command:
     @command(
         service_name,
         help=f"""\
