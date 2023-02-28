@@ -225,10 +225,10 @@ def task_list(
     filter_string += _process_filterval("label", label_data)
 
     filter_string += _process_filterval(
-        "request_time", [filter_requested_after, filter_requested_before]
+        "request_time", [filter_requested_before, filter_requested_after]
     )
     filter_string += _process_filterval(
-        "completion_time", [filter_completed_after, filter_completed_before]
+        "completion_time", [filter_completed_before, filter_completed_after]
     )
 
     transfer_client = login_manager.get_transfer_client()
