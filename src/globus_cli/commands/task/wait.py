@@ -1,3 +1,7 @@
+from __future__ import annotations
+
+import uuid
+
 from globus_cli.login_manager import LoginManager
 from globus_cli.parsing import command, synchronous_task_wait_options
 
@@ -32,19 +36,19 @@ $ globus task wait --polling-interval 300 TASK_ID
 ----
 """,
 )
-@task_id_arg
+@task_id_arg()
 @synchronous_task_wait_options
 @LoginManager.requires_login(LoginManager.TRANSFER_RS)
 def task_wait(
     *,
     login_manager: LoginManager,
-    meow,
-    heartbeat,
-    polling_interval,
-    timeout,
-    task_id,
-    timeout_exit_code
-):
+    meow: bool,
+    heartbeat: bool,
+    polling_interval: int,
+    timeout: int | None,
+    task_id: uuid.UUID,
+    timeout_exit_code: int,
+) -> None:
     """
     Wait for a task to complete.
 

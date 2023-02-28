@@ -1,4 +1,9 @@
+from __future__ import annotations
+
+import uuid
+
 import click
+import globus_sdk
 
 from globus_cli.login_manager import LoginManager
 from globus_cli.parsing import command, mutex_option_group
@@ -56,7 +61,9 @@ SKIPPED_PATHS_FIELDS = [
 ]
 
 
-def print_successful_transfers(client, task_id):
+def print_successful_transfers(
+    client: globus_sdk.TransferClient, task_id: uuid.UUID
+) -> None:
     from globus_cli.services.transfer import iterable_response_to_dict
 
     res = client.paginated.task_successful_transfers(task_id).items()
@@ -67,7 +74,7 @@ def print_successful_transfers(client, task_id):
     )
 
 
-def print_skipped_errors(client, task_id):
+def print_skipped_errors(client: globus_sdk.TransferClient, task_id: uuid.UUID) -> None:
     from globus_cli.services.transfer import iterable_response_to_dict
 
     res = client.paginated.task_skipped_errors(task_id).items()
@@ -78,7 +85,7 @@ def print_skipped_errors(client, task_id):
     )
 
 
-def print_task_detail(client, task_id):
+def print_task_detail(client: globus_sdk.TransferClient, task_id: uuid.UUID) -> None:
     res = client.get_task(task_id)
     display(
         res,
@@ -141,7 +148,7 @@ $ globus task show TASK_ID
 ----
 """,
 )
-@task_id_arg
+@task_id_arg()
 @click.option(
     "--successful-transfers",
     "-t",
@@ -164,8 +171,12 @@ $ globus task show TASK_ID
 @mutex_option_group("--successful-transfers", "--skipped-errors")
 @LoginManager.requires_login(LoginManager.TRANSFER_RS)
 def show_task(
-    *, login_manager: LoginManager, successful_transfers, skipped_errors, task_id
-):
+    *,
+    login_manager: LoginManager,
+    successful_transfers: bool,
+    skipped_errors: bool,
+    task_id: uuid.UUID,
+) -> None:
     """
     Print information detailing the status and other info about a task.
 

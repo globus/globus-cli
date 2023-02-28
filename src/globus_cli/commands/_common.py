@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import sys
 import typing as t
+import uuid
 
 import click
 
@@ -17,7 +18,7 @@ def transfer_task_wait_with_io(
     heartbeat: bool,
     polling_interval: int,
     timeout: int | None,
-    task_id: str,
+    task_id: str | uuid.UUID,
     timeout_exit_code: int,
 ) -> None:
     """

@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import typing as t
+import uuid
 
 import click
 import globus_sdk
@@ -85,9 +86,9 @@ $ globus task pause-info TASK_ID --format JSON
 ----
 """,
 )
-@task_id_arg
+@task_id_arg()
 @LoginManager.requires_login(LoginManager.TRANSFER_RS)
-def task_pause_info(*, login_manager: LoginManager, task_id):
+def task_pause_info(*, login_manager: LoginManager, task_id: uuid.UUID) -> None:
     """
     Show messages from activity managers who have explicitly paused the given
     in-progress task and list any active pause rules that apply to it.

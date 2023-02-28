@@ -64,7 +64,7 @@ $ globus task pause-info TASK_ID --format JSON
 ----
 """,
 )
-@task_id_arg
+@task_id_arg()
 @click.option(
     "--limit", type=int, default=10, show_default=True, help="Limit number of results."
 )
@@ -78,7 +78,7 @@ def task_event_list(
     limit: int,
     filter_errors: bool,
     filter_non_errors: bool,
-):
+) -> None:
     """
     This command shows the recent events for a running task.
     Most events of interest are fault events, which are errors which occurred on an

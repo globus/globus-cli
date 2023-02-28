@@ -1,3 +1,6 @@
+import typing as t
+import uuid
+
 import click
 
 from globus_cli.login_manager import LoginManager
@@ -47,7 +50,7 @@ $ globus task cancel --all
     "--all", "-a", is_flag=True, help="Cancel all in-progress tasks that you own"
 )
 @LoginManager.requires_login(LoginManager.TRANSFER_RS)
-def cancel_task(*, login_manager: LoginManager, all, task_id):
+def cancel_task(*, login_manager: LoginManager, all: bool, task_id: uuid.UUID) -> None:
     """
     Cancel a task you own or all tasks which you own.
 
@@ -82,17 +85,17 @@ def cancel_task(*, login_manager: LoginManager, all, task_id):
         if not task_ids:
             raise click.ClickException("You have no in-progress tasks.")
 
-        def cancellation_iterator():
+        def cancellation_iterator() -> t.Iterator[tuple[str, dict[str, t.Any]]]:
             for i in task_ids:
                 yield (i, transfer_client.cancel_task(i).data)
 
-        def json_converter(res):
+        def json_converter(res: t.Any) -> dict[str, t.Any]:
             return {
                 "results": [x for i, x in cancellation_iterator()],
                 "task_ids": task_ids,
             }
 
-        def _custom_text(res):
+        def _custom_text(res: t.Any) -> None:
             for i, (task_id, data) in enumerate(cancellation_iterator(), start=1):
                 click.echo(f"{task_id} ({i} of {task_count}): {data['message']}")
 

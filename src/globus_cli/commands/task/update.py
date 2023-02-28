@@ -1,3 +1,5 @@
+import uuid
+
 import click
 
 from globus_cli.login_manager import LoginManager
@@ -23,11 +25,17 @@ $ globus task update TASK_ID --label 'my task updated by me' \
 ----
 """,
 )
-@task_id_arg
+@task_id_arg()
 @click.option("--label", help="New Label for the task")
 @click.option("--deadline", help="New Deadline for the task")
 @LoginManager.requires_login(LoginManager.TRANSFER_RS)
-def update_task(*, login_manager: LoginManager, deadline, label, task_id):
+def update_task(
+    *,
+    login_manager: LoginManager,
+    deadline: str | None,
+    label: str | None,
+    task_id: uuid.UUID
+) -> None:
     """
     Update label and/or deadline on an active task.
 

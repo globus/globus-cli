@@ -1,12 +1,27 @@
+from __future__ import annotations
+
+import collections.abc
+import datetime
+import sys
+import typing as t
+import uuid
+
 import click
 
 from globus_cli.login_manager import LoginManager
-from globus_cli.parsing import command
+from globus_cli.parsing import AnnotatedOption, command
 from globus_cli.termio import Field, display
 from globus_cli.utils import PagingWrapper
 
+if sys.version_info < (3, 8):
+    from typing_extensions import Literal
+else:
+    from typing import Literal
 
-def _format_date_callback(ctx, param, value):
+
+def _format_date_callback(
+    ctx: click.Context | None, param: click.Parameter, value: datetime.datetime | None
+) -> str:
     if value is None:
         return ""
     return value.strftime("%Y-%m-%d %H:%M:%S")
@@ -76,7 +91,9 @@ globus task list --format=unix --jmespath='DATA[*].[task_id, status]' | \
 ----
 """,  # noqa: E501
 )
-@click.option("--limit", default=10, show_default=True, help="Limit number of results.")
+@click.option(
+    "--limit", default=10, type=int, show_default=True, help="Limit number of results."
+)
 @click.option(
     "--filter-task-id",
     multiple=True,
@@ -123,41 +140,49 @@ globus task list --format=unix --jmespath='DATA[*].[task_id, status]' | \
     type=click.DateTime(),
     callback=_format_date_callback,
     help="Filter results to tasks that were requested after given time.",
+    cls=AnnotatedOption,
+    type_annotation=str,
 )
 @click.option(
     "--filter-requested-before",
     type=click.DateTime(),
     callback=_format_date_callback,
     help="Filter results to tasks that were requested before given time.",
+    cls=AnnotatedOption,
+    type_annotation=str,
 )
 @click.option(
     "--filter-completed-after",
     type=click.DateTime(),
     callback=_format_date_callback,
     help="Filter results to tasks that were completed after given time.",
+    cls=AnnotatedOption,
+    type_annotation=str,
 )
 @click.option(
     "--filter-completed-before",
     type=click.DateTime(),
     callback=_format_date_callback,
     help="Filter results to tasks that were completed before given time.",
+    cls=AnnotatedOption,
+    type_annotation=str,
 )
 @LoginManager.requires_login(LoginManager.TRANSFER_RS)
 def task_list(
     *,
     login_manager: LoginManager,
-    limit,
-    filter_task_id,
-    filter_status,
-    filter_type,
-    filter_label,
-    filter_not_label,
-    inexact,
-    filter_requested_after,
-    filter_requested_before,
-    filter_completed_after,
-    filter_completed_before,
-):
+    limit: int,
+    filter_task_id: tuple[uuid.UUID, ...],
+    filter_type: Literal["TRANSFER", "DELETE"] | None,
+    filter_status: tuple[Literal["ACTIVE", "INACTIVE", "FAILED", "SUCCEEDED"], ...],
+    filter_label: tuple[str, ...],
+    filter_not_label: tuple[str, ...],
+    inexact: bool,
+    filter_requested_after: str,
+    filter_requested_before: str,
+    filter_completed_after: str,
+    filter_completed_before: str,
+) -> None:
     """
     List tasks for the current user.
 
@@ -166,9 +191,13 @@ def task_list(
     """
     from globus_cli.services.transfer import iterable_response_to_dict
 
-    def _process_filterval(prefix, value, default=None):
+    def _process_filterval(
+        prefix: str,
+        value: str | t.Sequence[str | uuid.UUID],
+        default: str | None = None,
+    ) -> str:
         if value:
-            if isinstance(value, list) and not any(value):
+            if isinstance(value, collections.abc.Sequence) and not any(value):
                 return default or ""
             if isinstance(value, str):
                 return f"{prefix}:{value}/"

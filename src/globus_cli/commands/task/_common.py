@@ -1,16 +1,15 @@
 from __future__ import annotations
 
-import functools
 import typing as t
 
 import click
 
+C = t.TypeVar("C", bound=t.Union[t.Callable, click.Command])
 
-def task_id_arg(f: t.Callable | None = None, *, required=True):
+
+def task_id_arg(*, required: bool = True) -> t.Callable[[C], C]:
     """
     By default, the task ID is made required; pass `required=False` to the
     decorator arguments to make it optional.
     """
-    if f is None:
-        return functools.partial(task_id_arg, required=required)
-    return click.argument("TASK_ID", required=required)(f)
+    return click.argument("TASK_ID", type=click.UUID, required=required)
