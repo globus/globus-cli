@@ -13,7 +13,7 @@ class CommaDelimitedList(AnnotatedParamType):
         *,
         convert_values: t.Callable[[str], str] | None = None,
         choices: t.Iterable[str] | None = None,
-    ):
+    ) -> None:
         super().__init__()
         self.convert_values = convert_values
         self.choices = list(choices) if choices is not None else None
@@ -21,12 +21,14 @@ class CommaDelimitedList(AnnotatedParamType):
     def get_type_annotation(self, param: click.Parameter) -> type:
         return list[str]
 
-    def get_metavar(self, param):
+    def get_metavar(self, param: click.Parameter) -> str:
         if self.choices is not None:
             return "{" + ",".join(self.choices) + "}"
         return "TEXT,TEXT,..."
 
-    def convert(self, value, param, ctx):
+    def convert(
+        self, value: str, param: click.Parameter | None, ctx: click.Context | None
+    ) -> list[str]:
         value = super().convert(value, param, ctx)
 
         # if `--foo` is a comma delimited list and someone passes
