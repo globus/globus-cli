@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 import datetime
 import re
 
@@ -41,7 +43,9 @@ class TimedeltaType(AnnotatedParamType):
             return int
         return datetime.timedelta
 
-    def convert(self, value, param, ctx):
+    def convert(
+        self, value: str, param: click.Parameter | None, ctx: click.Context | None
+    ) -> datetime.timedelta | int:
         matches = _timedelta_regex.match(value)
         if not matches:
             self.fail(f"couldn't parse timedelta: '{value}'")
