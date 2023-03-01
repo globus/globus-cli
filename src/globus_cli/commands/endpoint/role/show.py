@@ -1,5 +1,7 @@
 from __future__ import annotations
 
+import uuid
+
 from globus_cli.login_manager import LoginManager
 from globus_cli.parsing import command, endpoint_id_arg
 from globus_cli.termio import Field, TextMode, display
@@ -31,7 +33,9 @@ $ globus endpoint role show EP_ID ROLE_ID
 @endpoint_id_arg
 @role_id_arg
 @LoginManager.requires_login(LoginManager.AUTH_RS, LoginManager.TRANSFER_RS)
-def role_show(*, login_manager: LoginManager, endpoint_id, role_id):
+def role_show(
+    *, login_manager: LoginManager, endpoint_id: uuid.UUID, role_id: str
+) -> None:
     """
     Show full info for a role on an endpoint.
 

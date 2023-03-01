@@ -31,7 +31,7 @@ $ globus endpoint role list 'ddb59aef-6d04-11e5-ba46-22000b92c6ec'
 )
 @endpoint_id_arg
 @LoginManager.requires_login(LoginManager.AUTH_RS, LoginManager.TRANSFER_RS)
-def role_list(*, login_manager: LoginManager, endpoint_id: uuid.UUID):
+def role_list(*, login_manager: LoginManager, endpoint_id: uuid.UUID) -> None:
     """
     List the assigned roles on an endpoint.
 

@@ -19,6 +19,12 @@ from tests.click_types import check_has_correct_annotations_for_click_args
         ("collection.update", "collection_update"),
         ("endpoint.create", "endpoint_create"),
         ("endpoint.is_activated", "endpoint_is_activated"),
+        # TODO: role_create uses the security_principal_opts decorator, which transforms
+        # arguments. This needs to be refactored to be checkable using this method
+        # ("endpoint.role.create", "role_create"),
+        ("endpoint.role.delete", "role_delete"),
+        ("endpoint.role.list", "role_list"),
+        ("endpoint.role.show", "role_show"),
         ("endpoint.update", "endpoint_update"),
         ("gcp.create.guest", "guest_command"),
         ("gcp.create.mapped", "mapped_command"),

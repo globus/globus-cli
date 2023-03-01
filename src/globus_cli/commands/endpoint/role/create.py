@@ -1,8 +1,18 @@
+from __future__ import annotations
+
+import sys
+import uuid
+
 import click
 
 from globus_cli.login_manager import LoginManager
 from globus_cli.parsing import command, endpoint_id_arg, security_principal_opts
 from globus_cli.termio import display
+
+if sys.version_info < (3, 8):
+    from typing_extensions import Literal
+else:
+    from typing import Literal
 
 
 @command(
@@ -34,7 +44,15 @@ $ globus endpoint role create 'ddb59aef-6d04-11e5-ba46-22000b92c6ec' \
     help="A role to assign.",
 )
 @LoginManager.requires_login(LoginManager.AUTH_RS, LoginManager.TRANSFER_RS)
-def role_create(*, login_manager: LoginManager, role, principal, endpoint_id):
+def role_create(
+    *,
+    login_manager: LoginManager,
+    role: Literal[
+        "administrator", "access_manager", "activity_manager", "activity_monitor"
+    ],
+    principal: tuple[str, str],
+    endpoint_id: uuid.UUID,
+) -> None:
     """
     Create a role on an endpoint.
     You must have sufficient privileges to modify the roles on the endpoint.

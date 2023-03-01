@@ -1,3 +1,5 @@
+import uuid
+
 from globus_cli.login_manager import LoginManager
 from globus_cli.parsing import command, endpoint_id_arg
 from globus_cli.termio import TextMode, display
@@ -22,7 +24,9 @@ $ globus endpoint role delete 'ddb59aef-6d04-11e5-ba46-22000b92c6ec' \
 @endpoint_id_arg
 @role_id_arg
 @LoginManager.requires_login(LoginManager.TRANSFER_RS)
-def role_delete(*, login_manager: LoginManager, role_id, endpoint_id):
+def role_delete(
+    *, login_manager: LoginManager, role_id: str, endpoint_id: uuid.UUID
+) -> None:
     """
     Remove a role from an endpoint.
 
