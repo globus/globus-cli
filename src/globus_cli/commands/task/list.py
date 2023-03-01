@@ -193,7 +193,7 @@ def task_list(
 
     def _process_filterval(
         prefix: str,
-        value: str | t.Sequence[str | uuid.UUID],
+        value: str | t.Sequence[str | uuid.UUID] | None,
         default: str | None = None,
     ) -> str:
         if value:

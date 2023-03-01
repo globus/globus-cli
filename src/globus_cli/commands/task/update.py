@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 import uuid
 
 import click
@@ -34,7 +36,7 @@ def update_task(
     login_manager: LoginManager,
     deadline: str | None,
     label: str | None,
-    task_id: uuid.UUID
+    task_id: uuid.UUID,
 ) -> None:
     """
     Update label and/or deadline on an active task.
