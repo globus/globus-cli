@@ -13,7 +13,10 @@ from globus_cli.login_manager import (
     MissingLoginError,
     compute_timer_scope,
 )
-from globus_cli.login_manager.scopes import CLI_SCOPE_REQUIREMENTS
+from globus_cli.login_manager.scopes import (
+    CLI_SCOPE_REQUIREMENTS,
+    CURRENT_SCOPE_CONTRACT_VERSION,
+)
 from globus_cli.types import ServiceNameLiteral
 
 
@@ -52,7 +55,7 @@ def patched_tokenstorage():
         yield mock_adapter
 
 
-@pytest.fixture(autouse=True)
+@pytest.fixture
 def patch_scope_requirements():
     with pytest.MonkeyPatch().context() as mp:
         mp.setattr(
@@ -88,26 +91,28 @@ BASE_TIMER_SCOPE = urlfmt_scope("524230d7-ea86-4a52-8312-86065a9e0417", "timer")
 TRANSFER_AP_SCOPE = urlfmt_scope("actions.globus.org", "transfer/transfer")
 
 
-@pytest.mark.parametrize("use_rs_name", ("a", "a.globus.org"))
-def test_requires_login_success(patched_tokenstorage, use_rs_name):
+def test_requires_login_success(patch_scope_requirements, patched_tokenstorage):
     # single server
-    @LoginManager.requires_login(use_rs_name)
+    @LoginManager.requires_login("a")
     def dummy_command(login_manager):
         return True
 
     assert dummy_command()
 
 
-@pytest.mark.parametrize("use_rs_names", (("a", "b.globus.org"), ("b", "a")))
-def test_requires_login_multi_server_success(patched_tokenstorage, use_rs_names):
-    @LoginManager.requires_login(*use_rs_names)
+def test_requires_login_multi_server_success(
+    patch_scope_requirements, patched_tokenstorage
+):
+    @LoginManager.requires_login("a", "b")
     def dummy_command(login_manager):
         return True
 
     assert dummy_command()
 
 
-def test_requires_login_single_server_fail(patched_tokenstorage):
+def test_requires_login_single_server_fail(
+    patch_scope_requirements, patched_tokenstorage
+):
     @LoginManager.requires_login("c.globus.org")
     def dummy_command(login_manager):
         return True
@@ -120,11 +125,10 @@ def test_requires_login_single_server_fail(patched_tokenstorage):
     )
 
 
-@pytest.mark.parametrize("use_rs_name", ("a", "a.globus.org"))
-def test_requiring_new_scope_fails(patched_tokenstorage, use_rs_name):
+def test_requiring_new_scope_fails(patch_scope_requirements, patched_tokenstorage):
     CLI_SCOPE_REQUIREMENTS.requirement_map["a"]["scopes"].append("scopeA3")
 
-    @LoginManager.requires_login(use_rs_name)
+    @LoginManager.requires_login("a")
     def dummy_command(login_manager):
         return True
 
@@ -136,11 +140,10 @@ def test_requiring_new_scope_fails(patched_tokenstorage, use_rs_name):
     )
 
 
-@pytest.mark.parametrize("use_rs_name", ("a", "a.globus.org"))
-def test_scope_contract_version_bump_forces_login(patched_tokenstorage, use_rs_name):
+def test_scope_contract_version_bump_forces_login(patch_scope_requirements):
     CLI_SCOPE_REQUIREMENTS.requirement_map["a"]["min_contract_version"] = 2
 
-    @LoginManager.requires_login(use_rs_name)
+    @LoginManager.requires_login("a")
     def dummy_command(login_manager):
         return True
 
@@ -152,7 +155,9 @@ def test_scope_contract_version_bump_forces_login(patched_tokenstorage, use_rs_n
     )
 
 
-def test_requires_login_fail_two_servers(patched_tokenstorage):
+def test_requires_login_fail_two_servers(
+    patch_scope_requirements, patched_tokenstorage
+):
     @LoginManager.requires_login("c.globus.org", "d.globus.org")
     def dummy_command(login_manager):
         return True
@@ -169,7 +174,9 @@ def test_requires_login_fail_two_servers(patched_tokenstorage):
         assert server in str(ex.value)
 
 
-def test_requires_login_fail_multi_server(patched_tokenstorage):
+def test_requires_login_fail_multi_server(
+    patch_scope_requirements, patched_tokenstorage
+):
     @LoginManager.requires_login("c.globus.org", "d.globus.org", "e.globus.org")
     def dummy_command(login_manager):
         return True
@@ -185,7 +192,7 @@ def test_requires_login_fail_multi_server(patched_tokenstorage):
         assert server in str(ex.value)
 
 
-def test_requires_login_pass_manager(patched_tokenstorage):
+def test_requires_login_pass_manager(patch_scope_requirements, patched_tokenstorage):
     @LoginManager.requires_login()
     def dummy_command(login_manager):
         assert login_manager.has_login("a.globus.org")
@@ -222,10 +229,7 @@ def test_gcs_error_message(patched_tokenstorage):
     assert f"globus login --gcs {dummy_id}" in str(excinfo.value)
 
 
-def test_client_login_two_requirements(client_login, patch_scope_requirements):
-    # undo the scope requirements patch
-    patch_scope_requirements.undo()
-
+def test_client_login_two_requirements(client_login):
     @LoginManager.requires_login("transfer", "auth")
     def dummy_command(*, login_manager):
         transfer_client = login_manager.get_transfer_client()
@@ -243,8 +247,7 @@ def test_client_login_two_requirements(client_login, patch_scope_requirements):
     assert dummy_command()
 
 
-def test_client_login_gcs(client_login, add_gcs_login, patch_scope_requirements):
-    patch_scope_requirements.undo()
+def test_client_login_gcs(client_login, add_gcs_login):
     with mock.patch.object(LoginManager, "_get_gcs_info") as mock_get_gcs_info:
 
         class fake_endpointish:
@@ -308,12 +311,15 @@ def test_compute_timer_scope_multiple_data_access():
 
 
 @pytest.mark.skipif(sys.version_info < (3, 8), reason="test requires py3.8+")
-def test_cli_scope_requirements_exactly_match_service_name_literal(
-    patch_scope_requirements,
-):
-    # undo the scope requirements patch
-    patch_scope_requirements.undo()
+def test_cli_scope_requirements_exactly_match_service_name_literal():
     scope_requirements_keys = CLI_SCOPE_REQUIREMENTS.keys()
 
     service_name_literal_values = t.get_args(ServiceNameLiteral)
     assert set(service_name_literal_values) == set(scope_requirements_keys)
+
+
+def test_cli_scope_requirements_min_contract_version_matches_current():
+    expect_current_scope_contract_version = max(
+        req["min_contract_version"] for req in CLI_SCOPE_REQUIREMENTS.values()
+    )
+    assert CURRENT_SCOPE_CONTRACT_VERSION == expect_current_scope_contract_version

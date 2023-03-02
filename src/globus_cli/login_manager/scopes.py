@@ -17,9 +17,9 @@ from globus_sdk.scopes import (
 from globus_cli.types import ServiceNameLiteral
 
 if sys.version_info < (3, 8):
-    from typing_extensions import TypedDict
+    from typing_extensions import Final, TypedDict
 else:
-    from typing import TypedDict
+    from typing import Final, TypedDict
 
 TRANSFER_AP_SCOPE_STR: str = (
     "https://auth.globus.org/scopes/actions.globus.org/transfer/transfer"
@@ -136,8 +136,6 @@ CLI_SCOPE_REQUIREMENTS = _CLIScopeRequirements()
 # the contract version number for the LoginManager's scope behavior
 # this will be annotated on every token acquired and stored, in order to see what
 # version we were at when we got a token
-# it is defined as the max of the version numbers required by the various different
+# it should be the max of the version numbers required by the various different
 # services
-CURRENT_SCOPE_CONTRACT_VERSION: int = max(
-    req["min_contract_version"] for req in CLI_SCOPE_REQUIREMENTS.values()
-)
+CURRENT_SCOPE_CONTRACT_VERSION: Final[int] = 1
