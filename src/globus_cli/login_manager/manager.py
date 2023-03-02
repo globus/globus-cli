@@ -177,20 +177,15 @@ class LoginManager:
             )
 
     @classmethod
-    def requires_login(cls, *resource_servers: ServiceNameLiteral):
+    def requires_login(cls, *services: ServiceNameLiteral):
         """
         Command decorator for specifying a resource server that the user must have
         tokens for in order to run the command.
 
         Simple usage for commands that have static resource needs: simply list all
-        needed resource servers as args. Known services can be referred to by
-        "short names":
-
-        @LoginManager.requires_login("auth.globus.org")
+        needed services as args. Services should be referred to by "short names":
 
         @LoginManager.requires_login("auth")
-
-        @LoginManager.requires_login("auth.globus.org", "transfer.api.globus.org")
 
         @LoginManager.requires_login("auth", "transfer")
 
@@ -201,20 +196,19 @@ class LoginManager:
         def command(login_manager, endpoint_id)
 
             login_manager.<do the thing>(endpoint_id)
-
         """
-        resolved_resource_server_names = [
+        resource_servers = [
             rs_name
             if rs_name not in CLI_SCOPE_REQUIREMENTS
             else CLI_SCOPE_REQUIREMENTS[rs_name]["resource_server"]
-            for rs_name in resource_servers
+            for rs_name in services
         ]
 
         def inner(func):
             @functools.wraps(func)
             def wrapper(*args, **kwargs):
                 manager = cls()
-                manager.assert_logins(*resolved_resource_server_names)
+                manager.assert_logins(*resource_servers)
                 return func(*args, login_manager=manager, **kwargs)
 
             return wrapper
