@@ -21,7 +21,7 @@ from globus_cli.termio import Field, TextMode, display, formatters
         "this UUID"
     ),
 )
-@LoginManager.requires_login("transfer", "auth")
+@LoginManager.requires_login("auth", "transfer")
 def user_credential_list(
     *,
     login_manager: LoginManager,

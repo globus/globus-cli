@@ -10,7 +10,7 @@ from ._common import user_credential_id_arg
 @command("show", short_help="Show a specific User Credential on an Endpoint")
 @endpoint_id_arg
 @user_credential_id_arg
-@LoginManager.requires_login("transfer", "auth")
+@LoginManager.requires_login("auth", "transfer")
 def user_credential_show(
     *,
     login_manager: LoginManager,

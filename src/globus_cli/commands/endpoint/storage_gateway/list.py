@@ -17,7 +17,7 @@ STANDARD_FIELDS = [
     "endpoint_id",
     metavar="ENDPOINT_ID",
 )
-@LoginManager.requires_login("transfer", "auth")
+@LoginManager.requires_login("auth", "transfer")
 def storage_gateway_list(
     *,
     login_manager: LoginManager,

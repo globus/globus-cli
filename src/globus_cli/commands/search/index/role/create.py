@@ -26,7 +26,7 @@ from ..._common import index_id_arg, resolved_principals_field
         "principal as a URN."
     ),
 )
-@LoginManager.requires_login("search", "auth")
+@LoginManager.requires_login("auth", "search")
 def create_command(
     *,
     index_id: uuid.UUID,

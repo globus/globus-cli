@@ -121,7 +121,7 @@ class _FullDataField(Field):
     type_annotation=t.Union[ListType[str], None, ExplicitNullType],
 )
 @mutex_option_group("--enable-https", "--disable-https")
-@LoginManager.requires_login("transfer", "auth")
+@LoginManager.requires_login("auth", "transfer")
 def collection_update(
     *,
     login_manager: LoginManager,

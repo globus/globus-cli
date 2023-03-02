@@ -14,7 +14,7 @@ from .._common import user_credential_create_and_update_params
 @command("posix", short_help="Create a User Credential for a POSIX storage gateway")
 @endpoint_id_arg
 @user_credential_create_and_update_params(create=True)
-@LoginManager.requires_login("transfer", "auth")
+@LoginManager.requires_login("auth", "transfer")
 def posix(
     *,
     login_manager: LoginManager,
