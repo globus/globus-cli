@@ -1,4 +1,6 @@
 import re
+import sys
+import typing as t
 import uuid
 from unittest import mock
 
@@ -12,6 +14,7 @@ from globus_cli.login_manager import (
     compute_timer_scope,
 )
 from globus_cli.login_manager.scopes import CLI_SCOPE_REQUIREMENTS
+from globus_cli.types import ServiceNameLiteral
 
 
 @pytest.fixture
@@ -302,3 +305,15 @@ def test_compute_timer_scope_multiple_data_access():
     start_part = f"{BASE_TIMER_SCOPE}[{TRANSFER_AP_SCOPE}[{transfer_scope}["
     end_part = "]]]"
     assert computed == f"{start_part}*{foo_scope} *{bar_scope} *{baz_scope}{end_part}"
+
+
+@pytest.mark.skipif(sys.version_info < (3, 8), reason="test requires py3.8+")
+def test_cli_scope_requirements_exactly_match_service_name_literal(
+    patch_scope_requirements,
+):
+    # undo the scope requirements patch
+    patch_scope_requirements.undo()
+    scope_requirements_keys = CLI_SCOPE_REQUIREMENTS.keys()
+
+    service_name_literal_values = t.get_args(ServiceNameLiteral)
+    assert set(service_name_literal_values) == set(scope_requirements_keys)
