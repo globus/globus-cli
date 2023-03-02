@@ -299,5 +299,5 @@ sends a 'GET' request to '{_get_url(service_name)}foo/bar'
     return t.cast(click.Command, service_command)
 
 
-for service_name in CLI_SCOPE_REQUIREMENTS.keys():
+for service_name in CLI_SCOPE_REQUIREMENTS:
     api_command.add_command(build_command(service_name))

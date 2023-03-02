@@ -54,81 +54,67 @@ class _ServiceRequirement(TypedDict):
     scopes: list[str | MutableScope]
 
 
-class _CLIScopeRequirements:
+class _CLIScopeRequirements(dict[ServiceNameLiteral, _ServiceRequirement]):
     def __init__(self) -> None:
-        self.requirement_map: dict[ServiceNameLiteral, _ServiceRequirement] = {
-            "auth": {
-                "min_contract_version": 0,
-                "resource_server": AuthScopes.resource_server,
-                "scopes": [
-                    AuthScopes.openid,
-                    AuthScopes.profile,
-                    AuthScopes.email,
-                    AuthScopes.view_identity_set,
-                ],
-            },
-            "transfer": {
-                "min_contract_version": 0,
-                "resource_server": TransferScopes.resource_server,
-                "scopes": [
-                    TransferScopes.all,
-                ],
-            },
-            "groups": {
-                "min_contract_version": 0,
-                "resource_server": GroupsScopes.resource_server,
-                "scopes": [
-                    GroupsScopes.all,
-                ],
-            },
-            "search": {
-                "min_contract_version": 0,
-                "resource_server": SearchScopes.resource_server,
-                "scopes": [
-                    SearchScopes.all,
-                ],
-            },
-            "timer": {
-                "min_contract_version": 1,
-                "resource_server": TimerScopes.resource_server,
-                "scopes": [
-                    TIMER_SCOPE_WITH_DEPENDENCIES,
-                ],
-            },
-            "flows": {
-                "min_contract_version": 0,
-                "resource_server": FlowsScopes.resource_server,
-                "scopes": [
-                    FlowsScopes.manage_flows,
-                    FlowsScopes.view_flows,
-                    FlowsScopes.run,
-                    FlowsScopes.run_status,
-                    FlowsScopes.run_manage,
-                ],
-            },
+        self["auth"] = {
+            "min_contract_version": 0,
+            "resource_server": AuthScopes.resource_server,
+            "scopes": [
+                AuthScopes.openid,
+                AuthScopes.profile,
+                AuthScopes.email,
+                AuthScopes.view_identity_set,
+            ],
         }
-
-    def __getitem__(self, key: ServiceNameLiteral) -> _ServiceRequirement:
-        return self.requirement_map[key]
-
-    def get_by_resource_server(self, rs_name: str) -> _ServiceRequirement:
-        for req in self.requirement_map.values():
-            if req["resource_server"] == rs_name:
-                return req
-
-        raise LookupError(f"{rs_name} was not a listed service requirement for the CLI")
-
-    def __contains__(self, key: str) -> bool:
-        return key in self.requirement_map
+        self["transfer"] = {
+            "min_contract_version": 0,
+            "resource_server": TransferScopes.resource_server,
+            "scopes": [
+                TransferScopes.all,
+            ],
+        }
+        self["groups"] = {
+            "min_contract_version": 0,
+            "resource_server": GroupsScopes.resource_server,
+            "scopes": [
+                GroupsScopes.all,
+            ],
+        }
+        self["search"] = {
+            "min_contract_version": 0,
+            "resource_server": SearchScopes.resource_server,
+            "scopes": [
+                SearchScopes.all,
+            ],
+        }
+        self["timer"] = {
+            "min_contract_version": 1,
+            "resource_server": TimerScopes.resource_server,
+            "scopes": [
+                TIMER_SCOPE_WITH_DEPENDENCIES,
+            ],
+        }
+        self["flows"] = {
+            "min_contract_version": 0,
+            "resource_server": FlowsScopes.resource_server,
+            "scopes": [
+                FlowsScopes.manage_flows,
+                FlowsScopes.view_flows,
+                FlowsScopes.run,
+                FlowsScopes.run_status,
+                FlowsScopes.run_manage,
+            ],
+        }
 
     def resource_servers(self) -> frozenset[str]:
         return frozenset(req["resource_server"] for req in self.values())
 
-    def keys(self) -> t.Iterable[ServiceNameLiteral]:
-        yield from self.requirement_map.keys()
+    def get_by_resource_server(self, rs_name: str) -> _ServiceRequirement:
+        for req in self.values():
+            if req["resource_server"] == rs_name:
+                return req
 
-    def values(self) -> t.Iterable[_ServiceRequirement]:
-        yield from self.requirement_map.values()
+        raise LookupError(f"{rs_name} was not a listed service requirement for the CLI")
 
 
 CLI_SCOPE_REQUIREMENTS = _CLIScopeRequirements()

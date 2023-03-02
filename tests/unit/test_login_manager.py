@@ -312,7 +312,7 @@ def test_compute_timer_scope_multiple_data_access():
 
 @pytest.mark.skipif(sys.version_info < (3, 8), reason="test requires py3.8+")
 def test_cli_scope_requirements_exactly_match_service_name_literal():
-    scope_requirements_keys = CLI_SCOPE_REQUIREMENTS.keys()
+    scope_requirements_keys = list(CLI_SCOPE_REQUIREMENTS)
 
     service_name_literal_values = t.get_args(ServiceNameLiteral)
     assert set(service_name_literal_values) == set(scope_requirements_keys)
