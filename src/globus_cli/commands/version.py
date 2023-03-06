@@ -12,7 +12,7 @@ from globus_cli.termio import is_verbose, verbosity
 from globus_cli.version import get_versions
 
 if t.TYPE_CHECKING:
-    from distutils.version import LooseVersion
+    from packaging.version import Version
 
 
 def _get_package_data() -> list[list[str]]:
@@ -57,13 +57,13 @@ def _get_package_data() -> list[list[str]]:
     return moddata
 
 
-def _get_versionblock_message(current: LooseVersion, latest: LooseVersion) -> str:
+def _get_versionblock_message(current: Version, latest: Version) -> str:
     return f"""\
 Installed version:  {current}
 Latest version:     {latest}"""
 
 
-def _get_post_message(current: LooseVersion, latest: LooseVersion) -> str:
+def _get_post_message(current: Version, latest: Version) -> str:
     if current == latest:
         return "You are running the latest version of the Globus CLI"
     if current > latest:
