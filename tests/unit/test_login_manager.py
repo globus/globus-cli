@@ -58,26 +58,33 @@ def patched_tokenstorage():
 @pytest.fixture
 def patch_scope_requirements():
     with pytest.MonkeyPatch().context() as mp:
-        mp.setattr(
+        prior_keys = list(CLI_SCOPE_REQUIREMENTS)
+        # clear prior contents
+        for k in prior_keys:
+            mp.delitem(CLI_SCOPE_REQUIREMENTS, k)
+
+        mp.setitem(
             CLI_SCOPE_REQUIREMENTS,
-            "requirement_map",
+            "a",
             {
-                "a": {
-                    "min_contract_version": 0,
-                    "resource_server": "a.globus.org",
-                    "scopes": [
-                        "scopeA1",
-                        "scopeA2",
-                    ],
-                },
-                "b": {
-                    "min_contract_version": 0,
-                    "resource_server": "b.globus.org",
-                    "scopes": [
-                        "scopeB1",
-                        "scopeB2",
-                    ],
-                },
+                "min_contract_version": 0,
+                "resource_server": "a.globus.org",
+                "scopes": [
+                    "scopeA1",
+                    "scopeA2",
+                ],
+            },
+        )
+        mp.setitem(
+            CLI_SCOPE_REQUIREMENTS,
+            "b",
+            {
+                "min_contract_version": 0,
+                "resource_server": "b.globus.org",
+                "scopes": [
+                    "scopeB1",
+                    "scopeB2",
+                ],
             },
         )
         yield mp
@@ -126,7 +133,7 @@ def test_requires_login_single_server_fail(
 
 
 def test_requiring_new_scope_fails(patch_scope_requirements, patched_tokenstorage):
-    CLI_SCOPE_REQUIREMENTS.requirement_map["a"]["scopes"].append("scopeA3")
+    CLI_SCOPE_REQUIREMENTS["a"]["scopes"].append("scopeA3")
 
     @LoginManager.requires_login("a")
     def dummy_command(login_manager):
@@ -141,7 +148,7 @@ def test_requiring_new_scope_fails(patch_scope_requirements, patched_tokenstorag
 
 
 def test_scope_contract_version_bump_forces_login(patch_scope_requirements):
-    CLI_SCOPE_REQUIREMENTS.requirement_map["a"]["min_contract_version"] = 2
+    CLI_SCOPE_REQUIREMENTS["a"]["min_contract_version"] = 2
 
     @LoginManager.requires_login("a")
     def dummy_command(login_manager):
