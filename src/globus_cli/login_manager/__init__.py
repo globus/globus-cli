@@ -15,7 +15,6 @@ from .utils import is_remote_session
 
 __all__ = [
     "MissingLoginError",
-    "compute_timer_scope",
     "is_remote_session",
     "LoginManager",
     "delete_templated_client",
