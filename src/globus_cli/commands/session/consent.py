@@ -42,7 +42,7 @@ def session_consent(
 
     if timer_data_access:
         scope_list.append(
-            str(compute_timer_scope(data_access_collection_ids=timer_data_access))
+            compute_timer_scope(data_access_collection_ids=timer_data_access)
         )
     if not scope_list:
         raise click.UsageError(
