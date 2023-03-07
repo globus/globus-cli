@@ -16,9 +16,10 @@ class Abort(RuntimeError):
 
 
 def bump_version_in_file(
-    smudge_value: str,
+    dev_version: int,
 ) -> None:
-    print(f"smudging version in {PRETTYPATH} (smudge={smudge_value}) ... ", end="")
+    dev_slug = f"dev{dev_version}"
+    print(f"setting dev version in {PRETTYPATH} ({dev_slug}) ... ", end="")
     with open(VERSION_PATH) as fp:
         content = fp.read()
     match = re.search('^__version__ = "([^"]+)"$', content, flags=re.MULTILINE)
@@ -27,15 +28,15 @@ def bump_version_in_file(
 
     old_version = match.group(1)
     old_str = f'__version__ = "{old_version}"'
-    new_str = f'__version__ = "{old_version}.{smudge_value}"'
+    new_str = f'__version__ = "{old_version}.{dev_slug}"'
     content = content.replace(old_str, new_str)
     with open(VERSION_PATH, "w") as fp:
         fp.write(content)
     print("ok")
 
 
-def revert_smudge() -> None:
-    print(f"reverting smudged version in {PRETTYPATH} ... ", end="")
+def revert_version() -> None:
+    print(f"reverting dev version in {PRETTYPATH} ... ", end="")
     with open(VERSION_PATH) as fp:
         content = fp.read()
     match = re.search('^__version__ = "([^"]+)"$', content, flags=re.MULTILINE)
@@ -43,9 +44,9 @@ def revert_smudge() -> None:
         raise Abort(f"{PRETTYPATH} did not contain version pattern")
 
     old_version = match.group(1)
-    unsmudged = ".".join(old_version.split(".")[:3])
+    restored = ".".join(old_version.split(".")[:3])
     old_str = f'__version__ = "{old_version}"'
-    new_str = f'__version__ = "{unsmudged}"'
+    new_str = f'__version__ = "{restored}"'
     content = content.replace(old_str, new_str)
     with open(VERSION_PATH, "w") as fp:
         fp.write(content)
@@ -55,23 +56,24 @@ def revert_smudge() -> None:
 def main() -> None:
     parser = argparse.ArgumentParser()
     parser.add_argument(
-        "--smudge-value",
-        help="set a smudge value -- defaults to 'devX' where 'X' is the epoch",
+        "--number",
+        type=int,
+        help="set the development release number -- defaults to 'int(time.time())'",
     )
     parser.add_argument(
         "--revert",
         action="store_true",
-        help="remove any smudge value from the version",
+        help="remove any 'dev' version specifier from the version",
     )
     args = parser.parse_args()
 
-    if not args.smudge_value:
-        args.smudge_value = f"dev{int(time.time())}"
+    if not args.number:
+        args.number = int(time.time())
 
     if args.revert:
-        revert_smudge()
+        revert_version()
     else:
-        bump_version_in_file(args.smudge_value)
+        bump_version_in_file(args.number)
 
 
 if __name__ == "__main__":
