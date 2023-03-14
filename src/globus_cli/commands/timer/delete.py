@@ -9,7 +9,7 @@ from globus_cli.termio import TextMode, display
 from ._common import DELETED_JOB_FORMAT_FIELDS
 
 
-@command("delete", short_help="Delete a timer job", hidden=True)
+@command("delete", short_help="Delete a timer job")
 @click.argument("JOB_ID", type=click.UUID)
 @LoginManager.requires_login("timer")
 def delete_command(*, login_manager: LoginManager, job_id: uuid.UUID) -> None:
