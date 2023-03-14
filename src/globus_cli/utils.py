@@ -9,6 +9,24 @@ from globus_cli.types import DATA_CONTAINER_T, ClickContextTree
 F = t.TypeVar("F", bound=t.Callable)
 
 
+def unquote_cmdprompt_single_quotes(arg: str) -> str:
+    """
+    remove leading and trailing single quotes from a string when
+    there is a leading and trailing single quote
+
+    per the name of this function, it is meant to provide compatibility
+    with cmdprompt which interprets inputs like
+
+        $ mycmd 'foo'
+
+    as including the single quote chars and passes "'foo'" to our
+    commands
+    """
+    if len(arg) >= 2 and arg[0] == "'" and arg[-1] == "'":
+        return arg[1:-1]
+    return arg
+
+
 def fold_decorators(f: F, decorators: list[t.Callable[[F], F]]) -> F:
     for deco in decorators:
         f = deco(f)
