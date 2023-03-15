@@ -51,6 +51,7 @@ TIMER_SCOPE_WITH_DEPENDENCIES = compute_timer_scope()
 class _ServiceRequirement(TypedDict):
     min_contract_version: int
     resource_server: str
+    nice_server_name: str
     scopes: list[str | MutableScope]
 
 
@@ -59,6 +60,7 @@ class _CLIScopeRequirements(t.Dict[ServiceNameLiteral, _ServiceRequirement]):
         self["auth"] = {
             "min_contract_version": 0,
             "resource_server": AuthScopes.resource_server,
+            "nice_server_name": "Globus Auth",
             "scopes": [
                 AuthScopes.openid,
                 AuthScopes.profile,
@@ -69,6 +71,7 @@ class _CLIScopeRequirements(t.Dict[ServiceNameLiteral, _ServiceRequirement]):
         self["transfer"] = {
             "min_contract_version": 0,
             "resource_server": TransferScopes.resource_server,
+            "nice_server_name": "Globus Transfer",
             "scopes": [
                 TransferScopes.all,
             ],
@@ -76,6 +79,7 @@ class _CLIScopeRequirements(t.Dict[ServiceNameLiteral, _ServiceRequirement]):
         self["groups"] = {
             "min_contract_version": 0,
             "resource_server": GroupsScopes.resource_server,
+            "nice_server_name": "Globus Groups",
             "scopes": [
                 GroupsScopes.all,
             ],
@@ -83,6 +87,7 @@ class _CLIScopeRequirements(t.Dict[ServiceNameLiteral, _ServiceRequirement]):
         self["search"] = {
             "min_contract_version": 0,
             "resource_server": SearchScopes.resource_server,
+            "nice_server_name": "Globus Search",
             "scopes": [
                 SearchScopes.all,
             ],
@@ -90,6 +95,7 @@ class _CLIScopeRequirements(t.Dict[ServiceNameLiteral, _ServiceRequirement]):
         self["timer"] = {
             "min_contract_version": 1,
             "resource_server": TimerScopes.resource_server,
+            "nice_server_name": "Globus Timers",
             "scopes": [
                 TIMER_SCOPE_WITH_DEPENDENCIES,
             ],
@@ -97,6 +103,7 @@ class _CLIScopeRequirements(t.Dict[ServiceNameLiteral, _ServiceRequirement]):
         self["flows"] = {
             "min_contract_version": 0,
             "resource_server": FlowsScopes.resource_server,
+            "nice_server_name": "Globus Flows",
             "scopes": [
                 FlowsScopes.manage_flows,
                 FlowsScopes.view_flows,

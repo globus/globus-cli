@@ -69,6 +69,7 @@ def patch_scope_requirements():
             {
                 "min_contract_version": 0,
                 "resource_server": "a.globus.org",
+                "nice_server_name": "A is for Awesome",
                 "scopes": [
                     "scopeA1",
                     "scopeA2",
@@ -81,6 +82,7 @@ def patch_scope_requirements():
             {
                 "min_contract_version": 0,
                 "resource_server": "b.globus.org",
+                "nice_server_name": "B Cool",
                 "scopes": [
                     "scopeB1",
                     "scopeB2",
@@ -128,7 +130,23 @@ def test_requires_login_single_server_fail(
         dummy_command()
 
     assert str(ex.value) == (
-        "Missing login for c.globus.org, please run\n\n  globus login\n"
+        "Missing login for c.globus.org, please run:\n\n  globus login\n"
+    )
+
+
+def test_requiring_login_for_multiple_known_servers_renders_nice_error(
+    patch_scope_requirements,
+):
+    @LoginManager.requires_login("a", "b")
+    def dummy_command(login_manager):
+        return True
+
+    with pytest.raises(MissingLoginError) as ex:
+        dummy_command()
+
+    assert str(ex.value) == (
+        "Missing logins for A is for Awesome and B Cool, please run:"
+        "\n\n  globus login\n"
     )
 
 
@@ -143,7 +161,7 @@ def test_requiring_new_scope_fails(patch_scope_requirements, patched_tokenstorag
         dummy_command()
 
     assert str(ex.value) == (
-        "Missing login for a.globus.org, please run\n\n  globus login\n"
+        "Missing login for A is for Awesome, please run:\n\n  globus login\n"
     )
 
 
@@ -158,7 +176,7 @@ def test_scope_contract_version_bump_forces_login(patch_scope_requirements):
         dummy_command()
 
     assert str(ex.value) == (
-        "Missing login for a.globus.org, please run\n\n  globus login\n"
+        "Missing login for A is for Awesome, please run:\n\n  globus login\n"
     )
 
 
@@ -174,7 +192,7 @@ def test_requires_login_fail_two_servers(
 
     assert re.match(
         "Missing logins for ..globus.org and ..globus.org, "
-        "please run\n\n  globus login\n",
+        "please run:\n\n  globus login\n",
         str(ex.value),
     )
     for server in ("c.globus.org", "d.globus.org"):
