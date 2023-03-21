@@ -3,10 +3,10 @@ import json
 from globus_sdk._testing import load_response_set
 
 
-def test_exclude(run_line, go_ep1_id, go_ep2_id):
+def test_filter_rules(run_line, go_ep1_id, go_ep2_id):
     """
-    Submits two --exclude options on a transfer, confirms they show up
-    in --dry-run output
+    Submits two --exclude and two --include options on a transfer, confirms
+    they show up the correct order in --dry-run output
     """
     # put a submission ID and autoactivate response in place
     load_response_set("cli.get_submission_id")
@@ -14,13 +14,36 @@ def test_exclude(run_line, go_ep1_id, go_ep2_id):
 
     result = run_line(
         "globus transfer -F json --dry-run -r "
-        "--exclude *.txt --exclude *.pdf "
+        "--exclude foo --include bar "
+        "--include baz --exclude qux "
         "{}:/ {}:/".format(go_ep1_id, go_ep1_id)
     )
 
     expected_filter_rules = [
-        {"DATA_TYPE": "filter_rule", "method": "exclude", "name": "*.txt"},
-        {"DATA_TYPE": "filter_rule", "method": "exclude", "name": "*.pdf"},
+        {
+            "DATA_TYPE": "filter_rule",
+            "method": "exclude",
+            "name": "foo",
+            "type": "file",
+        },
+        {
+            "DATA_TYPE": "filter_rule",
+            "method": "include",
+            "name": "bar",
+            "type": "file",
+        },
+        {
+            "DATA_TYPE": "filter_rule",
+            "method": "include",
+            "name": "baz",
+            "type": "file",
+        },
+        {
+            "DATA_TYPE": "filter_rule",
+            "method": "exclude",
+            "name": "qux",
+            "type": "file",
+        },
     ]
 
     json_output = json.loads(result.output)
@@ -38,7 +61,10 @@ def test_exlude_recursive(run_line, go_ep1_id, go_ep2_id):
         "globus transfer --exclude *.txt " "{}:/ {}:/".format(go_ep1_id, go_ep1_id),
         assert_exit_code=2,
     )
-    assert "--exclude can only be used with --recursive transfers" in result.stderr
+    assert (
+        "--include and --exclude can only be used with --recursive transfers"
+        in result.stderr
+    )
 
 
 def test_exlude_recursive_batch_stdin(run_line, go_ep1_id, go_ep2_id):
@@ -49,7 +75,10 @@ def test_exlude_recursive_batch_stdin(run_line, go_ep1_id, go_ep2_id):
         stdin="abc /def\n",
         assert_exit_code=2,
     )
-    assert "--exclude can only be used with --recursive transfers" in result.stderr
+    assert (
+        "--include and --exclude can only be used with --recursive transfers"
+        in result.stderr
+    )
 
 
 def test_exlude_recursive_batch_file(run_line, go_ep1_id, go_ep2_id, tmp_path):
@@ -69,4 +98,7 @@ def test_exlude_recursive_batch_file(run_line, go_ep1_id, go_ep2_id, tmp_path):
         ],
         assert_exit_code=2,
     )
-    assert "--exclude can only be used with --recursive transfers" in result.stderr
+    assert (
+        "--include and --exclude can only be used with --recursive transfers"
+        in result.stderr
+    )

@@ -46,6 +46,7 @@ class GlobusCommand(click.Command):
         self.globus_disable_opts = kwargs.pop("globus_disable_opts", [])
         self.adoc_exit_status = kwargs.pop("adoc_exit_status", None)
         self.adoc_synopsis = kwargs.pop("adoc_synopsis", None)
+        self.opts_to_combine = kwargs.pop("opts_to_combine", {})
 
         helptext = kwargs.pop("help", None)
         if helptext:
@@ -74,7 +75,28 @@ class GlobusCommand(click.Command):
         # args will be consumed, so check it before super()
         had_args = bool(args)
         try:
+            # if we have any opts to be combined in order, do that now
+            if self.opts_to_combine:
+                combined_opts: dict[str, list[tuple[str, str]]] = {
+                    combined_name: [] for combined_name in self.opts_to_combine.values()
+                }
+                parser = self.make_parser(ctx)
+                values, _, order = parser.parse_args(args=list(args))
+                # values is a dict of value lists keyed by their option name
+                # in order for that value and opts is a list of option names
+                # in the order they were given at the command line
+                # we want a list of (name, value) tuples for multiple options
+                # in the order they were given at the command line
+                for opt in order:
+                    if opt.name and opt.name in self.opts_to_combine:
+                        value = values[opt.name].pop(0)
+                        combined_name = self.opts_to_combine[opt.name]
+                        combined_opts[combined_name].append((opt.name, value))
+
+                ctx.params.update(combined_opts)
+
             return super().parse_args(ctx, args)
+
         except click.MissingParameter as e:
             if not had_args:
                 click.secho(e.format_message(), fg="yellow", err=True)

@@ -33,6 +33,10 @@ else:
 
 @command(
     "transfer",
+    opts_to_combine={
+        "include": "filter_rules",
+        "exclude": "filter_rules",
+    },
     short_help="Submit a transfer task (asynchronous)",
     adoc_examples="""Transfer a single file:
 
@@ -161,14 +165,29 @@ fi
     help=("Specify an algorithm for --external-checksum or --verify-checksum"),
 )
 @click.option(
+    "--include",
+    multiple=True,
+    show_default=True,
+    expose_value=False,  # this is combined into the filter_rules parameter
+    help=(
+        "Include files found with names that match the given pattern in "
+        "recursive transfers. Pattern may include * ? or [] for unix style "
+        "globbing. This option can be given multiple times along with "
+        "--exclude to control which files are transferred, with earlier "
+        "options having priority."
+    ),
+)
+@click.option(
     "--exclude",
     multiple=True,
     show_default=True,
+    expose_value=False,  # this is combined into the filter_rules parameter
     help=(
-        "Exclude files and directories found with names that match the given "
-        "pattern in recursive transfers. Pattern may include * ? or [] for "
-        "unix style globbing. Give this option multiple times to exclude "
-        "multiple patterns."
+        "Exclude files found with names that match the given pattern in "
+        "recursive transfers. Pattern may include * ? or [] for unix style "
+        "globbing. This option can be given multiple times along with "
+        "--include to control which files are transferred, with earlier "
+        "options having priority."
     ),
 )
 @click.option("--perf-cc", type=int, hidden=True)
@@ -189,7 +208,7 @@ def transfer_command(
     external_checksum: str | None,
     skip_source_errors: bool,
     fail_on_quota_errors: bool,
-    exclude: tuple[str, ...],
+    filter_rules: list[tuple[Literal["include", "exclude"], str]],
     label: str | None,
     preserve_timestamp: bool,
     verify_checksum: bool,
@@ -269,6 +288,20 @@ def transfer_command(
     If a transfer fails, CHECKSUM must be used to restart the transfer.
     All other levels can lead to data corruption.
 
+    \b
+    === Include and Exclude
+
+    The `--include` and `--exclude` options are evaluated in order together
+    to determine which files are transferred during recursive transfers.
+    Earlier `--include` and `exclude` options have priority over later such
+    options, with the first option that matches the name of a file being
+    applied. A file that does not match any `--include` or `exclude` options
+    is included by default, making the `--include` option only useful for
+    overriding later `--exclude` options.
+
+    For example, `globus transfer --include *.txt --exclude * ...` will
+    only transfer files ending in .txt found within the directory structure
+
     {AUTOMATIC_ACTIVATION}
     """
     from globus_cli.services.transfer import add_batch_to_transfer_data, autoactivate
@@ -321,8 +354,9 @@ def transfer_command(
         additional_fields={**perf_opts, **notify},
     )
 
-    for exclude_name in exclude:
-        transfer_data.add_filter_rule(exclude_name)
+    for rule in filter_rules:
+        method, name = rule
+        transfer_data.add_filter_rule(method=method, name=name, type="file")
 
     if batch:
         add_batch_to_transfer_data(
@@ -348,8 +382,10 @@ def transfer_command(
     else:
         has_recursive_items = False
 
-    if exclude and not has_recursive_items:
-        raise click.UsageError("--exclude can only be used with --recursive transfers")
+    if filter_rules and not has_recursive_items:
+        raise click.UsageError(
+            "--include and --exclude can only be used with --recursive transfers"
+        )
 
     if dry_run:
         display(
