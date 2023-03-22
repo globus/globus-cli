@@ -135,5 +135,5 @@ HTML_TEMPLATE = Template(
 )
 
 DOC_URL = """
-<a href="https://globus.github.io/globus-cli/">CLI Documentation</a>
+<a href="https://docs.globus.org/cli/">CLI Documentation</a>
 """
