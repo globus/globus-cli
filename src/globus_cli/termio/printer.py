@@ -12,6 +12,7 @@ from globus_cli.utils import CLIStubResponse
 from .awscli_text import unix_display
 from .context import get_jmespath_expression, outformat_is_json, outformat_is_unix
 from .field import Field
+from .server_timing import maybe_show_server_timing
 
 
 class TextMode(enum.Enum):
@@ -186,6 +187,9 @@ def display(
     gets a string. Necessary for certain formats like text table (text output
     only)
     """
+
+    if isinstance(response_data, globus_sdk.GlobusHTTPResponse):
+        maybe_show_server_timing(response_data)
 
     def _assert_fields():
         if fields is None:
