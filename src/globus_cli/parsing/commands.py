@@ -83,7 +83,7 @@ class GlobusCommand(click.Command):
                 parser = self.make_parser(ctx)
                 values, _, order = parser.parse_args(args=list(args))
                 # values is a dict of value lists keyed by their option name
-                # in order for that value and opts is a list of option names
+                # in order for that value and order is a list of option names
                 # in the order they were given at the command line
                 # we want a list of (name, value) tuples for multiple options
                 # in the order they were given at the command line
