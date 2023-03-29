@@ -300,7 +300,7 @@ def transfer_command(
     overriding later `--exclude` options.
 
     For example, `globus transfer --include *.txt --exclude * ...` will
-    only transfer files ending in .txt found within the directory structure
+    only transfer files ending in .txt found within the directory structure.
 
     {AUTOMATIC_ACTIVATION}
     """
