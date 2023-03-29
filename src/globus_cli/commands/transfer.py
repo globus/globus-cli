@@ -184,7 +184,7 @@ fi
     expose_value=False,  # this is combined into the filter_rules parameter
     help=(
         "Exclude files found with names that match the given pattern in "
-        "recursive transfers. Pattern may include * ? or [] for unix style "
+        'recursive transfers. Pattern may include "*", "?", or "[]" for Unix-style '
         "globbing. This option can be given multiple times along with "
         "--include to control which files are transferred, with earlier "
         "options having priority."
