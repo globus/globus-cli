@@ -90,9 +90,7 @@ class ServerTimingParser(abc.ABC):
             try:
                 ret.append(self.parse_single_metric(item))
             except ServerTimingParseError:
-                if skip_errors:
-                    pass
-                else:
+                if not skip_errors:
                     raise
         return ret
 
@@ -122,33 +120,30 @@ class Draft2017Parser(ServerTimingParser):
     spec_reference = "https://www.w3.org/TR/2017/WD-server-timing-20171018/"
 
     def parse_single_metric(self, metric_str: str) -> Metric:
-        parts = [p.strip() for p in metric_str.split(";")]
-        if len(parts) == 1:
-            return _parse_simple_metric_part(parts[0])
-        elif len(parts) == 2:
-            metric = _parse_simple_metric_part(parts[0])
-            metric.description = parts[1].strip('"')
-            return metric
-        else:
+        part, *optionals = [p.strip() for p in metric_str.split(";")]
+        if len(optionals) > 1:
             raise ServerTimingParseError(
                 "Too many semicolons in timing item, cannot parse"
             )
+        metric = _parse_simple_metric_part(part)
+        if optionals:
+            metric.description = optionals[0].strip('"')
+        return metric
 
 
 def _parse_simple_metric_part(metric: str) -> Metric:
-    metric = metric.strip()
     if not metric:
         raise ServerTimingParseError("encountered empty metric")
 
-    if "=" in metric:
-        name, _, unparsed_value = metric.partition("=")
-        try:
-            value = float(unparsed_value)
-        except ValueError as e:
-            raise ServerTimingParseError("Metric value did not parse as float") from e
-        return Metric(name=name, duration=value)
-    else:
+    if "=" not in metric:
         return Metric(name=metric)
+
+    name, _, unparsed_value = metric.partition("=")
+    try:
+        value = float(unparsed_value)
+    except ValueError as e:
+        raise ServerTimingParseError("Metric value did not parse as float") from e
+    return Metric(name=name, duration=value)
 
 
 DEFAULT_PARSER = Draft2017Parser()
