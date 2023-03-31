@@ -1,7 +1,9 @@
 from __future__ import annotations
 
-import os
+import abc
+import dataclasses
 import shutil
+import typing as t
 
 import click
 import globus_sdk
@@ -16,49 +18,40 @@ class ServerTimingParseError(ValueError):
     pass
 
 
-def timing_string_to_dict(server_timing_string: str) -> dict[str, float]:
-    """
-    Given a Server Timing value as a string, parse it into a dict of the format
-      nice_name: value
-
-    For example
-
-      'a=1, "alpha"; b=2'
-
-    will parse as
-
-      {"alpha": 1, "b": 2}
-
-    """
-
-    def parse_item(item: str) -> tuple[str, float]:
-        item = [x.strip() for x in item.split(";")]
-        if len(item) > 2:
-            raise ServerTimingParseError(
-                "Too many semicolons in timing item, cannot parse"
-            )
-        nice_name = None
-        if len(item) == 2:
-            nice_name = item[1].strip('"')
-            item = item[0]
-        item = item.split("=")
-        if len(item) != 2:
-            raise ServerTimingParseError("Wrong number of '=' delimited values")
-        if not nice_name:
-            nice_name = item[0]
-        return (nice_name, float(item[1]))
-
-    items = [x.strip() for x in server_timing_string.split(",")]
-    return {key: value for (key, value) in [parse_item(x) for x in items]}
+@dataclasses.dataclass
+class Metric:
+    name: str
+    # although surprising, the spec allows for metrics with no duration value
+    # the canonical example is 'miss' (undecorated) to indicate a cache miss
+    duration: t.Optional[float] = None
+    description: t.Optional[str] = None
 
 
-def render_timing_dict_onscreen(timing_dict: dict[str, tuple[str, float]]) -> None:
+def maybe_show_server_timing(res: globus_sdk.GlobusHTTPResponse) -> None:
+    if not should_show_server_timing():
+        return
+
+    server_timing_str = res.headers.get("Server-Timing")
+    if server_timing_str:
+        # for now, always use the default parser and ignore malformed metric items
+        # in the future, this could be extended to try different parsers in series
+        metrics = DEFAULT_PARSER.parse_metric_header(
+            server_timing_str, skip_errors=True
+        )
+        render_metrics_onscreen(metrics)
+
+
+def render_metrics_onscreen(metrics: list[Metric]) -> None:
     click.echo("Server Timing Info", err=True)
     term_width = shutil.get_terminal_size((80, 20)).columns
     use_width = term_width - 4
 
     items = sorted(
-        ((f"{name}={duration}", duration) for (name, duration) in timing_dict.items()),
+        (
+            (f"{m.description or m.name}={m.duration}", m.duration)
+            for m in metrics
+            if m.duration is not None
+        ),
         key=lambda x: x[1],
     )
     last = items[-1]
@@ -80,13 +73,82 @@ def render_timing_dict_onscreen(timing_dict: dict[str, tuple[str, float]]) -> No
     click.echo(hborder, err=True)
 
 
-def maybe_show_server_timing(res: globus_sdk.GlobusHTTPResponse) -> None:
-    if not should_show_server_timing():
-        return
+class ServerTimingParser(abc.ABC):
+    # which version of the Server-Timing spec does this parser implement?
+    spec_reference: t.ClassVar[str]
 
-    try:
-        parsed_timing = timing_string_to_dict(res.headers["Server-Timing"])
-    except (ServerTimingParseError, KeyError):
-        pass
+    @abc.abstractmethod
+    def parse_single_metric(self, metric_str: str) -> Metric:
+        ...
+
+    def parse_metric_header(
+        self, header_str: str, skip_errors: bool = True
+    ) -> list[Metric]:
+        metric_items = header_str.split(",")
+        ret: list[Metric] = []
+        for item in metric_items:
+            try:
+                ret.append(self.parse_single_metric(item))
+            except ServerTimingParseError:
+                if skip_errors:
+                    pass
+                else:
+                    raise
+        return ret
+
+
+class Draft2017Parser(ServerTimingParser):
+    """
+    Parsing per the Server-Timing draft from 2017 and earlier
+    The spec has changed since this draft.
+
+    For example
+
+      'a=1; "alpha", b=2, c, d; "delta"'
+
+    will parse as
+
+    Metrics:
+      - name: a
+        description: alpha
+        duration: 1.0
+      - name: b
+        duration: 2.0
+      - name: c
+      - name: d
+        description: delta
+    """
+
+    spec_reference = "https://www.w3.org/TR/2017/WD-server-timing-20171018/"
+
+    def parse_single_metric(self, metric_str: str) -> Metric:
+        parts = [p.strip() for p in metric_str.split(";")]
+        if len(parts) == 1:
+            return _parse_simple_metric_part(parts[0])
+        elif len(parts) == 2:
+            metric = _parse_simple_metric_part(parts[0])
+            metric.description = parts[1].strip('"')
+            return metric
+        else:
+            raise ServerTimingParseError(
+                "Too many semicolons in timing item, cannot parse"
+            )
+
+
+def _parse_simple_metric_part(metric: str) -> Metric:
+    metric = metric.strip()
+    if not metric:
+        raise ServerTimingParseError("encountered empty metric")
+
+    if "=" in metric:
+        name, _, unparsed_value = metric.partition("=")
+        try:
+            value = float(unparsed_value)
+        except ValueError as e:
+            raise ServerTimingParseError("Metric value did not parse as float") from e
+        return Metric(name=name, duration=value)
     else:
-        render_timing_dict_onscreen(parsed_timing)
+        return Metric(name=metric)
+
+
+DEFAULT_PARSER = Draft2017Parser()
