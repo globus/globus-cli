@@ -120,7 +120,7 @@ class Draft2017Parser(ServerTimingParser):
     spec_reference = "https://www.w3.org/TR/2017/WD-server-timing-20171018/"
 
     def parse_single_metric(self, metric_str: str) -> Metric:
-        part, *optionals = [p.strip() for p in metric_str.split(";")]
+        part, *optionals = (p.strip() for p in metric_str.split(";"))
         if len(optionals) > 1:
             raise ServerTimingParseError(
                 "Too many semicolons in timing item, cannot parse"
