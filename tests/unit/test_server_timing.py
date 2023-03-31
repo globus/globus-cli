@@ -59,6 +59,14 @@ def test_draft2017_parse_single_metric_errors(metricstr):
                 Metric(name="c", duration=2.2, description="callout"),
             ],
         ),
+        (
+            ' a = 1 , b  ,c=2.2;"callout"   ',
+            [
+                Metric(name="a", duration=1.0),
+                Metric(name="b"),
+                Metric(name="c", duration=2.2, description="callout"),
+            ],
+        ),
     ),
 )
 def test_draft2017_parse_header_success(metricstr, expect):

@@ -143,7 +143,7 @@ def _parse_simple_metric_part(metric: str) -> Metric:
         value = float(unparsed_value)
     except ValueError as e:
         raise ServerTimingParseError("Metric value did not parse as float") from e
-    return Metric(name=name, duration=value)
+    return Metric(name=name.strip(), duration=value)
 
 
 DEFAULT_PARSER = Draft2017Parser()
