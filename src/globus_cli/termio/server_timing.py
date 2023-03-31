@@ -6,6 +6,8 @@ import shutil
 import click
 import globus_sdk
 
+from .context import should_show_server_timing
+
 _BORDER_COLOR = "blue"
 _FILL_COLOR = "yellow"
 
@@ -79,7 +81,7 @@ def render_timing_dict_onscreen(timing_dict: dict[str, tuple[str, float]]) -> No
 
 
 def maybe_show_server_timing(res: globus_sdk.GlobusHTTPResponse) -> None:
-    if os.getenv("GLOBUS_CLI_SHOW_SERVER_TIMING") != "1":
+    if not should_show_server_timing():
         return
 
     try:

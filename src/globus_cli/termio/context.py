@@ -63,6 +63,15 @@ def is_verbose() -> bool:
     return state.is_verbose()
 
 
+def should_show_server_timing() -> bool:
+    """
+    Only safe to call within a click context.
+    """
+    ctx = click.get_current_context()
+    state = ctx.ensure_object(CommandState)
+    return state.show_server_timing
+
+
 def out_is_terminal() -> bool:
     return sys.stdout.isatty()
 

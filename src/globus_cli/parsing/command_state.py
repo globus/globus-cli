@@ -12,6 +12,8 @@ JSON_FORMAT = "json"
 TEXT_FORMAT = "text"
 UNIX_FORMAT = "unix"
 
+F = t.TypeVar("F", bound=t.Union[t.Callable, click.Command])
+
 
 def _setup_logging(level="DEBUG"):
     conf = {
@@ -42,16 +44,14 @@ def _setup_logging(level="DEBUG"):
 
 class CommandState:
     def __init__(self) -> None:
-        # default is TEXT
+        # init takes no params and sets everything to defaults
         self.output_format: str = TEXT_FORMAT
         # a jmespath expression to process on the json output
         self.jmespath_expr: t.Any | None = None
-        # default is always False
-        self.debug = False
-        # default is 0
-        self.verbosity = 0
-        # by default, empty dict
+        self.debug: bool = False
+        self.verbosity: int = 0
         self.http_status_map: dict[int, int] = {}
+        self.show_server_timing: bool = False
 
     def outformat_is_text(self) -> bool:
         return self.output_format == TEXT_FORMAT
@@ -66,7 +66,7 @@ class CommandState:
         return self.verbosity > 0
 
 
-def format_option(f: t.Callable) -> t.Callable:
+def format_option(f: F) -> F:
     def callback(ctx, param, value):
         if not value:
             return
@@ -114,7 +114,7 @@ def format_option(f: t.Callable) -> t.Callable:
     return f
 
 
-def debug_option(f: t.Callable) -> t.Callable:
+def debug_option(f: F) -> F:
     def callback(ctx, param, value):
         if not value or ctx.resilient_parsing:
             # turn off warnings altogether
@@ -136,7 +136,7 @@ def debug_option(f: t.Callable) -> t.Callable:
     )(f)
 
 
-def verbose_option(f: t.Callable) -> t.Callable:
+def verbose_option(f: F) -> F:
     def callback(ctx, param, value):
         # set state verbosity value from option
         state = ctx.ensure_object(CommandState)
@@ -182,7 +182,7 @@ def verbose_option(f: t.Callable) -> t.Callable:
     )(f)
 
 
-def map_http_status_option(f: t.Callable) -> t.Callable:
+def map_http_status_option(f: F) -> F:
     exit_stat_set = [0, 1] + list(range(50, 100))
 
     def per_val_callback(ctx, value):
@@ -228,4 +228,18 @@ def map_http_status_option(f: t.Callable) -> t.Callable:
         expose_value=False,
         callback=callback,
         multiple=True,
+    )(f)
+
+
+def show_server_timing_option(f: F) -> F:
+    def callback(ctx, param, value):
+        state = ctx.ensure_object(CommandState)
+        state.show_server_timing = True
+
+    return click.option(
+        "--show-server-timing",
+        is_flag=True,
+        hidden=True,
+        expose_value=False,
+        callback=callback,
     )(f)

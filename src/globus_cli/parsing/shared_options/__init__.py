@@ -9,6 +9,7 @@ from globus_cli.parsing.command_state import (
     debug_option,
     format_option,
     map_http_status_option,
+    show_server_timing_option,
     verbose_option,
 )
 from globus_cli.parsing.param_classes import AnnotatedOption
@@ -46,6 +47,7 @@ def common_options(
         return functools.partial(common_options, disable_options=disable_options)
 
     f = debug_option(f)
+    f = show_server_timing_option(f)
     f = verbose_option(f)
     f = click.help_option("-h", "--help")(f)
 
