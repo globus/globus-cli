@@ -58,7 +58,7 @@ def test_no_file(run_line, go_ep1_id):
 
 def test_ignore_missing(run_line, go_ep1_id):
     """
-    Attempts to remove a non-existant file path, with --ignore-missing.
+    Attempts to remove a non-existent file path, with --ignore-missing.
     Confirms exit code 0 and silent output.
     """
     load_response_set("cli.transfer_activate_success")

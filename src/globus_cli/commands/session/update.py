@@ -47,7 +47,7 @@ def _update_session_params_identities_case(
     id_set_mapping = {x["username"]: x["sub"] for x in identity_set}
 
     # check Identity IDs first, since we'll expand this list with names next
-    # we don't wnat to check usernames twice
+    # we don't want to check usernames twice
     for identity_id in identity_ids:
         if identity_id not in id_set_ids:
             click.echo(f"'{identity_id}' is not in your identity set", err=True)

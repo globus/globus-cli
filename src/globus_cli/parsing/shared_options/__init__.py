@@ -161,7 +161,7 @@ def delete_and_rm_options(
         help=(
             "Enable expansion of *, ?, and [ ] characters in the last "
             "component of file paths, unless they are escaped with "
-            "a preceeding backslash, \\"
+            "a preceding backslash, \\"
         ),
     )(f)
     if supports_batch:

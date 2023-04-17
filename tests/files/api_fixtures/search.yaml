@@ -101,7 +101,7 @@ search:
                       },
                       "default": "coriander",
                       "preparation": "ground",
-                      "subsitutes": [
+                      "substitutes": [
                         "cumin"
                       ],
                       "type": "spice"
@@ -199,7 +199,7 @@ search:
                       },
                       "default": "coriander",
                       "preparation": "ground",
-                      "subsitutes": [
+                      "substitutes": [
                         "cumin"
                       ],
                       "type": "spice"
@@ -542,7 +542,7 @@ search:
                   },
                   "default": "coriander",
                   "preparation": "ground",
-                  "subsitutes": [
+                  "substitutes": [
                     "cumin"
                   ],
                   "type": "spice"

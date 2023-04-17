@@ -5,7 +5,7 @@ stacktrace. It's really for debugging problems with the CLI itself, but it
 might also come in handy if we have issues with the way that we're trying to
 format an exception.
 Define an except hook per exception type that we want to treat specially,
-generally types of SDK errors, and dispatch onto tht set of hooks.
+generally types of SDK errors, and dispatch onto that set of hooks.
 """
 from __future__ import annotations
 

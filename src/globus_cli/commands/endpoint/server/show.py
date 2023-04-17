@@ -67,7 +67,7 @@ $ globus endpoint server show $ep_id $server_id
 @LoginManager.requires_login("transfer")
 def server_show(*, login_manager: LoginManager, endpoint_id, server_id):
     """
-    Display inofrmation about a server belonging to an endpoint.
+    Display information about a server belonging to an endpoint.
     """
     transfer_client = login_manager.get_transfer_client()
 

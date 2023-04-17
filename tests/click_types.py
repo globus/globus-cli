@@ -98,9 +98,9 @@ def _option_defaults_to_none(o: click.Option) -> bool:
     return True
 
 
-def deduce_type_from_parameter(param: click.Paramter) -> type:
+def deduce_type_from_parameter(param: click.Parameter) -> type:
     """
-    Convert a click.Paramter object to a type or union of types
+    Convert a click.Parameter object to a type or union of types
     """
     # if there is an explicit annotation, use that
     if isinstance(param, AnnotatedOption) and param.has_explicit_annotation():

@@ -30,6 +30,10 @@ repos:
   hooks:
     - id: pyupgrade
       args: ["--py36-plus"]
+- repo: https://github.com/codespell-project/codespell
+  rev: v2.2.4
+  hooks:
+    - id: codespell
 - repo: local
   hooks:
     - id: fix-changelog

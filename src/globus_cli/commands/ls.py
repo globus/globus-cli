@@ -176,7 +176,7 @@ def ls_command(
     transfer_client = login_manager.get_transfer_client()
     autoactivate(transfer_client, endpoint_id, if_expires_in=60)
 
-    # create the query paramaters to send to operation_ls
+    # create the query parameters to send to operation_ls
     ls_params: dict[str, t.Any] = {"show_hidden": int(show_hidden)}
     if path:
         ls_params["path"] = path

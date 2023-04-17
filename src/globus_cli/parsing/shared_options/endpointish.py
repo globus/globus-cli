@@ -178,7 +178,7 @@ def _apply_endpointish_create_or_update_params(
         verify_help = (
             f"Set the policy for this {name} for file integrity verification "
             "after transfer. 'force' requires all transfers to perform "
-            "verfication. 'disable' disables all verification checks. 'default' "
+            "verification. 'disable' disables all verification checks. 'default' "
             "allows the user to decide on verification at Transfer task submit  "
             "time."
         )

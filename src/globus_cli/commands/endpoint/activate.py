@@ -185,7 +185,7 @@ def endpoint_activate(
     if myproxy_password and not myproxy:
         raise click.UsageError("--myproxy-password requires --myproxy.")
     # NOTE: "0" is a legitimate, though weird, value
-    # In the case where someone is setting this value programatically,
+    # In the case where someone is setting this value programmatically,
     # respecting it behaves more consistently/predictably
     if myproxy_lifetime is not None and not myproxy:
         raise click.UsageError("--myproxy-lifetime requires --myproxy.")

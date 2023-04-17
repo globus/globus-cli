@@ -53,7 +53,7 @@ def session_show(*, login_manager):
     auth_client = login_manager.get_auth_client()
     adapter = token_storage_adapter()
 
-    # get a token to introspect, refreshing if neccecary
+    # get a token to introspect, refreshing if necessary
     try:
         # may force a refresh if the token is expired
         auth_client.authorizer.get_authorization_header()
