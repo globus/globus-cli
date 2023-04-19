@@ -33,6 +33,8 @@ else:
 
 @command(
     "transfer",
+    # the order of filter_rules determines behavior, so we need to combine
+    # include and exclude options during argument parsing to preserve their ordering
     opts_to_combine={
         "include": "filter_rules",
         "exclude": "filter_rules",

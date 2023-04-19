@@ -30,7 +30,27 @@ class GlobusCommand(click.Command):
     adoc generator.
 
     It also automatically runs string formatting on command helptext to allow the
-    inclusion of common strings (e.g. autoactivation help).
+    inclusion of common strings (e.g. autoactivation help) and handles
+    custom argument parsing.
+
+    opts_to_combine is an interface for combining multiple options while preserving
+    their original order. Given a dict of original option names as keys
+    and combined option names as values, options are combined into a list of
+    tuples of the original option name and value. For example:
+
+    @command(
+        ...
+        opts_to_combine={
+            "foo": "foo_bar",
+            "bar": "foo_bar",
+        },
+    @click.option("--foo", multiple=True, expose_value=False)
+    @click.option("--bar", multiple=True, expose_value=False)
+    def example_command(*, foo_bar: list[tuple[Literal["foo", "bar"], Any]]):
+
+        for option in foo_bar:
+            original_option_name, value = option
+
     """
 
     AUTOMATIC_ACTIVATION_HELPTEXT = """=== Automatic Endpoint Activation
@@ -80,7 +100,7 @@ class GlobusCommand(click.Command):
                 combined_opts: dict[str, list[tuple[str, str]]] = {
                     combined_name: [] for combined_name in self.opts_to_combine.values()
                 }
-                parser = self.make_parser(ctx)
+                parser: click.parser.OptionParser = self.make_parser(ctx)
                 values, _, order = parser.parse_args(args=list(args))
                 # values is a dict of value lists keyed by their option name
                 # in order for that value and order is a list of option names
