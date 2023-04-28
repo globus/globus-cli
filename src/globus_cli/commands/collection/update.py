@@ -12,7 +12,7 @@ from globus_cli.endpointish import EntityType
 from globus_cli.login_manager import LoginManager
 from globus_cli.parsing import (
     AnnotatedOption,
-    JSONStringOrFileV2,
+    JSONStringOrFile,
     ParsedJSONData,
     collection_id_arg,
     command,
@@ -48,7 +48,7 @@ class _FullDataField(Field):
 )
 @click.option(
     "--sharing-restrict-paths",
-    type=JSONStringOrFileV2(null="null"),
+    type=JSONStringOrFile(null="null"),
     help="Path restrictions for sharing data on guest collections "
     "based on this collection. This option is only usable on Mapped "
     "Collections",

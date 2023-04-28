@@ -2,12 +2,12 @@ import json
 
 import click
 
-from globus_cli.parsing import JSONStringOrFileV2, ParsedJSONData
+from globus_cli.parsing import JSONStringOrFile, ParsedJSONData
 
 
 def test_v2_json_string_or_file(runner, tmpdir):
     @click.command()
-    @click.option("--bar", type=JSONStringOrFileV2(), default=None, help="a JSON blob")
+    @click.option("--bar", type=JSONStringOrFile(), default=None, help="a JSON blob")
     def foo(bar):
         if bar is None:
             click.echo("nil")
@@ -67,7 +67,7 @@ def test_v2_json_string_or_file(runner, tmpdir):
 
 def test_v2_json_string_or_file_handles_stdin(runner, tmpdir):
     @click.command()
-    @click.option("--bar", type=JSONStringOrFileV2(), default=None, help="a JSON blob")
+    @click.option("--bar", type=JSONStringOrFile(), default=None, help="a JSON blob")
     def foo(bar):
         if bar is None:
             click.echo("nil")

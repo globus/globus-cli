@@ -4,7 +4,7 @@ import click
 
 from globus_cli.login_manager import LoginManager
 from globus_cli.parsing import (
-    JSONStringOrFileV2,
+    JSONStringOrFile,
     ParsedJSONData,
     command,
     endpoint_id_arg,
@@ -14,7 +14,7 @@ from globus_cli.termio import display
 
 @command("from-json", short_help="Create a User Credential from a JSON document")
 @endpoint_id_arg
-@click.argument("user_credential_json", type=JSONStringOrFileV2())
+@click.argument("user_credential_json", type=JSONStringOrFile())
 @LoginManager.requires_login("auth", "transfer")
 def from_json(
     *,

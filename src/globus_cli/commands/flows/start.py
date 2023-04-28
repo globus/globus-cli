@@ -5,7 +5,7 @@ import uuid
 import click
 
 from globus_cli.login_manager import LoginManager
-from globus_cli.parsing import JSONStringOrFileV2, ParsedJSONData, command, flow_id_arg
+from globus_cli.parsing import JSONStringOrFile, ParsedJSONData, command, flow_id_arg
 from globus_cli.termio import Field, TextMode, display, formatters
 from globus_cli.types import JsonValue
 
@@ -17,7 +17,7 @@ ROLE_TYPES = ("flow_viewer", "flow_starter", "flow_administrator", "flow_owner")
 @click.option(
     "--input",
     "input_document",
-    type=JSONStringOrFileV2(),
+    type=JSONStringOrFile(),
     help="""
         The JSON input parameters used to start the flow.
 

@@ -10,7 +10,7 @@ import pytest
 
 from globus_cli.constants import ExplicitNullType
 from globus_cli.parsing.param_types import (
-    JSONStringOrFileV2,
+    JSONStringOrFile,
     ParsedJSONData,
     StringOrNull,
 )
@@ -57,7 +57,7 @@ def test_deduce_type_from_int_argument():
 
 
 def test_deduce_type_from_json_string_or_file():
-    arg = click.Argument(["FOO"], type=JSONStringOrFileV2())
+    arg = click.Argument(["FOO"], type=JSONStringOrFile())
     assert deduce_type_from_parameter(arg) == ParsedJSONData
 
 

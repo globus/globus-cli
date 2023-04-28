@@ -1,7 +1,3 @@
-"""
-A "version 2" implementation of JSONStringOrFile parsing.
-Remove V2 from the name when it has fully replaced JSONStringOrFile.
-"""
 from __future__ import annotations
 
 import dataclasses
@@ -28,7 +24,7 @@ class ParsedJSONData:
     data: JsonValue
 
 
-class JSONStringOrFileV2(AnnotatedParamType):
+class JSONStringOrFile(AnnotatedParamType):
     """
     Parse an input which could be a filename or could be a JSON blob being
     supplied on the commandline.
