@@ -1,14 +1,17 @@
 from __future__ import annotations
 
-import json
 import typing as t
 import uuid
-from io import TextIOWrapper
 
 import click
 
 from globus_cli.login_manager import LoginManager
-from globus_cli.parsing import command, mutex_option_group
+from globus_cli.parsing import (
+    JSONStringOrFile,
+    ParsedJSONData,
+    command,
+    mutex_option_group,
+)
 from globus_cli.termio import Field, TextMode, display, formatters
 
 from ._common import index_id_arg
@@ -18,7 +21,7 @@ from ._common import index_id_arg
 @click.option("-q", help="The query-string to use to search the index.")
 @click.option(
     "--query-document",
-    type=click.File("r"),
+    type=JSONStringOrFile(),
     help="A complete query document to use to search the index.",
 )
 @click.option(
@@ -34,7 +37,7 @@ def delete_by_query_command(
     login_manager: LoginManager,
     index_id: uuid.UUID,
     q: str | None,
-    query_document: TextIOWrapper | None,
+    query_document: ParsedJSONData | None,
     advanced: bool,
 ):
     """
@@ -50,8 +53,12 @@ def delete_by_query_command(
 
     if q:
         doc: dict[str, t.Any] = {"q": q}
-    elif query_document:
-        doc = json.load(query_document)
+    elif query_document is not None:
+        if not isinstance(query_document.data, dict):
+            raise click.UsageError(
+                "--query-document cannot contain non-object JSON data"
+            )
+        doc = query_document.data
     else:
         raise click.UsageError("Either '-q' or '--query-document' must be provided")
 

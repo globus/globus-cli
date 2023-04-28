@@ -1,11 +1,9 @@
-import json
 import uuid
-from io import TextIOWrapper
 
 import click
 
 from globus_cli.login_manager import LoginManager
-from globus_cli.parsing import command
+from globus_cli.parsing import JSONStringOrFile, ParsedJSONData, command
 from globus_cli.termio import Field, TextMode, display
 
 from ._common import index_id_arg
@@ -13,10 +11,10 @@ from ._common import index_id_arg
 
 @command("ingest", short_help="Ingest a document into Globus Search")
 @index_id_arg
-@click.argument("DOCUMENT", type=click.File("r"))
+@click.argument("DOCUMENT", type=JSONStringOrFile())
 @LoginManager.requires_login("search")
 def ingest_command(
-    *, login_manager: LoginManager, index_id: uuid.UUID, document: TextIOWrapper
+    *, login_manager: LoginManager, index_id: uuid.UUID, document: ParsedJSONData
 ):
     """
     Submit a Globus Search 'GIngest' document, to be indexed in a Globus Search Index.
@@ -35,7 +33,9 @@ def ingest_command(
     Ingest Task.
     """
     search_client = login_manager.get_search_client()
-    doc = json.load(document)
+    if not isinstance(document.data, dict):
+        raise click.UsageError("Ingest document cannot contain non-object JSON data")
+    doc = document.data
 
     datatype = doc.get("@datatype", "GIngest")
     if datatype not in ("GIngest", "GMetaList", "GMetaEntry"):

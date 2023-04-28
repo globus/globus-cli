@@ -1,15 +1,20 @@
 from __future__ import annotations
 
-import json
 import typing as t
 import uuid
-from io import TextIOWrapper
 
 import click
 
 from globus_cli.login_manager import LoginManager
-from globus_cli.parsing import CommaDelimitedList, command, mutex_option_group
+from globus_cli.parsing import (
+    CommaDelimitedList,
+    JSONStringOrFile,
+    ParsedJSONData,
+    command,
+    mutex_option_group,
+)
 from globus_cli.termio import display, outformat_is_text, print_command_hint
+from globus_cli.types import JsonValue
 
 from ._common import index_id_arg
 
@@ -25,7 +30,7 @@ def _print_subjects(data):
 @click.option("-q", help="The query-string to use to search the index.")
 @click.option(
     "--query-document",
-    type=click.File("r"),
+    type=JSONStringOrFile(),
     help=(
         "A complete query document to use to search the index. Use the special `-` "
         "value to read from stdin instead of a file."
@@ -59,7 +64,7 @@ def query_command(
     login_manager: LoginManager,
     index_id: uuid.UUID,
     q: str | None,
-    query_document: TextIOWrapper | None,
+    query_document: ParsedJSONData | None,
     limit: int | None,
     advanced: bool,
     bypass_visible_to: bool,
@@ -96,7 +101,11 @@ def query_command(
             query_params=query_params,
         )
     elif query_document:
-        doc = json.load(query_document)
+        if not isinstance(query_document.data, dict):
+            raise click.UsageError(
+                "--query-document cannot contain non-object JSON data"
+            )
+        doc = query_document.data
 
         if limit is not None:
             doc["limit"] = limit
@@ -105,7 +114,10 @@ def query_command(
         if bypass_visible_to:
             doc["bypass_visible_to"] = bypass_visible_to
         if filter_principal_sets is not None:
-            doc["filter_principal_sets"] = filter_principal_sets
+            # because list is invariant, it needs a widening cast here
+            doc["filter_principal_sets"] = t.cast(
+                t.List[JsonValue], filter_principal_sets
+            )
 
         data = search_client.post_search(index_id, doc)
     else:
