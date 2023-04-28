@@ -233,6 +233,8 @@ def map_http_status_option(f: F) -> F:
 
 def show_server_timing_option(f: F) -> F:
     def callback(ctx, param, value):
+        if not value:
+            return
         state = ctx.ensure_object(CommandState)
         state.show_server_timing = True
 
