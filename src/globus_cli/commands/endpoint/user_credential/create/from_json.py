@@ -1,23 +1,35 @@
+import uuid
+
 import click
 
 from globus_cli.login_manager import LoginManager
-from globus_cli.parsing import JSONStringOrFile, command, endpoint_id_arg
+from globus_cli.parsing import (
+    JSONStringOrFileV2,
+    ParsedJSONData,
+    command,
+    endpoint_id_arg,
+)
 from globus_cli.termio import display
 
 
 @command("from-json", short_help="Create a User Credential from a JSON document")
 @endpoint_id_arg
-@click.argument("user_credential_json", type=JSONStringOrFile())
+@click.argument("user_credential_json", type=JSONStringOrFileV2())
 @LoginManager.requires_login("auth", "transfer")
 def from_json(
     *,
     login_manager: LoginManager,
-    endpoint_id,
-    user_credential_json,
-):
+    endpoint_id: uuid.UUID,
+    user_credential_json: ParsedJSONData,
+) -> None:
     """
     Create a User Credential on an endpoint from a JSON document
     """
+    if not isinstance(user_credential_json.data, dict):
+        raise click.UsageError(
+            "User Credential JSON may not contain non-object JSON data"
+        )
+
     gcs_client = login_manager.get_gcs_client(endpoint_id=endpoint_id)
-    res = gcs_client.create_user_credential(user_credential_json)
+    res = gcs_client.create_user_credential(user_credential_json.data)
     display(res, simple_text=res.full_data.get("message"))

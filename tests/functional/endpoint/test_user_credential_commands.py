@@ -85,6 +85,25 @@ def test_user_credential_create_from_json(add_gcs_login, run_line):
     assert sent_body == json.loads(json_body)
 
 
+def test_user_credential_create_from_json_rejects_malformed_data(
+    add_gcs_login, run_line
+):
+    # even though this test should bail out early, setup a full environment for it
+    # to run within, ensuring that changes to the order of operations and
+    # errors will not break it
+    load_response_set(globus_sdk.GCSClient.create_user_credential).metadata
+
+    meta = load_response_set("cli.collection_operations").metadata
+    ep_id = meta["endpoint_id"]
+    add_gcs_login(ep_id)
+
+    json_body = json.dumps(["foo", "bar"])
+    line = f"globus endpoint user-credential create from-json {ep_id} '{json_body}'"
+    result = run_line(line, assert_exit_code=2)
+
+    assert "User Credential JSON may not contain non-object JSON data" in result.stderr
+
+
 def test_user_credential_create_posix(add_gcs_login, run_line):
     cred_meta = load_response_set(globus_sdk.GCSClient.create_user_credential).metadata
     cred_id = cred_meta["id"]
@@ -179,3 +198,26 @@ def test_user_credential_update_from_json(add_gcs_login, run_line):
     # confirm that the arbitrary dict passed was used
     sent_body = json.loads(responses.calls[-1].request.body)
     assert sent_body == json.loads(json_body)
+
+
+def test_user_credential_update_from_json_rejects_malformed_data(
+    add_gcs_login, run_line
+):
+    # even though this test should bail out early, setup a full environment for it
+    # to run within, ensuring that changes to the order of operations and
+    # errors will not break it
+    cred_meta = load_response_set(globus_sdk.GCSClient.update_user_credential).metadata
+    cred_id = cred_meta["id"]
+
+    meta = load_response_set("cli.collection_operations").metadata
+    ep_id = meta["endpoint_id"]
+    add_gcs_login(ep_id)
+
+    json_body = json.dumps(["foo", "bar"])
+    line = (
+        f"globus endpoint user-credential update from-json {ep_id} "
+        f"{cred_id} '{json_body}'"
+    )
+    result = run_line(line, assert_exit_code=2)
+
+    assert "User Credential JSON may not contain non-object JSON data" in result.stderr
