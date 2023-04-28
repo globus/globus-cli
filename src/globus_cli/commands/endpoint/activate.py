@@ -1,5 +1,7 @@
 from __future__ import annotations
 
+import uuid
+
 import click
 import globus_sdk
 
@@ -113,14 +115,14 @@ $ globus endpoint activate $ep_id --myproxy -U username
 def endpoint_activate(
     *,
     login_manager: LoginManager,
-    endpoint_id: str,
+    endpoint_id: uuid.UUID,
     myproxy: bool,
     myproxy_username: str | None,
     myproxy_password: str | None,
     myproxy_lifetime: int | None,
     web: bool,
     no_browser: bool,
-    delegate_proxy: bool,
+    delegate_proxy: str | None,
     proxy_lifetime: int | None,
     no_autoactivate: bool,
     force: bool,

@@ -5,8 +5,8 @@ import typing as t
 import click
 
 from globus_cli.parsing import command
+from globus_cli.reflect import walk_contexts
 from globus_cli.types import ClickContextTree
-from globus_cli.utils import walk_contexts
 
 
 def _print_command(cmd_ctx: click.Context) -> None:

@@ -11,11 +11,10 @@ import time
 
 import click
 import requests
-from pkg_resources import load_entry_point
 
-from globus_cli.utils import walk_contexts
+from globus_cli.reflect import iter_all_commands, load_main_entrypoint, walk_contexts
 
-CLI = load_entry_point("globus-cli", "console_scripts", "globus")
+CLI = load_main_entrypoint()
 TARGET_DIR = os.path.dirname(__file__)
 
 log = logging.getLogger(__name__)
@@ -58,13 +57,6 @@ EXIT_STATUS_NOHTTP_TEXT = (
 """
     + _EXIT_STATUS_TEXT_COMMON
 )
-
-
-def iter_all_commands(tree=None):
-    ctx, subcmds, subgroups = tree or walk_contexts("globus", CLI)
-    yield from subcmds
-    for g in subgroups:
-        yield from iter_all_commands(g)
 
 
 def _format_option(optstr):

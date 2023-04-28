@@ -4,7 +4,7 @@ import typing as t
 
 import click
 
-from globus_cli.types import DATA_CONTAINER_T, ClickContextTree
+from globus_cli.types import DATA_CONTAINER_T
 
 F = t.TypeVar("F", bound=t.Callable)
 
@@ -172,33 +172,3 @@ def shlex_process_stream(process_command: click.Command, stream: t.TextIO) -> No
             except SystemExit as e:
                 if e.code != 0:
                     raise
-
-
-def walk_contexts(
-    name: str, cmd: click.MultiCommand, parent_ctx: click.Context | None = None
-) -> ClickContextTree:
-    """
-    A recursive walk over click Contexts for all commands in a tree
-    Returns the results in a tree-like structure as triples,
-      (context, subcommands, subgroups)
-
-    subcommands is a list of contexts
-    subgroups is a list of (context, subcommands, subgroups) triples
-    """
-    current_ctx = click.Context(cmd, info_name=name, parent=parent_ctx)
-    cmds, groups = [], []
-    for subcmdname in cmd.list_commands(current_ctx):
-        subcmd = cmd.get_command(current_ctx, subcmdname)
-        # it should be impossible, but if there is no such command, skip
-        if subcmd is None:
-            continue
-        # explicitly skip hidden commands
-        if subcmd.hidden:
-            continue
-
-        if not isinstance(subcmd, click.Group):
-            cmds.append(click.Context(subcmd, info_name=subcmdname, parent=current_ctx))
-        else:
-            groups.append(walk_contexts(subcmdname, subcmd, current_ctx))
-
-    return (current_ctx, cmds, groups)
