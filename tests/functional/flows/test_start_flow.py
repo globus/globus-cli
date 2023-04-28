@@ -120,3 +120,18 @@ def test_start_flow_text_output(run_line, add_flow_login):
     assert monitors_match.group("monitors") == ", ".join(
         identity["username"] for identity in run_monitor_identities
     )
+
+
+def test_start_flow_rejects_non_object_input(run_line, add_flow_login):
+    # setup test requirements for success to ensure that the test won't be sensitive to
+    # the order in which checks which happen
+    # (e.g. login check happening before the input shape check)
+    response = load_response("flows.run_flow")
+    flow_id = response.metadata["flow_id"]
+    add_flow_login(flow_id)
+
+    result = run_line(
+        ["globus", "flows", "start", flow_id, "--input", json.dumps(["foo", "bar"])],
+        assert_exit_code=2,
+    )
+    assert "Flow input cannot be non-object JSON data" in result.stderr

@@ -1,13 +1,13 @@
 from __future__ import annotations
 
-import typing as t
 import uuid
 
 import click
 
 from globus_cli.login_manager import LoginManager
-from globus_cli.parsing import JSONStringOrFile, command, flow_id_arg
+from globus_cli.parsing import JSONStringOrFileV2, ParsedJSONData, command, flow_id_arg
 from globus_cli.termio import Field, TextMode, display, formatters
+from globus_cli.types import JsonValue
 
 ROLE_TYPES = ("flow_viewer", "flow_starter", "flow_administrator", "flow_owner")
 
@@ -17,7 +17,7 @@ ROLE_TYPES = ("flow_viewer", "flow_starter", "flow_administrator", "flow_owner")
 @click.option(
     "--input",
     "input_document",
-    type=JSONStringOrFile(),
+    type=JSONStringOrFileV2(),
     help="""
         The JSON input parameters used to start the flow.
 
@@ -32,7 +32,7 @@ ROLE_TYPES = ("flow_viewer", "flow_starter", "flow_administrator", "flow_owner")
         Example: Path to JSON file:
 
         \b
-            --input file:parameters.json
+            --input parameters.json
 
         If unspecified, the default is an empty JSON object ('{}').
     """,
@@ -82,7 +82,7 @@ ROLE_TYPES = ("flow_viewer", "flow_starter", "flow_administrator", "flow_owner")
 def start_command(
     login_manager: LoginManager,
     flow_id: uuid.UUID,
-    input_document: dict | None | t.Any,
+    input_document: ParsedJSONData | None,
     label: str | None,
     managers: tuple[str],
     monitors: tuple[str],
@@ -95,11 +95,15 @@ def start_command(
     """
 
     if input_document is None:
-        input_document = {}
+        input_document_json: dict[str, JsonValue] = {}
+    else:
+        if not isinstance(input_document.data, dict):
+            raise click.UsageError("Flow input cannot be non-object JSON data")
+        input_document_json = input_document.data
 
     flow_client = login_manager.get_specific_flow_client(flow_id)
     response = flow_client.run_flow(
-        body=input_document,
+        body=input_document_json,
         label=label,
         tags=list(tags),
         run_managers=list(managers),
