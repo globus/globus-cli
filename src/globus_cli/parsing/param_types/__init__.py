@@ -10,7 +10,6 @@ from .json_strorfile import JSONStringOrFileV2, ParsedJSONData
 from .location import LocationType
 from .notify_param import NotificationParamType
 from .nullable import StringOrNull, UrlOrNull, nullable_multi_callback
-from .prefix_mapper import JSONStringOrFile
 from .task_path import TaskPath
 from .timedelta import TimedeltaType
 
@@ -21,7 +20,6 @@ __all__ = (
     "ENDPOINT_PLUS_REQPATH",
     "EndpointPlusPath",
     "IdentityType",
-    "JSONStringOrFile",
     "JSONStringOrFileV2",
     "LocationType",
     "NotificationParamType",

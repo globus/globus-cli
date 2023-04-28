@@ -4,7 +4,6 @@ import click
 
 from globus_cli.constants import EXPLICIT_NULL
 from globus_cli.parsing import StringOrNull, TimedeltaType
-from globus_cli.parsing.param_types.prefix_mapper import StringPrefixMapper
 
 
 def test_string_or_null(runner):
@@ -35,45 +34,6 @@ def test_string_or_null(runner):
     # given a string, it returns that string
     result = runner.invoke(foo, ["--bar", "alpha"])
     assert result.output == "alpha\n"
-
-
-def test_string_prefix_mapper(runner, tmpdir):
-    class MyType(StringPrefixMapper):
-        __prefix_mapping__ = {"bar:": "prefix_mapper_parse_bar"}
-        __prefix_metavars__ = ["bar:BAR", "BAZ"]
-
-        def prefix_mapper_parse_bar(self, value):
-            if not value.startswith("BARBAR"):
-                raise click.UsageError("malformed BarObject")
-            return value[len("BARBAR") :]
-
-    @click.command()
-    @click.option("--bar", type=MyType(null="NIL"), default=None, help="a BarObject")
-    def foo(bar):
-        if bar is None:
-            click.echo("nil")
-        else:
-            click.echo(bar)
-
-    # in helptext, it shows up with the correct metavar
-    result = runner.invoke(foo, ["--help"])
-    assert "--bar [bar:BAR|BAZ]" in result.output
-
-    # absent, it leaves the default
-    result = runner.invoke(foo, [])
-    assert result.output == "nil\n"
-
-    # supports explicit null value as well
-    result = runner.invoke(foo, ["--bar", "NIL"])
-    assert result.output == "null\n"
-
-    # does nothing when the value is neither the null value nor has the prefix
-    result = runner.invoke(foo, ["--bar", "foo:bar"])
-    assert result.output == "foo:bar\n"
-
-    # but with the prefix, behaves as expected
-    result = runner.invoke(foo, ["--bar", "bar:BARBARbaz"])
-    assert result.output == "baz\n"
 
 
 def test_timedelta_type(runner):
