@@ -12,7 +12,8 @@ from globus_cli.endpointish import EntityType
 from globus_cli.login_manager import LoginManager
 from globus_cli.parsing import (
     AnnotatedOption,
-    JSONStringOrFile,
+    JSONStringOrFileV2,
+    ParsedJSONData,
     collection_id_arg,
     command,
     endpointish_params,
@@ -20,7 +21,7 @@ from globus_cli.parsing import (
     nullable_multi_callback,
 )
 from globus_cli.termio import Field, TextMode, display
-from globus_cli.types import JsonValue, ListType
+from globus_cli.types import ListType
 
 _MULTI_USE_OPTION_STR = "Give this option multiple times in a single command"
 
@@ -47,7 +48,7 @@ class _FullDataField(Field):
 )
 @click.option(
     "--sharing-restrict-paths",
-    type=JSONStringOrFile(null="null"),
+    type=JSONStringOrFileV2(null="null"),
     help="Path restrictions for sharing data on guest collections "
     "based on this collection. This option is only usable on Mapped "
     "Collections",
@@ -138,7 +139,7 @@ def collection_update(
     force_encryption: bool | None,
     verify: dict[str, bool],
     public: bool | None,
-    sharing_restrict_paths: JsonValue,
+    sharing_restrict_paths: ParsedJSONData | None | ExplicitNullType,
     allow_guest_collections: bool | None,
     disable_anonymous_writes: bool | None,
     domain_name: str | None,
@@ -151,11 +152,12 @@ def collection_update(
     """
     Update a Mapped or Guest Collection
     """
-    if sharing_restrict_paths is not None:
-        if not isinstance(sharing_restrict_paths, dict):
-            raise click.UsageError(
-                "--sharing-restrict-paths may not contain non-object JSON data"
-            )
+    if isinstance(sharing_restrict_paths, ParsedJSONData) and not isinstance(
+        sharing_restrict_paths.data, dict
+    ):
+        raise click.UsageError(
+            "--sharing-restrict-paths may not contain non-object JSON data"
+        )
 
     gcs_client = login_manager.get_gcs_client(collection_id=collection_id)
 
@@ -180,7 +182,11 @@ def collection_update(
             "default_directory": default_directory,
             "force_encryption": force_encryption,
             "public": public,
-            "sharing_restrict_paths": sharing_restrict_paths,
+            "sharing_restrict_paths": (
+                sharing_restrict_paths.data
+                if isinstance(sharing_restrict_paths, ParsedJSONData)
+                else sharing_restrict_paths
+            ),
             "allow_guest_collections": allow_guest_collections,
             "disable_anonymous_writes": disable_anonymous_writes,
             "domain_name": domain_name,
