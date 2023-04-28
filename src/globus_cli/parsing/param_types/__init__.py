@@ -6,6 +6,7 @@ from .endpoint_plus_path import (
     EndpointPlusPath,
 )
 from .identity_type import IdentityType, ParsedIdentity
+from .json_strorfile import JSONStringOrFileV2, ParsedJSONData
 from .location import LocationType
 from .notify_param import NotificationParamType
 from .nullable import StringOrNull, UrlOrNull, nullable_multi_callback
@@ -20,13 +21,15 @@ __all__ = (
     "ENDPOINT_PLUS_REQPATH",
     "EndpointPlusPath",
     "IdentityType",
-    "LocationType",
-    "ParsedIdentity",
-    "StringOrNull",
-    "UrlOrNull",
-    "nullable_multi_callback",
-    "NotificationParamType",
     "JSONStringOrFile",
+    "JSONStringOrFileV2",
+    "LocationType",
+    "NotificationParamType",
+    "ParsedIdentity",
+    "ParsedJSONData",
+    "StringOrNull",
     "TaskPath",
     "TimedeltaType",
+    "UrlOrNull",
+    "nullable_multi_callback",
 )
