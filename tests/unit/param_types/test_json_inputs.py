@@ -83,3 +83,8 @@ def test_v2_json_string_or_file_handles_stdin(runner, tmpdir):
     assert result.output == 'filename: -\ndata: "baz"\n'
     result = runner.invoke(foo, ["--bar", "-"], input='{"foo": 1}\n')
     assert result.output == 'filename: -\ndata: {"foo": 1}\n'
+
+    # and handles malformed inputs to stdin
+    result = runner.invoke(foo, ["--bar", "-"], input="[\n")
+    assert result.exit_code == 2
+    assert "stdin did not contain valid JSON" in result.output

@@ -87,3 +87,17 @@ def test_auto_wrap_document_rejects_bad_doctype(run_line, tmp_path):
         ["globus", "search", "ingest", index_id, str(doc)], assert_exit_code=2
     )
     assert "Unsupported datatype: 'NoSuchDocumentType'" in result.stderr
+
+
+def test_ingest_rejects_non_object_data(run_line, tmp_path):
+    meta = load_response_set("cli.search").metadata
+    index_id = meta["index_id"]
+
+    data = ["foo", "bar"]
+    doc = tmp_path / "doc.json"
+    doc.write_text(json.dumps(data))
+
+    result = run_line(
+        ["globus", "search", "ingest", index_id, str(doc)], assert_exit_code=2
+    )
+    assert "Ingest document cannot contain non-object JSON data" in result.stderr

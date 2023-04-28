@@ -120,3 +120,26 @@ def test_query_required(run_line):
         assert_exit_code=2,
     )
     assert "Either '-q' or '--query-document' must be provided" in result.stderr
+
+
+def test_query_rejects_non_object_document(run_line, tmp_path):
+    """
+    Check that `-q` and `--query-document` cannot be used together
+    """
+    meta = load_response_set("cli.search").metadata
+    index_id = meta["index_id"]
+    doc = tmp_path / "doc.json"
+    doc.write_text(json.dumps(["foo", "bar"]))
+
+    result = run_line(
+        [
+            "globus",
+            "search",
+            "query",
+            index_id,
+            "--query-document",
+            str(doc),
+        ],
+        assert_exit_code=2,
+    )
+    assert "--query-document cannot contain non-object JSON data" in result.stderr
