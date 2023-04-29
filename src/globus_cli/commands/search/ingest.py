@@ -15,7 +15,7 @@ from ._common import index_id_arg
 @LoginManager.requires_login("search")
 def ingest_command(
     *, login_manager: LoginManager, index_id: uuid.UUID, document: ParsedJSONData
-):
+) -> None:
     """
     Submit a Globus Search 'GIngest' document, to be indexed in a Globus Search Index.
     You must have 'owner', 'admin', or 'writer' permissions on that index.

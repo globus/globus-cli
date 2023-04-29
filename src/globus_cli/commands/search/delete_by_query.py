@@ -39,7 +39,7 @@ def delete_by_query_command(
     q: str | None,
     query_document: ParsedJSONData | None,
     advanced: bool,
-):
+) -> None:
     """
     Perform a Delete-By-Query on a Globus Search Index using either a simple query
     string or a complex query document. The operation will be submitted as a task and

@@ -11,5 +11,5 @@ from globus_cli.parsing import group
         "show": (".show", "show_command"),
     },
 )
-def index_command():
+def index_command() -> None:
     """View and manage indices"""

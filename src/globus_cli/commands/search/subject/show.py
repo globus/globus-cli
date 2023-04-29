@@ -11,7 +11,7 @@ from globus_cli.termio import display
 from .._common import index_id_arg
 
 
-def _print_subject(subject_doc: "globus_sdk.GlobusHTTPResponse"):
+def _print_subject(subject_doc: "globus_sdk.GlobusHTTPResponse") -> None:
     entries = subject_doc["entries"]
     if len(entries) == 1:
         click.echo(json.dumps(entries[0], indent=2, separators=(",", ": ")))

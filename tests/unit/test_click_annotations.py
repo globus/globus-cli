@@ -65,10 +65,6 @@ _SKIP_MODULES = (
     "globus_cli.commands.mkdir",
     "globus_cli.commands.rename",
     "globus_cli.commands.rm",
-    "globus_cli.commands.search.delete_by_query",
-    "globus_cli.commands.search.index.role.create",
-    "globus_cli.commands.search.ingest",
-    "globus_cli.commands.search.query",
 )
 
 _ALL_NON_GROUP_COMMANDS: tuple[click.Command, ...] = (

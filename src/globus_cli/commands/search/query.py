@@ -21,8 +21,8 @@ from ._common import index_id_arg
 
 # a callback for output printing
 # used to get non-table formatted list output
-def _print_subjects(data):
-    for item in data["gmeta"]:
+def _print_subjects(data: dict[str, JsonValue]) -> None:
+    for item in t.cast("list[dict[str, JsonValue]]", data["gmeta"]):
         click.echo(item["subject"])
 
 
@@ -69,7 +69,7 @@ def query_command(
     advanced: bool,
     bypass_visible_to: bool,
     filter_principal_sets: list[str] | None,
-):
+) -> None:
     """
     Query a Globus Search Index by ID using either a simple query string, or a complex
     query document. At least one of `-q` or `--query-document` must be provided.

@@ -8,7 +8,7 @@ from globus_cli.termio import display
 @command("delete")
 @LoginManager.requires_login("search")
 @click.argument("INDEX_ID")
-def delete_command(*, login_manager: LoginManager, index_id: str):
+def delete_command(*, login_manager: LoginManager, index_id: str) -> None:
     """(BETA) Delete a Search Index"""
     search_client = login_manager.get_search_client()
     display(

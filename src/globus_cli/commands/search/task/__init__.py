@@ -8,5 +8,5 @@ from globus_cli.parsing import group
         "show": (".show", "show_command"),
     },
 )
-def task_command():
+def task_command() -> None:
     """View Task documents"""

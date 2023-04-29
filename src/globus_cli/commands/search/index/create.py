@@ -11,7 +11,9 @@ from .._common import INDEX_FIELDS
 @LoginManager.requires_login("search")
 @click.argument("DISPLAY_NAME")
 @click.argument("DESCRIPTION")
-def create_command(*, login_manager: LoginManager, display_name: str, description: str):
+def create_command(
+    *, login_manager: LoginManager, display_name: str, description: str
+) -> None:
     """(BETA) Create a new Index"""
     index_doc = {"display_name": display_name, "description": description}
     search_client = login_manager.get_search_client()

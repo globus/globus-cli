@@ -7,12 +7,14 @@ import globus_sdk
 
 from globus_cli.termio import Field, formatters
 
+C = t.TypeVar("C", bound=t.Callable)
 
-def index_id_arg(f: t.Callable) -> t.Callable:
+
+def index_id_arg(f: C) -> C:
     return click.argument("index_id", metavar="INDEX_ID", type=click.UUID)(f)
 
 
-def task_id_arg(f: t.Callable) -> t.Callable:
+def task_id_arg(f: C) -> C:
     return click.argument("task_id", metavar="TASK_ID", type=click.UUID)(f)
 
 

@@ -18,7 +18,7 @@ def delete_command(
     index_id: uuid.UUID,
     role_id: str,
     login_manager: LoginManager,
-):
+) -> None:
     """Delete a role (requires admin or owner)"""
     search_client = login_manager.get_search_client()
     display(
