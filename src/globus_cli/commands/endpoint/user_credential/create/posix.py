@@ -23,7 +23,7 @@ def posix(
     globus_identity: str,
     local_username: str,
     display_name: str | None,
-):
+) -> None:
     """
     Create a User Credential for a POSIX storage gateway
     """

@@ -16,7 +16,7 @@ from .._common import user_credential_id_arg
 
 @command("from-json", short_help="Update a User Credential with a JSON document")
 @endpoint_id_arg
-@user_credential_id_arg
+@user_credential_id_arg()
 @click.argument("user_credential_json", type=JSONStringOrFile())
 @LoginManager.requires_login("auth", "transfer")
 def from_json(

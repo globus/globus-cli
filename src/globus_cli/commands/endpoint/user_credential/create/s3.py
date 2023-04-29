@@ -28,7 +28,7 @@ def s3(
     s3_key_id: str,
     s3_secret_key: str,
     display_name: str | None,
-):
+) -> None:
     """
     Create a User Credential for an S3 Storage Gateway
     """
