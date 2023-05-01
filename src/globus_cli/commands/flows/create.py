@@ -35,12 +35,12 @@ ROLE_TYPES = ("flow_viewer", "flow_starter", "flow_administrator", "flow_owner")
         Example: Inline JSON:
 
         \b
-            --input_schema '{"properties": {"src": {"type": "string"}}}'
+            --input-schema '{"properties": {"src": {"type": "string"}}}'
 
         Example: Path to JSON file:
 
         \b
-            --input_schema file:schema.json
+            --input-schema file:schema.json
 
         If unspecified, the default is an empty JSON object ('{}').
     """,
