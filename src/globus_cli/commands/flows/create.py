@@ -76,7 +76,7 @@ ROLE_TYPES = ("flow_viewer", "flow_starter", "flow_administrator", "flow_owner")
     help="""
         A principal that may run the flow.
 
-        Use "all_authenticated_users" to make the flow visible to everyone.
+        Use "all_authenticated_users" to allow any authenticated user to run the flow.
 
         This option can be specified multiple times
         to create a list of flow starters.
@@ -90,7 +90,7 @@ ROLE_TYPES = ("flow_viewer", "flow_starter", "flow_administrator", "flow_owner")
     help="""
         A principal that may view the flow.
 
-        Use "public" to allow any authenticated user to run the flow.
+        Use "public" to make the flow visible to everyone.
 
         This option can be specified multiple times
         to create a list of flow viewers.
