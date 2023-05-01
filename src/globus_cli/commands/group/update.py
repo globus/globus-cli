@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 import uuid
 
 import click
@@ -19,7 +21,7 @@ def group_update(
     login_manager: LoginManager,
     group_id: uuid.UUID,
     name: str | None,
-    description: str | None
+    description: str | None,
 ) -> None:
     """Update an existing group."""
     groups_client = login_manager.get_groups_client()

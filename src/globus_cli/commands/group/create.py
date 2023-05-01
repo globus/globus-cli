@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 import click
 
 from globus_cli.login_manager import LoginManager
