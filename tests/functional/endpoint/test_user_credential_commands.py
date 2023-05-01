@@ -101,7 +101,7 @@ def test_user_credential_create_from_json_rejects_malformed_data(
     line = f"globus endpoint user-credential create from-json {ep_id} '{json_body}'"
     result = run_line(line, assert_exit_code=2)
 
-    assert "User Credential JSON may not contain non-object JSON data" in result.stderr
+    assert "User Credential JSON must be a JSON object" in result.stderr
 
 
 def test_user_credential_create_posix(add_gcs_login, run_line):
@@ -220,4 +220,4 @@ def test_user_credential_update_from_json_rejects_malformed_data(
     )
     result = run_line(line, assert_exit_code=2)
 
-    assert "User Credential JSON may not contain non-object JSON data" in result.stderr
+    assert "User Credential JSON must be a JSON object" in result.stderr

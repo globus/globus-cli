@@ -30,9 +30,7 @@ def from_json(
     Update a User Credential on an endpoint with a JSON document
     """
     if not isinstance(user_credential_json.data, dict):
-        raise click.UsageError(
-            "User Credential JSON may not contain non-object JSON data"
-        )
+        raise click.UsageError("User Credential JSON must be a JSON object")
 
     gcs_client = login_manager.get_gcs_client(endpoint_id=endpoint_id)
     res = gcs_client.update_user_credential(

@@ -155,9 +155,7 @@ def collection_update(
     if isinstance(sharing_restrict_paths, ParsedJSONData) and not isinstance(
         sharing_restrict_paths.data, dict
     ):
-        raise click.UsageError(
-            "--sharing-restrict-paths may not contain non-object JSON data"
-        )
+        raise click.UsageError("--sharing-restrict-paths must be a JSON object")
 
     gcs_client = login_manager.get_gcs_client(collection_id=collection_id)
 
