@@ -1,3 +1,5 @@
+import uuid
+
 from globus_cli.login_manager import LoginManager
 from globus_cli.parsing import command
 from globus_cli.termio import Field, TextMode, display, formatters
@@ -11,7 +13,7 @@ from ._common import SESSION_ENFORCEMENT_FIELD, group_id_arg
 def group_show(
     *,
     login_manager: LoginManager,
-    group_id: str,
+    group_id: uuid.UUID,
 ) -> None:
     """Show a group definition"""
     groups_client = login_manager.get_groups_client()

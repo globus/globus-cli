@@ -1,3 +1,5 @@
+import uuid
+
 import click
 
 from globus_cli.login_manager import LoginManager
@@ -15,7 +17,7 @@ from ._common import group_id_arg
 def group_update(
     *,
     login_manager: LoginManager,
-    group_id: str,
+    group_id: uuid.UUID,
     name: str | None,
     description: str | None
 ) -> None:

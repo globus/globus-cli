@@ -1,5 +1,7 @@
 from __future__ import annotations
 
+import uuid
+
 import click
 
 from globus_cli.login_manager import LoginManager
@@ -25,7 +27,7 @@ def _str2field(fieldname: str) -> Field:
 def member_list(
     *,
     login_manager: LoginManager,
-    group_id: str,
+    group_id: uuid.UUID,
     fields: list[str] | None,
 ) -> None:
     """List group members"""

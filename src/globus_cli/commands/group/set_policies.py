@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import sys
+import uuid
 
 import click
 
@@ -66,7 +67,7 @@ else:
 def group_set_policies(
     *,
     login_manager: LoginManager,
-    group_id: str,
+    group_id: uuid.UUID,
     high_assurance: bool | None,
     authentication_timeout: int | None,
     visibility: Literal["authenticated", "private"] | None,

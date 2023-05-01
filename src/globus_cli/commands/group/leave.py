@@ -9,6 +9,8 @@ from globus_cli.login_manager import LoginManager
 from globus_cli.parsing import IdentityType, ParsedIdentity, command
 from globus_cli.termio import display
 
+from ._common import group_id_arg
+
 
 def group_leave_formatter(data: globus_sdk.GlobusHTTPResponse) -> None:
     if "errors" in data:
@@ -32,7 +34,7 @@ def group_leave_formatter(data: globus_sdk.GlobusHTTPResponse) -> None:
 
 
 @command("leave", short_help="Leave a group")
-@click.argument("group_id", type=click.UUID)
+@group_id_arg
 @click.option(
     "--identity",
     type=IdentityType(),

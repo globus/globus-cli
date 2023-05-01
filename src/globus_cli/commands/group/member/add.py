@@ -7,6 +7,8 @@ from globus_cli.login_manager import LoginManager
 from globus_cli.parsing import IdentityType, ParsedIdentity, command
 from globus_cli.termio import Field, TextMode, display
 
+from .._common import group_id_arg
+
 if sys.version_info < (3, 9):
     from typing_extensions import Literal
 else:
@@ -20,7 +22,7 @@ ADD_USER_FIELDS = [
 
 
 @command("add", short_help="Add a member to a group")
-@click.argument("group_id", type=click.UUID)
+@group_id_arg
 @click.argument("user", type=IdentityType())
 @click.option(
     "--role",

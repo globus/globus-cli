@@ -29,7 +29,7 @@ MEMBERSHIP_FIELDS = {
 
 
 def group_id_arg(f: C) -> C:
-    return click.argument("GROUP_ID")(f)
+    return click.argument("GROUP_ID", type=click.UUID)(f)
 
 
 SESSION_ENFORCEMENT_FIELD = Field(
