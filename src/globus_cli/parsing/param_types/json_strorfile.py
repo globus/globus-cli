@@ -43,7 +43,7 @@ class JSONStringOrFile(AnnotatedParamType):
         - JSON parse
 
     This ordering protects against odd behavior if a filename happens to be valid JSON.
-    Most likely to happen with a JSON literal like an integer, e.g. `--opt 100`
+    Most likely to happen with a JSON literal like an integer, e.g. `--opt 1`
 
     The output of the parse is a loaded JSON object wrapped in a dataclass which
     contains contextual information. This can be useful for providing better error
