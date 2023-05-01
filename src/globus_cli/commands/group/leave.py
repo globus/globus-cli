@@ -44,7 +44,7 @@ def group_leave(
     group_id: uuid.UUID,
     identity: ParsedIdentity | None,
     login_manager: LoginManager,
-):
+) -> None:
     """
     Leave a group in which you are a member.
 

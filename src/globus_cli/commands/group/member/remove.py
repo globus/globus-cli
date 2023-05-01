@@ -1,3 +1,5 @@
+import uuid
+
 import click
 
 from globus_cli.login_manager import LoginManager
@@ -15,7 +17,9 @@ REMOVED_USER_FIELDS = [
 @click.argument("group_id", type=click.UUID)
 @click.argument("user", type=IdentityType())
 @LoginManager.requires_login("groups")
-def member_remove(group_id: str, user: ParsedIdentity, login_manager):
+def member_remove(
+    *, group_id: uuid.UUID, user: ParsedIdentity, login_manager: LoginManager
+) -> None:
     """
     Remove a member from a group.
 

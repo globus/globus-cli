@@ -1,8 +1,16 @@
+import sys
+import uuid
+
 import click
 
 from globus_cli.login_manager import LoginManager
 from globus_cli.parsing import IdentityType, ParsedIdentity, command
 from globus_cli.termio import Field, TextMode, display
+
+if sys.version_info < (3, 9):
+    from typing_extensions import Literal
+else:
+    from typing import Literal
 
 ADD_USER_FIELDS = [
     Field("Group ID", "group_id"),
@@ -23,8 +31,12 @@ ADD_USER_FIELDS = [
 )
 @LoginManager.requires_login("groups")
 def member_add(
-    *, group_id: str, user: ParsedIdentity, role: str, login_manager: LoginManager
-):
+    *,
+    login_manager: LoginManager,
+    group_id: uuid.UUID,
+    user: ParsedIdentity,
+    role: Literal["member", "manager", "admin"],
+) -> None:
     """
     Add a member to a group.
 

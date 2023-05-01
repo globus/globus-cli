@@ -27,7 +27,7 @@ def member_list(
     login_manager: LoginManager,
     group_id: str,
     fields: list[str] | None,
-):
+) -> None:
     """List group members"""
     groups_client = login_manager.get_groups_client()
 

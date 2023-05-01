@@ -21,7 +21,7 @@ from ._common import build_invite_actions, get_invite_formatter
 @LoginManager.requires_login("groups")
 def invite_accept(
     *, group_id: uuid.UUID, identity: ParsedIdentity | None, login_manager: LoginManager
-):
+) -> None:
     """
     Accept an invitation to a group
 

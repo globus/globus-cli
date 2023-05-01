@@ -12,7 +12,7 @@ def group_show(
     *,
     login_manager: LoginManager,
     group_id: str,
-):
+) -> None:
     """Show a group definition"""
     groups_client = login_manager.get_groups_client()
 

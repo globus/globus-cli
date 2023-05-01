@@ -12,7 +12,7 @@ def group_delete(
     *,
     login_manager: LoginManager,
     group_id: str,
-):
+) -> None:
     """Delete a group"""
     groups_client = login_manager.get_groups_client()
 

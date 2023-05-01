@@ -35,7 +35,7 @@ def group_join(
     identity: ParsedIdentity | None,
     request: bool,
     login_manager: LoginManager,
-):
+) -> None:
     """
     Join a group in which you are not a member.
     """
