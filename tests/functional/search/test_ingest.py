@@ -100,4 +100,4 @@ def test_ingest_rejects_non_object_data(run_line, tmp_path):
     result = run_line(
         ["globus", "search", "ingest", index_id, str(doc)], assert_exit_code=2
     )
-    assert "Ingest document cannot contain non-object JSON data" in result.stderr
+    assert "Ingest document must be a JSON object" in result.stderr

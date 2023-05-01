@@ -104,9 +104,6 @@ def test_dbq_query_string_and_document_mutex(run_line, tmp_path):
 
 
 def test_dbq_rejects_non_object_document(run_line, tmp_path):
-    """
-    Check that `-q` and `--query-document` cannot be used together
-    """
     meta = load_response("delete_by_query").metadata
     index_id = meta["index_id"]
     doc = tmp_path / "doc.json"
@@ -123,7 +120,7 @@ def test_dbq_rejects_non_object_document(run_line, tmp_path):
         ],
         assert_exit_code=2,
     )
-    assert "--query-document cannot contain non-object JSON data" in result.stderr
+    assert "--query-document must be a JSON object" in result.stderr
 
 
 def test_query_required(run_line):

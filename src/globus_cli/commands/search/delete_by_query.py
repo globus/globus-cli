@@ -55,9 +55,7 @@ def delete_by_query_command(
         doc: dict[str, t.Any] = {"q": q}
     elif query_document is not None:
         if not isinstance(query_document.data, dict):
-            raise click.UsageError(
-                "--query-document cannot contain non-object JSON data"
-            )
+            raise click.UsageError("--query-document must be a JSON object")
         doc = query_document.data
     else:
         raise click.UsageError("Either '-q' or '--query-document' must be provided")

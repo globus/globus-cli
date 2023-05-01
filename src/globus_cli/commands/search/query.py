@@ -102,9 +102,7 @@ def query_command(
         )
     elif query_document:
         if not isinstance(query_document.data, dict):
-            raise click.UsageError(
-                "--query-document cannot contain non-object JSON data"
-            )
+            raise click.UsageError("--query-document must be a JSON object")
         doc = query_document.data
 
         if limit is not None:

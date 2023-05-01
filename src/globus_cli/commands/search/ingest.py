@@ -34,7 +34,7 @@ def ingest_command(
     """
     search_client = login_manager.get_search_client()
     if not isinstance(document.data, dict):
-        raise click.UsageError("Ingest document cannot contain non-object JSON data")
+        raise click.UsageError("Ingest document must be a JSON object")
     doc = document.data
 
     datatype = doc.get("@datatype", "GIngest")

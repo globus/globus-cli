@@ -98,7 +98,7 @@ def start_command(
         input_document_json: dict[str, JsonValue] = {}
     else:
         if not isinstance(input_document.data, dict):
-            raise click.UsageError("Flow input cannot be non-object JSON data")
+            raise click.UsageError("Flow input must be a JSON object")
         input_document_json = input_document.data
 
     flow_client = login_manager.get_specific_flow_client(flow_id)

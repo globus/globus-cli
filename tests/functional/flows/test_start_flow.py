@@ -134,4 +134,4 @@ def test_start_flow_rejects_non_object_input(run_line, add_flow_login):
         ["globus", "flows", "start", flow_id, "--input", json.dumps(["foo", "bar"])],
         assert_exit_code=2,
     )
-    assert "Flow input cannot be non-object JSON data" in result.stderr
+    assert "Flow input must be a JSON object" in result.stderr
