@@ -29,8 +29,7 @@ ROLE_TYPES = ("flow_viewer", "flow_starter", "flow_administrator", "flow_owner")
         The JSON input schema that governs the parameters
         used to start the flow.
 
-        The input document may be specified inline,
-        or it may be a path to a JSON file, prefixed with "file:".
+        The input document may be specified inline, or it may be a path to a JSON file.
 
         Example: Inline JSON:
 
@@ -40,7 +39,7 @@ ROLE_TYPES = ("flow_viewer", "flow_starter", "flow_administrator", "flow_owner")
         Example: Path to JSON file:
 
         \b
-            --input-schema file:schema.json
+            --input-schema schema.json
 
         If unspecified, the default is an empty JSON object ('{}').
     """,
@@ -128,8 +127,8 @@ def create_command(
     TITLE is the name of the flow.
 
     DEFINITION is the JSON document that defines the flow's instructions.
-    The definition document may be specified inline,
-    or it may be a path to a JSON file, prefixed with "file:".
+    The definition document may be specified inline, or it may be
+    a path to a JSON file.
 
         Example: Inline JSON:
 
@@ -140,7 +139,7 @@ def create_command(
         Example: Path to JSON file:
 
         \b
-            globus flows create 'My Other Flow' file:definition.json
+            globus flows create 'My Other Flow' definition.json
     """
 
     if input_schema is None:
