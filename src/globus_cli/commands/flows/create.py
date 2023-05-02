@@ -5,6 +5,7 @@ import click
 from globus_cli.login_manager import LoginManager
 from globus_cli.parsing import JSONStringOrFile, ParsedJSONData, command
 from globus_cli.termio import Field, TextMode, display, formatters
+from globus_cli.types import JsonValue
 
 ROLE_TYPES = ("flow_viewer", "flow_starter", "flow_administrator", "flow_owner")
 
@@ -140,13 +141,27 @@ def create_command(
             globus flows create 'My Other Flow' definition.json
     """
 
+    # Ensure that the definition is a JSON object
+    if not isinstance(definition.data, dict):
+        raise click.UsageError("Flow definition must be a JSON object")
+    definition_doc = definition.data
+
+    # Ensure the input schema is a JSON object
+    if input_schema is None:
+        input_schema_doc: dict[str, JsonValue] = {}
+    else:
+        if not isinstance(input_schema.data, dict):
+            raise click.UsageError("--input-schema must be a JSON object")
+        input_schema_doc = input_schema.data
+
+    # Configure clients
     flows_client = login_manager.get_flows_client()
     auth_client = login_manager.get_auth_client()
 
     res = flows_client.create_flow(
         title=title,
-        definition=definition.data,
-        input_schema=input_schema.data if input_schema is not None else {},
+        definition=definition_doc,
+        input_schema=input_schema_doc,
         subtitle=subtitle,
         description=description,
         flow_viewers=list(viewers),
@@ -155,6 +170,7 @@ def create_command(
         keywords=list(keywords),
     )
 
+    # Configure formatters for principals
     principal_formatter = formatters.auth.PrincipalURNFormatter(auth_client)
     for principal_set_name in ("flow_administrators", "flow_viewers", "flow_starters"):
         for value in res.get(principal_set_name, ()):
