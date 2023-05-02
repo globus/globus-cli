@@ -1,11 +1,9 @@
 from __future__ import annotations
 
-import typing as t
-
 import click
 
 from globus_cli.login_manager import LoginManager
-from globus_cli.parsing import JSONStringOrFile, command
+from globus_cli.parsing import JSONStringOrFile, ParsedJSONData, command
 from globus_cli.termio import Field, TextMode, display, formatters
 
 ROLE_TYPES = ("flow_viewer", "flow_starter", "flow_administrator", "flow_owner")
@@ -112,14 +110,14 @@ ROLE_TYPES = ("flow_viewer", "flow_starter", "flow_administrator", "flow_owner")
 def create_command(
     login_manager: LoginManager,
     title: str,
-    definition: dict,
-    input_schema: dict | None | t.Any,
+    definition: ParsedJSONData,
+    input_schema: ParsedJSONData | None,
     subtitle: str | None,
     description: str | None,
-    administrators: tuple[str],
-    starters: tuple[str],
-    viewers: tuple[str],
-    keywords: tuple[str],
+    administrators: tuple[str, ...],
+    starters: tuple[str, ...],
+    viewers: tuple[str, ...],
+    keywords: tuple[str, ...],
 ) -> None:
     """
     Create a new flow.
@@ -142,16 +140,13 @@ def create_command(
             globus flows create 'My Other Flow' definition.json
     """
 
-    if input_schema is None:
-        input_schema = {}
-
     flows_client = login_manager.get_flows_client()
     auth_client = login_manager.get_auth_client()
 
     res = flows_client.create_flow(
         title=title,
-        definition=definition,
-        input_schema=input_schema,
+        definition=definition.data,
+        input_schema=input_schema.data if input_schema is not None else {},
         subtitle=subtitle,
         description=description,
         flow_viewers=list(viewers),
