@@ -1,5 +1,6 @@
 import json
 import re
+from random import shuffle
 
 from globus_sdk._testing import RegisteredResponse, load_response
 
@@ -38,6 +39,8 @@ FLOW_IDENTITIES = {
     },
 }
 
+SPECIAL_PRINCIPALS = ["public", "all_authenticated_users"]
+
 
 def get_identity(id, name):
     """
@@ -47,6 +50,38 @@ def get_identity(id, name):
     identity = FLOW_IDENTITIES[name].copy()
     identity["id"] = id
     return identity
+
+
+def assign_identities_for_principal_set(principal_set, existing_identities):
+    """
+    Return a list of identities for the provided principal set, updating the provided
+    existing_identities dict with any new identities that are created.
+
+    principal_set is a list of principals in the request
+    existing_identities is a dict mapping principal URNs to identities
+    """
+    identity_set = []
+    # Randomize the names for each principal set
+    available_identities = list(FLOW_IDENTITIES.keys())
+    shuffle(available_identities)
+
+    # Iterate over the principals in the request
+    for index, principal in enumerate(principal_set):
+        if principal in existing_identities:
+            # Use the existing identity if it's already been assigned
+            identity_set.append(existing_identities[principal])
+            continue
+
+        if principal not in SPECIAL_PRINCIPALS:
+            # Attempt to assign distinct identities to each principal
+            identity = get_identity(
+                principal.split(":")[-1],
+                available_identities[index % len(available_identities)],
+            )
+            identity_set.append(identity)
+            existing_identities[principal] = identity
+
+    return identity_set
 
 
 def value_for_field_from_output(name, output):
@@ -71,30 +106,30 @@ def test_create_flow_text_output(run_line):
     flow_starters = response.metadata["params"]["flow_starters"]
     flow_viewers = response.metadata["params"]["flow_viewers"]
 
-    # Configure identities
+    # Configure the owner identity
     owner_identity = get_identity(response.json["flow_owner"].split(":")[-1], "pete")
-    flow_administrator_identities = [
-        get_identity(flow_administrators[0].split(":")[-1], "nona")
-    ]
-    flow_starter_identities = [get_identity(flow_starters[0].split(":")[-1], "artie")]
-    flow_viewer_identities = [get_identity(flow_viewers[0].split(":")[-1], "monica")]
+    identities = {response.json["flow_owner"]: owner_identity}
 
-    # FIXME: Remove as soon as upstream SDK changes are released
-    flow_administrator_identities = [owner_identity]
-    flow_starter_identities = [owner_identity]
-    flow_viewer_identities = [owner_identity]
+    # Configure the identities for other roles
+    flow_administrator_identities = assign_identities_for_principal_set(
+        principal_set=flow_administrators,
+        existing_identities=identities,
+    )
+    flow_starter_identities = assign_identities_for_principal_set(
+        principal_set=flow_starters,
+        existing_identities=identities,
+    )
+    flow_viewer_identities = assign_identities_for_principal_set(
+        principal_set=flow_viewers,
+        existing_identities=identities,
+    )
 
     load_response(
         RegisteredResponse(
             service="auth",
             path="/v2/api/identities",
             json={
-                "identities": [
-                    owner_identity,
-                    *flow_administrator_identities,
-                    *flow_starter_identities,
-                    *flow_viewer_identities,
-                ],
+                "identities": list(identities.values()),
             },
         )
     )
@@ -153,14 +188,27 @@ def test_create_flow_text_output(run_line):
     expected_sets = {
         "Keywords": set(keywords),
         "Administrators": {
-            *[identity["username"] for identity in flow_administrator_identities]
+            *[
+                principal
+                for principal in SPECIAL_PRINCIPALS
+                if principal in flow_administrators
+            ],
+            *[identity["username"] for identity in flow_administrator_identities],
         },
         "Starters": {
-            "all_authenticated_users",
+            *[
+                principal
+                for principal in SPECIAL_PRINCIPALS
+                if principal in flow_starters
+            ],
             *[identity["username"] for identity in flow_starter_identities],
         },
         "Viewers": {
-            "public",
+            *[
+                principal
+                for principal in SPECIAL_PRINCIPALS
+                if principal in flow_viewers
+            ],
             *[identity["username"] for identity in flow_viewer_identities],
         },
     }
