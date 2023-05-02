@@ -135,26 +135,29 @@ def test_create_flow_text_output(run_line):
     )
 
     # Construct the command line
-    arguments = [
-        f"'{title}'",
-        f"'{json.dumps(definition)}'",
+    command = [
+        "globus",
+        "flows",
+        "create",
+        title,
+        json.dumps(definition),
     ]
     for flow_administrator in flow_administrators:
-        arguments.extend(("--administrator", f"'{flow_administrator}'"))
+        command.extend(("--administrator", flow_administrator))
     for flow_starter in flow_starters:
-        arguments.extend(("--starter", f"'{flow_starter}'"))
+        command.extend(("--starter", flow_starter))
     for flow_viewer in flow_viewers:
-        arguments.extend(("--viewer", f"'{flow_viewer}'"))
+        command.extend(("--viewer", flow_viewer))
     for keyword in keywords:
-        arguments.extend(("--keyword", f"'{keyword}'"))
+        command.extend(("--keyword", keyword))
     if input_schema is not None:
-        arguments.extend(("--input-schema", f"'{json.dumps(input_schema)}'"))
+        command.extend(("--input-schema", json.dumps(input_schema)))
     if subtitle is not None:
-        arguments.extend(("--subtitle", f"'{subtitle}'"))
+        command.extend(("--subtitle", subtitle))
     if description is not None:
-        arguments.extend(("--description", f"'{description}'"))
+        command.extend(("--description", description))
 
-    result = run_line(f"globus flows create {' '.join(arguments)}")
+    result = run_line(command)
 
     # Check all fields are present
     expected_fields = {
