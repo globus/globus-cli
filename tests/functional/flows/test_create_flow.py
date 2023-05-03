@@ -42,46 +42,60 @@ FLOW_IDENTITIES = {
 SPECIAL_PRINCIPALS = ["public", "all_authenticated_users"]
 
 
-def get_identity(id, name):
-    """
-    Return an identity dict using the provided id for the user corresponding
-    to the provided name.
-    """
-    identity = FLOW_IDENTITIES[name].copy()
-    identity["id"] = id
-    return identity
+class IdentityPool:
+    IDENTITY_DATA = FLOW_IDENTITIES
 
+    def __init__(self):
+        self.identities = {}
+        self.assigned_sets = {}
 
-def assign_identities_for_principal_set(principal_set, existing_identities):
-    """
-    Return a list of identities for the provided principal set, updating the provided
-    existing_identities dict with any new identities that are created.
+    def assign(self, set_name, principal_set):
+        """
+        Assign a list of identities for the provided principal set, updating the
+        stored identities dict with any new identities that are created so they can
+        be reused.
 
-    principal_set is a list of principals in the request
-    existing_identities is a dict mapping principal URNs to identities
-    """
-    identity_set = []
-    # Randomize the names for each principal set
-    available_identities = list(FLOW_IDENTITIES.keys())
-    shuffle(available_identities)
+        set_name is the name of the key to store the assigned identities under
+        principal_set is a list of principals in the request
+        """
+        self.assigned_sets[set_name] = identity_set = []
+        # Randomize the names for each principal set
+        available_identities = list(self.IDENTITY_DATA.keys())
+        shuffle(available_identities)
 
-    # Iterate over the principals in the request
-    for index, principal in enumerate(principal_set):
-        if principal in existing_identities:
-            # Use the existing identity if it's already been assigned
-            identity_set.append(existing_identities[principal])
-            continue
+        # Iterate over the principals in the request
+        for index, principal in enumerate(principal_set):
+            if principal in self.identities:
+                # Use the existing identity if it's already been assigned
+                identity_set.append(self.identities[principal])
+                continue
 
-        if principal not in SPECIAL_PRINCIPALS:
-            # Attempt to assign distinct identities to each principal
-            identity = get_identity(
-                principal.split(":")[-1],
-                available_identities[index % len(available_identities)],
-            )
-            identity_set.append(identity)
-            existing_identities[principal] = identity
+            if principal not in SPECIAL_PRINCIPALS:
+                # Attempt to assign distinct identities to each principal
+                identity = self.create_identity(
+                    principal.split(":")[-1],
+                    available_identities[index % len(available_identities)],
+                )
+                identity_set.append(identity)
+                self.identities[principal] = identity
 
-    return identity_set
+        return identity_set
+
+    def get_assigned_usernames(self, set_name):
+        """
+        Return a list of usernames for the provided set_name.
+        """
+        return [identity["username"] for identity in self.assigned_sets[set_name]]
+
+    @classmethod
+    def create_identity(cls, id, name):
+        """
+        Return an identity dict using the provided id for the user corresponding
+        to the provided name.
+        """
+        identity = cls.IDENTITY_DATA[name].copy()
+        identity["id"] = id
+        return identity
 
 
 def value_for_field_from_output(name, output):
@@ -106,30 +120,20 @@ def test_create_flow_text_output(run_line):
     flow_starters = response.metadata["params"]["flow_starters"]
     flow_viewers = response.metadata["params"]["flow_viewers"]
 
-    # Configure the owner identity
-    owner_identity = get_identity(response.json["flow_owner"].split(":")[-1], "pete")
-    identities = {response.json["flow_owner"]: owner_identity}
+    pool = IdentityPool()
 
-    # Configure the identities for other roles
-    flow_administrator_identities = assign_identities_for_principal_set(
-        principal_set=flow_administrators,
-        existing_identities=identities,
-    )
-    flow_starter_identities = assign_identities_for_principal_set(
-        principal_set=flow_starters,
-        existing_identities=identities,
-    )
-    flow_viewer_identities = assign_identities_for_principal_set(
-        principal_set=flow_viewers,
-        existing_identities=identities,
-    )
+    # Configure the identities for all roles
+    pool.assign("owner", [response.json["flow_owner"]])
+    pool.assign("administrators", flow_administrators)
+    pool.assign("starters", flow_starters)
+    pool.assign("viewers", flow_viewers)
 
     load_response(
         RegisteredResponse(
             service="auth",
             path="/v2/api/identities",
             json={
-                "identities": list(identities.values()),
+                "identities": list(pool.identities.values()),
             },
         )
     )
@@ -178,7 +182,7 @@ def test_create_flow_text_output(run_line):
 
     # Check values for simple fields
     simple_fields = {
-        "Owner": owner_identity["username"],
+        "Owner": pool.get_assigned_usernames("owner")[0],
         "Title": title or "",
         "Subtitle": subtitle or "",
         "Description": description or "",
@@ -196,7 +200,7 @@ def test_create_flow_text_output(run_line):
                 for principal in SPECIAL_PRINCIPALS
                 if principal in flow_administrators
             ],
-            *[identity["username"] for identity in flow_administrator_identities],
+            *pool.get_assigned_usernames("administrators"),
         },
         "Starters": {
             *[
@@ -204,7 +208,7 @@ def test_create_flow_text_output(run_line):
                 for principal in SPECIAL_PRINCIPALS
                 if principal in flow_starters
             ],
-            *[identity["username"] for identity in flow_starter_identities],
+            *pool.get_assigned_usernames("starters"),
         },
         "Viewers": {
             *[
@@ -212,7 +216,7 @@ def test_create_flow_text_output(run_line):
                 for principal in SPECIAL_PRINCIPALS
                 if principal in flow_viewers
             ],
-            *[identity["username"] for identity in flow_viewer_identities],
+            *pool.get_assigned_usernames("viewers"),
         },
     }
 
