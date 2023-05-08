@@ -9,10 +9,10 @@ from globus_cli.termio import Field, TextMode, display
 
 from .._common import group_id_arg
 
-if sys.version_info < (3, 9):
-    from typing_extensions import Literal
-else:
+if sys.version_info >= (3, 8):
     from typing import Literal
+else:
+    from typing_extensions import Literal
 
 ADD_USER_FIELDS = [
     Field("Group ID", "group_id"),

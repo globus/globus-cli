@@ -19,10 +19,10 @@ from globus_cli.types import TupleType
 
 from ._common import validate_endpoint_create_and_update_params
 
-if sys.version_info < (3, 8):
-    from typing_extensions import Literal
-else:
+if sys.version_info >= (3, 8):
     from typing import Literal
+else:
+    from typing_extensions import Literal
 
 COMMON_FIELDS = [Field("Message", "message"), Field("Endpoint ID", "id")]
 

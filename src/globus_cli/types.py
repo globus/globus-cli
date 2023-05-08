@@ -14,19 +14,19 @@ else:
     from typing_extensions import TypeAlias
 
 # runtime usable types (see AnnotatedOption for a use-case)
-if sys.version_info < (3, 9):
-    DictType = t.Dict
-    ListType = t.List
-    TupleType = t.Tuple
-else:
+if sys.version_info >= (3, 9):
     DictType = dict
     ListType = list
     TupleType = tuple
-
-if sys.version_info < (3, 8):
-    from typing_extensions import Literal
 else:
+    DictType = t.Dict
+    ListType = t.List
+    TupleType = t.Tuple
+
+if sys.version_info >= (3, 8):
     from typing import Literal
+else:
+    from typing_extensions import Literal
 
 # all imports from globus_cli modules done here are done under TYPE_CHECKING
 # in order to ensure that the use of type annotations never introduces circular

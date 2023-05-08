@@ -16,10 +16,10 @@ from globus_sdk.scopes import (
 
 from globus_cli.types import ServiceNameLiteral
 
-if sys.version_info < (3, 8):
-    from typing_extensions import Final, TypedDict
-else:
+if sys.version_info >= (3, 8):
     from typing import Final, TypedDict
+else:
+    from typing_extensions import Final, TypedDict
 
 TRANSFER_AP_SCOPE_STR: str = (
     "https://auth.globus.org/scopes/actions.globus.org/transfer/transfer"

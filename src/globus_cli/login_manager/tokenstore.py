@@ -9,10 +9,10 @@ import globus_sdk
 from .client_login import get_client_login, is_client_login
 from .scopes import CURRENT_SCOPE_CONTRACT_VERSION
 
-if sys.version_info < (3, 8):
-    from typing_extensions import Literal
-else:
+if sys.version_info >= (3, 8):
     from typing import Literal
+else:
+    from typing_extensions import Literal
 
 if t.TYPE_CHECKING:
     from globus_sdk.tokenstorage import SQLiteAdapter

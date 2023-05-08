@@ -8,11 +8,6 @@ if sys.version_info >= (3, 8):
 else:
     from typing_extensions import Literal
 
-if sys.version_info < (3, 9):
-    DictType = t.Dict
-else:
-    DictType = dict
-
 import click
 
 from globus_cli import utils
@@ -24,6 +19,7 @@ from globus_cli.parsing.param_types import (
     StringOrNull,
     UrlOrNull,
 )
+from globus_cli.types import DictType
 
 C = t.TypeVar("C", bound=t.Union[t.Callable, click.Command])
 

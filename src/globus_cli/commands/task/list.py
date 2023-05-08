@@ -13,10 +13,10 @@ from globus_cli.parsing import AnnotatedOption, command
 from globus_cli.termio import Field, display
 from globus_cli.utils import PagingWrapper
 
-if sys.version_info < (3, 8):
-    from typing_extensions import Literal
-else:
+if sys.version_info >= (3, 8):
     from typing import Literal
+else:
+    from typing_extensions import Literal
 
 
 def _format_date_callback(
