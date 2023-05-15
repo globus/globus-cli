@@ -72,9 +72,10 @@ ROLE_TYPES = ("flow_viewer", "flow_starter", "flow_administrator", "flow_owner")
     type=str,
     multiple=True,
     help="""
-        A principal that may run the flow.
+        A principal that may start a new run of the flow.
 
-        Use "all_authenticated_users" to allow any authenticated user to run the flow.
+        Use "all_authenticated_users" to allow any authenticated user
+        to start a new run of the flow.
 
         This option can be specified multiple times
         to create a list of flow starters.
