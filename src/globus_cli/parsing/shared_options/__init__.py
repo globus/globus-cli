@@ -357,3 +357,17 @@ def no_local_server_option(f):
             "remote connection."
         ),
     )(f)
+
+
+def local_user_option(f: C) -> C:
+    """
+    Option for setting the mapped local user used across multiple Transfer commands
+    """
+    return click.option(
+        "--local-user",
+        help=(
+            "Optional value passed to identity mapping specifying which local user "
+            "account to map to. Only usable with Globus Connect Server v5 mapped "
+            "collections."
+        ),
+    )(f)

@@ -1,11 +1,12 @@
 from __future__ import annotations
 
 import typing as t
+import uuid
 
 import click
 
 from globus_cli.login_manager import LoginManager
-from globus_cli.parsing import ENDPOINT_PLUS_OPTPATH, command
+from globus_cli.parsing import ENDPOINT_PLUS_OPTPATH, command, local_user_option
 from globus_cli.termio import Field, display, formatters, is_verbose, outformat_is_text
 
 
@@ -122,16 +123,18 @@ $ globus ls $ep_id:/share/godata/ --filter '~*.txt'  # done with --filter, bette
         "this should behave like a non-recursive `ls`"
     ),
 )
+@local_user_option
 @LoginManager.requires_login("transfer")
 def ls_command(
     *,
     login_manager: LoginManager,
-    endpoint_plus_path,
-    recursive_depth_limit,
-    recursive,
-    long_output,
-    show_hidden,
-    filter_val,
+    endpoint_plus_path: tuple[uuid.UUID, str | None],
+    recursive_depth_limit: int,
+    recursive: bool,
+    long_output: bool,
+    show_hidden: bool,
+    filter_val: str | None,
+    local_user: str | None,
 ):
     """
     List the contents of a directory on an endpoint. If no path is given, the default
@@ -180,6 +183,8 @@ def ls_command(
     ls_params: dict[str, t.Any] = {"show_hidden": int(show_hidden)}
     if path:
         ls_params["path"] = path
+    if local_user:
+        ls_params["local_user"] = local_user
 
     # this char has special meaning in the LS API's filter clause
     # can't be part of the pattern (but we don't support globbing across

@@ -102,3 +102,51 @@ def test_exlude_recursive_batch_file(run_line, go_ep1_id, go_ep2_id, tmp_path):
         "--include and --exclude can only be used with --recursive transfers"
         in result.stderr
     )
+
+
+def test_transfer_local_user_opts(run_line, go_ep1_id, go_ep2_id):
+    """
+    confirms --source-local-user and --destination-local-user are present in
+    transfer dry-run output
+    """
+    load_response_set("cli.get_submission_id")
+
+    result = run_line(
+        "globus transfer -F json --dry-run -r "
+        "--source-local-user src-user --destination-local-user dst-user "
+        f"{go_ep1_id}:/ {go_ep1_id}:/"
+    )
+
+    json_output = json.loads(result.output)
+    assert json_output["source_local_user"] == "src-user"
+    assert json_output["destination_local_user"] == "dst-user"
+
+
+def test_delete_local_user(run_line, go_ep1_id):
+    """
+    confirms --local-user is present in delete dry-run output
+    """
+    load_response_set("cli.get_submission_id")
+    load_response_set("cli.transfer_activate_success")
+
+    result = run_line(
+        f"globus delete -F json --dry-run -r --local-user my-user {go_ep1_id}:/"
+    )
+
+    json_output = json.loads(result.output)
+    assert json_output["local_user"] == "my-user"
+
+
+def test_rm_local_user(run_line, go_ep1_id):
+    """
+    confirms --local-user is present in rm dry-run output
+    """
+    load_response_set("cli.get_submission_id")
+    load_response_set("cli.transfer_activate_success")
+
+    result = run_line(
+        f"globus rm -F json --dry-run -r --local-user my-user {go_ep1_id}:/"
+    )
+
+    json_output = json.loads(result.output)
+    assert json_output["local_user"] == "my-user"

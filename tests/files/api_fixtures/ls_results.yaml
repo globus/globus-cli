@@ -257,3 +257,36 @@ transfer:
         "symlink_supported": true,
         "total": 1
       }
+  - path: /operation/endpoint/ddb59aef-6d04-11e5-ba46-22000b92c6ec/ls
+    query_params:
+      path: "/~/"
+      show_hidden: 0
+      local_user: "my-user"
+    json:
+      {
+        "DATA": [
+          {
+            "DATA_TYPE": "file",
+            "group": "root",
+            "last_modified": "2020-09-23 18:53:12+00:00",
+            "link_group": null,
+            "link_last_modified": null,
+            "link_size": null,
+            "link_target": null,
+            "link_user": null,
+            "name": "file1.txt",
+            "permissions": "0644",
+            "size": 4,
+            "type": "file",
+            "user": "my-user"
+          },
+        ],
+        "DATA_TYPE": "file_list",
+        "absolute_path": null,
+        "endpoint": "ddb59aef-6d04-11e5-ba46-22000b92c6ec",
+        "length": 1,
+        "path": "/~/",
+        "rename_supported": true,
+        "symlink_supported": true,
+        "total": 1
+      }

@@ -1,6 +1,7 @@
 metadata:
   endpoint_id: "ddb59aef-6d04-11e5-ba46-22000b92c6ec"
   go_ep2_id: "ddb59af0-6d04-11e5-ba46-22000b92c6ec"
+  sdk_endpoint_id: "00000000-0000-0000-0005-4925541e7725"
 
 
 transfer:
@@ -9,6 +10,10 @@ transfer:
     # exact data doesn't matter, just not the failure code
     json: {"code": "AutoActivated.BogusCode"}
   - path: /endpoint/ddb59af0-6d04-11e5-ba46-22000b92c6ec/autoactivate
+    method: post
+    # exact data doesn't matter, just not the failure code
+    json: {"code": "AutoActivated.BogusCode"}
+  - path: /endpoint/00000000-0000-0000-0005-4925541e7725/autoactivate
     method: post
     # exact data doesn't matter, just not the failure code
     json: {"code": "AutoActivated.BogusCode"}

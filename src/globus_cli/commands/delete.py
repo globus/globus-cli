@@ -1,3 +1,9 @@
+from __future__ import annotations
+
+import datetime
+import typing as t
+import uuid
+
 import click
 import globus_sdk
 
@@ -8,6 +14,7 @@ from globus_cli.parsing import (
     TaskPath,
     command,
     delete_and_rm_options,
+    local_user_option,
     task_submission_options,
 )
 from globus_cli.termio import (
@@ -65,23 +72,25 @@ $ globus task wait "$task_id"
 )
 @task_submission_options
 @delete_and_rm_options
+@local_user_option
 @click.argument("endpoint_plus_path", type=ENDPOINT_PLUS_OPTPATH)
 @LoginManager.requires_login("transfer")
 def delete_command(
     *,
     login_manager: LoginManager,
-    batch,
-    ignore_missing,
-    star_silent,
-    recursive,
-    enable_globs,
-    endpoint_plus_path,
-    label,
-    submission_id,
-    dry_run,
-    deadline,
-    skip_activation_check,
-    notify,
+    batch: t.TextIO | None,
+    ignore_missing: bool,
+    star_silent: bool,
+    recursive: bool,
+    enable_globs: bool,
+    endpoint_plus_path: tuple[uuid.UUID, str | None],
+    label: str | None,
+    submission_id: str | None,
+    dry_run: bool,
+    deadline: datetime.datetime | None,
+    skip_activation_check: bool,
+    notify: dict[str, bool],
+    local_user: str | None,
 ):
     """
     Submits an asynchronous task that deletes files and/or directories on the target
@@ -122,9 +131,6 @@ def delete_command(
     from globus_cli.services.transfer import autoactivate
 
     endpoint_id, path = endpoint_plus_path
-    if path is None and (not batch):
-        raise click.UsageError("delete requires either a PATH OR --batch")
-
     transfer_client = login_manager.get_transfer_client()
 
     # attempt to activate unless --skip-activation-check is given
@@ -138,6 +144,7 @@ def delete_command(
         recursive=recursive,
         submission_id=submission_id,
         deadline=deadline,
+        local_user=local_user,
         additional_fields={
             "ignore_missing": ignore_missing,
             "skip_activation_check": skip_activation_check,
@@ -161,6 +168,9 @@ def delete_command(
 
         utils.shlex_process_stream(process_batch_line, batch)
     else:
+        if path is None:
+            raise click.UsageError("delete requires either a PATH OR --batch")
+
         if not star_silent and enable_globs and path.endswith("*"):
             # not intuitive, but `click.confirm(abort=True)` prints to stdout
             # unnecessarily, which we don't really want...

@@ -1,3 +1,8 @@
+from __future__ import annotations
+
+import datetime
+import uuid
+
 import click
 import globus_sdk
 
@@ -6,6 +11,7 @@ from globus_cli.parsing import (
     ENDPOINT_PLUS_REQPATH,
     command,
     delete_and_rm_options,
+    local_user_option,
     synchronous_task_wait_options,
     task_submission_options,
 )
@@ -37,27 +43,29 @@ $ globus rm $ep_id:~/mydir --recursive
 @task_submission_options
 @delete_and_rm_options(supports_batch=False, default_enable_globs=True)
 @synchronous_task_wait_options
+@local_user_option
 @click.argument("endpoint_plus_path", type=ENDPOINT_PLUS_REQPATH)
 @LoginManager.requires_login("transfer")
 def rm_command(
     *,
     login_manager: LoginManager,
-    ignore_missing,
-    star_silent,
-    recursive,
-    enable_globs,
-    endpoint_plus_path,
-    label,
-    submission_id,
-    dry_run,
-    deadline,
-    skip_activation_check,
-    notify,
-    meow,
-    heartbeat,
-    polling_interval,
-    timeout,
-    timeout_exit_code,
+    ignore_missing: bool,
+    star_silent: bool,
+    recursive: bool,
+    enable_globs: bool,
+    endpoint_plus_path: tuple[uuid.UUID, str],
+    label: str | None,
+    submission_id: str | None,
+    dry_run: bool,
+    deadline: datetime.datetime | None,
+    skip_activation_check: bool,
+    notify: dict[str, bool],
+    local_user: str | None,
+    meow: bool,
+    heartbeat: bool,
+    polling_interval: int,
+    timeout: int | None,
+    timeout_exit_code: int,
 ):
     """
     Submit a Delete Task to delete a single path, and then block and wait for it to
@@ -87,6 +95,7 @@ def rm_command(
         recursive=recursive,
         submission_id=submission_id,
         deadline=deadline,
+        local_user=local_user,
         additional_fields={
             "ignore_missing": ignore_missing,
             "skip_activation_check": skip_activation_check,
@@ -112,7 +121,7 @@ def rm_command(
     delete_data.add_item(path)
 
     if dry_run:
-        display(delete_data, response_key="DATA", fields=[Field("Path", "path")])
+        display(delete_data.data, response_key="DATA", fields=[Field("Path", "path")])
         # exit safely
         return
 

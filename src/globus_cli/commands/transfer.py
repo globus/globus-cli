@@ -192,6 +192,22 @@ fi
         "options having priority."
     ),
 )
+@click.option(
+    "--source-local-user",
+    help=(
+        "Optional value passed to the source's identity mapping specifying which local "
+        "user account to map to. Only usable with Globus Connect Server v5 mapped "
+        "collections."
+    ),
+)
+@click.option(
+    "--destination-local-user",
+    help=(
+        "Optional value passed to the destination's identity mapping specifying which "
+        "local user account to map to. Only usable with Globus Connect Server v5 "
+        "mapped collections."
+    ),
+)
 @click.option("--perf-cc", type=int, hidden=True)
 @click.option("--perf-p", type=int, hidden=True)
 @click.option("--perf-pp", type=int, hidden=True)
@@ -225,6 +241,8 @@ def transfer_command(
     perf_p: int | None,
     perf_pp: int | None,
     perf_udt: bool | None,
+    source_local_user: str | None,
+    destination_local_user: str | None,
 ) -> None:
     """
     Copy a file or directory from one endpoint to another as an asynchronous
@@ -353,6 +371,8 @@ def transfer_command(
         fail_on_quota_errors=fail_on_quota_errors,
         skip_activation_check=skip_activation_check,
         delete_destination_extra=delete,
+        source_local_user=source_local_user,
+        destination_local_user=destination_local_user,
         additional_fields={**perf_opts, **notify},
     )
 

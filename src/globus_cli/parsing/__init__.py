@@ -18,6 +18,7 @@ from .param_types import (
 )
 from .shared_options import (
     delete_and_rm_options,
+    local_user_option,
     no_local_server_option,
     security_principal_opts,
     synchronous_task_wait_options,
@@ -81,4 +82,5 @@ __all__ = [
     "skip_source_errors_option",
     "verify_checksum_option",
     "endpointish_params",
+    "local_user_option",
 ]

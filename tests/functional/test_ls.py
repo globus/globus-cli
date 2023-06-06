@@ -56,3 +56,13 @@ def test_recursive_json(run_line, go_ep1_id):
     result = run_line(f"globus ls -r -F json {go_ep1_id}:/share")
     assert '"DATA":' in result.output
     assert '"name": "godata/file1.txt"' in result.output
+
+
+def test_local_user(run_line, go_ep1_id):
+    """
+    Confirms --local-user is passed to query params
+    """
+    load_response_set("cli.transfer_activate_success")
+    load_response_set("cli.ls_results")
+    result = run_line(f"globus ls {go_ep1_id}:/~/ -F json --local-user my-user")
+    assert '"user": "my-user"' in result.output
