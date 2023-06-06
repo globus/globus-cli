@@ -127,7 +127,6 @@ def test_delete_local_user(run_line, go_ep1_id):
     confirms --local-user is present in delete dry-run output
     """
     load_response_set("cli.get_submission_id")
-    load_response_set("cli.transfer_activate_success")
 
     result = run_line(
         f"globus delete -F json --dry-run -r --local-user my-user {go_ep1_id}:/"
@@ -142,7 +141,6 @@ def test_rm_local_user(run_line, go_ep1_id):
     confirms --local-user is present in rm dry-run output
     """
     load_response_set("cli.get_submission_id")
-    load_response_set("cli.transfer_activate_success")
 
     result = run_line(
         f"globus rm -F json --dry-run -r --local-user my-user {go_ep1_id}:/"

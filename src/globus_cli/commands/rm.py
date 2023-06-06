@@ -84,10 +84,6 @@ def rm_command(
 
     transfer_client = login_manager.get_transfer_client()
 
-    # attempt to activate unless --skip-activation-check is given
-    if not skip_activation_check:
-        autoactivate(transfer_client, endpoint_id, if_expires_in=60)
-
     delete_data = globus_sdk.DeleteData(
         transfer_client,
         endpoint_id,
@@ -124,6 +120,10 @@ def rm_command(
         display(delete_data.data, response_key="DATA", fields=[Field("Path", "path")])
         # exit safely
         return
+
+    # attempt to activate unless --skip-activation-check is given
+    if not skip_activation_check:
+        autoactivate(transfer_client, endpoint_id, if_expires_in=60)
 
     # Print task submission to stderr so that `-Fjson` is still correctly
     # respected, as it will be by `task wait`
