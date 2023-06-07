@@ -45,13 +45,13 @@ def test_unquote_cmdprompt_squote(arg, expect):
 
 
 def test_shlex_process_stream_success():
-    @click.command
+    @click.command()
     def outer_main():
         pass
 
     values = []
 
-    @click.command
+    @click.command()
     @click.argument("bar")
     def foo(bar):
         values.append(bar)
@@ -66,13 +66,13 @@ def test_shlex_process_stream_success():
 
 
 def test_shlex_process_stream_error_handling(capsys):
-    @click.command
+    @click.command()
     def outer_main():
         pass
 
     values = []
 
-    @click.command
+    @click.command()
     @click.argument("bar")
     def foo(bar):
         values.append(bar)
