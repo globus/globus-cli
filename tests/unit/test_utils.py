@@ -89,7 +89,7 @@ def test_shlex_process_stream_error_handling(capsys):
     captured = capsys.readouterr()
     assert (
         """\
-error encountered processing 'data' at alphabet.txt:0:
+error encountered processing 'data' in alphabet.txt at line 0:
   Got unexpected extra argument (beta)
 """
         in captured.err

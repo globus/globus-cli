@@ -174,8 +174,8 @@ def shlex_process_stream(
                     process_command.invoke(ctx)
             except click.ClickException as error:
                 click.echo(
-                    f"error encountered processing '{name}' at "
-                    f"{stream.name}:{lineno}:",
+                    f"error encountered processing '{name}' in "
+                    f"{stream.name} at line {lineno}:",
                     err=True,
                 )
                 click.echo(
