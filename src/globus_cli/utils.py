@@ -147,7 +147,9 @@ class PagingWrapper:
         return converter
 
 
-def shlex_process_stream(process_command: click.Command, stream: t.TextIO) -> None:
+def shlex_process_stream(
+    process_command: click.Command, stream: t.TextIO, name: str
+) -> None:
     """
     Use shlex to process stdin line-by-line.
     Also prints help text.
@@ -161,14 +163,22 @@ def shlex_process_stream(process_command: click.Command, stream: t.TextIO) -> No
     # use readlines() rather than implicit file read line looping to force
     # python to properly capture EOF (otherwise, EOF acts as a flush and
     # things get weird)
-    for line in stream.readlines():
+    for lineno, line in enumerate(stream.readlines()):
         # get the argument vector:
         # do a shlex split to handle quoted paths with spaces in them
         # also lets us have comments with #
         argv = shlex.split(line, comments=True)
         if argv:
             try:
-                process_command.main(args=argv)
-            except SystemExit as e:
-                if e.code != 0:
-                    raise
+                with process_command.make_context(f"<process {name}>", argv) as ctx:
+                    process_command.invoke(ctx)
+            except click.ClickException as error:
+                click.echo(
+                    f"error encountered processing '{name}' at "
+                    f"{stream.name}:{lineno}:",
+                    err=True,
+                )
+                click.echo(
+                    click.style(f"  {error.format_message()}", fg="yellow"), err=True
+                )
+                click.get_current_context().exit(2)

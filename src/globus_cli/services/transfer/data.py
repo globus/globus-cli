@@ -37,7 +37,7 @@ def add_batch_to_transfer_data(
             recursive=recursive,
         )
 
-    shlex_process_stream(process_batch_line, batch)
+    shlex_process_stream(process_batch_line, batch, "--batch")
 
 
 def display_name_or_cname(ep_doc: dict | globus_sdk.GlobusHTTPResponse) -> str:
