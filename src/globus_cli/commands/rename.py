@@ -1,5 +1,7 @@
 from __future__ import annotations
 
+import uuid
+
 import click
 
 from globus_cli.login_manager import LoginManager
@@ -27,7 +29,7 @@ $ globus rename $ep_id:~/tempdir $ep_id:~/project-foo
 def rename_command(
     *,
     login_manager: LoginManager,
-    endpoint_id: str,
+    endpoint_id: uuid.UUID,
     source: str,
     destination: str,
     local_user: str | None,
