@@ -4,6 +4,7 @@ from .param_classes import AnnotatedOption, one_use_option
 from .param_types import (
     ENDPOINT_PLUS_OPTPATH,
     ENDPOINT_PLUS_REQPATH,
+    AnnotatedParamType,
     CommaDelimitedList,
     IdentityType,
     JSONStringOrFile,
@@ -49,6 +50,7 @@ __all__ = [
     # param types
     "ENDPOINT_PLUS_OPTPATH",
     "ENDPOINT_PLUS_REQPATH",
+    "AnnotatedParamType",
     "CommaDelimitedList",
     "IdentityType",
     "JSONStringOrFile",

@@ -1,15 +1,19 @@
 from __future__ import annotations
 
+import typing as t
 import uuid
 
 import click
 
 from globus_cli.login_manager import LoginManager
-from globus_cli.parsing import command, endpoint_id_arg
+from globus_cli.parsing import AnnotatedParamType, command, endpoint_id_arg
 from globus_cli.termio import TextMode, display
 
 
-class SubscriptionIdType(click.ParamType):
+class SubscriptionIdType(AnnotatedParamType):
+    def get_type_annotation(self, param: click.Parameter) -> type:
+        return t.cast(type, t.Union[str, None])
+
     def convert(
         self, value: str, param: click.Parameter | None, ctx: click.Context | None
     ):
@@ -29,7 +33,7 @@ class SubscriptionIdType(click.ParamType):
 @click.argument("SUBSCRIPTION_ID", type=SubscriptionIdType())
 @LoginManager.requires_login("transfer")
 def set_endpoint_subscription_id(
-    *, login_manager: LoginManager, endpoint_id: str, subscription_id: str | None
+    *, login_manager: LoginManager, endpoint_id: uuid.UUID, subscription_id: str | None
 ) -> None:
     """
     Set an endpoint's subscription ID.
