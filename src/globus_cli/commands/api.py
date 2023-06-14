@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import json
+import sys
 import typing as t
 from collections import defaultdict
 
@@ -10,14 +11,22 @@ import globus_sdk
 from globus_cli import termio, version
 from globus_cli.login_manager import LoginManager
 from globus_cli.login_manager.scopes import CLI_SCOPE_REQUIREMENTS
-from globus_cli.parsing import command, group, mutex_option_group
+from globus_cli.parsing import AnnotatedParamType, command, group, mutex_option_group
 from globus_cli.termio import display
 from globus_cli.types import ServiceNameLiteral
 
+if sys.version_info >= (3, 8):
+    from typing import Literal
+else:
+    from typing_extensions import Literal
 
-class QueryParamType(click.ParamType):
+
+class QueryParamType(AnnotatedParamType):
     def get_metavar(self, param: click.Parameter) -> str:
         return "Key=Value"
+
+    def get_type_annotation(self, param: click.Parameter) -> type:
+        return tuple[str, str]
 
     def convert(
         self,
@@ -34,9 +43,12 @@ class QueryParamType(click.ParamType):
         return (left, right)
 
 
-class HeaderParamType(click.ParamType):
+class HeaderParamType(AnnotatedParamType):
     def get_metavar(self, param: click.Parameter) -> str:
         return "Key:Value"
+
+    def get_type_annotation(self, param: click.Parameter) -> type:
+        return tuple[str, str]
 
     def convert(
         self,
@@ -222,13 +234,13 @@ sends a 'GET' request to '{_get_url(service_name)}foo/bar'
     def service_command(
         *,
         login_manager: LoginManager,
-        method: str,
+        method: Literal["HEAD", "GET", "PUT", "POST", "PATCH", "DELETE"],
         path: str,
-        query_param: list[tuple[str, str]],
-        header: list[tuple[str, str]],
+        query_param: tuple[tuple[str, str], ...],
+        header: tuple[tuple[str, str], ...],
         body: str | None,
         body_file: t.TextIO | None,
-        content_type: str,
+        content_type: Literal["json", "form", "text", "none", "auto"],
         allow_errors: bool,
         allow_redirects: bool,
         no_retry: bool,
