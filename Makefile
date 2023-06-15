@@ -18,15 +18,15 @@ reference:
 test:
 	tox
 
-.PHONY: showvars prepare-release release
+.PHONY: showvars prepare-release tag-release
 showvars:
 	@echo "CLI_VERSION=$(CLI_VERSION)"
 prepare-release:
 	tox -e prepare-release
 	$(EDITOR) changelog.adoc
-release:
+tag-release:
 	git tag -s "$(CLI_VERSION)" -m "v$(CLI_VERSION)"
-	tox -e publish-release
+	-git push $(shell git rev-parse --abbrev-ref @{push} | cut -d '/' -f1) refs/tags/$(CLI_VERSION)
 
 .PHONY: update-dependencies
 update-dependencies:
