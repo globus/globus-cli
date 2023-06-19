@@ -6,7 +6,7 @@ repos:
     - id: trailing-whitespace
     - id: end-of-file-fixer
 - repo: https://github.com/python-jsonschema/check-jsonschema
-  rev: 0.23.1
+  rev: 0.23.2
   hooks:
     - id: check-github-workflows
     - id: check-dependabot
@@ -26,12 +26,12 @@ repos:
   hooks:
     - id: isort
 - repo: https://github.com/asottile/pyupgrade
-  rev: v3.6.0
+  rev: v3.7.0
   hooks:
     - id: pyupgrade
       args: ["--py36-plus"]
 - repo: https://github.com/codespell-project/codespell
-  rev: v2.2.4
+  rev: v2.2.5
   hooks:
     - id: codespell
 - repo: local
