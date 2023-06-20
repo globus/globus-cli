@@ -65,9 +65,18 @@ def _create_guest_responses():
 
 
 @pytest.mark.parametrize("output_format", ["json", "text"])
-def test_gcp_create_mapped(run_line, output_format):
+@pytest.mark.parametrize(
+    "addopts, expect_payload_fields",
+    (
+        ([], {"display_name": "mygcp"}),
+        (["--public"], {"display_name": "mygcp", "public": True}),
+    ),
+)
+def test_gcp_create_mapped(run_line, output_format, addopts, expect_payload_fields):
     meta = load_response_set("gcp_create_mapped").metadata
-    result = run_line(f"globus gcp create mapped mygcp -F {output_format}")
+    result = run_line(
+        ["globus", "gcp", "create", "mapped", "mygcp", "-F", output_format] + addopts
+    )
     if output_format == "json":
         res = json.loads(result.output)
         assert res["DATA_TYPE"] == "endpoint_create_result"
@@ -76,6 +85,11 @@ def test_gcp_create_mapped(run_line, output_format):
     else:
         assert meta["ep_id"] in result.output
         assert meta["setup_key"] in result.output
+
+    sent_data = json.loads(get_last_request().body)
+    for key, value in expect_payload_fields.items():
+        assert key in sent_data, f"key={key} is present in payload"
+        assert sent_data[key] == value, f"key={key} in payload has expected value"
 
 
 @pytest.mark.parametrize("output_format", ["json", "text"])
