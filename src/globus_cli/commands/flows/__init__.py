@@ -9,6 +9,8 @@ from globus_cli.parsing import group
         "list": (".list", "list_command"),
         "show": (".show", "show_command"),
         "start": (".start", "start_command"),
+        # "run" is a subgroup of commands.
+        "run": (".run", "run_command"),
     },
 )
 def flows_command():

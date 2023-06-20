@@ -27,7 +27,12 @@ from .shared_options import (
     task_submission_options,
 )
 from .shared_options.endpointish import endpointish_params
-from .shared_options.id_args import collection_id_arg, endpoint_id_arg, flow_id_arg
+from .shared_options.id_args import (
+    collection_id_arg,
+    endpoint_id_arg,
+    flow_id_arg,
+    run_id_arg,
+)
 from .shared_options.transfer_task_options import (
     encrypt_data_option,
     fail_on_quota_errors_option,
@@ -69,6 +74,7 @@ __all__ = [
     "collection_id_arg",
     "endpoint_id_arg",
     "flow_id_arg",
+    "run_id_arg",
     "task_submission_options",
     "delete_and_rm_options",
     "synchronous_task_wait_options",

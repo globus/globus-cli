@@ -37,3 +37,9 @@ def flow_id_arg(f: t.Callable | None = None, *, metavar: str = "FLOW_ID"):
     if f is None:
         return functools.partial(flow_id_arg, metavar=metavar)
     return click.argument("flow_id", metavar=metavar, type=click.UUID)(f)
+
+
+def run_id_arg(f: t.Callable | None = None, *, metavar: str = "RUN_ID"):
+    if f is None:
+        return functools.partial(run_id_arg, metavar=metavar)
+    return click.argument("run_id", metavar=metavar, type=click.UUID)(f)
