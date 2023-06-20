@@ -22,14 +22,8 @@ def validate_endpoint_create_and_update_params(
     """
     # options only allowed for GCSv4 endpoints
     if entity_type != EntityType.GCSV4_HOST:
-        # catch params with two option flags
-        if params.get("public") is False:
-            raise click.UsageError(
-                "Option --private only allowed for Globus Connect Server endpoints"
-            )
         # catch any params only usable with GCS
         for option in [
-            "public",
             "myproxy_dn",
             "myproxy_server",
             "oauth_server",

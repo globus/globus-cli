@@ -2,8 +2,7 @@ import json
 import uuid
 
 import pytest
-import responses
-from globus_sdk._testing import load_response_set
+from globus_sdk._testing import get_last_request, load_response_set
 
 # options with option value and expected value
 # if expected value is not set, it will be copied from the option value
@@ -118,7 +117,7 @@ for optdict in _OPTION_DICTS.values():
                 "location",
             ],
         ),
-        ("personal", ["display_name", "description", "null_default_dir"]),
+        ("personal", ["private", "display_name", "description", "null_default_dir"]),
     ],
 )
 def test_general_options(run_line, ep_type, options):
@@ -145,7 +144,7 @@ def test_general_options(run_line, ep_type, options):
     run_line(line)
 
     # get and confirm values which were sent as JSON
-    sent_data = json.loads(responses.calls[-1].request.body)
+    sent_data = json.loads(get_last_request().body)
     for item in option_dicts:
         assert item["expected"] == sent_data[item["key"]]
 
@@ -164,8 +163,6 @@ def test_invalid_gcs_only_options(run_line, ep_type):
     else:
         raise NotImplementedError
     options = [
-        "--public",
-        "--private",
         "--myproxy-dn /dn",
         "--myproxy-server mpsrv.example.com",
         "--oauth-server oasrv.example.com",

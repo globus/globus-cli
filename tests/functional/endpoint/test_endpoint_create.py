@@ -2,8 +2,7 @@ import json
 import re
 
 import pytest
-import responses
-from globus_sdk._testing import load_response_set
+from globus_sdk._testing import get_last_request, load_response_set
 
 
 def test_gcp_creation(run_line):
@@ -122,6 +121,7 @@ def test_general_options(run_line, ep_type, type_opts, go_ep1_id):
             "val": None,
             "expected": True,
         },
+        {"opt": "--private", "key": "public", "val": "", "expected": False},
     ]
     if ep_type == "server":
         option_dicts.extend(
@@ -132,7 +132,6 @@ def test_general_options(run_line, ep_type, type_opts, go_ep1_id):
                     "key": "myproxy_server",
                     "val": "srv.example.com",
                 },
-                {"opt": "--private", "key": "public", "val": "", "expected": False},
                 {
                     "opt": "--location",
                     "key": "location",
@@ -156,7 +155,7 @@ def test_general_options(run_line, ep_type, type_opts, go_ep1_id):
     run_line(" ".join(line))
 
     # get and confirm values which were sent as JSON
-    sent_data = json.loads(responses.calls[-1].request.body)
+    sent_data = json.loads(get_last_request().body)
     for item in option_dicts:
         assert item["expected"] == sent_data[item["key"]]
 
@@ -174,8 +173,6 @@ def test_invalid_gcs_only_options(run_line, ep_type, type_opts, go_ep1_id):
     Confirms invalid options are caught at the CLI level rather than API
     """
     options = [
-        "--public",
-        "--private",
         "--myproxy-dn /dn",
         "--myproxy-server mpsrv.example.com",
         "--oauth-server oasrv.example.com",
