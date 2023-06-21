@@ -2,6 +2,15 @@ from __future__ import annotations
 
 import click
 
+from globus_cli.commands.flows._common import (
+    administrators_option,
+    description_option,
+    input_schema_option,
+    keywords_option,
+    starters_option,
+    subtitle_option,
+    viewers_option,
+)
 from globus_cli.login_manager import LoginManager
 from globus_cli.parsing import JSONStringOrFile, ParsedJSONData, command
 from globus_cli.termio import Field, TextMode, display, formatters
@@ -20,94 +29,13 @@ ROLE_TYPES = ("flow_viewer", "flow_starter", "flow_administrator", "flow_owner")
     type=JSONStringOrFile(),
     metavar="DEFINITION",
 )
-@click.option(
-    "--input-schema",
-    "input_schema",
-    type=JSONStringOrFile(),
-    help="""
-        The JSON input schema that governs the parameters
-        used to start the flow.
-
-        The input document may be specified inline, or it may be a path to a JSON file.
-
-        Example: Inline JSON:
-
-        \b
-            --input-schema '{"properties": {"src": {"type": "string"}}}'
-
-        Example: Path to JSON file:
-
-        \b
-            --input-schema schema.json
-
-        If unspecified, the default is an empty JSON object ('{}').
-    """,
-)
-@click.option(
-    "--subtitle",
-    type=str,
-    help="A concise summary of the flow's purpose.",
-)
-@click.option(
-    "--description",
-    type=str,
-    help="A detailed description of the flow's purpose.",
-)
-@click.option(
-    "--administrator",
-    "administrators",
-    type=str,
-    multiple=True,
-    help="""
-        A principal that may perform administrative operations
-        on the flow (e.g., update, delete).
-
-        This option can be specified multiple times
-        to create a list of flow administrators.
-    """,
-)
-@click.option(
-    "--starter",
-    "starters",
-    type=str,
-    multiple=True,
-    help="""
-        A principal that may start a new run of the flow.
-
-        Use "all_authenticated_users" to allow any authenticated user
-        to start a new run of the flow.
-
-        This option can be specified multiple times
-        to create a list of flow starters.
-    """,
-)
-@click.option(
-    "--viewer",
-    "viewers",
-    type=str,
-    multiple=True,
-    help="""
-        A principal that may view the flow.
-
-        Use "public" to make the flow visible to everyone.
-
-        This option can be specified multiple times
-        to create a list of flow viewers.
-    """,
-)
-@click.option(
-    "--keyword",
-    "keywords",
-    type=str,
-    multiple=True,
-    help="""
-        A term used to help discover this flow when
-        browsing and searching.
-
-        This option can be specified multiple times
-        to create a list of keywords.
-    """,
-)
+@input_schema_option
+@subtitle_option
+@description_option
+@administrators_option
+@starters_option
+@viewers_option
+@keywords_option
 @LoginManager.requires_login("flows")
 def create_command(
     login_manager: LoginManager,
