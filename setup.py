@@ -52,7 +52,7 @@ setup(
         # these are dependencies of the SDK, but they are used directly in the CLI
         # declare them here in case the underlying lib ever changes
         "requests>=2.19.1,<3.0.0",
-        "cryptography>=3.3.1,<37",
+        "cryptography>=3.3.1",
         # depend on the latest version of typing-extensions on python versions which do
         # not have all of the typing features we use
         'typing_extensions>=4.0;python_version<"3.11"',
