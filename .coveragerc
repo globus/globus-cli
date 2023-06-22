@@ -11,7 +11,7 @@ source =
 [report]
 show_missing = True
 skip_covered = True
-fail_under = 85
+fail_under = 86
 
 exclude_lines =
     # the pragma to disable coverage
