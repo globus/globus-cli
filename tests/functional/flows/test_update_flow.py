@@ -159,4 +159,5 @@ def test_json_object_option_validation(option, run_line):
     """Ensure options that must be JSON objects are validated as such."""
 
     command = f"globus flows update {uuid.uuid4()} --{option} '[]'"
-    run_line(command, assert_exit_code=2, matcher="must be a JSON object")
+    result = run_line(command, assert_exit_code=2)
+    assert "must be a JSON object" in result.stderr
