@@ -5,22 +5,17 @@ import uuid
 import click
 
 from globus_cli.commands.flows._common import (
-    administrators_option,
     description_option,
     input_schema_option,
-    keywords_option,
-    starters_option,
     subtitle_option,
-    viewers_option,
 )
 from globus_cli.login_manager import LoginManager
 from globus_cli.parsing import (
+    CommaDelimitedList,
     JSONStringOrFile,
-    MutexInfo,
     ParsedJSONData,
     command,
     flow_id_arg,
-    mutex_option_group,
 )
 from globus_cli.termio import Field, TextMode, display, formatters
 from globus_cli.types import JsonValue
@@ -66,42 +61,49 @@ ROLE_TYPES = ("flow_viewer", "flow_starter", "flow_administrator", "flow_owner")
 @subtitle_option
 @description_option
 @input_schema_option
-# "--no-Xs" options must exist to clear lists of things (like administrators).
-# These must be mutually exclusive with the flags that set options.
-@administrators_option
 @click.option(
-    "--no-administrators",
-    is_flag=True,
-    default=False,
-    help="Remove all administrator permissions from the flow.",
+    "--administrators",
+    type=CommaDelimitedList(),
+    help="""
+        A comma-separated list of flow administrators.
+
+        This must a list of Globus Auth group or identity IDs.
+        Passing an empty string will clear any existing flow administrators.
+    """,
 )
-@mutex_option_group(
-    "--no-administrators", MutexInfo("--administrator", "administrators")
-)
-@starters_option
 @click.option(
-    "--no-starters",
-    is_flag=True,
-    default=False,
-    help="Remove all starter permissions from the flow.",
+    "--starters",
+    type=CommaDelimitedList(),
+    help="""
+        A comma-separated list of flow starters.
+
+        This must a list of Globus Auth group or identity IDs.
+        In addition, "all_authenticated_users" is an allowed value.
+
+        Passing an empty string will clear any existing flow starters.
+    """,
 )
-@mutex_option_group("--no-starters", MutexInfo("--starter", "starters"))
-@viewers_option
 @click.option(
-    "--no-viewers",
-    is_flag=True,
-    default=False,
-    help="Remove all viewer permissions from the flow.",
+    "--viewers",
+    type=CommaDelimitedList(),
+    help="""
+        A comma-separated list of flow viewers.
+
+        This must a list of Globus Auth group or identity IDs.
+        In addition, "public" is an allowed value.
+
+        Passing an empty string will clear any existing flow viewers.
+    """,
 )
-@mutex_option_group("--no-viewers", MutexInfo("--viewer", "viewers"))
-@keywords_option
 @click.option(
-    "--no-keywords",
-    is_flag=True,
-    default=False,
-    help="Remove all keywords from the flow.",
+    "--keywords",
+    type=CommaDelimitedList(),
+    help="""
+        A comma-separated list of keywords.
+
+        Passing an empty string will clear any existing keywords.
+    """,
 )
-@mutex_option_group("--no-keywords", MutexInfo("--keyword", "keywords"))
 @LoginManager.requires_login("flows")
 def update_command(
     flow_id: uuid.UUID,
@@ -112,14 +114,10 @@ def update_command(
     subtitle: str | None,
     description: str | None,
     owner: str | None,
-    administrators: tuple[str, ...],
-    no_administrators: bool,
-    starters: tuple[str, ...],
-    no_starters: bool,
-    viewers: tuple[str, ...],
-    no_viewers: bool,
-    keywords: tuple[str, ...],
-    no_keywords: bool,
+    administrators: list[str] | None,
+    starters: list[str] | None,
+    viewers: list[str] | None,
+    keywords: list[str] | None,
 ) -> None:
     """
     Update a flow.
@@ -144,16 +142,16 @@ def update_command(
     # or `--no-xs` was specified (in which case `xs` will be an empty list).
     # These conditions are guaranteed because `--x` and `--no-xs` are mutex options.
     prepared_administrators: list[str] | None = None
-    if administrators or no_administrators:
+    if administrators is not None:
         prepared_administrators = list(administrators)
     prepared_starters: list[str] | None = None
-    if starters or no_starters:
+    if starters is not None:
         prepared_starters = list(starters)
     prepared_viewers: list[str] | None = None
-    if viewers or no_viewers:
+    if viewers is not None:
         prepared_viewers = list(viewers)
     prepared_keywords: list[str] | None = None
-    if keywords or no_keywords:
+    if keywords is not None:
         prepared_keywords = list(keywords)
 
     # Configure clients
@@ -168,9 +166,9 @@ def update_command(
         subtitle=subtitle,
         description=description,
         flow_owner=owner,
-        flow_viewers=prepared_viewers,
-        flow_starters=prepared_starters,
         flow_administrators=prepared_administrators,
+        flow_starters=prepared_starters,
+        flow_viewers=prepared_viewers,
         keywords=prepared_keywords,
     )
 

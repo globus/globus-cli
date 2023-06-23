@@ -4,7 +4,7 @@ import uuid
 from itertools import chain
 
 import pytest
-from globus_sdk._testing import RegisteredResponse, load_response
+from globus_sdk._testing import RegisteredResponse, get_last_request, load_response
 
 from .test_create_flow import (
     SPECIAL_PRINCIPALS,
@@ -54,15 +54,11 @@ def test_update_flow_text_output(run_line):
         ("--subtitle", subtitle),
         ("--description", description),
         ("--owner", flow_owner),
+        ("--administrators", ",".join(flow_administrators)),
+        ("--starters", ",".join(flow_starters)),
+        ("--viewers", ",".join(flow_viewers)),
+        ("--keywords", ",".join(keywords)),
     ]
-    for flow_administrator in flow_administrators:
-        options.append(("--administrator", flow_administrator))
-    for flow_starter in flow_starters:
-        options.append(("--starter", flow_starter))
-    for flow_viewer in flow_viewers:
-        options.append(("--viewer", flow_viewer))
-    for keyword in keywords:
-        options.append(("--keyword", keyword))
 
     command = ["globus", "flows", "update", flow_id, *chain.from_iterable(options)]
 
@@ -130,12 +126,32 @@ def test_update_flow_text_output(run_line):
         assert match_list == expected_values
 
 
-@pytest.mark.parametrize("thing", ["administrator", "starter", "viewer", "keyword"])
-def test_mutually_exclusive_options(thing, run_line):
-    """Ensure that mutex options cause failures."""
+@pytest.mark.parametrize("name", ("administrators", "starters", "viewers", "keywords"))
+def test_empty_strings_for_csv_options(name, run_line):
+    """Verify that empty strings are converted to empty lists in the request body."""
 
-    command = f"globus flows update {uuid.uuid4()} --{thing} value --no-{thing}s"
-    run_line(command, assert_exit_code=2, matcher="are mutually exclusive")
+    flow_id = load_response("flows.update_flow").metadata["flow_id"]
+    # "--format json" prevents Auth calls that would need to be mocked.
+    command = f'globus flows update {flow_id} --{name} "" --format json'
+    run_line(command)
+
+    request = get_last_request()
+    key = name if name == "keywords" else f"flow_{name}"
+    assert json.loads(request.body)[key] == []
+
+
+def test_omitted_options(run_line):
+    """Verify that omitted CSV options are not included in the request body."""
+
+    flow_id = load_response("flows.update_flow").metadata["flow_id"]
+
+    # "--format json" prevents Auth calls that would need to be mocked.
+    command = f"globus flows update {flow_id} --format json"
+    run_line(command)
+
+    request = get_last_request()
+    omitted_keys = {"flow_administrators", "flow_starters", "flow_viewers", "keywords"}
+    assert json.loads(request.body).keys() & omitted_keys == set()
 
 
 @pytest.mark.parametrize("option", ["definition", "input-schema"])
