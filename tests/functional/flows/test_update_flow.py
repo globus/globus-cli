@@ -2,112 +2,15 @@ import json
 import re
 import uuid
 from itertools import chain
-from random import shuffle
 
 import pytest
 from globus_sdk._testing import RegisteredResponse, load_response
 
-FLOW_IDENTITIES = {
-    "pete": {
-        "username": "pete@kreb.star",
-        "name": "Pete Wrigley",
-        "identity_provider": "c8abac57-560c-46c8-b386-f116ed8793d5",
-        "organization": "KrebStar Corp",
-        "status": "used",
-        "email": "pete@kreb.star",
-    },
-    "nona": {
-        "username": "nona@wellsville.gov",
-        "name": "Nona F. Mecklenberg",
-        "identity_provider": "c8abac57-560c-46c8-b386-f116ed8793d5",
-        "organization": "The City of Wellsville",
-        "status": "used",
-        "email": "nona@wellsville.gov",
-    },
-    "artie": {
-        "username": "artie@super.hero",
-        "name": "The Strongest Man in the World",
-        "identity_provider": "c8abac57-560c-46c8-b386-f116ed8793d5",
-        "organization": "Personal Superheroes",
-        "status": "used",
-        "email": "artie@super.hero",
-    },
-    "monica": {
-        "username": "monica@kreb.scouts",
-        "name": "Monica Perling",
-        "identity_provider": "c8abac57-560c-46c8-b386-f116ed8793d5",
-        "organization": "Kreb Scouts",
-        "status": "used",
-        "email": "monica@kreb.scouts",
-    },
-}
-
-SPECIAL_PRINCIPALS = ["public", "all_authenticated_users"]
-
-
-class IdentityPool:
-    IDENTITY_DATA = FLOW_IDENTITIES
-
-    def __init__(self):
-        self.identities = {}
-        self.assigned_sets = {}
-
-    def assign(self, set_name, principal_set):
-        """
-        Assign a list of identities for the provided principal set, updating the
-        stored identities dict with any new identities that are created so they can
-        be reused.
-
-        set_name is the name of the key to store the assigned identities under
-        principal_set is a list of principals in the request
-        """
-        self.assigned_sets[set_name] = identity_set = []
-        # Randomize the names for each principal set
-        available_identities = list(self.IDENTITY_DATA.keys())
-        shuffle(available_identities)
-
-        # Iterate over the principals in the request
-        for index, principal in enumerate(principal_set):
-            if principal in self.identities:
-                # Use the existing identity if it's already been assigned
-                identity_set.append(self.identities[principal])
-                continue
-
-            if principal not in SPECIAL_PRINCIPALS:
-                # Attempt to assign distinct identities to each principal
-                identity = self.create_identity(
-                    principal.split(":")[-1],
-                    available_identities[index % len(available_identities)],
-                )
-                identity_set.append(identity)
-                self.identities[principal] = identity
-
-        return identity_set
-
-    def get_assigned_usernames(self, set_name):
-        """
-        Return a list of usernames for the provided set_name.
-        """
-        return [identity["username"] for identity in self.assigned_sets[set_name]]
-
-    @classmethod
-    def create_identity(cls, id, name):
-        """
-        Return an identity dict using the provided id for the user corresponding
-        to the provided name.
-        """
-        identity = cls.IDENTITY_DATA[name].copy()
-        identity["id"] = id
-        return identity
-
-
-def value_for_field_from_output(name, output):
-    """
-    Return the value for a specified field from the output of a command.
-    """
-    match = re.search(rf"^{name}:[^\S\n\r]+(?P<value>.*)$", output, flags=re.M)
-    assert match is not None
-    return match.group("value")
+from .test_create_flow import (
+    SPECIAL_PRINCIPALS,
+    IdentityPool,
+    value_for_field_from_output,
+)
 
 
 def test_update_flow_text_output(run_line):
