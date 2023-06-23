@@ -137,23 +137,6 @@ def update_command(
             raise click.UsageError("--input-schema must be a JSON object")
         input_schema_doc = input_schema.data
 
-    # Empty lists (like `xs = []`) will result in erasure of the option.
-    # Only pass values if `--x ...` was passed (in which case `xs` will be truthy)
-    # or `--no-xs` was specified (in which case `xs` will be an empty list).
-    # These conditions are guaranteed because `--x` and `--no-xs` are mutex options.
-    prepared_administrators: list[str] | None = None
-    if administrators is not None:
-        prepared_administrators = list(administrators)
-    prepared_starters: list[str] | None = None
-    if starters is not None:
-        prepared_starters = list(starters)
-    prepared_viewers: list[str] | None = None
-    if viewers is not None:
-        prepared_viewers = list(viewers)
-    prepared_keywords: list[str] | None = None
-    if keywords is not None:
-        prepared_keywords = list(keywords)
-
     # Configure clients
     flows_client = login_manager.get_flows_client()
     auth_client = login_manager.get_auth_client()
@@ -166,10 +149,10 @@ def update_command(
         subtitle=subtitle,
         description=description,
         flow_owner=owner,
-        flow_administrators=prepared_administrators,
-        flow_starters=prepared_starters,
-        flow_viewers=prepared_viewers,
-        keywords=prepared_keywords,
+        flow_administrators=administrators,
+        flow_starters=starters,
+        flow_viewers=viewers,
+        keywords=keywords,
     )
 
     # Configure formatters for principals
