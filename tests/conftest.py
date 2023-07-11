@@ -199,36 +199,6 @@ def cli_runner():
     return CliRunner(mix_stderr=False)
 
 
-class OutputMatcher:
-    r"""
-    A helper for running regex matches and optionally doing literal checking of match
-    groups against expected strings. This can be attached to run_line by passing
-    "matcher=True".
-
-    Runs regex matches in multiline mode, operating on the first match.
-    If no match is found, it will raise an error.
-
-    Usage:
-
-    >>> res, matcher = run_line(..., matcher=True)
-    >>> matcher.check(r"^Foo:\s+(\w+)$", groups=["FooValue"])
-    """
-
-    def __init__(self, result):
-        self._result = result
-
-    def check(self, regex, groups=None, err=False) -> None:
-        pattern = re.compile(regex, flags=re.MULTILINE)
-        groups = groups or []
-        data = self._result.stderr if err else self._result.output
-
-        m = pattern.search(data)
-        if not m:
-            raise ValueError(f"Did not find a match for '{regex}' in {data}")
-        for i, x in enumerate(groups, 1):
-            assert m.group(i) == x
-
-
 @pytest.fixture
 def run_line(cli_runner, request, patch_tokenstorage):
     """
@@ -245,7 +215,6 @@ def run_line(cli_runner, request, patch_tokenstorage):
         stdin=None,
         match_out=None,
         match_err=None,
-        matcher=False,
     ):
         from globus_cli import main
 
@@ -283,8 +252,6 @@ network calls recorded:
             _assert_matches(result.stdout, "stdout", match_out)
         if match_err is not None:
             _assert_matches(result.stderr, "stderr", match_err)
-        if matcher:
-            return result, OutputMatcher(result)
         return result
 
     return func
