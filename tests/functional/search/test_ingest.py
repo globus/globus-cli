@@ -1,14 +1,36 @@
 import json
+import uuid
 
 import pytest
 import responses
-from globus_sdk._testing import load_response_set
+from globus_sdk._testing import RegisteredResponse, load_response
+
+
+@pytest.fixture
+def search_ingest_response():
+    task_id = str(uuid.uuid1())
+    index_id = str(uuid.uuid1())
+    return load_response(
+        RegisteredResponse(
+            service="search",
+            path=f"/v1/index/{index_id}/ingest",
+            method="POST",
+            json={
+                "acknowledged": True,
+                "task_id": task_id,
+            },
+            metadata={
+                "index_id": index_id,
+                "task_id": task_id,
+            },
+        )
+    )
 
 
 @pytest.mark.parametrize("datatype_field", [None, "GIngest"])
-def test_gingest_document(run_line, tmp_path, datatype_field):
-    meta = load_response_set("cli.search").metadata
-    index_id = meta["index_id"]
+def test_gingest_document(run_line, tmp_path, datatype_field, search_ingest_response):
+    index_id = search_ingest_response.metadata["index_id"]
+    task_id = search_ingest_response.metadata["task_id"]
 
     data = {
         "ingest_type": "GMetaEntry",
@@ -26,11 +48,13 @@ def test_gingest_document(run_line, tmp_path, datatype_field):
     doc = tmp_path / "doc.json"
     doc.write_text(json.dumps(data))
 
-    result, matcher = run_line(
-        ["globus", "search", "ingest", index_id, str(doc)], matcher=True
+    run_line(
+        ["globus", "search", "ingest", index_id, str(doc)],
+        match_out=[
+            ("Acknowledged", "True"),
+            ("Task ID", task_id),
+        ],
     )
-    matcher.check(r"^Acknowledged:\s+(\w+)$", groups=["True"])
-    matcher.check(r"^Task ID:\s+([\w-]+)$")
 
     sent = responses.calls[-1].request
     assert sent.method == "POST"
@@ -39,9 +63,9 @@ def test_gingest_document(run_line, tmp_path, datatype_field):
 
 
 @pytest.mark.parametrize("datatype", ["GMetaEntry", "GMetaList"])
-def test_auto_wrap_document(run_line, tmp_path, datatype):
-    meta = load_response_set("cli.search").metadata
-    index_id = meta["index_id"]
+def test_auto_wrap_document(run_line, tmp_path, datatype, search_ingest_response):
+    index_id = search_ingest_response.metadata["index_id"]
+    task_id = search_ingest_response.metadata["task_id"]
 
     entry_data = {
         "@datatype": "GMetaEntry",
@@ -60,11 +84,13 @@ def test_auto_wrap_document(run_line, tmp_path, datatype):
     doc = tmp_path / "doc.json"
     doc.write_text(json.dumps(data))
 
-    result, matcher = run_line(
-        ["globus", "search", "ingest", index_id, str(doc)], matcher=True
+    run_line(
+        ["globus", "search", "ingest", index_id, str(doc)],
+        match_out=[
+            ("Acknowledged", "True"),
+            ("Task ID", task_id),
+        ],
     )
-    matcher.check(r"^Acknowledged:\s+(\w+)$", groups=["True"])
-    matcher.check(r"^Task ID:\s+([\w-]+)$")
 
     sent = responses.calls[-1].request
     assert sent.method == "POST"
@@ -74,30 +100,32 @@ def test_auto_wrap_document(run_line, tmp_path, datatype):
     assert sent_body["ingest_data"] == data
 
 
-def test_auto_wrap_document_rejects_bad_doctype(run_line, tmp_path):
-    meta = load_response_set("cli.search").metadata
-    index_id = meta["index_id"]
+def test_auto_wrap_document_rejects_bad_doctype(
+    run_line, tmp_path, search_ingest_response
+):
+    index_id = search_ingest_response.metadata["index_id"]
 
     data = {"@datatype": "NoSuchDocumentType"}
 
     doc = tmp_path / "doc.json"
     doc.write_text(json.dumps(data))
 
-    result = run_line(
-        ["globus", "search", "ingest", index_id, str(doc)], assert_exit_code=2
+    run_line(
+        ["globus", "search", "ingest", index_id, str(doc)],
+        assert_exit_code=2,
+        match_err="Unsupported datatype: 'NoSuchDocumentType'",
     )
-    assert "Unsupported datatype: 'NoSuchDocumentType'" in result.stderr
 
 
-def test_ingest_rejects_non_object_data(run_line, tmp_path):
-    meta = load_response_set("cli.search").metadata
-    index_id = meta["index_id"]
+def test_ingest_rejects_non_object_data(run_line, tmp_path, search_ingest_response):
+    index_id = search_ingest_response.metadata["index_id"]
 
     data = ["foo", "bar"]
     doc = tmp_path / "doc.json"
     doc.write_text(json.dumps(data))
 
-    result = run_line(
-        ["globus", "search", "ingest", index_id, str(doc)], assert_exit_code=2
+    run_line(
+        ["globus", "search", "ingest", index_id, str(doc)],
+        assert_exit_code=2,
+        match_err="Ingest document must be a JSON object",
     )
-    assert "Ingest document must be a JSON object" in result.stderr
