@@ -25,10 +25,14 @@ yaml = YAML()
 log = logging.getLogger(__name__)
 
 _test_file_dir = os.path.normpath(os.path.join(os.path.dirname(__file__), "files"))
+_PYTEST_VERBOSE = False
 
 
 def pytest_configure(config):
     _register_all_response_sets()
+    if config.getoption("verbose") > 0:
+        global _PYTEST_VERBOSE
+        _PYTEST_VERBOSE = True
 
 
 @pytest.fixture(autouse=True)
@@ -258,6 +262,8 @@ network calls recorded:
 
 
 def _assert_matches(text, text_name, match):
+    __tracebackhide__ = True
+
     if isinstance(match, (str, re.Pattern, tuple)):
         match = [match]
     elif not isinstance(match, list):
@@ -271,9 +277,17 @@ def _assert_matches(text, text_name, match):
         m if isinstance(m, re.Pattern) else re.compile(m, re.MULTILINE) for m in match
     ]
     for pattern in compiled_matches:
-        assert (
-            pattern.search(text) is not None
-        ), f"Pattern {pattern} not found in {text_name}"
+        if pattern.search(text) is None:
+            if _PYTEST_VERBOSE:
+                pytest.fail(
+                    f"Pattern('{pattern.pattern}') not found in {text_name}.\n"
+                    f"Full text:\n\n{text}"
+                )
+            else:
+                pytest.fail(
+                    f"Pattern('{pattern.pattern}') not found in {text_name}. "
+                    "Use 'pytest -v' to see full output."
+                )
 
 
 def _convert_match_tuple(match):
