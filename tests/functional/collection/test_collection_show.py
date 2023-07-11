@@ -9,13 +9,16 @@ def test_collection_show(run_line, add_gcs_login):
     epid = meta["endpoint_id"]
     add_gcs_login(epid)
 
-    _result, matcher = run_line(f"globus collection show {cid}", matcher=True)
-
-    matcher.check(r"^Display Name:\s+(.*)$", groups=["Happy Fun Collection Name"])
-    matcher.check(r"^Owner:\s+(.*)$", groups=[username])
-    matcher.check(r"^ID:\s+(.*)$", groups=[cid])
-    matcher.check(r"^Collection Type:\s+(.*)$", groups=["mapped"])
-    matcher.check(r"^Connector:\s+(.*)$", groups=["POSIX"])
+    run_line(
+        f"globus collection show {cid}",
+        match_out=[
+            ("Display Name", "Happy Fun Collection Name"),
+            ("Owner", username),
+            ("ID", cid),
+            ("Collection Type", "mapped"),
+            ("Connector", "POSIX"),
+        ],
+    )
 
 
 def test_collection_show_private_policies(run_line, add_gcs_login):
@@ -25,21 +28,19 @@ def test_collection_show_private_policies(run_line, add_gcs_login):
     epid = meta["endpoint_id"]
     add_gcs_login(epid)
 
-    _result, matcher = run_line(
-        f"globus collection show --include-private-policies {cid}", matcher=True
-    )
-
-    matcher.check(r"^Display Name:\s+(.*)$", groups=["Happy Fun Collection Name"])
-    matcher.check(r"^Owner:\s+(.*)$", groups=[username])
-    matcher.check(r"^ID:\s+(.*)$", groups=[cid])
-    matcher.check(r"^Collection Type:\s+(.*)$", groups=["mapped"])
-    matcher.check(r"^Connector:\s+(.*)$", groups=["POSIX"])
-
-    matcher.check(r"Root Path:\s+(.*)$", groups=["/"])
-    matcher.check(
-        r"^Sharing Path Restrictions:\s+(.*)$",
-        groups=[
-            '{"DATA_TYPE": "path_restrictions#1.0.0", "none": ["/"], "read": ["/projects"], "read_write": ["$HOME"]}',  # noqa: E501
+    run_line(
+        f"globus collection show --include-private-policies {cid}",
+        match_out=[
+            ("Display Name", "Happy Fun Collection Name"),
+            ("Owner", username),
+            ("ID", cid),
+            ("Collection Type", "mapped"),
+            ("Connector", "POSIX"),
+            ("Root Path", "/"),
+            (
+                "Sharing Path Restrictions",
+                '{"DATA_TYPE": "path_restrictions#1.0.0", "none": ["/"], "read": ["/projects"], "read_write": ["$HOME"]}',  # noqa: E501
+            ),
         ],
     )
 
