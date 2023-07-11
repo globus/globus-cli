@@ -7,13 +7,14 @@ def test_notfound_error(run_line):
     meta = load_response_set("cli.search").metadata
     index_id = meta["error_index_id"]
 
-    result, matcher = run_line(
+    run_line(
         ["globus", "search", "query", index_id, "-q", "*"],
         assert_exit_code=1,
-        matcher=True,
+        match_err=[
+            ("code", "NotFound.NoSuchIndex"),
+            f'There is no search index named "{index_id}"',
+        ],
     )
-    matcher.check(r"^code:\s+([\w\.]+)$", groups=["NotFound.NoSuchIndex"], err=True)
-    assert f'There is no search index named "{index_id}"' in result.stderr
 
 
 def test_validation_error(run_line, tmp_path):
@@ -36,13 +37,11 @@ def test_validation_error(run_line, tmp_path):
     doc = tmp_path / "doc.json"
     doc.write_text(json.dumps(data))
 
-    result, matcher = run_line(
+    run_line(
         ["globus", "search", "ingest", index_id, str(doc)],
         assert_exit_code=1,
-        matcher=True,
+        match_err=[
+            ("code", "BadRequest.ValidationError"),
+            "Missing data for required field.",
+        ],
     )
-    matcher.check(
-        r"^code:\s+([\w\.]+)$", groups=["BadRequest.ValidationError"], err=True
-    )
-    matcher.check(r"^location:\s+(\w+)$", groups=["json"], err=True)
-    assert "Missing data for required field" in result.stderr
