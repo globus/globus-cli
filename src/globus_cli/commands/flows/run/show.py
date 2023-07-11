@@ -57,12 +57,16 @@ def show_command(
         Field(
             "Run Managers",
             "run_managers",
-            formatter=formatters.ArrayFormatter(element_formatter=principal_formatter),
+            formatter=formatters.ArrayFormatter(
+                delimiter=", ", element_formatter=principal_formatter
+            ),
         ),
         Field(
             "Run Monitors",
             "run_monitors",
-            formatter=formatters.ArrayFormatter(element_formatter=principal_formatter),
+            formatter=formatters.ArrayFormatter(
+                delimiter=", ", element_formatter=principal_formatter
+            ),
         ),
         Field("Run Tags", "tags", formatter=formatters.ArrayFormatter(delimiter=", ")),
         Field("Started At", "start_time", formatter=formatters.Date),
