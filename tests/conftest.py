@@ -291,8 +291,13 @@ network calls recorded:
 
 
 def _assert_matches(text, text_name, match):
-    if isinstance(match, str) or isinstance(match, re.Pattern):
+    if isinstance(match, (str, re.Pattern, tuple)):
         match = [match]
+    elif not isinstance(match, list):
+        raise NotImplementedError(
+            "match_{out,err} got unexpected arg type: {type(match)}"
+        )
+
     match = [_convert_match_tuple(m) for m in match]
 
     compiled_matches = [
