@@ -217,8 +217,8 @@ def run_line(cli_runner, request, patch_tokenstorage):
         line,
         assert_exit_code=0,
         stdin=None,
-        match_out=None,
-        match_err=None,
+        search_stdout=None,
+        search_stderr=None,
     ):
         from globus_cli import main
 
@@ -252,31 +252,31 @@ stderr:
 network calls recorded:
 {formatted_network_calls}"""
             raise Exception(message)
-        if match_out is not None:
-            _assert_matches(result.stdout, "stdout", match_out)
-        if match_err is not None:
-            _assert_matches(result.stderr, "stderr", match_err)
+        if search_stdout is not None:
+            _assert_matches(result.stdout, "stdout", search_stdout)
+        if search_stderr is not None:
+            _assert_matches(result.stderr, "stderr", search_stderr)
         return result
 
     return func
 
 
-def _assert_matches(text, text_name, match):
+def _assert_matches(text, text_name, search):
     __tracebackhide__ = True
 
-    if isinstance(match, (str, re.Pattern, tuple)):
-        match = [match]
-    elif not isinstance(match, list):
+    if isinstance(search, (str, re.Pattern, tuple)):
+        search = [search]
+    elif not isinstance(search, list):
         raise NotImplementedError(
-            "match_{out,err} got unexpected arg type: {type(match)}"
+            "search_{stdout,stderr} got unexpected arg type: {type(search)}"
         )
 
-    match = [_convert_match_tuple(m) for m in match]
+    search = [_convert_search_tuple(s) for s in search]
 
-    compiled_matches = [
-        m if isinstance(m, re.Pattern) else re.compile(m, re.MULTILINE) for m in match
+    compiled_searches = [
+        s if isinstance(s, re.Pattern) else re.compile(s, re.MULTILINE) for s in search
     ]
-    for pattern in compiled_matches:
+    for pattern in compiled_searches:
         if pattern.search(text) is None:
             if _PYTEST_VERBOSE:
                 pytest.fail(
@@ -290,16 +290,16 @@ def _assert_matches(text, text_name, match):
                 )
 
 
-def _convert_match_tuple(match):
+def _convert_search_tuple(search):
     # tuple of ("Foo", "bar") converts to a regex for
     #       "Foo:  bar"
-    if isinstance(match, tuple):
-        assert len(match) == 2
-        field_name, field_value = match
+    if isinstance(search, tuple):
+        assert len(search) == 2
+        field_name, field_value = search
         assert isinstance(field_name, str)
         assert isinstance(field_value, str)
-        match = f"^{re.escape(field_name)}:\\s+{re.escape(field_value)}$"
-    return match
+        search = f"^{re.escape(field_name)}:\\s+{re.escape(field_value)}$"
+    return search
 
 
 @pytest.fixture(autouse=True)

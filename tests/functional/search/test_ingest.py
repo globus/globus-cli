@@ -50,7 +50,7 @@ def test_gingest_document(run_line, tmp_path, datatype_field, search_ingest_resp
 
     run_line(
         ["globus", "search", "ingest", index_id, str(doc)],
-        match_out=[
+        search_stdout=[
             ("Acknowledged", "True"),
             ("Task ID", task_id),
         ],
@@ -86,7 +86,7 @@ def test_auto_wrap_document(run_line, tmp_path, datatype, search_ingest_response
 
     run_line(
         ["globus", "search", "ingest", index_id, str(doc)],
-        match_out=[
+        search_stdout=[
             ("Acknowledged", "True"),
             ("Task ID", task_id),
         ],
@@ -113,7 +113,7 @@ def test_auto_wrap_document_rejects_bad_doctype(
     run_line(
         ["globus", "search", "ingest", index_id, str(doc)],
         assert_exit_code=2,
-        match_err="Unsupported datatype: 'NoSuchDocumentType'",
+        search_stderr="Unsupported datatype: 'NoSuchDocumentType'",
     )
 
 
@@ -127,5 +127,5 @@ def test_ingest_rejects_non_object_data(run_line, tmp_path, search_ingest_respon
     run_line(
         ["globus", "search", "ingest", index_id, str(doc)],
         assert_exit_code=2,
-        match_err="Ingest document must be a JSON object",
+        search_stderr="Ingest document must be a JSON object",
     )

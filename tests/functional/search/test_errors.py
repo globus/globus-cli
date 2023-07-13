@@ -10,7 +10,7 @@ def test_notfound_error(run_line):
     run_line(
         ["globus", "search", "query", index_id, "-q", "*"],
         assert_exit_code=1,
-        match_err=[
+        search_stderr=[
             ("code", "NotFound.NoSuchIndex"),
             f'There is no search index named "{index_id}"',
         ],
@@ -40,7 +40,7 @@ def test_validation_error(run_line, tmp_path):
     run_line(
         ["globus", "search", "ingest", index_id, str(doc)],
         assert_exit_code=1,
-        match_err=[
+        search_stderr=[
             ("code", "BadRequest.ValidationError"),
             "Missing data for required field.",
         ],

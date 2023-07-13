@@ -1,5 +1,3 @@
-import re
-
 from globus_sdk._testing import load_response_set
 
 
@@ -25,7 +23,7 @@ def test_index_show(run_line):
 
     run_line(
         ["globus", "search", "index", "show", index_id],
-        match_out=("Index ID", index_id),
+        search_stdout=("Index ID", index_id),
     )
 
 
@@ -42,7 +40,7 @@ def test_index_create(run_line):
             "example_cookery",
             "Example index of Cookery",
         ],
-        match_out=("Index ID", index_id),
+        search_stdout=("Index ID", index_id),
     )
 
 
@@ -52,5 +50,5 @@ def test_index_delete(run_line):
 
     run_line(
         f"globus search index delete {index_id}",
-        match_out=f"Index {re.escape(index_id)} is now marked for deletion.",
+        search_stdout=f"Index {index_id} is now marked for deletion.",
     )

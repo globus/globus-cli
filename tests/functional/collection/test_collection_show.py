@@ -11,7 +11,7 @@ def test_collection_show(run_line, add_gcs_login):
 
     run_line(
         f"globus collection show {cid}",
-        match_out=[
+        search_stdout=[
             ("Display Name", "Happy Fun Collection Name"),
             ("Owner", username),
             ("ID", cid),
@@ -30,7 +30,7 @@ def test_collection_show_private_policies(run_line, add_gcs_login):
 
     run_line(
         f"globus collection show --include-private-policies {cid}",
-        match_out=[
+        search_stdout=[
             ("Display Name", "Happy Fun Collection Name"),
             ("Owner", username),
             ("ID", cid),
