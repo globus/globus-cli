@@ -7,6 +7,7 @@ from globus_cli.parsing import group
         "show": (".show", "show_command"),
         "update": (".update", "update_command"),
         "delete": (".delete", "delete_command"),
+        "resume": (".resume", "resume_command"),
     },
 )
 def run_command() -> None:
