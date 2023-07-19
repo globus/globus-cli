@@ -1,6 +1,5 @@
 from __future__ import annotations
 
-import functools
 import typing as t
 
 import click
@@ -8,34 +7,34 @@ import click
 from globus_cli.parsing import AnnotatedOption
 from globus_cli.types import TupleType
 
+C = t.TypeVar("C", bound=t.Union[t.Callable[..., t.Any], click.Command])
 
-def server_id_arg(f):
+
+def server_id_arg(f: C) -> C:
     return click.argument("server_id")(f)
 
 
-def server_add_and_update_opts(f: t.Callable | None = None, *, add=False):
+def server_add_opts(f: C) -> C:
+    f = click.argument("HOSTNAME")(f)
+    return _server_add_and_update_opts(f, default_scheme="gsiftp", default_port=2811)
+
+
+def server_update_opts(f: C) -> C:
+    f = click.option("--hostname", help="Server Hostname.")(f)
+    return _server_add_and_update_opts(f, default_scheme=None, default_port=None)
+
+
+def _server_add_and_update_opts(
+    f: C, *, default_scheme: str | None, default_port: int | None
+) -> C:
     """
     shared collection of options for `globus transfer endpoint server add` and
     `globus transfer endpoint server update`.
-    Accepts a toggle to know if it's being used as `add` or `update`.
-
-    usage:
-
-    >>> @server_add_and_update_opts
-    >>> def command_func(subject, port, scheme, hostname):
-    >>>     ...
-
-    or
-
-    >>> @server_add_and_update_opts(add=True)
-    >>> def command_func(subject, port, scheme, hostname):
-    >>>     ...
     """
 
-    if f is None:
-        return functools.partial(server_add_and_update_opts, add=add)
-
-    def port_range_callback(ctx, param, value):
+    def port_range_callback(
+        ctx: click.Context, param: click.Parameter, value: t.Any
+    ) -> tuple[int | None, int | None] | None:
         if not value:
             return None
 
@@ -58,27 +57,20 @@ def server_add_and_update_opts(f: t.Callable | None = None, *, add=False):
 
         return (lower, upper) if lower <= upper else (upper, lower)
 
-    if add:
-        f = click.argument("HOSTNAME")(f)
-    else:
-        f = click.option("--hostname", help="Server Hostname.")(f)
-
-    default_scheme = "gsiftp" if add else None
     f = click.option(
         "--scheme",
         help="Scheme for the Server.",
         type=click.Choice(("gsiftp", "ftp"), case_sensitive=False),
         default=default_scheme,
-        show_default=add,
+        show_default=default_scheme is not None,
     )(f)
 
-    default_port = 2811 if add else None
     f = click.option(
         "--port",
         help="Port for Globus control channel connections.",
         type=int,
         default=default_port,
-        show_default=add,
+        show_default=default_port is not None,
     )(f)
 
     f = click.option(
@@ -101,8 +93,8 @@ def server_add_and_update_opts(f: t.Callable | None = None, *, add=False):
             # TupleType aliases t.Tuple/tuple which is variadic
             # TypeVarTuple will make this more possible to support, but it's
             # "experimental" in mypy at this time
-            type_annotation=TupleType[  # type: ignore[type-arg]
-                t.Optional[int], t.Optional[int]
+            type_annotation=t.Optional[
+                TupleType[t.Optional[int], t.Optional[int]]  # type: ignore[type-arg]
             ],
             help="Indicate to firewall administrators at other sites how to "
             "allow {} traffic {} this server {} their own. Specify as "

@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import typing as t
+import uuid
 from textwrap import dedent
 
 from globus_cli.login_manager import LoginManager
@@ -65,7 +66,9 @@ $ globus endpoint server show $ep_id $server_id
 @endpoint_id_arg
 @server_id_arg
 @LoginManager.requires_login("transfer")
-def server_show(*, login_manager: LoginManager, endpoint_id, server_id):
+def server_show(
+    *, login_manager: LoginManager, endpoint_id: uuid.UUID, server_id: str
+) -> None:
     """
     Display information about a server belonging to an endpoint.
     """

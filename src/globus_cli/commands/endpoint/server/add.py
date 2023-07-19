@@ -7,7 +7,7 @@ from globus_cli.login_manager import LoginManager
 from globus_cli.parsing import command, endpoint_id_arg
 from globus_cli.termio import TextMode, display
 
-from ._common import server_add_and_update_opts
+from ._common import server_add_opts
 
 if sys.version_info >= (3, 8):
     from typing import Literal
@@ -28,7 +28,7 @@ $ globus endpoint server add $ep_id --hostname gridftp.example.org
 """,
 )
 @endpoint_id_arg
-@server_add_and_update_opts(add=True)
+@server_add_opts
 @LoginManager.requires_login("transfer")
 def server_add(
     *,
@@ -38,8 +38,8 @@ def server_add(
     port: int,
     scheme: Literal["gsiftp", "ftp"],
     hostname: str,
-    incoming_data_ports: tuple[int | None, int | None],
-    outgoing_data_ports: tuple[int | None, int | None],
+    incoming_data_ports: tuple[int | None, int | None] | None,
+    outgoing_data_ports: tuple[int | None, int | None] | None,
 ) -> None:
     """
     Add a server to an endpoint.

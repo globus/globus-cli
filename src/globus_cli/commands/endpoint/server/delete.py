@@ -1,13 +1,28 @@
+from __future__ import annotations
+
+import sys
+import typing as t
+import uuid
 from textwrap import dedent
 
 import click
+import globus_sdk
 
 from globus_cli.login_manager import LoginManager
 from globus_cli.parsing import command, endpoint_id_arg
 from globus_cli.termio import TextMode, display
 
+if sys.version_info >= (3, 8):
+    from typing import Literal
+else:
+    from typing_extensions import Literal
 
-def _spec_to_matches(server_list, server_spec, mode):
+
+def _spec_to_matches(
+    server_list: globus_sdk.IterableTransferResponse,
+    server_spec: str,
+    mode: Literal["uri", "hostname", "hostname_port"],
+) -> list[t.Mapping[str, t.Any]]:
     """
     mode is in {uri, hostname, hostname_port}
 
@@ -16,16 +31,15 @@ def _spec_to_matches(server_list, server_spec, mode):
     """
     assert mode in ("uri", "hostname", "hostname_port")
 
-    def match(server_doc):
+    def match(server_doc: t.Mapping[str, t.Any]) -> bool:
         if mode == "hostname":
-            return server_spec == server_doc["hostname"]
+            return bool(server_spec == server_doc["hostname"])
         elif mode == "hostname_port":
-            return server_spec == "{}:{}".format(
-                server_doc["hostname"], server_doc["port"]
-            )
+            return server_spec == f"{server_doc['hostname']}:{server_doc['port']}"
         elif mode == "uri":
-            return server_spec == "{}://{}:{}".format(
-                server_doc["scheme"], server_doc["hostname"], server_doc["port"]
+            return server_spec == (
+                f"{server_doc['scheme']}://"
+                f"{server_doc['hostname']}:{server_doc['port']}"
             )
         else:
             raise NotImplementedError("Unreachable error! Something is very wrong.")
@@ -33,7 +47,7 @@ def _spec_to_matches(server_list, server_spec, mode):
     return [server_doc for server_doc in server_list if match(server_doc)]
 
 
-def _detect_mode(server):
+def _detect_mode(server: str) -> Literal["id", "uri", "hostname", "hostname_port"]:
     try:
         int(server)
         return "id"
@@ -63,7 +77,9 @@ $ globus endpoint server delete $ep_id $server_id
 @endpoint_id_arg
 @click.argument("server")
 @LoginManager.requires_login("transfer")
-def server_delete(*, login_manager: LoginManager, endpoint_id, server):
+def server_delete(
+    *, login_manager: LoginManager, endpoint_id: uuid.UUID, server: str
+) -> None:
     """
     Delete a server belonging to an endpoint.
 
@@ -92,6 +108,7 @@ def server_delete(*, login_manager: LoginManager, endpoint_id, server):
         )
 
     if mode != "id":
+        assert not isinstance(server_list, str)
         matches = _spec_to_matches(server_list, server, mode)
         if not matches:
             raise click.UsageError(f'No server was found matching "{server}"')

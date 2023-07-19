@@ -79,7 +79,9 @@ class CustomTransferClient(globus_sdk.TransferClient):
 
     def get_endpoint_w_server_list(
         self, endpoint_id
-    ) -> tuple[globus_sdk.GlobusHTTPResponse, str | globus_sdk.GlobusHTTPResponse]:
+    ) -> tuple[
+        globus_sdk.GlobusHTTPResponse, str | globus_sdk.IterableTransferResponse
+    ]:
         """
         A helper for handling endpoint server list lookups correctly accounting
         for various endpoint types.

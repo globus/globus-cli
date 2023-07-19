@@ -1,8 +1,18 @@
+from __future__ import annotations
+
+import sys
+import uuid
+
 from globus_cli.login_manager import LoginManager
 from globus_cli.parsing import command, endpoint_id_arg
 from globus_cli.termio import TextMode, display
 
-from ._common import server_add_and_update_opts, server_id_arg
+from ._common import server_id_arg, server_update_opts
+
+if sys.version_info >= (3, 8):
+    from typing import Literal
+else:
+    from typing_extensions import Literal
 
 
 @command(
@@ -18,22 +28,22 @@ $ globus endpoint server update $ep_id $server_id --scheme ftp
 ----
 """,
 )
-@server_add_and_update_opts
+@server_update_opts
 @endpoint_id_arg
 @server_id_arg
 @LoginManager.requires_login("transfer")
 def server_update(
     *,
     login_manager: LoginManager,
-    endpoint_id,
-    server_id,
-    subject,
-    port,
-    scheme,
-    hostname,
-    incoming_data_ports,
-    outgoing_data_ports,
-):
+    endpoint_id: uuid.UUID,
+    server_id: str,
+    subject: str | None,
+    port: int | None,
+    scheme: Literal["gsiftp", "ftp"] | None,
+    hostname: str | None,
+    incoming_data_ports: tuple[int | None, int | None] | None,
+    outgoing_data_ports: tuple[int | None, int | None] | None,
+) -> None:
     """
     Update the attributes of a server on an endpoint.
 
