@@ -14,11 +14,10 @@ from .._common import INDEX_FIELDS
 def create_command(
     *, login_manager: LoginManager, display_name: str, description: str
 ) -> None:
-    """(BETA) Create a new Index"""
-    index_doc = {"display_name": display_name, "description": description}
+    """Create a new Index"""
     search_client = login_manager.get_search_client()
     display(
-        search_client.post("/beta/index", data=index_doc),
+        search_client.create_index(display_name=display_name, description=description),
         text_mode=TextMode.text_record,
         fields=INDEX_FIELDS,
     )

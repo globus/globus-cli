@@ -336,31 +336,6 @@ search:
         "status": "open",
         "subscription_id": null
       }
-  - path: /beta/index
-    method: POST
-    json:
-      {
-        "@datatype": "GSearchIndex",
-        "@version": "2017-09-01",
-        "creation_date": "2018-04-20 19:23:46",
-        "description": "Example index of Cookery",
-        "display_name": "example_cookery",
-        "id": "6f831ac8-4c41-4812-b383-6fb04f8b9f9f",
-        "is_trial": false,
-        "max_size_in_mb": 1,
-        "num_entries": 0,
-        "num_subjects": 0,
-        "size_in_mb": 0,
-        "status": "open",
-        "subscription_id": null
-      }
-  - path: /beta/index/6f831ac8-4c41-4812-b383-6fb04f8b9f9f
-    method: DELETE
-    json:
-      {
-        "acknowledged": true,
-        "index_id": "6f831ac8-4c41-4812-b383-6fb04f8b9f9f"
-      }
   - path: /v1/index_list
     json:
       {

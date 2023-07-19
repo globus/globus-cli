@@ -1,4 +1,4 @@
-from globus_sdk._testing import load_response_set
+from globus_sdk._testing import load_response, load_response_set
 
 
 def test_index_list(run_line):
@@ -28,7 +28,7 @@ def test_index_show(run_line):
 
 
 def test_index_create(run_line):
-    meta = load_response_set("cli.search").metadata
+    meta = load_response("search.create_index").metadata
     index_id = meta["index_id"]
 
     run_line(
@@ -45,7 +45,7 @@ def test_index_create(run_line):
 
 
 def test_index_delete(run_line):
-    meta = load_response_set("cli.search").metadata
+    meta = load_response("search.delete_index").metadata
     index_id = meta["index_id"]
 
     run_line(
