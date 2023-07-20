@@ -1,9 +1,11 @@
+from __future__ import annotations
+
 import click
 
 from .annotated_param import AnnotatedParamType
 
 
-def _normpath(path):
+def _normpath(path: str) -> str:
     """
     Globus Transfer-specific normalization, based on a careful reading of the stdlib
     posixpath implementation:
@@ -24,7 +26,7 @@ def _normpath(path):
     initial_slash = 1 if path.startswith("/") else 0
     trailing_slash = 1 if path.endswith("/") and path != "/" else 0
     parts = path.split("/")
-    new_parts = []
+    new_parts: list[str] = []
     for part in parts:
         if part in ("", "."):
             continue
@@ -42,7 +44,7 @@ def _normpath(path):
     return ("/" * initial_slash) + "/".join(new_parts) + ("/" * trailing_slash)
 
 
-def _pathjoin(a, b):
+def _pathjoin(a: str, b: str) -> str:
     """
     POSIX-like path join for Globus Transfer paths
 
@@ -61,7 +63,11 @@ def _pathjoin(a, b):
 
 class TaskPath(AnnotatedParamType):
     def __init__(
-        self, base_dir=None, coerce_to_dir=False, normalize=True, require_absolute=False
+        self,
+        base_dir: str | None = None,
+        coerce_to_dir: bool = False,
+        normalize: bool = True,
+        require_absolute: bool = False,
     ):
         """
         Task Paths are paths for passing into Transfer or Delete tasks.
@@ -79,16 +85,21 @@ class TaskPath(AnnotatedParamType):
         self.require_absolute = require_absolute
 
         # the "real value" of this path holder
-        self.path = None
+        self.path: str | None = None
         # the original path, as consumed before processing
-        self.orig_path = None
+        self.orig_path: str | None = None
 
     def get_type_annotation(self, param: click.Parameter) -> type:
         return TaskPath
 
-    def convert(self, value, param, ctx):
-        if ctx.resilient_parsing:
-            return
+    def convert(
+        self,
+        value: str | TaskPath,
+        param: click.Parameter | None,
+        ctx: click.Context | None,
+    ) -> str | TaskPath | None:
+        if not ctx or ctx.resilient_parsing:
+            return None
         if isinstance(value, TaskPath):
             return value
 
@@ -112,7 +123,7 @@ class TaskPath(AnnotatedParamType):
 
         return self
 
-    def __repr__(self):
+    def __repr__(self) -> str:
         return "TaskPath({})".format(
             ",".join(
                 f"{name}={getattr(self, name)}"
@@ -126,5 +137,5 @@ class TaskPath(AnnotatedParamType):
             )
         )
 
-    def __str__(self):
+    def __str__(self) -> str:
         return str(self.path)
