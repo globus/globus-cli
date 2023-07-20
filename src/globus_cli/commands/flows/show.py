@@ -10,7 +10,7 @@ from globus_cli.termio import Field, TextMode, display, formatters
 @command("show")
 @flow_id_arg
 @LoginManager.requires_login("flows")
-def show_command(login_manager: LoginManager, flow_id: uuid.UUID):
+def show_command(login_manager: LoginManager, flow_id: uuid.UUID) -> None:
     """
     Show a flow
     """

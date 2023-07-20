@@ -1,11 +1,18 @@
 from __future__ import annotations
 
+import sys
+
 import click
 
 from globus_cli.login_manager import LoginManager
 from globus_cli.parsing import command
 from globus_cli.termio import Field, display, formatters
 from globus_cli.utils import PagingWrapper
+
+if sys.version_info >= (3, 8):
+    from typing import Literal
+else:
+    from typing_extensions import Literal
 
 ROLE_TYPES = ("flow_viewer", "flow_starter", "flow_administrator", "flow_owner")
 
@@ -33,10 +40,13 @@ ROLE_TYPES = ("flow_viewer", "flow_starter", "flow_administrator", "flow_owner")
 @LoginManager.requires_login("flows")
 def list_command(
     login_manager: LoginManager,
-    filter_role: str | None,
+    filter_role: Literal[
+        "flow_viewer", "flow_starter", "flow_administrator", "flow_owner"
+    ]
+    | None,
     filter_fulltext: str | None,
     limit: int,
-):
+) -> None:
     """
     List flows
     """

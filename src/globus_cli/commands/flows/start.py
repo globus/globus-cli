@@ -84,10 +84,10 @@ def start_command(
     flow_id: uuid.UUID,
     input_document: ParsedJSONData | None,
     label: str | None,
-    managers: tuple[str],
-    monitors: tuple[str],
-    tags: tuple[str],
-):
+    managers: tuple[str, ...],
+    monitors: tuple[str, ...],
+    tags: tuple[str, ...],
+) -> None:
     """
     Start a flow.
 

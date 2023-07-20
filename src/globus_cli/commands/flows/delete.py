@@ -10,7 +10,7 @@ from globus_cli.termio import Field, TextMode, display, formatters
 @command("delete", short_help="Delete a flow")
 @flow_id_arg
 @LoginManager.requires_login("flows")
-def delete_command(login_manager: LoginManager, flow_id: uuid.UUID):
+def delete_command(login_manager: LoginManager, flow_id: uuid.UUID) -> None:
     """
     Delete a flow
     """
