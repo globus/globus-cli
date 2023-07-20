@@ -1,27 +1,43 @@
+from __future__ import annotations
+
+import sys
+import typing as t
+import uuid
+
 import click
 
 from globus_cli.login_manager import LoginManager
-from globus_cli.parsing import command
+from globus_cli.parsing import AnnotatedParamType, command, endpoint_id_arg
 from globus_cli.termio import Field, TextMode, display, formatters
 
+if sys.version_info >= (3, 8):
+    from typing import Literal
+else:
+    from typing_extensions import Literal
 
-class ChoiceSlugified(click.Choice):
+
+class ChoiceSlugified(click.Choice, AnnotatedParamType):
     """
     Allow either hyphens or underscores, e.g. both 'mapped-collections' or
     'mapped_collections'
     """
 
-    def convert(self, value, param, ctx):
+    def get_type_annotation(self, param: click.Parameter) -> type:
+        return t.cast(type, Literal[tuple(self._slugify(c) for c in self.choices)])
+
+    def convert(
+        self, value: t.Any, param: click.Parameter | None, ctx: click.Context | None
+    ) -> t.Any:
         if value is None:
             return None
-        return super().convert(value.replace("_", "-"), param, ctx).replace("-", "_")
+        return self._slugify(super().convert(value.replace("_", "-"), param, ctx))
+
+    def _slugify(self, value: str) -> str:
+        return value.replace("-", "_")
 
 
 @command("list", short_help="List all Collections on an Endpoint")
-@click.argument(
-    "endpoint_id",
-    metavar="ENDPOINT_ID",
-)
+@endpoint_id_arg
 @click.option(
     "--filter",
     "filters",
@@ -76,17 +92,22 @@ created-by-me:
 def collection_list(
     *,
     login_manager: LoginManager,
-    endpoint_id,
-    include_private_policies,
-    filters,
-    mapped_collection_id,
-):
+    endpoint_id: uuid.UUID,
+    include_private_policies: bool,
+    filters: tuple[
+        Literal[
+            "mapped_collections", "guest_collections", "managed_by_me", "created_by_me"
+        ],
+        ...,
+    ],
+    mapped_collection_id: uuid.UUID | None,
+) -> None:
     """
     List the Collections on a given Globus Connect Server v5 Endpoint
     """
     gcs_client = login_manager.get_gcs_client(endpoint_id=endpoint_id)
     auth_client = login_manager.get_auth_client()
-    params = {}
+    params: dict[str, t.Any] = {}
     if mapped_collection_id:
         params["mapped_collection_id"] = mapped_collection_id
     # note `filter` (no s) is the argument to `get_collection_list`

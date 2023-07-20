@@ -52,6 +52,10 @@ def _type_from_param_type(param_obj: click.Parameter) -> type:
     """
     param_type = param_obj.type
 
+    # globus-cli types
+    if isinstance(param_type, AnnotatedParamType):
+        return param_type.get_type_annotation(param_obj)
+
     # click types
     if type(param_type) in _CLICK_STATIC_TYPE_MAP:
         return _CLICK_STATIC_TYPE_MAP[type(param_type)]
@@ -67,10 +71,6 @@ def _type_from_param_type(param_obj: click.Parameter) -> type:
                 )
         else:
             return str
-
-    # globus-cli types
-    if isinstance(param_type, AnnotatedParamType):
-        return param_type.get_type_annotation(param_obj)
 
     raise NotImplementedError(f"unsupported parameter type: {param_type}")
 

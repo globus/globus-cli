@@ -9,9 +9,6 @@ from globus_cli.reflect import iter_all_commands
 from tests.click_types import check_has_correct_annotations_for_click_args
 
 _SKIP_MODULES = (
-    "globus_cli.commands.collection.delete",
-    "globus_cli.commands.collection.list",
-    "globus_cli.commands.collection.show",
     "globus_cli.commands.endpoint.deactivate",
     "globus_cli.commands.endpoint.delete",
     "globus_cli.commands.endpoint.local_id",

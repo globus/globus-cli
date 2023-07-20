@@ -27,7 +27,9 @@ _MULTI_USE_OPTION_STR = "Give this option multiple times in a single command"
 
 
 class _FullDataField(Field):
-    def get_value(self, data):
+    # NB: 'data' is a UnpackingGCSResponse, but that type isn't exported by `globus_sdk`
+    # rather than digging through internal package paths, just use `t.Any` here
+    def get_value(self, data: t.Any) -> t.Any:
         return super().get_value(data.full_data)
 
 
