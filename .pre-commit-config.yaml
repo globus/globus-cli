@@ -41,3 +41,16 @@ repos:
       entry: ./changelog.d/post-fix-changelog.py
       language: python
       files: ^changelog\.adoc$
+    - id: reject-paginator-table-usage
+      name: "Require use of 'Paginator.wrap()' not 'client.paginated.foo'"
+      types: [python]
+      language: pygrep
+      # look for either
+      #     x = client.paginated.foo(...)
+      # or
+      #     x = (
+      #         client
+      #         .paginated
+      #         .foo(...)
+      #     )
+      entry: '(\.paginated\.)|(^\s+\.paginated$)'

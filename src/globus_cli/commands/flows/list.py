@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import click
+from globus_sdk.paging import Paginator
 
 from globus_cli.login_manager import LoginManager
 from globus_cli.parsing import command
@@ -41,8 +42,9 @@ def list_command(
     List flows
     """
     flows_client = login_manager.get_flows_client()
+    paginator = Paginator.wrap(flows_client.list_flows)
     flow_iterator = PagingWrapper(
-        flows_client.paginated.list_flows(
+        paginator(
             filter_role=filter_role,
             filter_fulltext=filter_fulltext,
             orderby="updated_at DESC",

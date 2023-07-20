@@ -4,6 +4,7 @@ import uuid
 
 import click
 import globus_sdk
+from globus_sdk.paging import Paginator
 
 from globus_cli.login_manager import LoginManager
 from globus_cli.parsing import command, mutex_option_group
@@ -66,7 +67,8 @@ def print_successful_transfers(
 ) -> None:
     from globus_cli.services.transfer import iterable_response_to_dict
 
-    res = client.paginated.task_successful_transfers(task_id).items()
+    paginator = Paginator.wrap(client.task_successful_transfers)
+    res = paginator(task_id).items()
     display(
         res,
         fields=SUCCESSFULL_TRANSFER_FIELDS,
@@ -77,7 +79,8 @@ def print_successful_transfers(
 def print_skipped_errors(client: globus_sdk.TransferClient, task_id: uuid.UUID) -> None:
     from globus_cli.services.transfer import iterable_response_to_dict
 
-    res = client.paginated.task_skipped_errors(task_id).items()
+    paginator = Paginator.wrap(client.task_skipped_errors)
+    res = paginator(task_id).items()
     display(
         res,
         fields=SKIPPED_PATHS_FIELDS,

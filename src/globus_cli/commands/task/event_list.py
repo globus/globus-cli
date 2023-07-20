@@ -5,6 +5,7 @@ import typing as t
 import uuid
 
 import click
+from globus_sdk.paging import Paginator
 
 from globus_cli.login_manager import LoginManager
 from globus_cli.parsing import command
@@ -109,8 +110,9 @@ def task_event_list(
     else:
         filter_string = ""
 
+    paginator = Paginator.wrap(transfer_client.task_event_list)
     event_iterator = PagingWrapper(
-        transfer_client.paginated.task_event_list(
+        paginator(
             task_id,
             # TODO: convert to `filter=filter_string` when SDK support is added
             query_params={"filter": filter_string},

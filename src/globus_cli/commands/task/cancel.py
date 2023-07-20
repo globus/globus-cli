@@ -4,6 +4,7 @@ import typing as t
 import uuid
 
 import click
+from globus_sdk.paging import Paginator
 
 from globus_cli.login_manager import LoginManager
 from globus_cli.parsing import command
@@ -72,9 +73,10 @@ def cancel_task(*, login_manager: LoginManager, all: bool, task_id: uuid.UUID) -
     transfer_client = login_manager.get_transfer_client()
 
     if all:
+        paginator = Paginator.wrap(transfer_client.task_list)
         task_ids = [
             task_row["task_id"]
-            for task_row in transfer_client.paginated.task_list(
+            for task_row in paginator(
                 query_params={
                     "filter": "type:TRANSFER,DELETE/status:ACTIVE,INACTIVE",
                     "fields": "task_id",

@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import click
+from globus_sdk.paging import Paginator
 
 from globus_cli.login_manager import LoginManager
 from globus_cli.parsing import command
@@ -103,8 +104,9 @@ def endpoint_search(
     if owner_id:
         owner_id = auth_client.maybe_lookup_identity_id(owner_id)
 
+    paginator = Paginator.wrap(transfer_client.endpoint_search)
     search_iterator = PagingWrapper(
-        transfer_client.paginated.endpoint_search(
+        paginator(
             filter_fulltext=filter_fulltext,
             filter_scope=filter_scope,
             filter_owner_id=owner_id,

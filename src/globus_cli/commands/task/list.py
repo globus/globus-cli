@@ -7,6 +7,7 @@ import typing as t
 import uuid
 
 import click
+from globus_sdk.paging import Paginator
 
 from globus_cli.login_manager import LoginManager
 from globus_cli.parsing import AnnotatedOption, command
@@ -232,8 +233,9 @@ def task_list(
     )
 
     transfer_client = login_manager.get_transfer_client()
+    paginator = Paginator.wrap(transfer_client.task_list)
     task_iterator = PagingWrapper(
-        transfer_client.paginated.task_list(
+        paginator(
             query_params={
                 "filter": filter_string[:-1],  # remove trailing /
                 "orderby": "request_time DESC",
