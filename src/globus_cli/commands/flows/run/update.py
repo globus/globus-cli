@@ -49,6 +49,7 @@ from globus_cli.termio import Field, TextMode, display, formatters
 @LoginManager.requires_login("flows")
 def update_command(
     login_manager: LoginManager,
+    *,
     run_id: uuid.UUID,
     label: str | None = None,
     run_monitors: list[str] | None = None,

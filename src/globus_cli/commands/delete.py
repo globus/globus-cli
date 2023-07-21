@@ -76,8 +76,8 @@ $ globus task wait "$task_id"
 @click.argument("endpoint_plus_path", type=ENDPOINT_PLUS_OPTPATH)
 @LoginManager.requires_login("transfer")
 def delete_command(
-    *,
     login_manager: LoginManager,
+    *,
     batch: t.TextIO | None,
     ignore_missing: bool,
     star_silent: bool,

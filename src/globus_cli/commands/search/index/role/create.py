@@ -34,12 +34,12 @@ else:
 )
 @LoginManager.requires_login("auth", "search")
 def create_command(
+    login_manager: LoginManager,
     *,
     index_id: uuid.UUID,
     role_name: str,
     principal: str,
     principal_type: Literal["identity", "group"] | None,
-    login_manager: LoginManager,
 ) -> None:
     """
     Create a role (requires admin or owner)

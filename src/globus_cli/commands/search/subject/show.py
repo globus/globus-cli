@@ -24,7 +24,7 @@ def _print_subject(subject_doc: "globus_sdk.GlobusHTTPResponse") -> None:
 @click.argument("subject")
 @LoginManager.requires_login("auth", "search")
 def show_command(
-    *, login_manager: LoginManager, index_id: uuid.UUID, subject: str
+    login_manager: LoginManager, *, index_id: uuid.UUID, subject: str
 ) -> None:
     """Show the data for a given subject in an index
 

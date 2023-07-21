@@ -38,8 +38,8 @@ $ globus bookmark create \
 @click.argument("bookmark_name")
 @LoginManager.requires_login("transfer")
 def bookmark_create(
-    *,
     login_manager: LoginManager,
+    *,
     endpoint_plus_path: tuple[uuid.UUID, str],
     bookmark_name: str,
 ) -> None:

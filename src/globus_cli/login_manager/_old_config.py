@@ -1,4 +1,7 @@
+from __future__ import annotations
+
 import os
+import typing as t
 from configparser import ConfigParser
 
 import globus_sdk
@@ -6,17 +9,17 @@ import globus_sdk
 GLOBUS_ENV = os.environ.get("GLOBUS_SDK_ENVIRONMENT")
 
 
-def _get_old_conf_path():
+def _get_old_conf_path() -> str:
     return os.path.expanduser("~/.globus.cfg")
 
 
-def _old_conf_parser():
+def _old_conf_parser() -> ConfigParser:
     conf = ConfigParser()
     conf.read(_get_old_conf_path())
     return conf
 
 
-def _token_conf_keys():
+def _token_conf_keys() -> t.Iterator[str]:
     for k in [
         "auth_refresh_token",
         "auth_access_token",
@@ -27,14 +30,14 @@ def _token_conf_keys():
         yield (f"{GLOBUS_ENV}_{k}" if GLOBUS_ENV else k)
 
 
-def _old_tokens_to_revoke(conf):
+def _old_tokens_to_revoke(conf: ConfigParser) -> t.Iterator[str]:
     for key in _token_conf_keys():
         tokenstr = conf.get("cli", key, fallback=None)
         if tokenstr:
             yield tokenstr
 
 
-def _get_client_creds(conf):
+def _get_client_creds(conf: ConfigParser) -> tuple[str, str] | None:
     id_key, secret_key = ("client_id", "client_secret")
     if GLOBUS_ENV:
         id_key, secret_key = (f"{GLOBUS_ENV}_client_id", f"{GLOBUS_ENV}_client_secret")
@@ -45,7 +48,7 @@ def _get_client_creds(conf):
     return None
 
 
-def invalidate_old_config(auth_client):
+def invalidate_old_config(auth_client: globus_sdk.AuthClient) -> None:
     # revoke any old config-stored tokens (logout)
     # and delete old client creds
     conf = _old_conf_parser()

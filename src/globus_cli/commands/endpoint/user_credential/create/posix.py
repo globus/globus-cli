@@ -16,8 +16,8 @@ from .._common import user_credential_create_and_update_params
 @user_credential_create_and_update_params(create=True)
 @LoginManager.requires_login("auth", "transfer")
 def posix(
-    *,
     login_manager: LoginManager,
+    *,
     endpoint_id: uuid.UUID,
     storage_gateway: uuid.UUID,
     globus_identity: str,

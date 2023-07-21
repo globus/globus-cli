@@ -33,8 +33,8 @@ from ._common import index_id_arg
 @mutex_option_group("-q", "--query-document")
 @LoginManager.requires_login("search")
 def delete_by_query_command(
-    *,
     login_manager: LoginManager,
+    *,
     index_id: uuid.UUID,
     q: str | None,
     query_document: ParsedJSONData | None,

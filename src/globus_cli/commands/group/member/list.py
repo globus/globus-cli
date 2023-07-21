@@ -25,8 +25,8 @@ def _str2field(fieldname: str) -> Field:
 @command("list")
 @LoginManager.requires_login("groups")
 def member_list(
-    *,
     login_manager: LoginManager,
+    *,
     group_id: uuid.UUID,
     fields: list[str] | None,
 ) -> None:

@@ -17,8 +17,8 @@ from ._common import group_id_arg
 @click.option("--description", help="Description for the group")
 @LoginManager.requires_login("groups")
 def group_update(
-    *,
     login_manager: LoginManager,
+    *,
     group_id: uuid.UUID,
     name: str | None,
     description: str | None,

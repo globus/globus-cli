@@ -84,8 +84,8 @@ fi
 )
 @LoginManager.requires_login("transfer")
 def endpoint_is_activated(
-    *,
     login_manager: LoginManager,
+    *,
     endpoint_id: uuid.UUID,
     until: int | None,
     absolute_time: bool,

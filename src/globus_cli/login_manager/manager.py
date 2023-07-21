@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import functools
+import sys
 import typing as t
 import uuid
 
@@ -36,6 +37,14 @@ if t.TYPE_CHECKING:
     from ..services.auth import CustomAuthClient
     from ..services.gcs import CustomGCSClient
     from ..services.transfer import CustomTransferClient
+
+if sys.version_info >= (3, 10):
+    from typing import Concatenate, ParamSpec
+else:
+    from typing_extensions import Concatenate, ParamSpec
+
+P = ParamSpec("P")
+R = t.TypeVar("R")
 
 
 class LoginManager:
@@ -135,7 +144,7 @@ class LoginManager:
         epilog: str | None = None,
         session_params: dict | None = None,
         scopes: list[str | MutableScope] | None = None,
-    ):
+    ) -> None:
         if is_client_login():
             click.echo(
                 "Client identities do not need to log in. If you are trying "
@@ -165,7 +174,12 @@ class LoginManager:
         if epilog is not None:
             click.echo(epilog)
 
-    def assert_logins(self, *resource_servers, assume_gcs=False, assume_flow=False):
+    def assert_logins(
+        self,
+        *resource_servers: str,
+        assume_gcs: bool = False,
+        assume_flow: bool = False,
+    ) -> None:
         # determine the set of resource servers missing logins
         missing_servers = {s for s in resource_servers if not self.has_login(s)}
 
@@ -173,11 +187,13 @@ class LoginManager:
         # text is slightly different for 1, 2, or 3+ missing servers
         if missing_servers:
             raise MissingLoginError(
-                missing_servers, assume_gcs=assume_gcs, assume_flow=assume_flow
+                list(missing_servers), assume_gcs=assume_gcs, assume_flow=assume_flow
             )
 
     @classmethod
-    def requires_login(cls, *services: ServiceNameLiteral):
+    def requires_login(
+        cls, *services: ServiceNameLiteral
+    ) -> t.Callable[[t.Callable[Concatenate[LoginManager, P], R]], t.Callable[P, R]]:
         """
         Command decorator for specifying a resource server that the user must have
         tokens for in order to run the command.
@@ -204,16 +220,20 @@ class LoginManager:
             for rs_name in services
         ]
 
-        def inner(func):
+        def inner(
+            func: t.Callable[Concatenate[LoginManager, P], R]
+        ) -> t.Callable[P, R]:
             @functools.wraps(func)
-            def wrapper(*args, **kwargs):
+            def wrapper(*args: P.args, **kwargs: P.kwargs) -> R:
                 manager = cls()
                 manager.assert_logins(*resource_servers)
-                return func(*args, login_manager=manager, **kwargs)
+                return func(manager, *args, **kwargs)
 
             return wrapper
 
-        return inner
+        # TODO: remove this ignore after a mypy release fixes ParamSpec regressions
+        # see https://github.com/python/mypy/pull/15272 for a candidate fix PR
+        return inner  # type: ignore[return-value]
 
     def _get_client_authorizer(
         self, resource_server: str, *, no_tokens_msg: str | None = None

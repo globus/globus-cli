@@ -32,11 +32,11 @@ JOIN_USER_FIELDS = [
 )
 @LoginManager.requires_login("groups")
 def group_join(
+    login_manager: LoginManager,
     *,
     group_id: uuid.UUID,
     identity: ParsedIdentity | None,
     request: bool,
-    login_manager: LoginManager,
 ) -> None:
     """
     Join a group in which you are not a member.

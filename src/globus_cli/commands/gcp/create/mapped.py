@@ -20,8 +20,8 @@ from ._common import deprecated_verify_option
 @deprecated_verify_option
 @LoginManager.requires_login("transfer")
 def mapped_command(
-    *,
     login_manager: LoginManager,
+    *,
     display_name: str,
     description: str | None | ExplicitNullType,
     info_link: str | None | ExplicitNullType,

@@ -12,7 +12,7 @@ from globus_cli.termio import display
 @click.option("--description", help="Description for the group")
 @LoginManager.requires_login("groups")
 def group_create(
-    *, login_manager: LoginManager, name: str, description: str | None
+    login_manager: LoginManager, *, name: str, description: str | None
 ) -> None:
     """Create a new group"""
     groups_client = login_manager.get_groups_client()

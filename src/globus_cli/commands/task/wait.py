@@ -40,8 +40,8 @@ $ globus task wait --polling-interval 300 TASK_ID
 @synchronous_task_wait_options
 @LoginManager.requires_login("transfer")
 def task_wait(
-    *,
     login_manager: LoginManager,
+    *,
     meow: bool,
     heartbeat: bool,
     polling_interval: int,

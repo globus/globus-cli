@@ -17,8 +17,8 @@ from globus_cli.termio import display
 @click.argument("user_credential_json", type=JSONStringOrFile())
 @LoginManager.requires_login("auth", "transfer")
 def from_json(
-    *,
     login_manager: LoginManager,
+    *,
     endpoint_id: uuid.UUID,
     user_credential_json: ParsedJSONData,
 ) -> None:

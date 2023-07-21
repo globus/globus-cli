@@ -1,4 +1,7 @@
+from __future__ import annotations
+
 import datetime
+import typing as t
 
 import globus_sdk
 
@@ -44,7 +47,7 @@ $ globus session show --format json
 """,
 )
 @LoginManager.requires_login("auth")
-def session_show(*, login_manager):
+def session_show(login_manager: LoginManager):
     """List all identities in your current CLI auth session.
 
     Lists identities that are in the session tied to the CLI's access tokens along with
@@ -56,6 +59,7 @@ def session_show(*, login_manager):
     # get a token to introspect, refreshing if necessary
     try:
         # may force a refresh if the token is expired
+        assert auth_client.authorizer
         auth_client.authorizer.get_authorization_header()
     except AttributeError:  # if we have no RefreshTokenAuthorizor
         pass
@@ -63,8 +67,8 @@ def session_show(*, login_manager):
     tokendata = adapter.get_token_data("auth.globus.org")
     # if there's no token (e.g. not logged in), stub with empty data
     if not tokendata:
-        session_info = {}
-        authentications = {}
+        session_info: dict[str, t.Any] = {}
+        authentications: dict[str, dict[str, t.Any]] = {}
     else:
         if is_client_login():
             introspect_client = get_client_login()

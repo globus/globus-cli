@@ -90,8 +90,8 @@ created-by-me:
 )
 @LoginManager.requires_login("auth", "transfer")
 def collection_list(
-    *,
     login_manager: LoginManager,
+    *,
     endpoint_id: uuid.UUID,
     include_private_policies: bool,
     filters: tuple[

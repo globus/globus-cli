@@ -25,8 +25,8 @@ from globus_cli.termio import TextMode, display
 )
 @LoginManager.requires_login("transfer")
 def mapped_command(
-    *,
     login_manager: LoginManager,
+    *,
     collection_id: uuid.UUID,
     display_name: str | None,
     description: str | None | ExplicitNullType,

@@ -10,11 +10,7 @@ from ._common import SESSION_ENFORCEMENT_FIELD, group_id_arg
 @group_id_arg
 @command("show")
 @LoginManager.requires_login("groups")
-def group_show(
-    *,
-    login_manager: LoginManager,
-    group_id: uuid.UUID,
-) -> None:
+def group_show(login_manager: LoginManager, *, group_id: uuid.UUID) -> None:
     """Show a group definition"""
     groups_client = login_manager.get_groups_client()
 

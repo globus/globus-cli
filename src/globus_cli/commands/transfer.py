@@ -215,8 +215,8 @@ fi
 @mutex_option_group("--recursive", "--external-checksum")
 @LoginManager.requires_login("transfer")
 def transfer_command(
-    *,
     login_manager: LoginManager,
+    *,
     batch: t.TextIO | None,
     sync_level: Literal["exists", "size", "mtime", "checksum"] | None,
     recursive: bool,

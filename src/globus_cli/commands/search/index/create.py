@@ -12,7 +12,7 @@ from .._common import INDEX_FIELDS
 @click.argument("DISPLAY_NAME")
 @click.argument("DESCRIPTION")
 def create_command(
-    *, login_manager: LoginManager, display_name: str, description: str
+    login_manager: LoginManager, *, display_name: str, description: str
 ) -> None:
     """Create a new Index"""
     search_client = login_manager.get_search_client()

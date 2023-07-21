@@ -47,8 +47,8 @@ $ globus rm $ep_id:~/mydir --recursive
 @click.argument("endpoint_plus_path", type=ENDPOINT_PLUS_REQPATH)
 @LoginManager.requires_login("transfer")
 def rm_command(
-    *,
     login_manager: LoginManager,
+    *,
     ignore_missing: bool,
     star_silent: bool,
     recursive: bool,

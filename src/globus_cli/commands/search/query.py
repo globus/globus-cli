@@ -60,8 +60,8 @@ def _print_subjects(data: dict[str, JsonValue]) -> None:
 @mutex_option_group("-q", "--query-document")
 @LoginManager.requires_login("search")
 def query_command(
-    *,
     login_manager: LoginManager,
+    *,
     index_id: uuid.UUID,
     q: str | None,
     query_document: ParsedJSONData | None,

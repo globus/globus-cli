@@ -32,8 +32,8 @@ $ globus task update TASK_ID --label 'my task updated by me' \
 @click.option("--deadline", help="New Deadline for the task")
 @LoginManager.requires_login("transfer")
 def update_task(
-    *,
     login_manager: LoginManager,
+    *,
     deadline: str | None,
     label: str | None,
     task_id: uuid.UUID,

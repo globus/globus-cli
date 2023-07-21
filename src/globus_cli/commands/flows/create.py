@@ -39,6 +39,7 @@ ROLE_TYPES = ("flow_viewer", "flow_starter", "flow_administrator", "flow_owner")
 @LoginManager.requires_login("flows")
 def create_command(
     login_manager: LoginManager,
+    *,
     title: str,
     definition: ParsedJSONData,
     input_schema: ParsedJSONData | None,

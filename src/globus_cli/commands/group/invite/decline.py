@@ -21,7 +21,7 @@ from ._common import build_invite_actions, get_invite_formatter
 )
 @LoginManager.requires_login("groups")
 def invite_decline(
-    *, group_id: uuid.UUID, identity: ParsedIdentity | None, login_manager: LoginManager
+    login_manager: LoginManager, *, group_id: uuid.UUID, identity: ParsedIdentity | None
 ) -> None:
     """
     Decline an invitation to a group

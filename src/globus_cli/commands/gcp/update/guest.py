@@ -17,8 +17,8 @@ from globus_cli.termio import TextMode, display
 )
 @LoginManager.requires_login("transfer")
 def guest_command(
-    *,
     login_manager: LoginManager,
+    *,
     collection_id: uuid.UUID,
     display_name: str | None,
     contact_email: str | None | ExplicitNullType,

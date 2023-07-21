@@ -11,8 +11,8 @@ from ._common import group_id_arg
 @command("delete")
 @LoginManager.requires_login("groups")
 def group_delete(
-    *,
     login_manager: LoginManager,
+    *,
     group_id: uuid.UUID,
 ) -> None:
     """Delete a group"""

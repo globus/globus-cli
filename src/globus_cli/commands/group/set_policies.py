@@ -65,8 +65,8 @@ else:
 @command("set-policies")
 @LoginManager.requires_login("groups")
 def group_set_policies(
-    *,
     login_manager: LoginManager,
+    *,
     group_id: uuid.UUID,
     high_assurance: bool | None,
     authentication_timeout: int | None,

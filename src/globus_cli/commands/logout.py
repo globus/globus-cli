@@ -55,7 +55,7 @@ flow.
     default=False,
 )
 @LoginManager.requires_login()
-def logout_command(*, login_manager: LoginManager, ignore_errors: bool) -> None:
+def logout_command(login_manager: LoginManager, *, ignore_errors: bool) -> None:
     """
     Logout of the Globus CLI
 

@@ -38,8 +38,8 @@ else:
 @mutex_option_group("--default-directory", "--no-default-directory")
 @LoginManager.requires_login("transfer")
 def endpoint_update(
-    *,
     login_manager: LoginManager,
+    *,
     endpoint_id: uuid.UUID,
     contact_email: str | None | ExplicitNullType,
     contact_info: str | None | ExplicitNullType,

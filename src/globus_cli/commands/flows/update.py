@@ -106,8 +106,9 @@ ROLE_TYPES = ("flow_viewer", "flow_starter", "flow_administrator", "flow_owner")
 )
 @LoginManager.requires_login("flows")
 def update_command(
-    flow_id: uuid.UUID,
     login_manager: LoginManager,
+    *,
+    flow_id: uuid.UUID,
     title: str | None,
     definition: ParsedJSONData | None,
     input_schema: ParsedJSONData | None,

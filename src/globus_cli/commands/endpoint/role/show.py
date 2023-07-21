@@ -34,7 +34,7 @@ $ globus endpoint role show EP_ID ROLE_ID
 @role_id_arg
 @LoginManager.requires_login("auth", "transfer")
 def role_show(
-    *, login_manager: LoginManager, endpoint_id: uuid.UUID, role_id: str
+    login_manager: LoginManager, *, endpoint_id: uuid.UUID, role_id: str
 ) -> None:
     """
     Show full info for a role on an endpoint.

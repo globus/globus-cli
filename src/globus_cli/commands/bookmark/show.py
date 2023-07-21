@@ -32,7 +32,7 @@ $ globus ls "$(globus bookmark show BOOKMARK_NAME)"
 )
 @click.argument("bookmark_id_or_name")
 @LoginManager.requires_login("transfer")
-def bookmark_show(*, login_manager: LoginManager, bookmark_id_or_name: str) -> None:
+def bookmark_show(login_manager: LoginManager, *, bookmark_id_or_name: str) -> None:
     """
     Given a single bookmark ID or bookmark name, show the bookmark details. By default,
     when the format is TEXT, this will display the endpoint ID and path in

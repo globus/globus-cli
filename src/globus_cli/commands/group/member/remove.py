@@ -20,7 +20,7 @@ REMOVED_USER_FIELDS = [
 @click.argument("user", type=IdentityType())
 @LoginManager.requires_login("groups")
 def member_remove(
-    *, group_id: uuid.UUID, user: ParsedIdentity, login_manager: LoginManager
+    login_manager: LoginManager, *, group_id: uuid.UUID, user: ParsedIdentity
 ) -> None:
     """
     Remove a member from a group.

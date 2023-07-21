@@ -126,8 +126,8 @@ $ globus ls $ep_id:/share/godata/ --filter '~*.txt'  # done with --filter, bette
 @local_user_option
 @LoginManager.requires_login("transfer")
 def ls_command(
-    *,
     login_manager: LoginManager,
+    *,
     endpoint_plus_path: tuple[uuid.UUID, str | None],
     recursive_depth_limit: int,
     recursive: bool,

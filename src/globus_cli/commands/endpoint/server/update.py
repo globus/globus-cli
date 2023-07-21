@@ -33,8 +33,8 @@ $ globus endpoint server update $ep_id $server_id --scheme ftp
 @server_id_arg
 @LoginManager.requires_login("transfer")
 def server_update(
-    *,
     login_manager: LoginManager,
+    *,
     endpoint_id: uuid.UUID,
     server_id: str,
     subject: str | None,

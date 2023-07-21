@@ -33,7 +33,7 @@ class SubscriptionIdType(AnnotatedParamType):
 @click.argument("SUBSCRIPTION_ID", type=SubscriptionIdType())
 @LoginManager.requires_login("transfer")
 def set_endpoint_subscription_id(
-    *, login_manager: LoginManager, endpoint_id: uuid.UUID, subscription_id: str | None
+    login_manager: LoginManager, *, endpoint_id: uuid.UUID, subscription_id: str | None
 ) -> None:
     """
     Set an endpoint's subscription ID.

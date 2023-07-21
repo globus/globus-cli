@@ -67,8 +67,8 @@ GCP_FIELDS = [Field("Setup Key", "globus_connect_setup_key")]
 @mutex_option_group("--shared", "--server", "--personal")
 @LoginManager.requires_login("transfer")
 def endpoint_create(
-    *,
     login_manager: LoginManager,
+    *,
     personal: bool,
     server: bool,
     shared: tuple[uuid.UUID, str] | None,

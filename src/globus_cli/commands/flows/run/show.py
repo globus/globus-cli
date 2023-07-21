@@ -18,7 +18,7 @@ from globus_cli.termio import Field, TextMode, display, formatters
 )
 @LoginManager.requires_login("flows")
 def show_command(
-    login_manager: LoginManager, run_id: uuid.UUID, include_flow_description: bool
+    login_manager: LoginManager, *, run_id: uuid.UUID, include_flow_description: bool
 ) -> None:
     """
     Show a run

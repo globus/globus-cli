@@ -33,8 +33,8 @@ ADD_USER_FIELDS = [
 )
 @LoginManager.requires_login("groups")
 def member_add(
-    *,
     login_manager: LoginManager,
+    *,
     group_id: uuid.UUID,
     user: ParsedIdentity,
     role: Literal["member", "manager", "admin"],

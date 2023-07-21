@@ -31,8 +31,8 @@ $ globus endpoint server add $ep_id --hostname gridftp.example.org
 @server_add_opts
 @LoginManager.requires_login("transfer")
 def server_add(
-    *,
     login_manager: LoginManager,
+    *,
     endpoint_id: uuid.UUID,
     subject: str | None,
     port: int,

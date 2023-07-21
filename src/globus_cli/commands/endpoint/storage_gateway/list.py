@@ -19,8 +19,8 @@ STANDARD_FIELDS = [
 )
 @LoginManager.requires_login("auth", "transfer")
 def storage_gateway_list(
-    *,
     login_manager: LoginManager,
+    *,
     endpoint_id,
 ):
     """

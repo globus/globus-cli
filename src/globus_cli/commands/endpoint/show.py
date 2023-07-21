@@ -39,7 +39,7 @@ GCP_FIELDS = STANDARD_FIELDS + [
 @click.option("--skip-endpoint-type-check", is_flag=True, hidden=True)
 @LoginManager.requires_login("transfer")
 def endpoint_show(
-    *, login_manager: LoginManager, endpoint_id: str, skip_endpoint_type_check: bool
+    login_manager: LoginManager, *, endpoint_id: str, skip_endpoint_type_check: bool
 ) -> None:
     """Display a detailed endpoint definition"""
     transfer_client = login_manager.get_transfer_client()

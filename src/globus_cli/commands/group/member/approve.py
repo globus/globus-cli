@@ -20,7 +20,7 @@ APPROVED_USER_FIELDS = [
 @click.argument("user", type=IdentityType())
 @LoginManager.requires_login("groups")
 def member_approve(
-    *, group_id: uuid.UUID, user: ParsedIdentity, login_manager: LoginManager
+    login_manager: LoginManager, *, group_id: uuid.UUID, user: ParsedIdentity
 ) -> None:
     """
     Approve a pending member to join a group, changing their status from 'invited'

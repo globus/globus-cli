@@ -17,7 +17,7 @@ TASK_FIELDS = [
 @command("list", short_help="List recent Tasks for an index")
 @index_id_arg
 @LoginManager.requires_login("search")
-def list_command(*, login_manager: LoginManager, index_id: uuid.UUID) -> None:
+def list_command(login_manager: LoginManager, *, index_id: uuid.UUID) -> None:
     """List the 1000 most recent Tasks for an index"""
     search_client = login_manager.get_search_client()
     display(

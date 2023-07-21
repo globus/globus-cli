@@ -27,8 +27,8 @@ $ globus rename $ep_id:~/tempdir $ep_id:~/project-foo
 @local_user_option
 @LoginManager.requires_login("transfer")
 def rename_command(
-    *,
     login_manager: LoginManager,
+    *,
     endpoint_id: uuid.UUID,
     source: str,
     destination: str,

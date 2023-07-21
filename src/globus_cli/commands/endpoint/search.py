@@ -69,8 +69,8 @@ $ globus endpoint search --filter-scope my-endpoints
 @click.argument("filter_fulltext", required=False)
 @LoginManager.requires_login("auth", "transfer")
 def endpoint_search(
-    *,
     login_manager: LoginManager,
+    *,
     filter_fulltext: str | None,
     limit: int,
     filter_owner_id: str | None,

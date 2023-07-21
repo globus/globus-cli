@@ -45,8 +45,8 @@ $ globus endpoint role create 'ddb59aef-6d04-11e5-ba46-22000b92c6ec' \
 )
 @LoginManager.requires_login("auth", "transfer")
 def role_create(
-    *,
     login_manager: LoginManager,
+    *,
     role: Literal[
         "administrator", "access_manager", "activity_manager", "activity_monitor"
     ],

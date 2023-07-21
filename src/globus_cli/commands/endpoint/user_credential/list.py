@@ -22,8 +22,8 @@ from globus_cli.termio import Field, TextMode, display, formatters
 )
 @LoginManager.requires_login("auth", "transfer")
 def user_credential_list(
-    *,
     login_manager: LoginManager,
+    *,
     endpoint_id: uuid.UUID,
     storage_gateway: uuid.UUID | None,
 ) -> None:

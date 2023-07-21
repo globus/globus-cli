@@ -14,10 +14,10 @@ from .._common import index_id_arg
 @click.argument("subject")
 @LoginManager.requires_login("search")
 def delete_command(
+    login_manager: LoginManager,
     *,
     index_id: uuid.UUID,
     subject: str,
-    login_manager: LoginManager,
 ) -> None:
     """Delete a subject (requires writer, admin, or owner)
 

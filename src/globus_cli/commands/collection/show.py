@@ -76,8 +76,8 @@ PRIVATE_FIELDS: list[Field] = [
 )
 @LoginManager.requires_login("auth", "transfer")
 def collection_show(
-    *,
     login_manager: LoginManager,
+    *,
     include_private_policies: bool,
     collection_id: uuid.UUID,
 ) -> None:

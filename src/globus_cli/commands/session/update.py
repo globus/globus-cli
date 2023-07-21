@@ -98,8 +98,8 @@ def _update_session_params_identities_case(
 )
 @LoginManager.requires_login("auth")
 def session_update(
-    *,
     login_manager: LoginManager,
+    *,
     identities: tuple[ParsedIdentity, ...],
     no_local_server: bool,
     policies: list[str] | None,

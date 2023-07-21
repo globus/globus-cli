@@ -42,10 +42,10 @@ def group_leave_formatter(data: globus_sdk.GlobusHTTPResponse) -> None:
 )
 @LoginManager.requires_login("groups")
 def group_leave(
+    login_manager: LoginManager,
     *,
     group_id: uuid.UUID,
     identity: ParsedIdentity | None,
-    login_manager: LoginManager,
 ) -> None:
     """
     Leave a group in which you are a member.

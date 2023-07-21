@@ -37,7 +37,7 @@ $ globus get-identities --verbose go@globusid.org clitester1a@globusid.org \
 )
 @click.option("--provision", hidden=True, is_flag=True)
 @LoginManager.requires_login("auth")
-def get_identities_command(*, login_manager: LoginManager, values, provision):
+def get_identities_command(login_manager: LoginManager, *, values, provision):
     """
     Lookup Globus Auth Identities given one or more uuids
     and/or usernames.

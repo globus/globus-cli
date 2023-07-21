@@ -126,8 +126,8 @@ class _FullDataField(Field):
 @mutex_option_group("--enable-https", "--disable-https")
 @LoginManager.requires_login("auth", "transfer")
 def collection_update(
-    *,
     login_manager: LoginManager,
+    *,
     collection_id: uuid.UUID,
     display_name: str | None,
     description: str | None | ExplicitNullType,

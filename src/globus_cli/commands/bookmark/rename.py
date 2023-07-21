@@ -26,7 +26,7 @@ $ globus bookmark rename oldname newname
 @click.argument("new_bookmark_name")
 @LoginManager.requires_login("transfer")
 def bookmark_rename(
-    *, login_manager: LoginManager, bookmark_id_or_name: str, new_bookmark_name: str
+    login_manager: LoginManager, *, bookmark_id_or_name: str, new_bookmark_name: str
 ) -> None:
     """Change a bookmark's name"""
     transfer_client = login_manager.get_transfer_client()

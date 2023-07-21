@@ -256,7 +256,7 @@ def test_gcs_error_message(patched_tokenstorage):
 
 def test_client_login_two_requirements(client_login):
     @LoginManager.requires_login("transfer", "auth")
-    def dummy_command(*, login_manager):
+    def dummy_command(login_manager):
         transfer_client = login_manager.get_transfer_client()
         auth_client = login_manager.get_auth_client()
 
@@ -284,7 +284,7 @@ def test_client_login_gcs(client_login, add_gcs_login):
         add_gcs_login(gcs_id)
 
         @LoginManager.requires_login("transfer")
-        def dummy_command(*, login_manager, collection_id):
+        def dummy_command(login_manager, *, collection_id):
             gcs_client = login_manager.get_gcs_client(collection_id=collection_id)
 
             assert isinstance(

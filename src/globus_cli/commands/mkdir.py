@@ -25,8 +25,8 @@ $ mkdir ep_id:~/testfolder
 @local_user_option
 @LoginManager.requires_login("transfer")
 def mkdir_command(
-    *,
     login_manager: LoginManager,
+    *,
     endpoint_plus_path: tuple[uuid.UUID, str],
     local_user: str | None,
 ):

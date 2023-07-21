@@ -27,7 +27,7 @@ $ globus endpoint permission update $ep_id $rule_id --permissions r
     help="Permissions to add. Read-Only or Read/Write",
 )
 @LoginManager.requires_login("transfer")
-def update_command(*, login_manager: LoginManager, permissions, rule_id, endpoint_id):
+def update_command(login_manager: LoginManager, *, permissions, rule_id, endpoint_id):
     """
     Update an existing access control rule's permissions.
 

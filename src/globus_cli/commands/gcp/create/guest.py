@@ -22,8 +22,8 @@ from ._common import deprecated_verify_option
 @deprecated_verify_option
 @LoginManager.requires_login("transfer")
 def guest_command(
-    *,
     login_manager: LoginManager,
+    *,
     display_name: str,
     host_gcp_path: tuple[uuid.UUID, str],
     contact_email: str | None | ExplicitNullType,

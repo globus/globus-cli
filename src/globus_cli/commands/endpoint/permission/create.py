@@ -47,8 +47,8 @@ $ globus endpoint permission create $ep_id:/ --permissions rw --identity go@glob
 @click.argument("endpoint_plus_path", type=ENDPOINT_PLUS_REQPATH)
 @LoginManager.requires_login("auth", "transfer")
 def create_command(
-    *,
     login_manager: LoginManager,
+    *,
     principal,
     permissions,
     endpoint_plus_path,

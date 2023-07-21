@@ -31,7 +31,7 @@ $ globus endpoint server list $ep_id
 )
 @endpoint_id_arg
 @LoginManager.requires_login("transfer")
-def server_list(*, login_manager: LoginManager, endpoint_id: uuid.UUID) -> None:
+def server_list(login_manager: LoginManager, *, endpoint_id: uuid.UUID) -> None:
     """List all servers belonging to an endpoint."""
     transfer_client = login_manager.get_transfer_client()
     # raises usage error on shares for us

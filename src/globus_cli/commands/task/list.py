@@ -170,8 +170,8 @@ globus task list --format=unix --jmespath='DATA[*].[task_id, status]' | \
 )
 @LoginManager.requires_login("transfer")
 def task_list(
-    *,
     login_manager: LoginManager,
+    *,
     limit: int,
     filter_task_id: tuple[uuid.UUID, ...],
     filter_type: Literal["TRANSFER", "DELETE"] | None,

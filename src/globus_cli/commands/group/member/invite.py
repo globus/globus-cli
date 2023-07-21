@@ -38,8 +38,8 @@ INVITED_USER_FIELDS = [
 )
 @LoginManager.requires_login("groups")
 def member_invite(
-    *,
     login_manager: LoginManager,
+    *,
     group_id: uuid.UUID,
     user: ParsedIdentity,
     provision_identity: bool,

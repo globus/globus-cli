@@ -232,8 +232,8 @@ sends a 'GET' request to '{_get_url(service_name)}foo/bar'
     @click.option("--no-retry", is_flag=True, help="Disable built-in request retries")
     @mutex_option_group("--body", "--body-file")
     def service_command(
-        *,
         login_manager: LoginManager,
+        *,
         method: Literal["HEAD", "GET", "PUT", "POST", "PATCH", "DELETE"],
         path: str,
         query_param: tuple[tuple[str, str], ...],

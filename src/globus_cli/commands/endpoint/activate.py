@@ -113,8 +113,8 @@ $ globus endpoint activate $ep_id --myproxy -U username
 @mutex_option_group("--web", "--myproxy", "--delegate-proxy")
 @LoginManager.requires_login("transfer")
 def endpoint_activate(
-    *,
     login_manager: LoginManager,
+    *,
     endpoint_id: uuid.UUID,
     myproxy: bool,
     myproxy_username: str | None,

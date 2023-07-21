@@ -14,10 +14,10 @@ from ..._common import index_id_arg
 @click.argument("ROLE_ID")
 @LoginManager.requires_login("search")
 def delete_command(
+    login_manager: LoginManager,
     *,
     index_id: uuid.UUID,
     role_id: str,
-    login_manager: LoginManager,
 ) -> None:
     """Delete a role (requires admin or owner)"""
     search_client = login_manager.get_search_client()

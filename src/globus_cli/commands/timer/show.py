@@ -12,7 +12,7 @@ from ._common import JOB_FORMAT_FIELDS
 @command("show", short_help="Display a Timer job")
 @click.argument("JOB_ID", type=click.UUID)
 @LoginManager.requires_login("timer")
-def show_command(*, login_manager: LoginManager, job_id: uuid.UUID) -> None:
+def show_command(login_manager: LoginManager, *, job_id: uuid.UUID) -> None:
     """
     Display information about a particular job.
     """

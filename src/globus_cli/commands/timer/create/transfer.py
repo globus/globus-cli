@@ -97,8 +97,8 @@ def resolve_start_time(start: datetime.datetime | None) -> datetime.datetime:
 )
 @LoginManager.requires_login("auth", "timer", "transfer")
 def transfer_command(
-    *,
     login_manager: LoginManager,
+    *,
     name: str | None,
     source: tuple[uuid.UUID, str | None],
     destination: tuple[uuid.UUID, str | None],
