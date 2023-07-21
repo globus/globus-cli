@@ -93,7 +93,7 @@ def do_local_server_auth_flow(
     if isinstance(auth_code, LocalServerError):
         click.echo(f"Authorization failed: {auth_code}", err=True)
         click.get_current_context().exit(1)
-    elif isinstance(auth_code, Exception):
+    elif isinstance(auth_code, BaseException):
         click.echo(
             f"Authorization failed with unexpected error:\n{auth_code}",
             err=True,

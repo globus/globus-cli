@@ -7,7 +7,11 @@ from .scopes import CLI_SCOPE_REQUIREMENTS
 
 class MissingLoginError(ValueError):
     def __init__(
-        self, missing_servers: t.Sequence[str], *, assume_gcs=False, assume_flow=False
+        self,
+        missing_servers: t.Sequence[str],
+        *,
+        assume_gcs: bool = False,
+        assume_flow: bool = False,
     ):
         self.missing_servers = missing_servers
         self.assume_gcs = assume_gcs
@@ -37,7 +41,7 @@ class MissingLoginError(ValueError):
         )
         super().__init__(self.message)
 
-    def __str__(self):
+    def __str__(self) -> str:
         return self.message
 
 

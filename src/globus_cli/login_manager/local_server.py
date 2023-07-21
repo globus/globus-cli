@@ -1,8 +1,12 @@
+from __future__ import annotations
+
 import http.client
 import logging
 import queue
+import socket
 import sys
 import threading
+import typing as t
 from contextlib import contextmanager
 from http.server import BaseHTTPRequestHandler, HTTPServer
 from string import Template
@@ -15,7 +19,7 @@ class LocalServerError(Exception):
     pass
 
 
-def enable_requests_logging():
+def enable_requests_logging() -> None:
     http.client.HTTPConnection.debuglevel = 4
 
     logging.basicConfig()
@@ -26,7 +30,9 @@ def enable_requests_logging():
 
 
 class RedirectHandler(BaseHTTPRequestHandler):
-    def do_GET(self):  # noqa
+    server: RedirectHTTPServer
+
+    def do_GET(self) -> None:
         self.send_response(200)
         self.send_header("Content-type", "text/html")
         self.end_headers()
@@ -51,24 +57,31 @@ class RedirectHandler(BaseHTTPRequestHandler):
 
             self.server.return_code(LocalServerError(msg))
 
-    def log_message(self, format, *args):
-        return
+    def log_message(self, format: str, *args: t.Any) -> None:
+        pass
 
 
 class RedirectHTTPServer(HTTPServer):
-    def __init__(self, listen, handler_class):
+    def __init__(
+        self, listen: tuple[str, int], handler_class: type[BaseHTTPRequestHandler]
+    ) -> None:
         super().__init__(listen, handler_class)
 
-        self._auth_code_queue = queue.Queue()
+        self._auth_code_queue: queue.Queue[str | BaseException] = queue.Queue()
 
-    def handle_error(self, request, client_address):
+    def handle_error(
+        self,
+        request: socket.socket | tuple[bytes, socket.socket],
+        client_address: t.Any,
+    ) -> None:
         exctype, excval, exctb = sys.exc_info()
+        assert excval is not None
         self._auth_code_queue.put(excval)
 
-    def return_code(self, code):
+    def return_code(self, code: str | BaseException) -> None:
         self._auth_code_queue.put_nowait(code)
 
-    def wait_for_code(self):
+    def wait_for_code(self) -> str | BaseException:
         # workaround for handling control-c interrupt.
         # relevant Python issue discussing this behavior:
         # https://bugs.python.org/issue1360
@@ -80,7 +93,9 @@ class RedirectHTTPServer(HTTPServer):
 
 
 @contextmanager
-def start_local_server(listen=("", 0)):
+def start_local_server(
+    listen: tuple[str, int] = ("", 0)
+) -> t.Iterator[RedirectHTTPServer]:
     server = RedirectHTTPServer(listen, RedirectHandler)
     thread = threading.Thread(target=server.serve_forever)
     thread.daemon = True
