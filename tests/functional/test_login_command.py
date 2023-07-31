@@ -33,6 +33,9 @@ def test_login_validates_token(
 
 
 class MockToken:
+    def __init__(self, uuid_value: int = 1) -> None:
+        self._uuid_value = uuid_value
+
     by_resource_server = {
         "auth.globus.org": _mock_token_response_data(
             "auth.globus.org",
@@ -45,8 +48,8 @@ class MockToken:
         ),
     }
 
-    def decode_id_token(self, uuid_value: int = 1):
-        return {"sub": str(uuid.UUID(int=uuid_value))}
+    def decode_id_token(self, *args, **kwargs):
+        return {"sub": str(uuid.UUID(int=self._uuid_value))}
 
 
 def test_login_gcs_different_identity(

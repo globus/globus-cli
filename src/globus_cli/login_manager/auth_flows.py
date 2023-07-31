@@ -116,7 +116,17 @@ def exchange_code_and_store(auth_client: globus_sdk.AuthClient, auth_code: str) 
     """
     adapter = token_storage_adapter()
     tkn = auth_client.oauth2_exchange_code_for_tokens(auth_code)
-    sub_new = tkn.decode_id_token()["sub"]
+    # use a leeway of 64s
+    #
+    # this value was arrived at by mixing:
+    # - expected clock drift per day (6s for a bad clock)
+    # - Windows time sync interval (64s)
+    # - Windows' stated goal of meeting the Kerberos 5 clock skew requirement (5m)
+    # - ntp panic threshold (1000s of drift)
+    # - the knowledge that VM clocks typically run slower and may skew significantly
+    # - a dash of guesswork
+    # - rounding the nearest power of 2
+    sub_new = tkn.decode_id_token(jwt_params={"leeway": 64})["sub"]
     auth_user_data = read_well_known_config("auth_user_data")
     if auth_user_data and sub_new != auth_user_data.get("sub"):
         try:
