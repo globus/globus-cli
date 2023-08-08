@@ -182,3 +182,15 @@ def shlex_process_stream(
                     click.style(f"  {error.format_message()}", fg="yellow"), err=True
                 )
                 click.get_current_context().exit(2)
+
+
+class CLIAuthRequirementsError(Exception):
+    """
+    A class for internally generated auth requirements
+    """
+
+    def __init__(
+        self, message: str, *, required_scopes: list[str] | None = None
+    ) -> None:
+        self.message = message
+        self.required_scopes = required_scopes

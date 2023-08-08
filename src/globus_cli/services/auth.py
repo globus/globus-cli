@@ -5,6 +5,7 @@ import uuid
 
 import globus_sdk
 import globus_sdk.scopes
+from globus_sdk.experimental.scope_parser import Scope
 
 
 def _is_uuid(s):
@@ -72,11 +73,13 @@ class ConsentForestResponse(globus_sdk.GlobusHTTPResponse):
         ]
 
     def contains_scopes(
-        self, scope_trees: list[globus_sdk.scopes.MutableScope]
+        self,
+        scope_trees: list[Scope] | list[str] | list[globus_sdk.scopes.MutableScope],
     ) -> bool:
         """
         Determine whether or not a user's consents contains the given scope trees.
         """
+        scope_trees = _normalize_scope_trees(scope_trees)
         top_level_by_name = _map_consents_by_name(self.top_level_consents())
 
         for scope in scope_trees:
@@ -107,3 +110,17 @@ def _map_consents_by_name(
     consents: list[dict[str, t.Any]]
 ) -> dict[str, dict[str, t.Any]]:
     return {c["scope_name"]: c for c in consents}
+
+
+def _normalize_scope_trees(
+    scope_trees: list[Scope] | list[str] | list[globus_sdk.scopes.MutableScope],
+) -> list[Scope]:
+    ret = []
+    for scope in scope_trees:
+        if isinstance(scope, str):
+            ret.extend(Scope.parse(scope))
+        elif isinstance(scope, globus_sdk.scopes.MutableScope):
+            ret.extend(Scope.parse(str(scope)))
+        else:
+            ret.append(scope)
+    return ret

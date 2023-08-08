@@ -9,6 +9,7 @@ import globus_sdk
 from globus_cli.endpointish import WrongEntityTypeError
 from globus_cli.login_manager import MissingLoginError
 from globus_cli.termio import PrintableErrorField, write_error_info
+from globus_cli.utils import CLIAuthRequirementsError
 
 from .registry import error_handler
 
@@ -17,6 +18,21 @@ def _pretty_json(data: dict, compact=False) -> str:
     if compact:
         return json.dumps(data, separators=(",", ":"), sort_keys=True)
     return json.dumps(data, indent=2, separators=(",", ": "), sort_keys=True)
+
+
+@error_handler(
+    error_class=CLIAuthRequirementsError,
+    exit_status=4,
+)
+def handle_internal_auth_requirements(exception: CLIAuthRequirementsError) -> None:
+    if not exception.required_scopes:
+        click.secho(
+            "Fatal Error: Unsupported internal auth requirements error!",
+            bold=True,
+            fg="red",
+        )
+        click.get_current_context().exit(255)
+    _concrete_consent_required_hook(exception.message, exception.required_scopes)
 
 
 @error_handler(
@@ -75,9 +91,15 @@ def consent_required_hook(exception: globus_sdk.GlobusAPIError) -> None:
     """
     Expects an exception with a required_scopes field in its raw_json
     """
+    _concrete_consent_required_hook(
+        exception.message, exception.info.consent_required.required_scopes
+    )
+
+
+def _concrete_consent_required_hook(message: str, required_scopes: list[str]) -> None:
     # specialized message for data_access errors
     # otherwise, use more generic phrasing
-    if exception.message == "Missing required data_access consent":
+    if message == "Missing required data_access consent":
         click.echo(
             "The collection you are trying to access data on requires you to "
             "grant consent for the Globus CLI to access it."
@@ -87,9 +109,8 @@ def consent_required_hook(exception: globus_sdk.GlobusAPIError) -> None:
             "The resource you are trying to access requires you to "
             "consent to additional access for the Globus CLI."
         )
-    click.echo(f"message: {exception.message}")
+    click.echo(f"message: {message}")
 
-    required_scopes = exception.info.consent_required.required_scopes
     if not required_scopes:
         click.secho(
             "Fatal Error: ConsentRequired but no required_scopes!", bold=True, fg="red"
