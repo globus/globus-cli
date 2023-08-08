@@ -136,20 +136,23 @@ def user_profile(monkeypatch):
     monkeypatch.setenv("GLOBUS_PROFILE", "test_user_profile")
 
 
+@pytest.fixture(scope="session")
+def mock_user_data():
+    # NB: this carefully matches the ID provided by our "foo_user_info" data fixture
+    # in the future, this should be adjusted such that this is the source of truth
+    # for the response mocks
+    return {"sub": "25de0aed-aa83-4600-a1be-a62a910af116"}
+
+
 @pytest.fixture
-def test_token_storage(mock_login_token_response):
+def test_token_storage(mock_login_token_response, mock_user_data):
     """Put memory-backed sqlite token storage in place for the testsuite to use."""
     mockstore = build_storage_adapter(":memory:")
     mockstore.store_config(
         "auth_client_data",
         {"client_id": "fakeClientIDString", "client_secret": "fakeClientSecret"},
     )
-    # NB: this carefully matches the ID provided by our "foo_user_info" data fixture
-    # in the future, this should be moved to a dedicated fixture providing the current
-    # user's identity ID
-    mockstore.store_config(
-        "auth_user_data", {"sub": "25de0aed-aa83-4600-a1be-a62a910af116"}
-    )
+    mockstore.store_config("auth_user_data", mock_user_data)
     mockstore.store(mock_login_token_response)
     return mockstore
 
