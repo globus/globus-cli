@@ -262,14 +262,7 @@ def _derive_needed_scopes(
     needs_data_access: list[str],
 ) -> list[str]:
     # read the identity ID stored from the login flow
-    # we will semi-gracefully handle the case of the data having been damaged/corrupted
-    user_data = read_well_known_config("auth_user_data")
-    if user_data is None:
-        raise RuntimeError(
-            "Identity ID was unexpectedly not visible in storage. "
-            "A new login should fix the issue. "
-            "Consider using `globus login --force`"
-        )
+    user_data = read_well_known_config("auth_user_data", allow_null=False)
     user_identity_id = user_data["sub"]
 
     # get the user's Globus CLI consents
