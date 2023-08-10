@@ -5,6 +5,7 @@ from globus_cli.parsing import group
     "run",
     lazy_subcommands={
         "show": (".show", "show_command"),
+        "show-logs": (".show_logs", "show_logs_command"),
         "list": (".list", "list_command"),
         "update": (".update", "update_command"),
         "delete": (".delete", "delete_command"),
