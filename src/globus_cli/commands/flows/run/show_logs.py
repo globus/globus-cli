@@ -38,8 +38,8 @@ def show_logs_command(
     *,
     run_id: uuid.UUID,
     details: bool,
-    reverse: bool | None,
-    limit: int | None,
+    reverse: bool,
+    limit: int,
 ) -> None:
     """
     List run logs entries
