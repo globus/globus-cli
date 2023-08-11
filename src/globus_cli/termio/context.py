@@ -106,5 +106,5 @@ def term_is_interactive() -> bool:
 
     if sys.stdin.isatty():
         return True
-    
+
     return os.getenv("PS1") is not None
