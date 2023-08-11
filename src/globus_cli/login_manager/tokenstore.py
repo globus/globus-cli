@@ -222,13 +222,45 @@ def store_well_known_config(
     adapter.store_config(name, data)
 
 
+@t.overload
 def read_well_known_config(
     name: Literal["auth_client_data", "auth_user_data", "scope_contract_versions"],
     *,
     adapter: SQLiteAdapter | None = None,
+    allow_null: Literal[False],
+) -> dict[str, t.Any]:
+    ...
+
+
+@t.overload
+def read_well_known_config(
+    name: Literal["auth_client_data", "auth_user_data", "scope_contract_versions"],
+    *,
+    adapter: SQLiteAdapter | None = None,
+    allow_null: bool = True,
+) -> dict[str, t.Any] | None:
+    ...
+
+
+def read_well_known_config(
+    name: Literal["auth_client_data", "auth_user_data", "scope_contract_versions"],
+    *,
+    adapter: SQLiteAdapter | None = None,
+    allow_null: bool = True,
 ) -> dict[str, t.Any] | None:
     adapter = adapter or token_storage_adapter()
-    return adapter.read_config(name)
+    data = adapter.read_config(name)
+    if not allow_null and data is None:
+        if name == "auth_user_data":
+            alias = "Identity Info"
+        else:
+            alias = name
+        raise RuntimeError(
+            f"{alias} was unexpectedly not visible in storage. "
+            "A new login should fix the issue. "
+            "Consider using `globus login --force`"
+        )
+    return data
 
 
 def remove_well_known_config(

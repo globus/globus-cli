@@ -7,6 +7,7 @@ import uuid
 
 import click
 import globus_sdk
+from globus_sdk.scopes import GCSCollectionScopeBuilder, MutableScope
 
 from globus_cli.endpointish import Endpointish
 from globus_cli.login_manager import (
@@ -36,6 +37,9 @@ if sys.version_info >= (3, 8):
     from typing import Literal
 else:
     from typing_extensions import Literal
+
+if t.TYPE_CHECKING:
+    from globus_cli.services.auth import CustomAuthClient
 
 
 INTERVAL_HELP = """\
@@ -203,7 +207,6 @@ def transfer_command(
                 f"""\
 A collection you are trying to use in this timer requires you to grant consent
 for the Globus CLI to access it.
-
 Please run
 
   globus session consent {scope_request_opts}
@@ -255,90 +258,40 @@ to login with the required scopes"""
 
 
 def _derive_needed_scopes(
-    auth_client: globus_sdk.AuthClient,
+    auth_client: CustomAuthClient,
     needs_data_access: list[str],
 ) -> list[str]:
-    from globus_sdk.scopes import GCSCollectionScopeBuilder
-
     # read the identity ID stored from the login flow
-    # we will semi-gracefully handle the case of the data having been damaged/corrupted
-    user_data = read_well_known_config("auth_user_data")
-    if user_data is None:
-        raise RuntimeError(
-            "Identity ID was unexpectedly not visible in storage. "
-            "A new login should fix the issue. "
-            "Consider using `globus login --force`"
-        )
+    user_data = read_well_known_config("auth_user_data", allow_null=False)
     user_identity_id = user_data["sub"]
 
     # get the user's Globus CLI consents
-    consents = auth_client.get(f"/v2/api/identities/{user_identity_id}/consents")[
-        "consents"
-    ]
-
-    # we need to now find the relevant consents which might match the data_access scopes
-    #
-    # this takes the form of a tree traversal
-    # the first parts of the tree should always be present, as they indicate the Timer
-    # consent which the CLI requests statically on login...
-
-    # find the top-level Timer consent
-    for consent in consents:
-        if (
-            consent["scope_name"] == globus_sdk.TimerClient.scopes.timer
-            and len(consent["dependency_path"]) == 1
-        ):
-            timer_consent = consent
-            break
-    else:
-        raise LookupError("could not find timer consent")
-
-    # find the Timer->TransferAP consent
-    first_order_dependencies = {
-        c["scope_name"]: c
-        for c in consents
-        if len(c["dependency_path"]) == 2
-        and timer_consent["id"] in c["dependency_path"]
-    }
-    timer2transferAP_consent = first_order_dependencies[
-        "https://auth.globus.org/scopes/actions.globus.org/transfer/transfer"
-    ]
-
-    # find the Timer->TransferAP->Transfer consent
-    second_order_dependencies = {
-        c["scope_name"]: c
-        for c in consents
-        if len(c["dependency_path"]) == 3
-        and timer_consent["id"] in c["dependency_path"]
-        and timer2transferAP_consent["id"] in c["dependency_path"]
-    }
-    timer2transferAP2transfer_consent = second_order_dependencies[
-        globus_sdk.TransferClient.scopes.all
-    ]
-
-    # find all of the Timer->TransferAP->Transfer->* consents
-    third_order_dependencies = {
-        c["scope_name"]: c
-        for c in consents
-        if len(c["dependency_path"]) == 4
-        and timer_consent["id"] in c["dependency_path"]
-        and timer2transferAP_consent["id"] in c["dependency_path"]
-        and timer2transferAP2transfer_consent["id"] in c["dependency_path"]
-    }
-
-    # in that last step, we reached the leaves of the tree
-    # (Okay, actually, that's a lie. We don't know what other values might exist
-    # further down in the tree. But luckily, it doesn't matter. We only care about the
-    # children of the node we've reached.)
-    # now we need to evaluate those leaves against our requirements
+    consents = auth_client.get_consents(user_identity_id)
 
     # check the 'needs_data_access' scope names against the 3rd-order dependencies
     # of the Timer scope and record the names of the ones which we need to request
+    scopes_needed = {}
+    for target in needs_data_access:
+        target_scope = GCSCollectionScopeBuilder(target).data_access
+        scopes_needed[target] = _ez_make_nested_scope(
+            globus_sdk.TimerClient.scopes.timer,
+            "https://auth.globus.org/scopes/actions.globus.org/transfer/transfer",
+            globus_sdk.TransferClient.scopes.all,
+            target_scope,
+        )
+
     will_request_data_access: list[str] = []
-    for name in needs_data_access:
-        scope_name = GCSCollectionScopeBuilder(name).data_access
-        if scope_name not in third_order_dependencies:
+    for name, scope_object in scopes_needed.items():
+        if not consents.contains_scopes([scope_object]):
             will_request_data_access.append(name)
 
     # return these ultimately filtered requirements
     return will_request_data_access
+
+
+# shorthand helper for constructing a nested scope
+def _ez_make_nested_scope(*scope_strings: str) -> MutableScope:
+    current_node = MutableScope(scope_strings[-1])
+    for current_scope in scope_strings[-2::-1]:
+        current_node = MutableScope(current_scope, dependencies=[current_node])
+    return current_node

@@ -9,6 +9,16 @@ from globus_cli.types import DATA_CONTAINER_T
 F = t.TypeVar("F", bound=t.Callable)
 
 
+def str2bool(v: str) -> bool | None:
+    v = v.lower()
+    if v in ("y", "yes", "t", "true", "on", "1"):
+        return True
+    elif v in ("n", "no", "f", "false", "off", "0"):
+        return False
+    else:
+        return None
+
+
 def unquote_cmdprompt_single_quotes(arg: str) -> str:
     """
     remove leading and trailing single quotes from a string when

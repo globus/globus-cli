@@ -127,14 +127,7 @@ class GlobusCommand(click.Command):
 
 class GlobusCommandEnvChecks(GlobusCommand):
     def invoke(self, ctx):
-        try:
-            env_interactive()
-        except ValueError as e:
-            click.echo(
-                f"couldn't parse GLOBUS_CLI_INTERACTIVE environment variable: {e}",
-                err=True,
-            )
-            click.get_current_context().exit(1)
+        env_interactive(raising=True)
         return super().invoke(ctx)
 
 
