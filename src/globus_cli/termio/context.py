@@ -6,6 +6,7 @@ import typing as t
 
 import click
 
+from globus_cli import utils
 from globus_cli.parsing.command_state import CommandState
 
 
@@ -80,24 +81,26 @@ def err_is_terminal() -> bool:
     return sys.stderr.isatty()
 
 
-def env_interactive() -> bool | None:
+def env_interactive(raising: bool = False) -> bool | None:
     """
-    Check the `GLOBUS_CLI_INTERACTIVE` environment variable for a boolean, and *let*
-    `strtobool` raise a `ValueError` if it doesn't parse.
+    Check the `GLOBUS_CLI_INTERACTIVE` environment variable for a boolean.
     """
-    from distutils.util import strtobool
-
     explicit_val = os.getenv("GLOBUS_CLI_INTERACTIVE")
     if explicit_val is None:
         return None
-    return bool(strtobool(explicit_val.lower()))
+    result = utils.str2bool(explicit_val)
+    if raising and result is None:
+        click.echo(
+            "Couldn't parse GLOBUS_CLI_INTERACTIVE environment variable. "
+            f"Invalid truth value: '{explicit_val}'",
+            err=True,
+        )
+        click.get_current_context().exit(1)
+    return result
 
 
 def term_is_interactive() -> bool:
-    try:
-        env = env_interactive()
-        if env is not None:
-            return env
-    except ValueError:
-        pass
+    env = env_interactive()
+    if env is not None:
+        return env
     return os.getenv("PS1") is not None
