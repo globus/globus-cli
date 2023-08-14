@@ -96,7 +96,9 @@ def consent_required_hook(exception: globus_sdk.GlobusAPIError) -> None:
     )
 
 
-def _concrete_consent_required_hook(message: str, required_scopes: list[str]) -> None:
+def _concrete_consent_required_hook(
+    message: str | None, required_scopes: list[str]
+) -> None:
     # specialized message for data_access errors
     # otherwise, use more generic phrasing
     if message == "Missing required data_access consent":
@@ -109,7 +111,8 @@ def _concrete_consent_required_hook(message: str, required_scopes: list[str]) ->
             "The resource you are trying to access requires you to "
             "consent to additional access for the Globus CLI."
         )
-    click.echo(f"message: {message}")
+    if message:
+        click.echo(f"message: {message}")
 
     if not required_scopes:
         click.secho(

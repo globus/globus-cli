@@ -4,6 +4,7 @@ import typing as t
 import uuid
 
 import click
+import globus_sdk
 
 from globus_cli.login_manager import LoginManager, read_well_known_config
 from globus_cli.parsing import command, run_id_arg
@@ -66,7 +67,7 @@ def resume_command(
 
 
 def _get_inactive_reason(
-    run_doc: dict[str, t.Any]
+    run_doc: dict[str, t.Any] | globus_sdk.GlobusHTTPResponse
 ) -> GlobusAuthRequirementsError | None:
     from globus_sdk.experimental.auth_requirements_error import (
         to_auth_requirements_error,
