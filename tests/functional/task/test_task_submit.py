@@ -150,13 +150,31 @@ def test_rm_local_user(run_line, go_ep1_id):
     assert json_output["local_user"] == "my-user"
 
 
-def test_transfer_auto_detect(run_line, go_ep1_id, go_ep2_id, tmp_path):
+def test_transfer_recursive_options(run_line, go_ep1_id, go_ep2_id, tmp_path):
     """
-    Confirm not passing --recursive omits the recursive field from the transfer item
+    Confirm --recursive, --no-recursive, and omission of the --recursive option
+    result in the expected values in the transfer item
     """
     load_response_set("cli.get_submission_id")
-    result = run_line(f"globus transfer --dry-run -F json {go_ep1_id}:/ {go_ep1_id}:/")
 
+    # --recursive should set the value to True
+    result = run_line(
+        f"globus transfer --recursive --dry-run -F json {go_ep1_id}:/ {go_ep1_id}:/"
+    )
+    json_output = json.loads(result.output)
+    transfer_item = json_output["DATA"][0]
+    assert transfer_item["recursive"] is True
+
+    # --no-recursive should set the value to False
+    result = run_line(
+        f"globus transfer --no-recursive --dry-run -F json {go_ep1_id}:/ {go_ep1_id}:/"
+    )
+    json_output = json.loads(result.output)
+    transfer_item = json_output["DATA"][0]
+    assert transfer_item["recursive"] is False
+
+    # not using the option should omit the field
+    result = run_line(f"globus transfer --dry-run -F json {go_ep1_id}:/ {go_ep1_id}:/")
     json_output = json.loads(result.output)
     transfer_item = json_output["DATA"][0]
     assert "recursive" not in transfer_item

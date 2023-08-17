@@ -107,7 +107,7 @@ def transfer_command(
     source: tuple[uuid.UUID, str | None],
     destination: tuple[uuid.UUID, str | None],
     batch: t.TextIO | None,
-    recursive: bool,
+    recursive: bool | None,
     start: datetime.datetime | None,
     interval: int | None,
     label: str | None,

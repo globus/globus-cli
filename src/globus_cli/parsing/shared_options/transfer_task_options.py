@@ -42,12 +42,13 @@ def sync_level_option(
 
 def transfer_recursive_option(f: C) -> C:
     return click.option(
-        "--recursive",
+        "--recursive/--no-recursive",
         "-r",
         is_flag=True,
         default=None,
-        help="SOURCE_PATH and DEST_PATH are both directories, "
-        "do a recursive directory transfer",
+        help="Specify these paths are for directories and should be transferred "
+        "recursively or for files that must not be transferred recursively. "
+        "Omit this option to use path type auto-detection.",
     )(f)
 
 
