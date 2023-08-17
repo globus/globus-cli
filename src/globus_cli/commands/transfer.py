@@ -219,7 +219,7 @@ def transfer_command(
     *,
     batch: t.TextIO | None,
     sync_level: Literal["exists", "size", "mtime", "checksum"] | None,
-    recursive: bool,
+    recursive: bool | None,
     source: tuple[uuid.UUID, str | None],
     destination: tuple[uuid.UUID, str | None],
     checksum_algorithm: str | None,
@@ -398,7 +398,7 @@ def transfer_command(
         )
 
     for item in transfer_data["DATA"]:
-        if item["recursive"]:
+        if item.get("recursive"):
             has_recursive_items = True
             break
     else:

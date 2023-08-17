@@ -45,6 +45,7 @@ def transfer_recursive_option(f: C) -> C:
         "--recursive",
         "-r",
         is_flag=True,
+        default=None,
         help="SOURCE_PATH and DEST_PATH are both directories, "
         "do a recursive directory transfer",
     )(f)
