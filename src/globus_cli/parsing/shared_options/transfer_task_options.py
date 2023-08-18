@@ -46,9 +46,11 @@ def transfer_recursive_option(f: C) -> C:
         "-r",
         is_flag=True,
         default=None,
-        help="Specify these paths are for directories and should be transferred "
-        "recursively or for files that must not be transferred recursively. "
-        "Omit this option to use path type auto-detection.",
+        help=(
+            "Specify these paths are for directories and should be transferred "
+            "recursively or for files that must not be transferred recursively. "
+            "Omit this option to use path type auto-detection."
+        ),
     )(f)
 
 
