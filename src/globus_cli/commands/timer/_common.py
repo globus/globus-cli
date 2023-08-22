@@ -52,6 +52,7 @@ _COMMON_FIELDS = [
 
 
 JOB_FORMAT_FIELDS = _COMMON_FIELDS + [
+    Field("Status", "status"),
     Field("Last Run", "last_ran_at", formatter=formatters.Date),
     Field("Next Run", "next_run", formatter=formatters.Date),
     Field("Stop After Date", "stop_after.date"),
