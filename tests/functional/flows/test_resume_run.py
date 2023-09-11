@@ -26,9 +26,7 @@ def _register_responses(mock_user_data):
     transfer_scope = globus_sdk.TransferClient.scopes.all
     flow_scope = _urlscope(flow_id, f"flow_{flow_id.replace('-', '_')}_user")
     data_access_scope = _urlscope(collection_id, "data_access")
-    full_data_access_scope = (
-        f"{transfer_scope}[*{_urlscope(collection_id, 'data_access')}]"
-    )
+    full_data_access_scope = f"{transfer_scope}[*{data_access_scope}]"
     required_scope = f"{flow_scope}[{full_data_access_scope}]"
 
     metadata = {

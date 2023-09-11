@@ -97,3 +97,12 @@ def test_delete_job(run_line, out_format):
             r"^Job ID:\s+" + re.escape(meta["job_id"]) + "$", flags=re.MULTILINE
         )
         assert pattern.search(result.output) is not None
+
+
+def test_pause_job(run_line):
+    meta = load_response_set(globus_sdk.TimerClient.pause_job).metadata
+    add_args = []
+    run_line(
+        ["globus", "timer", "pause", meta["job_id"]] + add_args,
+        search_stdout=f"Successfully paused job {meta['job_id']}.",
+    )
