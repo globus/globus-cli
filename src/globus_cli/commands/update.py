@@ -67,7 +67,7 @@ def _check_pip_installed() -> bool:
 @command(
     "update",
     disable_options=["format", "map_http_status"],
-    short_help="Update the Globus CLI to its  latest version",
+    short_help="Update the Globus CLI to its latest version",
 )
 @click.option("--force", is_flag=True, hidden=True)
 @click.option("--yes", is_flag=True, help='Automatically say "yes" to all prompts')
