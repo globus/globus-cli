@@ -69,7 +69,7 @@ def _get_inactive_reason(
         to_auth_requirements_error,
     )
 
-    if not job_doc.get("status") == "inactive":
+    if job_doc.get("status") != "inactive":
         return None
 
     reason = job_doc.get("inactive_reason", {})

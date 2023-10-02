@@ -133,6 +133,16 @@ def _register_responses(mock_user_data):
     )
 
 
+def test_resume_job_active(run_line):
+    TIMERS_GET_RESPONSES.activate("default")
+    TIMERS_RESUME_RESPONSES.activate("default")
+    job_id = TIMERS_GET_RESPONSES.metadata["job_id"]
+    run_line(
+        ["globus", "timer", "resume", job_id],
+        search_stdout=f"Successfully resumed job {job_id}.",
+    )
+
+
 def test_resume_job_inactive_user(run_line):
     TIMERS_GET_RESPONSES.activate("inactive_user")
     TIMERS_RESUME_RESPONSES.activate("default")
