@@ -25,8 +25,10 @@ if t.TYPE_CHECKING:
     "--skip-inactive-reason-check",
     is_flag=True,
     default=False,
-    help='Skip the check of the timer\'s "inactive reason", which is used to determine '
-    "if additional steps are required to successfully resume the timer.",
+    help=(
+        'Skip the check of the timer\'s "inactive reason", which is used to determine '
+        "if additional steps are required to successfully resume the timer."
+    ),
 )
 @LoginManager.requires_login("timer")
 def resume_command(
