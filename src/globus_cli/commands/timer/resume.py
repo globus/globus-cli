@@ -40,20 +40,20 @@ def resume_command(
     timer_client = login_manager.get_timer_client()
     job_doc = timer_client.get_job(job_id)
 
-    if not skip_inactive_reason_check:
-        gare = _get_inactive_reason(job_doc)
-        if gare is not None and gare.authorization_parameters.required_scopes:
-            if not _has_required_consent(
-                login_manager, gare.authorization_parameters.required_scopes
-            ):
-                raise CLIAuthRequirementsError(
-                    "This run is missing a necessary consent in order to resume.",
-                    required_scopes=gare.authorization_parameters.required_scopes,
-                )
+    gare = _get_inactive_reason(job_doc)
+    if gare is not None and gare.authorization_parameters.required_scopes:
+        consent_required = not _has_required_consent(
+            login_manager, gare.authorization_parameters.required_scopes
+        )
+        if consent_required and not skip_inactive_reason_check:
+            raise CLIAuthRequirementsError(
+                "This run is missing a necessary consent in order to resume.",
+                required_scopes=gare.authorization_parameters.required_scopes,
+            )
 
     resumed = timer_client.resume_job(
         job_id,
-        update_credentials=(not skip_inactive_reason_check),
+        update_credentials=(gare is not None),
     )
     display(
         resumed,
