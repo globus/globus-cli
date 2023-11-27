@@ -175,7 +175,8 @@ class LoginManager:
             #   user's cached consent forest.
             return self._cached_consent_forest.contains_scopes(required_scopes)
 
-    @functools.cached_property
+    @property
+    @functools.lru_cache(maxsize=1)  # noqa: B019
     def _cached_consent_forest(self) -> ConsentForestResponse:
         user_data = read_well_known_config("auth_user_data", allow_null=False)
         user_identity_id = user_data["sub"]
