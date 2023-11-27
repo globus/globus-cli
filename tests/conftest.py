@@ -70,6 +70,10 @@ def go_ep2_id():
 def _mock_token_response_data(rs_name, scope, token_blob=None):
     if token_blob is None:
         token_blob = rs_name.split(".")[0]
+    if isinstance(scope, list):
+        # Serialize lists of scopes to a space delimited string to correctly mirror
+        #   auth response structure.
+        scope = " ".join(scope)
     return {
         "scope": scope,
         "refresh_token": f"{token_blob}RT",
@@ -175,7 +179,7 @@ def add_gcs_login(test_token_storage):
         mock_token_res = mock.Mock()
         mock_token_res.by_resource_server = {
             gcs_id: _mock_token_response_data(
-                gcs_id, f"urn:globus:auth:scopes:{gcs_id}:manage_collections"
+                gcs_id, f"urn:globus:auth:scope:{gcs_id}:manage_collections"
             )
         }
         test_token_storage.store(mock_token_res)

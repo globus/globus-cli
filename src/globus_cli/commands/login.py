@@ -1,9 +1,11 @@
 from __future__ import annotations
 
+import typing as t
 import uuid
 
 import click
-from globus_sdk.scopes import GCSEndpointScopeBuilder
+from click import Context, Parameter
+from globus_sdk.scopes import GCSCollectionScopeBuilder, GCSEndpointScopeBuilder
 from globus_sdk.services.flows import SpecificFlowClient
 
 from globus_cli.login_manager import LoginManager, is_client_login
@@ -51,6 +53,46 @@ Clients are always "logged in"
 """
 
 
+class GCSEndpointType(click.ParamType):
+    name = "GCS Server"
+
+    def get_type_annotation(self, _: click.Parameter) -> type:
+        return t.cast(type, t.Union[uuid.UUID, tuple[uuid.UUID, uuid.UUID]])
+
+    def get_metavar(self, _: t.Optional[click.Parameter]) -> str:
+        return "<endpoint_id>[:<collection_id>]"
+
+    def convert(
+        self, value: t.Any, param: Parameter | None, ctx: Context | None
+    ) -> t.Any:
+        if isinstance(value, uuid.UUID):
+            return value
+        elif isinstance(value, tuple) and len(value) == 2:
+            if isinstance(value[0], uuid.UUID) and isinstance(value[1], uuid.UUID):
+                return value
+
+        values = value.split(":")
+        if len(values) < 1 or len(values) > 2:
+            self.fail(
+                (
+                    "Invalid GCS Specification. Must be supplied in the form "
+                    "<endpoint_id>[:<collection_id>]"
+                ),
+                param,
+                ctx,
+            )
+        try:
+            endpoint_id = uuid.UUID(values[0])
+        except ValueError:
+            self.fail(f"Endpoint ID ({values[0]}) is not a valid UUID", param, ctx)
+        try:
+            collection_id = uuid.UUID(values[1]) if len(values) == 2 else None
+        except ValueError:
+            self.fail(f"Collection ID ({values[1]}) is not a valid UUID", param, ctx)
+
+        return endpoint_id if not collection_id else (endpoint_id, collection_id)
+
+
 @command(
     "login",
     short_help="Log into Globus to get credentials for the Globus CLI",
@@ -65,10 +107,12 @@ Clients are always "logged in"
 @click.option(
     "gcs_servers",
     "--gcs",
-    type=click.UUID,
+    type=GCSEndpointType(),
     help=(
-        "A GCS Endpoint ID, for which manage_collections permissions "
-        "will be requested. This option may be given multiple times"
+        "A GCS Endpoint ID and optional GCS Mapped Collection ID "
+        "(<endpoint_id>[:<collection_id>]). For each endpoint, a 'manage_collection' "
+        "will be added with a dependent 'data_access' scope if the collection id is"
+        "specified"
     ),
     multiple=True,
 )
@@ -85,7 +129,7 @@ Clients are always "logged in"
 def login_command(
     no_local_server: bool,
     force: bool,
-    gcs_servers: tuple[uuid.UUID, ...],
+    gcs_servers: tuple[t.Union[uuid.UUID, tuple[uuid.UUID, uuid.UUID]], ...],
     flow_ids: tuple[uuid.UUID, ...],
 ) -> None:
     """
@@ -120,10 +164,17 @@ def login_command(
     # add GCS servers to LoginManager requirements so that the login check and login
     # flow will make use of the requested GCS servers
     if gcs_servers:
-        for server_id in gcs_servers:
+        for gcs_server in gcs_servers:
+            if isinstance(gcs_server, uuid.UUID):
+                server_id, collection_id = gcs_server, None
+            else:
+                server_id, collection_id = gcs_server
             rs_name = str(server_id)
-            scopes = [GCSEndpointScopeBuilder(rs_name).manage_collections]
-            manager.add_requirement(rs_name, scopes)
+            scope = GCSEndpointScopeBuilder(rs_name).make_mutable("manage_collections")
+            if collection_id:
+                data_access = GCSCollectionScopeBuilder(str(collection_id)).data_access
+                scope.add_dependency(data_access)
+            manager.add_requirement(rs_name, [str(scope)])
 
     for flow_id in flow_ids:
         # Rely on the SpecificFlowClient's scope builder.
