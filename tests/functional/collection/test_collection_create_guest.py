@@ -1,5 +1,5 @@
 import uuid
-from copy import deepcopy
+from copy import copy
 
 import pytest
 import requests
@@ -104,7 +104,7 @@ def test_guest_collection_create__when_multiple_matching_user_credentials(
     # Duplicate the single registered user credential
     user_credentials_route = f"https://{gcs_hostname}/api/user_credentials"
     registered_credential_resp = requests.get(user_credentials_route).json()
-    registered_credential_copy = deepcopy(registered_credential_resp["data"][0])
+    registered_credential_copy = copy(registered_credential_resp["data"][0])
     registered_credential_copy["id"] = str(uuid.uuid4())
     registered_credential_copy["display_name"] = "backup"
 
@@ -116,7 +116,7 @@ def test_guest_collection_create__when_multiple_matching_user_credentials(
         params += f" --local-username {local_username}"
     result = run_line(f"globus collection create guest {params}", assert_exit_code=1)
 
-    assert "Multiple User Credentials sufficient" in result.stderr
+    assert "More than one gcs user credential valid for creation." in result.stderr
     suggestion = "Please try again supplying "
     if explicit_local_username:
         suggestion += "either --local-username or "
@@ -150,7 +150,7 @@ def test_guest_collection_create__when_no_matching_user_credentials(
     params = f"{mapped_collection_id} /home/ '{display_name}'"
     result = run_line(f"globus collection create guest {params}", assert_exit_code=1)
 
-    assert "No User Credentials sufficient" in result.stderr
+    assert "No valid gcs user credentials discovered." in result.stderr
     assert endpoint_id in result.stderr
     assert "globus endpoint user-credential create" in result.stderr
 
@@ -179,3 +179,45 @@ def test_guest_collection_create__when_mapped_collection_type_is_unsupported(
     assert f"Expected {mapped_collection_id} to be a" in result.stderr
     msg = f"Instead, found it was of type '{EntityType.nice_name(collection_type)}'."
     assert msg in result.stderr
+
+
+def test_guest_collection_create__when_session_times_out_against_ha_mapped_collection(
+    run_line,
+    mock_user_data,
+    add_gcs_login,
+):
+    meta = load_response_set("cli.collection_operations").metadata
+    mapped_collection_id = meta["mapped_collection_id"]
+    display_name = meta["guest_display_name"]
+    gcs_hostname = meta["gcs_hostname"]
+    endpoint_id = meta["endpoint_id"]
+    add_gcs_login(endpoint_id)
+
+    create_guest_collection_route = f"https://{gcs_hostname}/api/collections"
+    responses.replace(
+        "POST",
+        create_guest_collection_route,
+        status=403,
+        json={
+            "DATA_TYPE": "result#1.0.0",
+            "code": "permission_denied",
+            "detail": {
+                "DATA_TYPE": "authentication_timeout#1.1.0",
+                "high_assurance": True,
+                "identities": [mock_user_data["sub"]],
+                "require_mfa": False,
+            },
+            "has_next_page": False,
+            "http_response_code": 403,
+            "message": (
+                "You must reauthenticate one of your identities (sirosen@globus.org) "
+                "in order to access this resource"
+            ),
+        },
+    )
+
+    params = f"{mapped_collection_id} /home/ '{display_name}'"
+    result = run_line(f"globus collection create guest {params}", assert_exit_code=4)
+
+    assert "Session timeout detected; Re-authentication required." in result.stderr
+    assert f"globus login --gcs {endpoint_id} --force" in result.stderr

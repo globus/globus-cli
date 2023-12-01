@@ -5,6 +5,7 @@ import uuid
 
 import click
 import globus_sdk
+import globus_sdk.experimental.auth_requirements_error
 
 from globus_cli.commands.collection._common import (
     filter_fields,
@@ -12,7 +13,12 @@ from globus_cli.commands.collection._common import (
 )
 from globus_cli.constants import ExplicitNullType
 from globus_cli.endpointish import EntityType
-from globus_cli.login_manager import LoginManager, read_well_known_config
+from globus_cli.login_manager import (
+    LoginManager,
+    MissingLoginError,
+    read_well_known_config,
+)
+from globus_cli.login_manager.context import LoginContext
 from globus_cli.parsing import command, endpointish_params, mutex_option_group
 from globus_cli.services.gcs import CustomGCSClient
 from globus_cli.termio import TextMode, display
@@ -20,6 +26,7 @@ from globus_cli.termio import TextMode, display
 
 @command("guest", short_help="Create a GCSv5 Guest Collection")
 @click.argument("mapped-collection-id", type=click.UUID)
+# TODO: Update this to guest-collection-base-path
 @click.argument("collection-base-path", type=str)
 @click.option(
     "--user-credential-id",
@@ -122,9 +129,21 @@ def collection_create_guest(
     )
     converted_kwargs.update(verify)
 
-    res = gcs_client.create_collection(
-        globus_sdk.GuestCollectionDocument(**converted_kwargs)
-    )
+    try:
+        res = gcs_client.create_collection(
+            globus_sdk.GuestCollectionDocument(**converted_kwargs)
+        )
+    except globus_sdk.GCSAPIError as e:
+        # Detect session timeouts related to HA collections.
+        # This is a hacky workaround until we have better GARE support across the CLI.
+        if _is_session_timeout_error(e):
+            endpoint_id = gcs_client.source_epish.get_collection_endpoint_id()
+            context = LoginContext(
+                error_message="Session timeout detected; Re-authentication required.",
+                login_command=f"globus login --gcs {endpoint_id} --force",
+            )
+            raise MissingLoginError([endpoint_id], context=context)
+        raise
 
     fields = standard_collection_fields(login_manager.get_auth_client())
     display(res, text_mode=TextMode.text_record, fields=filter_fields(fields, res))
@@ -167,17 +186,27 @@ def _select_user_credential_id(
         # Only instruct them to include --local-username if they didn't already
         local_username_or = "either --local-username or " if not local_username else ""
         raise ValueError(
-            "Multiple User Credentials sufficient for Guest Collection Creation. "
-            f"Please try again supplying {local_username_or}--user-credential-id."
+            "More than one gcs user credential valid for creation. "
+            f"Please specify which user credential you'd like to use with "
+            f"{local_username_or}--user-credential-id."
         )
     if len(user_creds) == 0:
         endpoint_id = gcs_client.source_epish.get_collection_endpoint_id()
         raise ValueError(
-            "No User Credentials sufficient for Guest Collection creation.\n\n"
-            "To create a Guest Collection, you must first register at least one User "
-            "Credential on the requisite 'Endpoint':'Storage Gateway' combo "
-            f"('{endpoint_id}':'{storage_gateway_id}').\n"
-            "This can be done with: `globus endpoint user-credential create ...`\n"
+            "No valid gcs user credentials discovered.\n\n"
+            "Please first create a user credential on this endpoint:\n\n"
+            f"\tCommand: globus endpoint user-credential create ...\n"
+            f"\tEndpoint ID: {endpoint_id}\n"
+            f"\tStorage Gateway ID: {storage_gateway_id}\n"
         )
 
     return uuid.UUID(user_creds[0]["id"])
+
+
+def _is_session_timeout_error(e: globus_sdk.GCSAPIError) -> bool:
+    """
+    Detect session timeouts related to HA collections.
+    This is a hacky workaround until we have better GARE support across the CLI.
+    """
+    identities = getattr(e, "detail", {}).get("identities")
+    return e.http_status == 403 and isinstance(identities, list) and len(identities) > 0

@@ -26,6 +26,7 @@ from globus_cli.types import ServiceNameLiteral
 from .. import version
 from .auth_flows import do_link_auth_flow, do_local_server_auth_flow
 from .client_login import get_client_login, is_client_login
+from .context import LoginContext
 from .errors import MissingLoginError
 from .scopes import CLI_SCOPE_REQUIREMENTS
 from .tokenstore import (
@@ -224,21 +225,27 @@ class LoginManager:
     def assert_logins(
         self,
         *resource_servers: str,
-        assume_gcs: bool = False,
-        assume_flow: bool = False,
-        resource_servers_error_alias: list[str] | None = None,
+        login_context: LoginContext | None = None,
     ) -> None:
-        # determine the set of resource servers missing logins
+        """
+        Verify all registered root & dependent scopes requirements are met for the given
+          resource servers.
+
+        :param resource_servers: a list of resource servers to check for logins
+        :param login_context: an optional LoginContext object to use for
+          custom formatting of error messaging. If omitted, default error messaging
+          will be used instead.
+        :raises: a MissingLoginError if any root or dependent scope requirements in the
+          given resource servers are not met.
+        """
+        login_context = login_context or LoginContext()
+
+        # Determine the set of resource servers still requiring logins.
         missing_servers = {s for s in resource_servers if not self.has_login(s)}
 
-        # if we are missing logins, assemble error text
-        # text is slightly different for 1, 2, or 3+ missing servers
+        # If any resource servers do require logins, raise those as a MissingLoginError.
         if missing_servers:
-            raise MissingLoginError(
-                resource_servers_error_alias or list(missing_servers),
-                assume_gcs=assume_gcs,
-                assume_flow=assume_flow,
-            )
+            raise MissingLoginError(list(missing_servers), login_context)
 
     @classmethod
     def requires_login(
@@ -394,7 +401,12 @@ class LoginManager:
         client = globus_sdk.SpecificFlowClient(flow_id, app_name=version.app_name)
         assert client.scopes is not None
         self.add_requirement(client.scopes.resource_server, [client.scopes.user])
-        self.assert_logins(client.scopes.resource_server, assume_flow=True)
+
+        login_context = LoginContext(
+            login_command=f"globus login --flow {flow_id}",
+            error_message="Missing 'user' consent for a flow.",
+        )
+        self.assert_logins(client.scopes.resource_server, login_context=login_context)
 
         # Create and assign an authorizer now that scope requirements are registered.
         client.authorizer = self._get_client_authorizer(
@@ -437,28 +449,33 @@ class LoginManager:
             epish.assert_entity_type(expect_types=assert_entity_type)
         include_data_access = include_data_access and epish.requires_data_access_scope
 
-        # client identities need to have this scope added as a requirement
-        # so that they correctly request it when building authorizers
-        gcs_scope = GCSEndpointScopeBuilder(gcs_id).make_mutable("manage_collections")
-        resource_servers_error_alias = None
-        if include_data_access:
+        if not include_data_access:
+            # Just require an endpoint:manage_collections scope
+            scope = GCSEndpointScopeBuilder(gcs_id).make_mutable("manage_collections")
+            login_context = LoginContext(
+                login_command=f"globus login --gcs {gcs_id}",
+                error_message="Missing 'manage_collections' consent on an endpoint.",
+            )
+        else:
+            # Require an endpoint:manage_collections scope with a dependent
+            #   collection[data_access] scope
+            scope = GCSEndpointScopeBuilder(gcs_id).make_mutable("manage_collections")
             data_access = GCSCollectionScopeBuilder(str(collection_id)).data_access
-            gcs_scope.add_dependency(data_access)
-            resource_servers_error_alias = [f"{gcs_id}:{str(collection_id)}"]
+            scope.add_dependency(data_access)
 
-        self.add_requirement(gcs_id, scopes=[gcs_scope])
-        self.assert_logins(
-            gcs_id,
-            assume_gcs=True,
-            resource_servers_error_alias=resource_servers_error_alias,
-        )
+            login_context = LoginContext(
+                login_command=f"globus login --gcs {gcs_id}:{str(collection_id)}",
+                error_message="Missing 'data_access' consent on a mapped collection.",
+            )
 
-        gcs_id_str = gcs_id if not include_data_access else f"{gcs_id}:{collection_id}"
+        self.add_requirement(gcs_id, scopes=[scope])
+        self.assert_logins(gcs_id, login_context=login_context)
+
         authorizer = self._get_client_authorizer(
             gcs_id,
             no_tokens_msg=(
-                f"Could not get login data for GCS {gcs_id_str}. "
-                f"Try login with '--gcs {gcs_id_str}' to fix."
+                f"{login_context.error_message}\n"
+                f"Please run:\n\n  {login_context.login_command}\n"
             ),
         )
         return CustomGCSClient(
