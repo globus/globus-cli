@@ -65,7 +65,6 @@ from globus_cli.termio import TextMode, display
         "with API v1.1.0)"
     ),
 )
-@mutex_option_group("--enable-https", "--disable-https")
 @LoginManager.requires_login("auth", "transfer")
 def collection_create_guest(
     login_manager: LoginManager,
