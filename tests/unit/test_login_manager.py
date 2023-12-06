@@ -13,6 +13,7 @@ from globus_cli.login_manager import (
     MissingLoginError,
     compute_timer_scope,
 )
+from globus_cli.login_manager.context import LoginContext
 from globus_cli.login_manager.scopes import (
     CLI_SCOPE_REQUIREMENTS,
     CURRENT_SCOPE_CONTRACT_VERSION,
@@ -130,7 +131,7 @@ def test_requires_login_single_server_fail(
         dummy_command()
 
     assert str(ex.value) == (
-        "Missing login for c.globus.org, please run:\n\n  globus login\n"
+        "Missing login for c.globus.org.\nPlease run:\n\n  globus login\n"
     )
 
 
@@ -145,7 +146,7 @@ def test_requiring_login_for_multiple_known_servers_renders_nice_error(
         dummy_command()
 
     assert str(ex.value) == (
-        "Missing logins for A is for Awesome and B Cool, please run:"
+        "Missing logins for A is for Awesome and B Cool.\nPlease run:"
         "\n\n  globus login\n"
     )
 
@@ -161,7 +162,7 @@ def test_requiring_new_scope_fails(patch_scope_requirements, patched_tokenstorag
         dummy_command()
 
     assert str(ex.value) == (
-        "Missing login for A is for Awesome, please run:\n\n  globus login\n"
+        "Missing login for A is for Awesome.\nPlease run:\n\n  globus login\n"
     )
 
 
@@ -176,7 +177,7 @@ def test_scope_contract_version_bump_forces_login(patch_scope_requirements):
         dummy_command()
 
     assert str(ex.value) == (
-        "Missing login for A is for Awesome, please run:\n\n  globus login\n"
+        "Missing login for A is for Awesome.\nPlease run:\n\n  globus login\n"
     )
 
 
@@ -191,8 +192,8 @@ def test_requires_login_fail_two_servers(
         dummy_command()
 
     assert re.match(
-        "Missing logins for ..globus.org and ..globus.org, "
-        "please run:\n\n  globus login\n",
+        "Missing logins for ..globus.org and ..globus.org.\n"
+        "Please run:\n\n  globus login\n",
         str(ex.value),
     )
     for server in ("c.globus.org", "d.globus.org"):
@@ -228,30 +229,22 @@ def test_requires_login_pass_manager(patch_scope_requirements, patched_tokenstor
     assert dummy_command()
 
 
-def test_flow_error_message(patched_tokenstorage):
+def test_login_manager_respects_context_error_message(patched_tokenstorage):
     dummy_id = str(uuid.uuid1())
 
     @LoginManager.requires_login()
     def dummy_command(login_manager):
-        login_manager.assert_logins(dummy_id, assume_flow=True)
+        login_context = LoginContext(
+            login_command="globus try-again",
+            error_message="Well that went pretty poorly!",
+        )
+        login_manager.assert_logins(dummy_id, login_context=login_context)
 
     with pytest.raises(MissingLoginError) as excinfo:
         dummy_command()
 
-    assert f"globus login --flow {dummy_id}" in str(excinfo.value)
-
-
-def test_gcs_error_message(patched_tokenstorage):
-    dummy_id = str(uuid.uuid1())
-
-    @LoginManager.requires_login()
-    def dummy_command(login_manager):
-        login_manager.assert_logins(dummy_id, assume_gcs=True)
-
-    with pytest.raises(MissingLoginError) as excinfo:
-        dummy_command()
-
-    assert f"globus login --gcs {dummy_id}" in str(excinfo.value)
+    expected = "Well that went pretty poorly!\nPlease run:\n\n  globus try-again\n"
+    assert expected == str(excinfo.value)
 
 
 def test_client_login_two_requirements(client_login):

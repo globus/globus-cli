@@ -47,6 +47,34 @@ class TimedeltaFormatter(formatters.FieldFormatter[datetime.timedelta]):
         return str(value)
 
 
+class ScheduleFormatter(formatters.FieldFormatter[t.Dict[str, t.Any]]):
+    def parse(self, value: t.Any) -> dict[str, t.Any]:
+        if not isinstance(value, dict):
+            raise ValueError("bad schedule value")
+        return value
+
+    def render(self, value: dict[str, t.Any]) -> str:
+        if value.get("type") == "once":
+            when = value.get("datetime")
+            if when:
+                return f"once at {when}"
+            else:  # should be unreachable
+                return "once"
+        elif value.get("type") == "recurring":
+            interval = value.get("interval_seconds")
+            start = value.get("start")
+            end = value.get("end", {})
+
+            ret = f"every {interval} seconds, starting {start}"
+            if end.get("condition") == "time":
+                ret += f" and running until {end['datetime']}"
+            elif end.get("condition") == "iterations":
+                ret += f" and running for {end['iterations']} iterations"
+            return ret
+        else:  # should be unreachable
+            return f"unrecognized schedule type: {value}"
+
+
 _COMMON_FIELDS = [
     Field("Job ID", "job_id"),
     Field("Name", "name"),

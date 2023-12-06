@@ -4,8 +4,10 @@ metadata:
   endpoint_id: "cf37806c-572c-47ff-88e2-511c646ef1a4"
   gcp_endpoint_id: "06e2c959-d311-4bab-b2ea-25ad77d9fc12"
   username: "sirosen@globusid.org"
+  local_username: "recyclops"
   identity_id: "e926d510-cb98-11e5-a6ac-0b0216052512"
   gcs_hostname: "abc.xyz.data.globus.org"
+  guest_display_name: "Happy Fun Guest Collection Name"
 
 transfer:
   - path: /endpoint/1405823f-0597-4a16-b296-46d4f0ae4b15
@@ -30,6 +32,7 @@ transfer:
         "force_encryption": false,
         "gcs_manager_url": "https://abc.xyz.data.globus.org",
         "gcs_version": "5.4.10",
+        "high_assurance": false,
         "host_endpoint_id": null,
         "id": "1405823f-0597-4a16-b296-46d4f0ae4b15",
         "is_globus_connect": false,
@@ -66,6 +69,7 @@ transfer:
         "force_encryption": false,
         "gcs_manager_url": "https://abc.xyz.data.globus.org",
         "gcs_version": "5.4.10",
+        "high_assurance": false,
         "host_endpoint_id": "1405823f-0597-4a16-b296-46d4f0ae4b15",
         "id": "0e4a77f8-b778-4d5c-abaa-e1254e71427f",
         "is_globus_connect": false,
@@ -102,6 +106,7 @@ transfer:
         "force_encryption": false,
         "gcs_manager_url": "https://abc.xyz.data.globus.org",
         "gcs_version": "5.4.10",
+        "high_assurance": false,
         "host_endpoint_id": null,
         "id": "cf37806c-572c-47ff-88e2-511c646ef1a4",
         "is_globus_connect": false,
@@ -164,8 +169,88 @@ auth:
           }
         ]
       }
+  - path: /v2/api/identities/25de0aed-aa83-4600-a1be-a62a910af116/consents
+    json:
+      {
+        "consents": [
+          {
+            "id": 428930,
+            "scope_name": "urn:globus:auth:scope:cf37806c-572c-47ff-88e2-511c646ef1a4:manage_collections",
+            "atomically_revocable": false,
+            "status": "approved",
+            "created": "2023-11-20T17:33:38.678819+00:00",
+            "effective_identity": "25de0aed-aa83-4600-a1be-a62a910af116",
+            "auto_approved": false,
+            "last_used": "2023-11-21T02:20:57.672942+00:00",
+            "client": "19addcb5-3e0d-473f-9615-2cbcd275c93e",
+            "allows_refresh": true,
+            "updated": "2023-11-20T17:33:38.678819+00:00",
+            "scope": "98cafe1e-b9d0-4748-9089-46575e36a7f0",
+            "dependency_path": [
+              428930
+            ]
+          },
+          {
+            "id": 428931,
+            "scope_name": "https://auth.globus.org/scopes/1405823f-0597-4a16-b296-46d4f0ae4b15/data_access",
+            "atomically_revocable": false,
+            "status": "approved",
+            "created": "2023-11-20T17:33:38.678819+00:00",
+            "effective_identity": "25de0aed-aa83-4600-a1be-a62a910af116",
+            "auto_approved": false,
+            "last_used": "2023-11-21T02:20:57.672942+00:00",
+            "client": "3c713c0d-c207-4b86-a7c1-b9050aae0a8d",
+            "allows_refresh": true,
+            "updated": "2023-11-20T17:33:38.678819+00:00",
+            "scope": "bb3865ac-b228-454c-ae00-7c783fea2d2a",
+            "dependency_path": [
+              428930,
+              428931
+            ]
+          }
+        ]
+      }
 
 gcs:
+  - path: /collections
+    method: post
+    json:
+      {
+        "DATA_TYPE": "result#1.0.0",
+        "code": "success",
+        "detail": "success",
+        "http_response_code": 200,
+        "data": [
+          {
+            "DATA_TYPE": "collection#1.0.0",
+            "authentication_assurance_timeout": 30,
+            "authentication_timeout_mins": 30,
+            "collection_type": "guest",
+            "contact_email": "user@example.com",
+            "default_directory": "/",
+            "department": "globus",
+            "description": "example collection",
+            "display_name": "Happy Fun Guest Collection Name",
+            "force_encryption": true,
+            "gcs_version": "5.4.10",
+            "host_endpoint_id": "1405823f-0597-4a16-b296-46d4f0ae4b15",
+            "https_url": "http://example.com",
+            "id": "0e4a77f8-b778-4d5c-abaa-e1254e71427f",
+            "identity_id": "e926d510-cb98-11e5-a6ac-0b0216052512",
+            "info_link": "http://example.com",
+            "is_globus_connect": false,
+            "keywords": "example",
+            "manager_url": "https://gcs.data.globus.org/",
+            "non_functional": false,
+            "organization": "uchicago",
+            "owner_id": "cf37806c-572c-47ff-88e2-511c646ef1a4",
+            "policies": {},
+            "public": true,
+            "root_path": "/",
+            "tlsftp_url": "http://example.com"
+          }
+        ]
+      }
   - path: /collections
     method: get
     json:
@@ -316,6 +401,32 @@ gcs:
             "public": true,
             "root_path": "/",
             "tlsftp_url": "http://example.com"
+          }
+        ]
+      }
+  - path: /user_credentials
+    method: get
+    json:
+      {
+        "DATA_TYPE": "result#1.0.0",
+        "code": "Success",
+        "detail": "Success",
+        "has_next_page": false,
+        "http_response_code": 200,
+        "data": [
+          {
+            "DATA_TYPE": "user_credential#1.0.0",
+            "connector_id": "145812c8-decc-41f1-83cf-bb2a85a2a70b",
+            "display_name": "sirosen-main",
+            "id": "4ac6579b-9c4d-4a45-a794-adcb86eeb868",
+            "identity_id": "25de0aed-aa83-4600-a1be-a62a910af116",
+            "invalid": false,
+            "policies": {
+              "DATA_TYPE": "posix_user_credential_policies#1.0.0"
+            },
+            "provisioned": true,
+            "storage_gateway_id": "6ebdbaa3-9c60-4637-9d26-1bcfa3921f6b",
+            "username": "recyclops"
           }
         ]
       }

@@ -83,13 +83,11 @@ class Endpointish:
 
     @property
     def requires_data_access_scope(self) -> bool:
-        if self.entity_type is EntityType.GCSV5_MAPPED:
-            if self.data.get("high_assurance") is False:
-                return True
-        return False
+        return (
+            self.entity_type is EntityType.GCSV5_MAPPED
+            and self.data.get("high_assurance") is False
+        )
 
     @property
     def is_managed(self) -> bool:
-        if self.data.get("subscription_id") is None:
-            return False
-        return True
+        return self.data.get("subscription_id") is not None

@@ -17,7 +17,6 @@ from globus_cli.parsing import (
     collection_id_arg,
     command,
     endpointish_params,
-    mutex_option_group,
     nullable_multi_callback,
 )
 from globus_cli.termio import Field, TextMode, display
@@ -124,7 +123,6 @@ class _FullDataField(Field):
     cls=AnnotatedOption,
     type_annotation=t.Union[ListType[str], None, ExplicitNullType],
 )
-@mutex_option_group("--enable-https", "--disable-https")
 @LoginManager.requires_login("auth", "transfer")
 def collection_update(
     login_manager: LoginManager,

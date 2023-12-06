@@ -35,7 +35,7 @@ def test_collection_delete_missing_login(run_line, base_command):
 
     result = run_line(f"{base_command} {cid}", assert_exit_code=4)
     assert "success" not in result.output
-    assert f"Missing login for {epid}" in result.stderr
+    assert "Missing 'manage_collections' consent on an endpoint." in result.stderr
     assert f"  globus login --gcs {epid}" in result.stderr
 
 

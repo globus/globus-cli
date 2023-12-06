@@ -7,9 +7,11 @@ import uuid
 
 import click
 import globus_sdk
+from globus_sdk.experimental.scope_parser import Scope
 from globus_sdk.scopes import (
     AuthScopes,
     FlowsScopes,
+    GCSCollectionScopeBuilder,
     GCSEndpointScopeBuilder,
     GroupsScopes,
     MutableScope,
@@ -24,6 +26,7 @@ from globus_cli.types import ServiceNameLiteral
 from .. import version
 from .auth_flows import do_link_auth_flow, do_local_server_auth_flow
 from .client_login import get_client_login, is_client_login
+from .context import LoginContext
 from .errors import MissingLoginError
 from .scopes import CLI_SCOPE_REQUIREMENTS
 from .tokenstore import (
@@ -34,7 +37,7 @@ from .tokenstore import (
 from .utils import is_remote_session
 
 if t.TYPE_CHECKING:
-    from ..services.auth import CustomAuthClient
+    from ..services.auth import ConsentForestResponse, CustomAuthClient
     from ..services.gcs import CustomGCSClient
     from ..services.transfer import CustomTransferClient
 
@@ -60,7 +63,7 @@ class LoginManager:
     @property
     def login_requirements(self) -> t.Iterator[tuple[str, list[str | MutableScope]]]:
         for req in CLI_SCOPE_REQUIREMENTS.values():
-            yield (req["resource_server"], req["scopes"])
+            yield req["resource_server"], req["scopes"]
         yield from self._nonstatic_requirements.items()
 
     @property
@@ -93,8 +96,11 @@ class LoginManager:
 
     def has_login(self, resource_server: str) -> bool:
         """
-        Determines if the user has a valid refresh token for the given
-        resource server
+        Determines whether the user
+          1. has an active refresh token for the given server in the local tokenstore
+             which meets all root scope requirements
+          2. has sufficient consents for all dependent scope requirements (determined
+             by a call to Auth Consents API)
         """
         # client identities are always logged in
         if is_client_login():
@@ -104,37 +110,79 @@ class LoginManager:
         if tokens is None or "refresh_token" not in tokens:
             return False
 
-        # for resource servers in the static scope set, check that the scope
-        # requirements are satisfied by the token data
-        if resource_server in CLI_SCOPE_REQUIREMENTS.resource_servers():
-            requirement_data = CLI_SCOPE_REQUIREMENTS.get_by_resource_server(
-                resource_server
-            )
+        if not self._tokens_meet_static_requirements(resource_server, tokens):
+            return False
 
-            # evaluate scope contract version requirements for this service
+        if not self._tokens_meet_nonstatic_requirements(resource_server, tokens):
+            return False
 
-            # first, fetch the version data and if it is missing, treat it as empty
-            contract_versions = read_well_known_config("scope_contract_versions") or {}
-            # determine which version we need, and compare against the version in
-            # storage with a default of 0
-            # if the comparison fails, reject the token as not a valid login for the
-            # service
-            version_required = requirement_data["min_contract_version"]
-            if contract_versions.get(resource_server, 0) < version_required:
-                return False
+        return self._validate_token(tokens["refresh_token"])
 
-            token_scopes = set(tokens["scope"].split(" "))
-            required_scopes: set[str] = set()
-            for scope in requirement_data["scopes"]:
-                if isinstance(scope, str):
-                    required_scopes.add(scope)
-                else:
-                    required_scopes.add(scope.scope_string)
-            if required_scopes - token_scopes:
-                return False
+    def _tokens_meet_static_requirements(
+        self, resource_server: str, tokens: dict[str, t.Any]
+    ) -> bool:
+        if resource_server not in CLI_SCOPE_REQUIREMENTS.resource_servers():
+            # By definition, if there are no requirements, those requirements are met.
+            return True
 
-        rt = tokens["refresh_token"]
-        return self._validate_token(rt)
+        requirements = CLI_SCOPE_REQUIREMENTS.get_by_resource_server(resource_server)
+
+        # evaluate scope contract version requirements for this service
+
+        # first, fetch the version data and if it is missing, treat it as empty
+        contract_versions = read_well_known_config("scope_contract_versions") or {}
+        # determine which version we need, and compare against the version in
+        # storage with a default of 0
+        # if the comparison fails, reject the token as not a valid login for the
+        # service
+        version_required = requirements["min_contract_version"]
+        if contract_versions.get(resource_server, 0) < version_required:
+            return False
+
+        token_scopes = set(tokens["scope"].split(" "))
+        required_scopes: set[str] = set()
+        for scope in requirements["scopes"]:
+            if isinstance(scope, str):
+                required_scopes.add(scope)
+            else:
+                required_scopes.add(scope.scope_string)
+        return required_scopes - token_scopes == set()
+
+    def _tokens_meet_nonstatic_requirements(
+        self, resource_server: str, tokens: dict[str, t.Any]
+    ) -> bool:
+        if resource_server not in self._nonstatic_requirements:
+            # By definition, if there are no requirements, those requirements are met.
+            return True
+
+        requirements = self._nonstatic_requirements[resource_server]
+
+        # Parse the requirements into a list of Scope objects
+        # This may expand the list of requirements if, for instance, a single scope
+        #   string represents multiple roots (eg "openid profile email")
+        required_scopes: list[Scope] = []
+        for scope in requirements:
+            scope_string = scope if isinstance(scope, str) else str(scope)
+            required_scopes.extend(Scope.parse(scope_string=scope_string))
+
+        if not any(scope.dependencies for scope in required_scopes):
+            # If there are no dependent scopes, simply verify local scope strings match
+            required_scope_strings = {scope.scope_string for scope in required_scopes}
+
+            token_scope_strings = set(tokens["scope"].split(" "))
+            return required_scope_strings - token_scope_strings == set()
+        else:
+            # If there are dependent scopes all required scope paths are present in the
+            #   user's cached consent forest.
+            return self._cached_consent_forest.contains_scopes(required_scopes)
+
+    @property
+    @functools.lru_cache(maxsize=1)  # noqa: B019
+    def _cached_consent_forest(self) -> ConsentForestResponse:
+        user_data = read_well_known_config("auth_user_data", allow_null=False)
+        user_identity_id = user_data["sub"]
+
+        return self.get_auth_client().get_consents(user_identity_id)
 
     def run_login_flow(
         self,
@@ -177,18 +225,27 @@ class LoginManager:
     def assert_logins(
         self,
         *resource_servers: str,
-        assume_gcs: bool = False,
-        assume_flow: bool = False,
+        login_context: LoginContext | None = None,
     ) -> None:
-        # determine the set of resource servers missing logins
+        """
+        Verify all registered root & dependent scopes requirements are met for the given
+          resource servers.
+
+        :param resource_servers: a list of resource servers to check for logins
+        :param login_context: an optional LoginContext object to use for
+          custom formatting of error messaging. If omitted, default error messaging
+          will be used instead.
+        :raises: a MissingLoginError if any root or dependent scope requirements in the
+          given resource servers are not met.
+        """
+        login_context = login_context or LoginContext()
+
+        # Determine the set of resource servers still requiring logins.
         missing_servers = {s for s in resource_servers if not self.has_login(s)}
 
-        # if we are missing logins, assemble error text
-        # text is slightly different for 1, 2, or 3+ missing servers
+        # If any resource servers do require logins, raise those as a MissingLoginError.
         if missing_servers:
-            raise MissingLoginError(
-                list(missing_servers), assume_gcs=assume_gcs, assume_flow=assume_flow
-            )
+            raise MissingLoginError(list(missing_servers), login_context)
 
     @classmethod
     def requires_login(
@@ -331,7 +388,7 @@ class LoginManager:
             resolved_ep_id = str(endpoint_id)
         else:  # pragma: no cover
             raise ValueError("Internal Error! collection_id or endpoint_id is required")
-        return (resolved_ep_id, epish)
+        return resolved_ep_id, epish
 
     def get_specific_flow_client(
         self,
@@ -342,7 +399,12 @@ class LoginManager:
         client = globus_sdk.SpecificFlowClient(flow_id, app_name=version.app_name)
         assert client.scopes is not None
         self.add_requirement(client.scopes.resource_server, [client.scopes.user])
-        self.assert_logins(client.scopes.resource_server, assume_flow=True)
+
+        login_context = LoginContext(
+            login_command=f"globus login --flow {flow_id}",
+            error_message="Missing 'user' consent for a flow.",
+        )
+        self.assert_logins(client.scopes.resource_server, login_context=login_context)
 
         # Create and assign an authorizer now that scope requirements are registered.
         client.authorizer = self._get_client_authorizer(
@@ -359,25 +421,59 @@ class LoginManager:
         *,
         collection_id: uuid.UUID | None = None,
         endpoint_id: uuid.UUID | None = None,
+        include_data_access: bool = False,
+        assert_entity_type: tuple[EntityType] | None = None,
     ) -> CustomGCSClient:
+        """
+        Retrieve a gcs client for either a collection or an endpoint.
+
+        If a user is determined to not have the required consents for the collection or
+          endpoint, raises a MissingLoginError which includes instructions for
+          obtaining the required consents.
+
+        :param collection_id: UUID of a mapped or guest collection
+        :param endpoint_id: UUID of a GCSv5 endpoint
+        :param include_data_access: Whether to include the data_access scope as a
+          required dependency if the collection is determined to require it.
+        :param assert_entity_type: An optional tuple of expected entity types. If
+          supplied & the entity type does not match, raises a WrongEntityTypeError.
+        """
         from ..services.gcs import CustomGCSClient
 
         gcs_id, epish = self._get_gcs_info(
             collection_id=collection_id, endpoint_id=endpoint_id
         )
+        if assert_entity_type is not None:
+            epish.assert_entity_type(expect_types=assert_entity_type)
+        include_data_access = include_data_access and epish.requires_data_access_scope
 
-        # client identities need to have this scope added as a requirement
-        # so that they correctly request it when building authorizers
-        self.add_requirement(
-            gcs_id, scopes=[GCSEndpointScopeBuilder(gcs_id).manage_collections]
-        )
-        self.assert_logins(gcs_id, assume_gcs=True)
+        if not include_data_access:
+            # Just require an endpoint:manage_collections scope
+            scope = GCSEndpointScopeBuilder(gcs_id).make_mutable("manage_collections")
+            login_context = LoginContext(
+                login_command=f"globus login --gcs {gcs_id}",
+                error_message="Missing 'manage_collections' consent on an endpoint.",
+            )
+        else:
+            # Require an endpoint:manage_collections scope with a dependent
+            #   collection[data_access] scope
+            scope = GCSEndpointScopeBuilder(gcs_id).make_mutable("manage_collections")
+            data_access = GCSCollectionScopeBuilder(str(collection_id)).data_access
+            scope.add_dependency(data_access)
+
+            login_context = LoginContext(
+                login_command=f"globus login --gcs {gcs_id}:{str(collection_id)}",
+                error_message="Missing 'data_access' consent on a mapped collection.",
+            )
+
+        self.add_requirement(gcs_id, scopes=[scope])
+        self.assert_logins(gcs_id, login_context=login_context)
 
         authorizer = self._get_client_authorizer(
             gcs_id,
             no_tokens_msg=(
-                f"Could not get login data for GCS {gcs_id}. "
-                f"Try login with '--gcs {gcs_id}' to fix."
+                f"{login_context.error_message}\n"
+                f"Please run:\n\n  {login_context.login_command}\n"
             ),
         )
         return CustomGCSClient(

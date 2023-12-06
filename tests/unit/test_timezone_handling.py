@@ -1,30 +1,27 @@
 import datetime
 
-from globus_cli.commands.timer.create.transfer import resolve_start_time
+import globus_sdk
+
+from globus_cli.commands.timer.create.transfer import resolve_optional_local_time
 
 EST = datetime.timezone(datetime.timedelta(hours=-5), name="EST")
 
 
-def test_resolve_start_time_defaults_to_now():
-    value = resolve_start_time(None)
-    assert isinstance(value, datetime.datetime)
-    assert value.tzinfo is not None
-    # check for closeness, rather than being exact
-    assert (datetime.datetime.now().astimezone() - value) < datetime.timedelta(
-        seconds=1
-    )
+def test_resolve_optional_local_time_converts_none_to_missing():
+    value = resolve_optional_local_time(None)
+    assert value is globus_sdk.MISSING
 
 
-def test_resolve_start_time_preserves_existing_tzinfo():
+def test_resolve_optional_local_time_preserves_existing_tzinfo():
     original = datetime.datetime.now().astimezone(EST)
-    resolved = resolve_start_time(original)
+    resolved = resolve_optional_local_time(original)
     assert resolved.tzinfo == EST
     assert resolved == original
 
 
-def test_resolve_start_time_adds_tzinfo_if_missing():
+def test_resolve_optional_local_time_adds_tzinfo_if_missing():
     original = datetime.datetime.now()
-    resolved = resolve_start_time(original)
+    resolved = resolve_optional_local_time(original)
     assert resolved.tzinfo is not None
 
     # but the true time represented remains the same if normalized to a given timezone

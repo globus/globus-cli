@@ -21,6 +21,7 @@ from globus_cli.parsing import (
     command,
     encrypt_data_option,
     fail_on_quota_errors_option,
+    mutex_option_group,
     preserve_timestamp_option,
     skip_source_errors_option,
     sync_level_option,
@@ -29,9 +30,9 @@ from globus_cli.parsing import (
     transfer_recursive_option,
     verify_checksum_option,
 )
-from globus_cli.termio import TextMode, display
+from globus_cli.termio import Field, TextMode, display, formatters
 
-from .._common import DATETIME_FORMATS, JOB_FORMAT_FIELDS
+from .._common import DATETIME_FORMATS, ScheduleFormatter
 
 if sys.version_info >= (3, 8):
     from typing import Literal
@@ -42,6 +43,20 @@ if t.TYPE_CHECKING:
     from globus_cli.services.auth import CustomAuthClient
 
 
+FORMAT_FIELDS = [
+    Field("Timer ID", "job_id"),
+    Field("Name", "name"),
+    Field("Type", "timer_type"),
+    Field("Submitted At", "submitted_at", formatter=formatters.Date),
+    Field("Status", "status"),
+    Field("Last Run", "last_ran_at", formatter=formatters.Date),
+    Field("Next Run", "next_run", formatter=formatters.Date),
+    Field("Schedule", "schedule", formatter=ScheduleFormatter()),
+    Field("Number of Runs", "number_of_runs"),
+    Field("Number of Timer Errors", "number_of_errors"),
+]
+
+
 INTERVAL_HELP = """\
 Interval at which the job should run. Expressed in weeks, days, hours, minutes, and
 seconds. Use 'w', 'd', 'h', 'm', and 's' as suffixes to specify.
@@ -49,11 +64,13 @@ e.g. '1h30m', '500s', '10d'
 """
 
 
-def resolve_start_time(start: datetime.datetime | None) -> datetime.datetime:
-    # handle the default start time (now)
-    start_ = start or datetime.datetime.now()
+def resolve_optional_local_time(
+    start: datetime.datetime | None,
+) -> datetime.datetime | globus_sdk.utils.MissingType:
+    if start is None:
+        return globus_sdk.MISSING
     # set the timezone to local system time if the timezone input is not aware
-    start_with_tz = start_.astimezone() if start_.tzinfo is None else start_
+    start_with_tz = start.astimezone() if start.tzinfo is None else start
     return start_with_tz
 
 
@@ -99,6 +116,7 @@ def resolve_start_time(start: datetime.datetime | None) -> datetime.datetime:
     type=click.IntRange(min=1),
     help="Stop running the transfer after this number of runs have happened.",
 )
+@mutex_option_group("--stop-after-date", "--stop-after-runs")
 @LoginManager.requires_login("auth", "timer", "transfer")
 def transfer_command(
     login_manager: LoginManager,
@@ -173,12 +191,36 @@ def transfer_command(
             "transfer requires either SOURCE_PATH and DEST_PATH or --batch"
         )
 
-    # Interval must be null iff the job is non-repeating, i.e. stop-after-runs == 1.
-    if stop_after_runs != 1:
+    # Interval must be null iff the job is 'once', i.e. stop-after-runs == 1.
+    # and it must be non-null if the job is 'recurring'
+    schedule: globus_sdk.RecurringTimerSchedule | globus_sdk.OnceTimerSchedule
+    start_ = resolve_optional_local_time(start)
+    if stop_after_runs == 1:
+        if interval is not None:
+            raise click.UsageError("'--interval' is invalid with `--stop-after-runs=1`")
+        schedule = globus_sdk.OnceTimerSchedule(datetime=start_)
+    else:
         if interval is None:
             raise click.UsageError(
-                "'--interval' is required unless `--stop-after-runs=1` is used."
+                "'--interval' is required unless `--stop-after-runs=1`"
             )
+
+        end: dict[str, t.Any] | globus_sdk.MissingType = globus_sdk.MISSING
+        # reminder: these two cases are mutex
+        if stop_after_runs is not None:
+            end = {
+                "condition": "iterations",
+                "count": stop_after_runs,
+            }
+        elif stop_after_date is not None:
+            end = {
+                "condition": "time",
+                "datetime": resolve_optional_local_time(stop_after_date),
+            }
+
+        schedule = globus_sdk.RecurringTimerSchedule(
+            interval_seconds=interval, end=end, start=start_
+        )
 
     # default name, dynamically computed from the current time
     if name is None:
@@ -263,19 +305,9 @@ to login with the required scopes."""
     else:  # unreachable
         raise NotImplementedError()
 
-    response = timer_client.create_job(
-        globus_sdk.TimerJob.from_transfer_data(
-            transfer_data,
-            resolve_start_time(start),
-            interval,
-            name=name,
-            stop_after=stop_after_date,
-            stop_after_n=stop_after_runs,
-            # the transfer AP scope string (without any dependencies)
-            scope="https://auth.globus.org/scopes/actions.globus.org/transfer/transfer",
-        )
-    )
-    display(response, text_mode=TextMode.text_record, fields=JOB_FORMAT_FIELDS)
+    body = globus_sdk.TransferTimer(name=name, schedule=schedule, body=transfer_data)
+    response = timer_client.create_timer(body)
+    display(response["timer"], text_mode=TextMode.text_record, fields=FORMAT_FIELDS)
 
 
 def _derive_needed_scopes(
