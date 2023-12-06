@@ -124,6 +124,20 @@ def print_error_or_response(
         display(data, simple_text=data.text)
 
 
+def _get_resource_server(service_name: str) -> str:
+    _resource_server = {
+        "auth": globus_sdk.AuthClient.resource_server,
+        "flows": globus_sdk.FlowsClient.resource_server,
+        "groups": globus_sdk.GroupsClient.resource_server,
+        "search": globus_sdk.SearchClient.resource_server,
+        "transfer": globus_sdk.TransferClient.resource_server,
+        "timer": globus_sdk.TimerClient.resource_server,
+    }.get(service_name)
+    if _resource_server is None:
+        raise NotImplementedError(f"unrecognized service: {service_name}")
+    return _resource_server
+
+
 def _get_client(
     login_manager: LoginManager, service_name: str
 ) -> globus_sdk.BaseClient:
@@ -240,6 +254,15 @@ sends a 'GET' request to '{_get_url(service_name)}foo/bar'
         ),
     )
     @click.option("--no-retry", is_flag=True, help="Disable built-in request retries")
+    @click.option(
+        "--scope",
+        type=str,
+        multiple=True,
+        help=(
+            "A scope string to specify as required for this request. "
+            "Use this option multiple times to define multiple scope requirements."
+        )
+    )
     @mutex_option_group("--body", "--body-file")
     def service_command(
         login_manager: LoginManager,
@@ -254,6 +277,7 @@ sends a 'GET' request to '{_get_url(service_name)}foo/bar'
         allow_errors: bool,
         allow_redirects: bool,
         no_retry: bool,
+        scope: tuple[str, ...] | None,
     ) -> None:
         # the overall flow of this command will be as follows:
         # - prepare a client
@@ -264,7 +288,13 @@ sends a 'GET' request to '{_get_url(service_name)}foo/bar'
         #   - on success or error with --allow-errors, print
         #   - on error without --allow-errors, reraise
 
+        if scope:
+            resource_server = _get_resource_server(service_name)
+            login_manager.add_requirement(resource_server, scope)
         client = _get_client(login_manager, service_name)
+        print(client.authorizer.access_token)
+        print(client.authorizer._get_token_response())
+        print(client.authorizer.get_authorization_header())
         client.app_name = version.app_name + " raw-api-command"
         if no_retry:
             client.transport.max_retries = 0
