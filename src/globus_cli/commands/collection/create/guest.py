@@ -93,7 +93,7 @@ def collection_create_guest(
     Create a GCSv5 Guest Collection.
 
     Create a new guest collection, named DISPLAY_NAME, as a child of
-    MAPPED_COLLECTION_ID. This new guest collection's file system must be rooted at
+    MAPPED_COLLECTION_ID. This new guest collection's file system will be rooted at
     COLLECTION_BASE_PATH, a file path on the mapped collection.
     """
     gcs_client = login_manager.get_gcs_client(
