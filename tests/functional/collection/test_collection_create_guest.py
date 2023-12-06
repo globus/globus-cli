@@ -216,6 +216,13 @@ def test_guest_collection_create__when_session_times_out_against_ha_mapped_colle
         },
     )
 
+    get_endpoint_route = (
+        f"{get_service_url('transfer')}v0.10/endpoint/{mapped_collection_id}"
+    )
+    get_endpoint_resp = requests.get(get_endpoint_route).json()
+    get_endpoint_resp["high_assurance"] = True
+    responses.replace("GET", get_endpoint_route, json=get_endpoint_resp)
+
     params = f"{mapped_collection_id} /home/ '{display_name}'"
     result = run_line(f"globus collection create guest {params}", assert_exit_code=4)
 

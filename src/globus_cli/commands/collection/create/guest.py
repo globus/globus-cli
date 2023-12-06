@@ -25,9 +25,8 @@ from globus_cli.termio import TextMode, display
 
 
 @command("guest", short_help="Create a GCSv5 Guest Collection")
-@click.argument("mapped-collection-id", type=click.UUID)
-# TODO: Update this to guest-collection-base-path
-@click.argument("collection-base-path", type=str)
+@click.argument("MAPPED_COLLECTION_ID", type=click.UUID)
+@click.argument("COLLECTION_BASE_PATH", type=str)
 @click.option(
     "--user-credential-id",
     type=click.UUID,
@@ -91,7 +90,11 @@ def collection_create_guest(
     verify: dict[str, bool],
 ) -> None:
     """
-    Create a GCSv5 Guest Collection
+    Create a GCSv5 Guest Collection.
+
+    Create a new guest collection, named DISPLAY_NAME, as a child of
+    MAPPED_COLLECTION_ID. This new guest collection's file system must be rooted at
+    COLLECTION_BASE_PATH, a file path on the mapped collection.
     """
     gcs_client = login_manager.get_gcs_client(
         collection_id=mapped_collection_id,
@@ -137,9 +140,12 @@ def collection_create_guest(
         # This is a hacky workaround until we have better GARE support across the CLI.
         if _is_session_timeout_error(e):
             endpoint_id = gcs_client.source_epish.get_collection_endpoint_id()
+            login_gcs_id = endpoint_id
+            if gcs_client.source_epish.requires_data_access_scope:
+                login_gcs_id = f"{endpoint_id}:{mapped_collection_id}"
             context = LoginContext(
                 error_message="Session timeout detected; Re-authentication required.",
-                login_command=f"globus login --gcs {endpoint_id} --force",
+                login_command=f"globus login --gcs {login_gcs_id} --force",
             )
             raise MissingLoginError([endpoint_id], context=context)
         raise
@@ -207,5 +213,9 @@ def _is_session_timeout_error(e: globus_sdk.GCSAPIError) -> bool:
     Detect session timeouts related to HA collections.
     This is a hacky workaround until we have better GARE support across the CLI.
     """
-    identities = getattr(e, "detail", {}).get("identities")
-    return e.http_status == 403 and isinstance(identities, list) and len(identities) > 0
+    detail_type = getattr(e, "detail", {}).get("DATA_TYPE")
+    return (
+        e.http_status == 403
+        and isinstance(detail_type, str)
+        and detail_type.startswith("authentication_timeout")
+    )
