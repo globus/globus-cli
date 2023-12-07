@@ -259,8 +259,8 @@ sends a 'GET' request to '{_get_url(service_name)}foo/bar'
         type=str,
         multiple=True,
         help=(
-            "A scope string to consent to for this command (only supported for "
-            "confidential client usage). "
+            "A scope string that will be used when making the api call. "
+            "At present, only supported for confidential-client based authorization. "
             "Pass this option multiple times to specify multiple scopes."
         ),
     )
