@@ -115,7 +115,7 @@ def test_api_command_with_scope_strings(monkeypatch, client_login, run_line):
     run_line("globus api transfer get /foo --scope-string foobarjohn")
 
     token_grant = [
-        kall for kall in responses.calls if kall.request.url.endswith("/token")
+        call for call in responses.calls if call.request.url.endswith("/token")
     ][0]
     request_params = urllib.parse.parse_qs(token_grant.request.body)
     assert request_params["grant_type"][0] == "client_credentials"

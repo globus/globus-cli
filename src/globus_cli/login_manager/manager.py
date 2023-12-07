@@ -110,13 +110,9 @@ class LoginManager:
         if tokens is None or "refresh_token" not in tokens:
             return False
 
-        if not self._tokens_meet_static_requirements(resource_server, tokens):
-            return False
-
-        if not self._tokens_meet_nonstatic_requirements(resource_server, tokens):
-            return False
-
-        return self._validate_token(tokens["refresh_token"])
+        return self._tokens_meet_auth_requirements(
+            resource_server, tokens
+        ) and self._validate_token(tokens["refresh_token"])
 
     def _tokens_meet_auth_requirements(
         self, resource_server: str, tokens: dict[str, t.Any]
