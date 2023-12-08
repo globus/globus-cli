@@ -10,11 +10,8 @@ import globus_sdk
 from globus_sdk.scopes import GCSCollectionScopeBuilder, MutableScope
 
 from globus_cli.endpointish import Endpointish
-from globus_cli.login_manager import (
-    LoginManager,
-    is_client_login,
-    read_well_known_config,
-)
+from globus_cli.login_manager import LoginManager, is_client_login
+from globus_cli.login_manager.utils import get_current_identity_id
 from globus_cli.parsing import (
     ENDPOINT_PLUS_OPTPATH,
     TimedeltaType,
@@ -315,8 +312,7 @@ def _derive_needed_scopes(
     needs_data_access: list[str],
 ) -> list[str]:
     # read the identity ID stored from the login flow
-    user_data = read_well_known_config("auth_user_data", allow_null=False)
-    user_identity_id = user_data["sub"]
+    user_identity_id = get_current_identity_id()
 
     # get the user's Globus CLI consents
     consents = auth_client.get_consents(user_identity_id)

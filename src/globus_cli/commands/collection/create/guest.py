@@ -13,12 +13,9 @@ from globus_cli.commands.collection._common import (
 )
 from globus_cli.constants import ExplicitNullType
 from globus_cli.endpointish import EntityType
-from globus_cli.login_manager import (
-    LoginManager,
-    MissingLoginError,
-    read_well_known_config,
-)
+from globus_cli.login_manager import LoginManager, MissingLoginError
 from globus_cli.login_manager.context import LoginContext
+from globus_cli.login_manager.utils import get_current_identity_id
 from globus_cli.parsing import command, endpointish_params, mutex_option_group
 from globus_cli.services.gcs import CustomGCSClient
 from globus_cli.termio import TextMode, display
@@ -171,8 +168,7 @@ def _select_user_credential_id(
     storage_gateway_id = mapped_collection["storage_gateway_id"]
 
     if not identity_id:
-        user_data = read_well_known_config("auth_user_data", allow_null=False)
-        identity_id = user_data["sub"]
+        identity_id = get_current_identity_id()
 
     # Grab the list of user credentials which match the endpoint, storage gateway,
     #   identity id, and local username (if specified)

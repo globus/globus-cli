@@ -34,7 +34,7 @@ from .tokenstore import (
     read_well_known_config,
     token_storage_adapter,
 )
-from .utils import is_remote_session
+from .utils import get_current_identity_id, is_remote_session
 
 if t.TYPE_CHECKING:
     from ..services.auth import ConsentForestResponse, CustomAuthClient
@@ -182,10 +182,9 @@ class LoginManager:
     @property
     @functools.lru_cache(maxsize=1)  # noqa: B019
     def _cached_consent_forest(self) -> ConsentForestResponse:
-        user_data = read_well_known_config("auth_user_data", allow_null=False)
-        user_identity_id = user_data["sub"]
+        identity_id = get_current_identity_id()
 
-        return self.get_auth_client().get_consents(user_identity_id)
+        return self.get_auth_client().get_consents(identity_id)
 
     def run_login_flow(
         self,
