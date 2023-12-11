@@ -2,6 +2,18 @@
 
 // scriv-insert-here
 
+== 3.22.0 (2023-12-11)
+
+Enhancements:
+
+* Add `globus api gcs $ENDPOINT_ID` as a command for directly interacting with
+  the GCS Manager API
+
+Bugfixes:
+
+* Commands which attempt to infer the identity of the user running the command will now
+  correctly use the `client_id` for confidential client-based invocation patterns.
+
 == 3.21.0 (2023-12-08)
 
 Enhancements:
