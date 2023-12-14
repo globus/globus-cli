@@ -52,7 +52,7 @@ Bugfixes:
 
 Enhancements:
 
-* Added a new command for non-admins to create GCSv5 Guest Collections.
+* Added a new command for users to create GCSv5 Guest Collections.
 +
 [source]
 ----

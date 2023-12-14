@@ -28,7 +28,7 @@ def user_credential_list(
     storage_gateway: uuid.UUID | None,
 ) -> None:
     """
-    List the User Credentials on a given Globus Connect Server v5 Endpoint
+    List all of your User Credentials on a Globus Connect Server v5 Endpoint
     """
     gcs_client = login_manager.get_gcs_client(endpoint_id=endpoint_id)
     auth_client = login_manager.get_auth_client()
