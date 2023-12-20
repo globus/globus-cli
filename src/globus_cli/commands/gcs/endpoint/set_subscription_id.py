@@ -54,7 +54,7 @@ def set_subscription_id_command(
     to that subscription), or (3) the value "null" (clears the endpoint's subscription)
 
     Setting a subscription requires that you are a subscription manager for the
-    subscription group being assigned.
+    subscription being assigned.
 
     Removing a subscription requires that you are either (1) a subscription manager for
     the current assigned subscription group or (2) an admin of the endpoint.
