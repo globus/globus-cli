@@ -18,8 +18,9 @@ class GCSSubscriptionIdType(click.ParamType):
     def convert(
         self, value: str, param: click.Parameter | None, ctx: click.Context | None
     ) -> t.Any:
-        if value is None or (ctx and ctx.resilient_parsing):
+        if ctx and ctx.resilient_parsing:
             return None
+
         if value.lower() == "null":
             return EXPLICIT_NULL
         elif value.lower() == "default":
@@ -46,7 +47,7 @@ def set_subscription_id_command(
     subscription_id: uuid.UUID | t.Literal["DEFAULT"] | ExplicitNullType,
 ) -> None:
     """
-    Update an endpoint's subscription ID.
+    Update an endpoint's subscription.
 
     SUBSCRIPTION_ID must be one of: (1) A valid subscription ID (UUID), (2) the value
     "DEFAULT" (requires that you manage exactly one subscription & assigns the endpoint
