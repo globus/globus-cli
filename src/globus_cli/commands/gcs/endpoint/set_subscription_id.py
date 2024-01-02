@@ -26,8 +26,7 @@ class GCSSubscriptionIdType(click.ParamType):
         elif value.lower() == "default":
             return "DEFAULT"
         try:
-            uuid.UUID(value)
-            return value
+            return uuid.UUID(value)
         except ValueError:
             msg = (
                 f"{value} is invalid. Expected either a UUID or the special "
@@ -51,7 +50,7 @@ def set_subscription_id_command(
 
     SUBSCRIPTION_ID must be one of: (1) A valid subscription ID (UUID), (2) the value
     "DEFAULT" (requires that you manage exactly one subscription & assigns the endpoint
-    to that subscription), or (3) the value "null" (clears the endpoint's subscription)
+    to that subscription), or (3) the value "null" (clears the endpoint's subscription).
 
     Setting a subscription requires that you are a subscription manager for the
     subscription being assigned.

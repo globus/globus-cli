@@ -28,7 +28,11 @@ class SubscriptionIdType(click.ParamType):
             self.fail(f"{value} is not a valid Subscription ID", param, ctx)
 
 
-@command("set-subscription-id", short_help="Set an endpoint's subscription")
+@command(
+    "set-subscription-id",
+    deprecated=True,
+    short_help="Set an endpoint's subscription",
+)
 @endpoint_id_arg
 @click.argument("SUBSCRIPTION_ID", type=SubscriptionIdType())
 @LoginManager.requires_login("transfer")
@@ -36,6 +40,11 @@ def set_endpoint_subscription_id(
     login_manager: LoginManager, *, endpoint_id: uuid.UUID, subscription_id: str
 ) -> None:
     """
+    For GCS endpoints, refer to ``globus gcs endpoint set-subscription-id``. For
+    GCP endpoint, refer ``globus gcp set-subscription-id``.
+
+    -----------------------------
+
     Set an endpoint's subscription ID.
 
     Unlike the '--managed' flag for 'globus endpoint update', this operation does not
