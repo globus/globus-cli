@@ -41,7 +41,7 @@ def set_endpoint_subscription_id(
 ) -> None:
     """
     For GCS endpoints, refer to ``globus gcs endpoint set-subscription-id``. For
-    GCP endpoint, refer ``globus gcp set-subscription-id``.
+    GCP endpoints, refer to ``globus gcp set-subscription-id``.
 
     -----------------------------
 
