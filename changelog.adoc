@@ -2,6 +2,17 @@
 
 // scriv-insert-here
 
+==  3.24.0 (2024-01-25)
+
+Bugfixes
+
+* Fixes a bug which would not allow users to utilize "--anonymous" or
+  "--all-authenticated-users" when creating an endpoint permission.
+
+Other
+
+* Remove support for Python 3.7
+
 == 3.23.0 (2024-01-05)
 
 Bugfixes:
