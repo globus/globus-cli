@@ -313,6 +313,7 @@ def security_principal_opts(
             f = click.option(
                 "--anonymous",
                 "principal",
+                type=click.Tuple([str, str]),
                 flag_value=("anonymous", ""),
                 help=(
                     "Allow anyone access, even without logging in "
@@ -323,6 +324,7 @@ def security_principal_opts(
             f = click.option(
                 "--all-authenticated",
                 "principal",
+                type=click.Tuple([str, str]),
                 flag_value=("all_authenticated_users", ""),
                 help=(
                     "Allow anyone access, as long as they login "

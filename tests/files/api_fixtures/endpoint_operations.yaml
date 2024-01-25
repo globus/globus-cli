@@ -561,3 +561,14 @@ transfer:
         "request_id": "X8AlP9Ned",
         "resource": "/endpoint/1405823f-0597-4a16-b296-46d4f0ae4b15"
       }
+  - path: /endpoint/1405823f-0597-4a16-b296-46d4f0ae4b15/access
+    method: post
+    json:
+      {
+        "DATA_TYPE": "access_create_result",
+        "code": "Created",
+        "resource": "/endpoint/1405823f-0597-4a16-b296-46d4f0ae4b15/access",
+        "request_id": "abc123",
+        "access_id": 12345,
+        "message": "Access rule created successfully."
+      }
