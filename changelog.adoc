@@ -6,8 +6,8 @@
 
 Bugfixes
 
-* Fixes a bug which would not allow users to utilize ``--anonymous`` or
-  ``--all-authenticated`` when creating an endpoint permission.
+* Fixes a bug which would not allow users to utilize `--anonymous` or
+  `--all-authenticated` when creating an endpoint permission.
 
 Other
 
