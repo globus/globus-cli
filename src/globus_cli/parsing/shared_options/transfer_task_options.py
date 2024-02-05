@@ -81,8 +81,8 @@ def skip_source_errors_option(f: C) -> C:
         default=False,
         show_default=True,
         help=(
-            "Skip over source paths that hit permission denied or file not "
-            "found errors during the transfer."
+            "Skip over source paths that hit permission denied, file not "
+            "found, or ambiguous path errors during the transfer."
         ),
     )(f)
 
