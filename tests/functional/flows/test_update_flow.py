@@ -6,7 +6,7 @@ from itertools import chain
 import pytest
 from globus_sdk._testing import RegisteredResponse, get_last_request, load_response
 
-from .test_create_flow import (
+from tests.functional.flows.test_create_flow import (
     SPECIAL_PRINCIPALS,
     IdentityPool,
     value_for_field_from_output,

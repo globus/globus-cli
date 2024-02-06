@@ -8,6 +8,7 @@ import click
 from globus_cli.login_manager import LoginManager
 from globus_cli.parsing import command
 from globus_cli.termio import Field, TextMode, display
+from globus_cli.utils import resolve_principal_urn
 
 from ..._common import index_id_arg, resolved_principals_field
 
@@ -48,33 +49,14 @@ def create_command(
     search_client = login_manager.get_search_client()
     auth_client = login_manager.get_auth_client()
 
-    if principal.startswith("urn:"):
-        if principal_type == "identity" and not principal.startswith(
-            "urn:globus:auth:identity:"
-        ):
-            raise click.UsageError(
-                f"--type=identity but '{principal}' is not a valid identity URN"
-            )
-        if principal_type == "group" and not principal.startswith(
-            "urn:globus:groups:id:"
-        ):
-            raise click.UsageError(
-                f"--type=group but '{principal}' is not a valid group URN"
-            )
-    else:
-        if principal_type == "identity" or principal_type is None:
-            resolved = auth_client.maybe_lookup_identity_id(principal)
-            if resolved is None:
-                raise click.UsageError(
-                    f"{principal} does not appear to be a valid principal"
-                )
-            principal = f"urn:globus:auth:identity:{resolved}"
-        elif principal_type == "group":
-            principal = f"urn:globus:groups:id:{principal}"
-        else:
-            raise NotImplementedError("unrecognized principal_type")
+    principal_urn = resolve_principal_urn(
+        auth_client=auth_client,
+        principal_type=principal_type,
+        principal=principal,
+        principal_type_key="--type",
+    )
 
-    role_doc = {"role_name": role_name, "principal": principal}
+    role_doc = {"role_name": role_name, "principal": principal_urn}
     display(
         search_client.create_role(index_id, data=role_doc),
         text_mode=TextMode.text_record,

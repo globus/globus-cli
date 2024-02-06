@@ -1,0 +1,200 @@
+metadata:
+  endpoint_id: "c574170d-3690-4343-bd16-2c9e49bd1ab0"
+  role_id: "75bdc786-1c9f-4388-a604-328cd7ee5597"
+
+
+transfer:
+  # Endpoint Introspect
+  - path: /endpoint/c574170d-3690-4343-bd16-2c9e49bd1ab0
+    method: get
+    json:
+      {
+        "DATA": [
+          {
+            "DATA_TYPE": "server",
+            "hostname": "abc.xyz.data.globus.org",
+            "id": 199521,
+            "incoming_data_port_end": null,
+            "incoming_data_port_start": null,
+            "is_connected": true,
+            "is_paused": false,
+            "outgoing_data_port_end": null,
+            "outgoing_data_port_start": null,
+            "port": 2811,
+            "scheme": "gsiftp",
+            "subject": null,
+            "uri": "gsiftp://abc.xyz.data.globus.org:2811"
+          }
+        ],
+        "DATA_TYPE": "endpoint",
+        "acl_available": false,
+        "acl_editable": false,
+        "activated": false,
+        "authentication_assurance_timeout": null,
+        "authentication_policy_id": null,
+        "authentication_timeout_mins": null,
+        "canonical_name": "u_f8e33pwjszg6liri3mve3bzpre#e1763157-9fa0-4f0f-88f5-a8b49d317bee",
+        "contact_email": "foo@globus.org",
+        "contact_info": null,
+        "default_directory": null,
+        "department": null,
+        "description": null,
+        "disable_anonymous_writes": false,
+        "disable_verify": false,
+        "display_name": "My Cool GCSv5.4 Sandbox Endpoint",
+        "entity_type": "GCSv5_endpoint",
+        "expire_time": null,
+        "expires_in": 0,
+        "force_encryption": false,
+        "force_verify": false,
+        "french_english_bilingual": false,
+        "gcp_connected": null,
+        "gcp_paused": null,
+        "gcs_manager_url": "https://abc.xyz.data.globus.org",
+        "gcs_version": "5.4.71",
+        "globus_connect_setup_key": null,
+        "high_assurance": false,
+        "host_endpoint": null,
+        "host_endpoint_display_name": null,
+        "host_endpoint_id": null,
+        "host_path": null,
+        "https_server": null,
+        "id": "c574170d-3690-4343-bd16-2c9e49bd1ab0",
+        "in_use": false,
+        "info_link": null,
+        "is_globus_connect": false,
+        "keywords": null,
+        "last_accessed_time": null,
+        "local_user_info_available": null,
+        "location": "Automatic",
+        "mapped_collection_display_name": null,
+        "mapped_collection_id": null,
+        "max_concurrency": 4,
+        "max_parallelism": 8,
+        "mfa_required": false,
+        "my_effective_roles": [
+          "administrator",
+          "activity_manager",
+          "activity_monitor"
+        ],
+        "myproxy_dn": null,
+        "myproxy_server": null,
+        "name": "e1763157-9fa0-4f0f-88f5-a8b49d317bee",
+        "network_use": "normal",
+        "non_functional": true,
+        "non_functional_endpoint_display_name": null,
+        "non_functional_endpoint_id": null,
+        "oauth_server": null,
+        "organization": "Globus",
+        "owner_id": "c574170d-3690-4343-bd16-2c9e49bd1ab0",
+        "owner_string": "foo@globus.org",
+        "preferred_concurrency": 2,
+        "preferred_parallelism": 4,
+        "public": true,
+        "requester_pays": false,
+        "s3_owner_activated": false,
+        "s3_url": null,
+        "shareable": true,
+        "sharing_target_endpoint": null,
+        "sharing_target_root_path": null,
+        "storage_type": null,
+        "subscription_id": "d6887f92-052b-42aa-a3f8-993781450c4d",
+        "tlsftp_server": null,
+        "user_message": null,
+        "user_message_link": null,
+        "username": "u_f8e33pwjszg6liri3mve3bzpre"
+      }
+
+auth:
+  # Identity lookup
+  - path: /v2/api/identities
+    method: get
+    json:
+      {
+        "identities": [
+          {
+            "name": "Foo Barson",
+            "organization": "Globus",
+            "username": "foo@globus.org",
+            "email": "foo@globus.org",
+            "identity_type": "login",
+            "identity_provider": "d51f5c44-a53b-4d47-ac95-283a4a4643f5",
+            "status": "used",
+            "id": "78d0af73-85a1-4505-9e2c-27675854198a"
+          }
+        ]
+      }
+
+
+gcs:
+  # Create Role
+  - path: /roles
+    method: post
+    json:
+      {
+        "DATA_TYPE": "role#1.0.0",
+        "collection": null,
+        "id": "75bdc786-1c9f-4388-a604-328cd7ee5597",
+        "principal": "urn:globus:auth:identity:2ae27258-25e0-4b2b-abc9-b3b85ee0c26c",
+        "role": "activity_manager"
+      }
+
+  # List Roles
+  - path: /roles
+    method: get
+    json:
+      {
+        "DATA_TYPE": "result#1.0.0",
+        "code": "success",
+        "data": [
+          {
+            "DATA_TYPE": "role#1.0.0",
+            "collection": null,
+            "id": "bcbd317e-d06f-49ad-88ce-54077839a05f",
+            "principal": "urn:globus:auth:identity:65eae898-6c3c-45db-99ff-04d7425b8154",
+            "role": "owner"
+          },
+          {
+            "DATA_TYPE": "role#1.0.0",
+            "collection": null,
+            "id": "78d0af73-85a1-4505-9e2c-27675854198a",
+            "principal": "urn:globus:auth:identity:65eae898-6c3c-45db-99ff-04d7425b8154",
+            "role": "administrator"
+          },
+          {
+            "DATA_TYPE": "role#1.0.0",
+            "collection": null,
+            "id": "75bdc786-1c9f-4388-a604-328cd7ee5597",
+            "principal": "urn:globus:auth:identity:2ae27258-25e0-4b2b-abc9-b3b85ee0c26c",
+            "role": "activity_manager"
+          }
+        ],
+        "detail": "success",
+        "has_next_page": false,
+        "http_response_code": 200
+      }
+
+  # Get Role
+  - path: /roles/75bdc786-1c9f-4388-a604-328cd7ee5597
+    method: get
+    json:
+      {
+        "DATA_TYPE": "role#1.0.0",
+        "collection": null,
+        "id": "75bdc786-1c9f-4388-a604-328cd7ee5597",
+        "principal": "urn:globus:auth:identity:2ae27258-25e0-4b2b-abc9-b3b85ee0c26c",
+        "role": "activity_manager"
+      }
+
+  # Delete Role
+  - path: /roles/75bdc786-1c9f-4388-a604-328cd7ee5597
+    method: delete
+    json:
+      {
+        "DATA_TYPE": "result#1.0.0",
+        "code": "success",
+        "detail": "success",
+        "has_next_page": false,
+        "http_response_code": 200,
+        "message": "Deleted role 75bdc786-1c9f-4388-a604-328cd7ee5597"
+      }

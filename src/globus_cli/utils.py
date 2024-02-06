@@ -1,9 +1,11 @@
 from __future__ import annotations
 
 import typing as t
+import uuid
 
 import click
 
+from globus_cli.services.auth import CustomAuthClient
 from globus_cli.types import DATA_CONTAINER_T
 
 # NB: GARE parsing requires other SDK components and therefore needs to be deferred to
@@ -216,3 +218,88 @@ class CLIAuthRequirementsError(Exception):
         self.message = message
         self.epilog = epilog
         self.gare = gare
+
+
+def resolve_principal_urn(
+    auth_client: CustomAuthClient,
+    principal_type: t.Literal["identity", "group"] | None,
+    principal: str,
+    principal_type_key: str = "--principal-type",
+) -> str:
+    """
+    Given a principal type and principal, resolve the principal into a URN.
+
+    `principal` is expected to be one of:
+      1. A UUID - in which case it is resolved to an identity or group dependent on
+         the provided `principal_type`
+      2. A URN - in which case its prefix is validated if a `principal_type` is provided
+      3. A username - in which case it is resolved to an identity urn
+
+    :param auth_client: An CustomAuthClient instance for resolving identities
+    :param principal_type: The type of principal ("identity" or "group") this principal
+        should be resolved as. Depending on the value of `principal`, this may be used
+        for formatting or validating the provided principal string.
+    :param principal: The principal to resolve (either a UUID, URN, or username)
+    :param principal_type_key: Click parameter key to be used in principal_type click
+        errors
+    :return: A resolved principal URN string
+    :raises click.UsageError: If the provided `principal` is either incompatible or
+        not sufficiently specific with the provided `principal_type`
+    """
+
+    # Unspecified principal type
+    if principal_type is None:
+        if principal.startswith("urn:globus:auth:identity:") or principal.startswith(
+            "urn:globus:groups:id:"
+        ):
+            return principal
+
+        resolved = auth_client.maybe_lookup_identity_id(principal)
+        if resolved:
+            return f"urn:globus:auth:identity:{resolved}"
+
+        raise click.UsageError(
+            f"{principal_type_key} unspecified and '{principal}' is not resolvable on"
+            " its own to a particular principal."
+        )
+
+    # Identity principal type
+    elif principal_type == "identity":
+        if principal.startswith("urn:globus:auth:identity:"):
+            return principal
+
+        if not principal.startswith("urn:"):
+            resolved = auth_client.maybe_lookup_identity_id(principal)
+            if resolved:
+                return f"urn:globus:auth:identity:{resolved}"
+
+        raise click.UsageError(
+            f"{principal_type_key} identity but '{principal}' is not a valid "
+            "username, identity UUID, or identity URN"
+        )
+
+    # Group principal type
+    elif principal_type == "group":
+        if principal.startswith("urn:globus:groups:id:"):
+            return principal
+
+        resolved = principal if _is_uuid(principal) else None
+        if resolved:
+            return f"urn:globus:groups:id:{resolved}"
+
+        raise click.UsageError(
+            f"{principal_type_key} group but '{principal}' is not a valid group UUID or"
+            " URN"
+        )
+
+    # Unrecognized principal type
+    else:
+        raise NotImplementedError("unrecognized principal_type")
+
+
+def _is_uuid(s: str) -> bool:
+    try:
+        uuid.UUID(s)
+        return True
+    except ValueError:
+        return False

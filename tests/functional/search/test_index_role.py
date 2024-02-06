@@ -112,14 +112,17 @@ def test_index_role_create_group(run_line, cli_args):
     "cli_args, expect_message",
     [
         # won't resolve to an identity
-        (["foo-bar"], "does not appear to be a valid principal"),
+        (
+            ["foo-bar"],
+            "'foo-bar' is not resolvable on its own to a particular principal",
+        ),
         (
             [
                 "--type",
                 "identity",
                 "urn:globus:groups:id:a6de8802-6bce-4dd8-afa0-28dc38db5c77",
             ],
-            "is not a valid identity URN",
+            "is not a valid username, identity UUID, or identity URN",
         ),
         (
             [
@@ -127,7 +130,7 @@ def test_index_role_create_group(run_line, cli_args):
                 "group",
                 "urn:globus:auth:identity:25de0aed-aa83-4600-a1be-a62a910af116",
             ],
-            "is not a valid group URN",
+            "is not a valid group UUID or URN",
         ),
     ],
 )
