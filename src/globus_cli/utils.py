@@ -234,6 +234,8 @@ def resolve_principal_urn(
     `principal` is expected to be one of:
       1. A UUID - in which case it is resolved to an identity or group dependent on
          the provided `principal_type`
+           * Note: If `principal_type` is not provided, the UUID is assumed to be an
+                identity & formatted as such unverified.
       2. A URN - in which case its prefix is validated if a `principal_type` is provided
       3. A username - in which case it is resolved to an identity urn
 
