@@ -233,11 +233,10 @@ def resolve_principal_urn(
 
     `principal` is expected to be one of:
       1. A UUID - in which case it is resolved to an identity or group dependent on
-         the provided `principal_type`
-           * Note: If `principal_type` is not provided, the UUID is assumed to be an
-                identity & formatted as such unverified.
+         the provided `principal_type` (default: "identity")
       2. A URN - in which case its prefix is validated if a `principal_type` is provided
-      3. A username - in which case it is resolved to an identity urn
+      3. A username - in which case it is resolved to an identity urn (retrieving the
+         UUID from a network call to auth)
 
     :param auth_client: An CustomAuthClient instance for resolving identities
     :param principal_type: The type of principal ("identity" or "group") this principal
@@ -247,8 +246,8 @@ def resolve_principal_urn(
     :param principal_type_key: Click parameter key to be used in principal_type click
         errors
     :return: A resolved principal URN string
-    :raises click.UsageError: If the provided `principal` is either incompatible or
-        not sufficiently specific with the provided `principal_type`
+    :raises click.UsageError: If the provided `principal` is incompatible with the
+        provided `principal_type`
     """
 
     # Unspecified principal type
@@ -263,8 +262,8 @@ def resolve_principal_urn(
             return f"urn:globus:auth:identity:{resolved}"
 
         raise click.UsageError(
-            f"{principal_type_key} unspecified and '{principal}' is not resolvable on"
-            " its own to a particular principal."
+            f"'{principal_type_key}' was unspecified and '{principal}' was not "
+            "resolvable to a globus identity."
         )
 
     # Identity principal type
@@ -278,7 +277,7 @@ def resolve_principal_urn(
                 return f"urn:globus:auth:identity:{resolved}"
 
         raise click.UsageError(
-            f"{principal_type_key} identity but '{principal}' is not a valid "
+            f"'{principal_type_key} identity' but '{principal}' is not a valid "
             "username, identity UUID, or identity URN"
         )
 
@@ -292,8 +291,8 @@ def resolve_principal_urn(
             return f"urn:globus:groups:id:{resolved}"
 
         raise click.UsageError(
-            f"{principal_type_key} group but '{principal}' is not a valid group UUID or"
-            " URN"
+            f"'{principal_type_key} group' but '{principal}' is not a valid group UUID "
+            "or URN"
         )
 
     # Unrecognized principal type

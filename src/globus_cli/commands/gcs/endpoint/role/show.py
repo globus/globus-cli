@@ -8,9 +8,7 @@ from globus_cli.parsing import command, endpoint_id_arg
 from globus_cli.termio import TextMode, display
 
 
-@command(
-    "show",
-)
+@command("show")
 @endpoint_id_arg
 @click.argument("ROLE_ID", type=click.UUID)
 @LoginManager.requires_login("transfer")
@@ -20,7 +18,7 @@ def show_command(
     endpoint_id: uuid.UUID,
     role_id: uuid.UUID,
 ) -> None:
-    """Describe a particular role on a GCS Endopint."""
+    """Describe a particular role on a GCS Endpoint."""
     gcs_client = login_manager.get_gcs_client(endpoint_id=endpoint_id)
     auth_client = login_manager.get_auth_client()
 

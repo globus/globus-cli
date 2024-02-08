@@ -112,10 +112,7 @@ def test_index_role_create_group(run_line, cli_args):
     "cli_args, expect_message",
     [
         # won't resolve to an identity
-        (
-            ["foo-bar"],
-            "'foo-bar' is not resolvable on its own to a particular principal",
-        ),
+        (["foo-bar"], "'foo-bar' was not resolvable to a globus identity"),
         (
             [
                 "--type",

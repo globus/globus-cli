@@ -6,14 +6,11 @@ from globus_sdk.paging import Paginator
 from globus_cli.commands.gcs.endpoint.role._common import role_fields
 from globus_cli.login_manager import LoginManager
 from globus_cli.parsing import command, endpoint_id_arg
-from globus_cli.services.transfer import iterable_response_to_dict
 from globus_cli.termio import display
 from globus_cli.utils import PagingWrapper
 
 
-@command(
-    "show",
-)
+@command("list")
 @endpoint_id_arg
 @click.option(
     "--all-roles", is_flag=True, help="Show all roles, not just yours.", default=False
@@ -30,13 +27,11 @@ def list_command(
     auth_client = login_manager.get_auth_client()
 
     paginator = Paginator.wrap(gcs_client.get_role_list)
-    if all_roles:
-        res = PagingWrapper(paginator(include="all_roles").items())
-    else:
-        res = PagingWrapper(paginator().items())
+    paginated_call = paginator(include="all_roles") if all_roles else paginator()
+    paging_wrapper = PagingWrapper(paginated_call.items(), json_conversion_key="DATA")
 
     display(
-        res,
+        paging_wrapper,
         fields=role_fields(auth_client),
-        json_converter=iterable_response_to_dict,
+        json_converter=paging_wrapper.json_converter,
     )

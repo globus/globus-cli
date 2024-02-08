@@ -140,8 +140,8 @@ def test_resolve_principal_urn__when_principal_type_is_omitted(
     except click.UsageError as e:
         assert expect_error
         assert e.message == (
-            f"--principal-type unspecified and '{principal}' is not resolvable on its "
-            "own to a particular principal."
+            f"'--principal-type' was unspecified and '{principal}' was not resolvable "
+            f"to a globus identity."
         )
 
 
@@ -184,7 +184,7 @@ def test_resolve_principal_urn__when_principal_type_is_identity(
     except click.UsageError as e:
         assert expect_error
         assert e.message == (
-            f"--principal-type identity but '{principal}' is not a valid username, "
+            f"'--principal-type identity' but '{principal}' is not a valid username, "
             "identity UUID, or identity URN"
         )
 
@@ -222,7 +222,8 @@ def test_resolve_principal_urn__when_principal_type_is_group(principal, expect_e
     except click.UsageError as e:
         assert expect_error
         assert e.message == (
-            f"--principal-type group but '{principal}' is not a valid group UUID or URN"
+            f"'--principal-type group' but '{principal}' is not a valid group UUID or "
+            "URN"
         )
 
 
@@ -237,4 +238,4 @@ def test_resolve_principal_urn__when_principal_type_key_is_non_default():
             principal_type_key="--foobarjohn",
         )
 
-    assert e.value.message.startswith("--foobarjohn identity but")
+    assert e.value.message.startswith("'--foobarjohn identity' but")

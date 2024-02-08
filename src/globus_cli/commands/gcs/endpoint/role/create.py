@@ -12,14 +12,12 @@ from globus_cli.parsing import command, endpoint_id_arg
 from globus_cli.termio import TextMode, display
 from globus_cli.utils import resolve_principal_urn
 
-_VALID_ROLES = ["administrator", "activity_manager", "activity_monitor"]
+_VALID_ROLES = t.Literal["administrator", "activity_manager", "activity_monitor"]
 
 
-@command(
-    "show",
-)
+@command("create")
 @endpoint_id_arg
-@click.argument("ROLE", type=click.Choice(_VALID_ROLES), metavar="ROLE")
+@click.argument("ROLE", type=click.Choice(t.get_args(_VALID_ROLES)), metavar="ROLE")
 @click.argument("PRINCIPAL", type=str)
 @click.option(
     "--principal-type",
@@ -38,11 +36,11 @@ def create_command(
     """
     Create a role on a GCS Endpoint.
 
-    ROLE may be one of: ["administrator", "activity_manager", "activity_monitor"].
+    ROLE must be one of "administrator", "activity_manager", or "activity_monitor".
 
-    PRINCIPAL may be either a username or a UUID/URN for an identity or group.
-
-       * If a UUID, you must also provide --principal-type.
+    PRINCIPAL must be a username, UUID, or URN associated with a globus identity or
+    group.
+    If UUID, use `--principal-type` to specify the type (defaults to "identity").
     """
     gcs_client = login_manager.get_gcs_client(endpoint_id=endpoint_id)
     auth_client = login_manager.get_auth_client()

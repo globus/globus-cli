@@ -7,9 +7,7 @@ from globus_cli.parsing import command, endpoint_id_arg
 from globus_cli.termio import TextMode, display
 
 
-@command(
-    "show",
-)
+@command("delete")
 @endpoint_id_arg
 @click.argument("ROLE_ID", type=click.UUID)
 @LoginManager.requires_login("transfer")
