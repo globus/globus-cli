@@ -134,19 +134,19 @@ def test_resolve_principal_urn__when_principal_type_is_omitted(
             principal=principal,
             principal_type=None,
         )
-
-        # === Verify (Success Case) ===
-        assert not expect_error
-        assert (
-            urn == "urn:globus:auth:identity:64831427-e501-420b-93da-9e4efee3dd51"
-            or urn == "urn:globus:groups:id:449718d5-32b2-48ba-bd46-e045deab5430"
-        )
     except click.UsageError as e:
         # === Verify (Failure Case) ===
         assert expect_error
         assert e.message == (
             f"'--principal-type' was unspecified and '{principal}' was not resolvable "
             f"to a globus identity."
+        )
+    else:
+        # === Verify (Success Case) ===
+        assert not expect_error
+        assert (
+            urn == "urn:globus:auth:identity:64831427-e501-420b-93da-9e4efee3dd51"
+            or urn == "urn:globus:groups:id:449718d5-32b2-48ba-bd46-e045deab5430"
         )
 
 
@@ -186,10 +186,6 @@ def test_resolve_principal_urn__when_principal_type_is_identity(
             principal=principal,
             principal_type="identity",
         )
-
-        # === Verify (Success Case) ===
-        assert not expect_error
-        assert urn == "urn:globus:auth:identity:64831427-e501-420b-93da-9e4efee3dd51"
     except click.UsageError as e:
         # === Verify (Error Case) ===
         assert expect_error
@@ -197,6 +193,10 @@ def test_resolve_principal_urn__when_principal_type_is_identity(
             f"'--principal-type identity' but '{principal}' is not a valid username, "
             "identity UUID, or identity URN"
         )
+    else:
+        # === Verify (Success Case) ===
+        assert not expect_error
+        assert urn == "urn:globus:auth:identity:64831427-e501-420b-93da-9e4efee3dd51"
 
 
 @pytest.mark.parametrize(
@@ -229,10 +229,6 @@ def test_resolve_principal_urn__when_principal_type_is_group(principal, expect_e
             principal=principal,
             principal_type="group",
         )
-
-        # === Verify (Success Case) ===
-        assert not expect_error
-        assert urn == "urn:globus:groups:id:449718d5-32b2-48ba-bd46-e045deab5430"
     except click.UsageError as e:
         # === Verify (Error Case) ===
         assert expect_error
@@ -240,6 +236,10 @@ def test_resolve_principal_urn__when_principal_type_is_group(principal, expect_e
             f"'--principal-type group' but '{principal}' is not a valid group UUID or "
             "URN"
         )
+    else:
+        # === Verify (Success Case) ===
+        assert not expect_error
+        assert urn == "urn:globus:groups:id:449718d5-32b2-48ba-bd46-e045deab5430"
 
 
 def test_resolve_principal_urn__when_principal_type_key_is_non_default():
