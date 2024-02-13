@@ -29,7 +29,7 @@ def create_command(
     login_manager: LoginManager,
     *,
     endpoint_id: uuid.UUID,
-    role: t.Literal["administrator", "activity_manager", "activity_monitor"],
+    role: _VALID_ROLES,
     principal: str,
     principal_type: t.Literal["identity", "group"] | None,
 ) -> None:
