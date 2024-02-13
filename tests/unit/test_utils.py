@@ -122,22 +122,27 @@ def test_resolve_principal_urn__when_principal_type_is_omitted(
     Verifies success & error cases for principal resolution when principal_type is
       omitted (i.e. None).
     """
+    # === Setup ===
     auth_client = unittest.mock.Mock(spec=CustomAuthClient)
     resolved_id = "64831427-e501-420b-93da-9e4efee3dd51" if resolve_id else None
     auth_client.maybe_lookup_identity_id.return_value = resolved_id
 
     try:
+        # === Act ===
         urn = resolve_principal_urn(
             auth_client=auth_client,
             principal=principal,
             principal_type=None,
         )
+
+        # === Verify (Success Case) ===
         assert not expect_error
         assert (
             urn == "urn:globus:auth:identity:64831427-e501-420b-93da-9e4efee3dd51"
             or urn == "urn:globus:groups:id:449718d5-32b2-48ba-bd46-e045deab5430"
         )
     except click.UsageError as e:
+        # === Verify (Failure Case) ===
         assert expect_error
         assert e.message == (
             f"'--principal-type' was unspecified and '{principal}' was not resolvable "
@@ -169,19 +174,24 @@ def test_resolve_principal_urn__when_principal_type_is_identity(
     Verifies success & error cases for principal resolution when principal_type is
       explicitly set to "identity".
     """
+    # === Setup ===
     auth_client = unittest.mock.Mock(spec=CustomAuthClient)
     resolved_id = "64831427-e501-420b-93da-9e4efee3dd51" if resolve_id else None
     auth_client.maybe_lookup_identity_id.return_value = resolved_id
 
     try:
+        # === Act ===
         urn = resolve_principal_urn(
             auth_client=auth_client,
             principal=principal,
             principal_type="identity",
         )
+
+        # === Verify (Success Case) ===
         assert not expect_error
         assert urn == "urn:globus:auth:identity:64831427-e501-420b-93da-9e4efee3dd51"
     except click.UsageError as e:
+        # === Verify (Error Case) ===
         assert expect_error
         assert e.message == (
             f"'--principal-type identity' but '{principal}' is not a valid username, "
@@ -209,17 +219,22 @@ def test_resolve_principal_urn__when_principal_type_is_group(principal, expect_e
     Verifies success & error cases for principal resolution when principal_type is
       explicitly set to "group".
     """
+    # === Setup ===
     auth_client = unittest.mock.Mock(spec=CustomAuthClient)
 
     try:
+        # === Act ===
         urn = resolve_principal_urn(
             auth_client=auth_client,
             principal=principal,
             principal_type="group",
         )
+
+        # === Verify (Success Case) ===
         assert not expect_error
         assert urn == "urn:globus:groups:id:449718d5-32b2-48ba-bd46-e045deab5430"
     except click.UsageError as e:
+        # === Verify (Error Case) ===
         assert expect_error
         assert e.message == (
             f"'--principal-type group' but '{principal}' is not a valid group UUID or "
