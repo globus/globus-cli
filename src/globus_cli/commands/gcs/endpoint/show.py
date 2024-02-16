@@ -14,7 +14,7 @@ def show_command(
     *,
     endpoint_id: uuid.UUID,
 ) -> None:
-    """Describe a GCS Endpoint"""
+    """Display information about a particular GCS Endpoint."""
     gcs_client = login_manager.get_gcs_client(endpoint_id=endpoint_id)
 
     res = gcs_client.get_endpoint()

@@ -213,7 +213,7 @@ def update_command(
     public: bool | None,
     subscription_id: str | None | ExplicitNullType,
 ) -> None:
-    """Update a GCS Endpoint"""
+    """Update a GCS Endpoint."""
     gcs_client = login_manager.get_gcs_client(endpoint_id=endpoint_id)
 
     endpoint_data = {
