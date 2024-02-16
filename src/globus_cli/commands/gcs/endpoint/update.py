@@ -114,7 +114,7 @@ def network_use_constraints(func: t.Callable) -> t.Callable:
     "--info-link",
     type=str,
     help=(
-        "An end-user-facing url for a webpage with more information about the endpoint."
+        "An end-user-facing URL for a webpage with more information about the endpoint."
     ),
 )
 @click.option(
@@ -201,9 +201,9 @@ def update_command(
     department: str | None,
     description: str | None,
     display_name: str | None,
-    gridftp_control_channel_port: str | None,
+    gridftp_control_channel_port: int | None | ExplicitNullType,
     info_link: str | None,
-    keywords: list[str] | None | ExplicitNullType,
+    keywords: list[str] | None,
     max_concurrency: int | None,
     max_parallelism: int | None,
     network_use: t.Literal["normal", "minimal", "aggressive", "custom"] | None,
@@ -236,8 +236,8 @@ def update_command(
         "subscription_id": subscription_id,
     }
     endpoint_document = globus_sdk.EndpointDocument(
-        **ExplicitNullType.nullify_dict(endpoint_data)
-    )  # type: ignore[arg-type]
+        **ExplicitNullType.nullify_dict(endpoint_data)  # type: ignore[arg-type]
+    )
 
     res = gcs_client.update_endpoint(endpoint_document, include="endpoint")
 

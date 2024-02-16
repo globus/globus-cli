@@ -13,7 +13,7 @@ GCS_ENDPOINT_FIELDS = [
     Field("GCS Manager URL", "gcs_manager_url"),
     Field("GridFTP Control Channel Port", "gridftp_control_channel_port"),
     Field("Info Link", "info_link"),
-    Field("Keywords", "keywords"),
+    Field("Keywords", "keywords", formatter=formatters.Array),
     Field("Max Concurrency", "max_concurrency"),
     Field("Max Parallelism", "max_parallelism"),
     Field("Network Use", "network_use"),

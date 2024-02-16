@@ -14,7 +14,7 @@ class StrFormatter(FieldFormatter[str]):
         return value
 
 
-class DateFormatter(FieldFormatter[datetime.datetime | datetime.date]):
+class DateFormatter(FieldFormatter[t.Union[datetime.datetime, datetime.date]]):
     def parse(self, value: t.Any) -> datetime.datetime | datetime.date:
         if not isinstance(value, str):
             raise ValueError("cannot parse date from non-str value")
