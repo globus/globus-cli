@@ -58,9 +58,9 @@ def network_use_constraints(func: t.Callable) -> t.Callable:
         if kwargs.get("network_use") == "custom":
             if any(kwargs.get(k) is None for k in _CUSTOM_NETWORK_USE_PARAMS):
                 raise click.UsageError(
-                    "When network-use is set to custom, you must also provide "
-                    "max-concurrency, max-parallelism, preferred-concurrency, and "
-                    "preferred-parallelism"
+                    "When network-use is set to custom, you must also supply "
+                    "`--preferred-concurrency`, `--max-concurrency`, "
+                    "`--preferred-parallelism`, and `--max-parallelism`"
                 )
         return func(*args, **kwargs)
 
