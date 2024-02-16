@@ -14,16 +14,22 @@ class StrFormatter(FieldFormatter[str]):
         return value
 
 
-class DateFormatter(FieldFormatter[datetime.datetime]):
-    def parse(self, value: t.Any) -> datetime.datetime:
+class DateFormatter(FieldFormatter[datetime.datetime | datetime.date]):
+    def parse(self, value: t.Any) -> datetime.datetime | datetime.date:
         if not isinstance(value, str):
             raise ValueError("cannot parse date from non-str value")
-        return datetime.datetime.fromisoformat(value)
+        try:
+            return datetime.date.fromisoformat(value)
+        except ValueError:
+            return datetime.datetime.fromisoformat(value)
 
-    def render(self, value: datetime.datetime) -> str:
-        if value.tzinfo is None:
-            return value.strftime("%Y-%m-%d %H:%M:%S")
-        return value.astimezone().strftime("%Y-%m-%d %H:%M:%S")
+    def render(self, value: datetime.datetime | datetime.date) -> str:
+        if isinstance(value, datetime.datetime):
+            if value.tzinfo is None:
+                return value.strftime("%Y-%m-%d %H:%M:%S")
+            return value.astimezone().strftime("%Y-%m-%d %H:%M:%S")
+
+        return value.strftime("%Y-%m-%d")
 
 
 class BoolFormatter(FieldFormatter[bool]):

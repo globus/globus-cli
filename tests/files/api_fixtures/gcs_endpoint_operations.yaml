@@ -1,0 +1,56 @@
+
+gcs:
+  # Show Endpoint
+  - path: /endpoint
+    method: GET
+    json:
+      {
+        "DATA_TYPE": "result#1.0.0",
+        "code": "success",
+        "data": [
+          {
+            "DATA_TYPE": "endpoint#1.2.0",
+            "allow_udt": false,
+            "contact_email": "foo@globus.org",
+            "display_name": "My Cool GCSv5.4 Sandbox Endpoint",
+            "earliest_last_access": "2023-12-15",
+            "gcs_manager_url": "https://abc.xyz.data.globus.org",
+            "gridftp_control_channel_port": 2811,
+            "id": "c574170d-3690-4343-bd16-2c9e49bd1ab0",
+            "network_use": "normal",
+            "organization": "Globus",
+            "public": true,
+            "subscription_id": "d6887f92-052b-42aa-a3f8-993781450c4d"
+          }
+        ],
+        "detail": "success",
+        "has_next_page": false,
+        "http_response_code": 200
+      }
+  # Update Endpoint (assumes request specifies include=["endpoint"])
+  - path: /endpoint
+    method: PATCH
+    json:
+      {
+        "DATA_TYPE": "result#1.0.0",
+        "code": "success",
+        "data": [
+          {
+            "DATA_TYPE": "endpoint#1.2.0",
+            "allow_udt": false,
+            "contact_email": "foo@globus.org",
+            "display_name": "My Cool GCSv5.4 Sandbox Endpoint",
+            "earliest_last_access": "2023-12-15",
+            "gcs_manager_url": "https://abc.xyz.data.globus.org",
+            "gridftp_control_channel_port": 2811,
+            "id": "c574170d-3690-4343-bd16-2c9e49bd1ab0",
+            "network_use": "normal",
+            "organization": "Globus",
+            "public": true,
+            "subscription_id": "d6887f92-052b-42aa-a3f8-993781450c4d"
+          }
+        ],
+        "detail": "success",
+        "has_next_page": false,
+        "http_response_code": 200
+      }

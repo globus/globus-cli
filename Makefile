@@ -5,6 +5,7 @@ CLI_VERSION=$(shell grep '^__version__' src/globus_cli/version.py | cut -d '"' -
 	virtualenv --python=$(PYTHON_VERSION) .venv
 	.venv/bin/pip install -U pip setuptools
 	.venv/bin/pip install -e '.[development]'
+	.venv/bin/pip install -e '.[test]'
 
 .PHONY: localdev
 localdev: .venv
