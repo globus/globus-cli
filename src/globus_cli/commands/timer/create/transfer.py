@@ -164,7 +164,6 @@ def transfer_command(
     from globus_cli.services.transfer import add_batch_to_transfer_data
 
     auth_client = login_manager.get_auth_client()
-    timer_client = login_manager.get_timer_client()
     transfer_client = login_manager.get_transfer_client()
 
     source_endpoint, cmd_source_path = source
@@ -231,36 +230,33 @@ def transfer_command(
     # this list will only be populated *if* one of the two endpoints requires
     # data_access, so if it's empty, we can skip any handling
     if needs_data_access:
-        # if the user is using client credentials, we cannot support the incremental
-        # auth step in the current implementation
-        #
-        # TODO: think through how we can use the client creds to request the
-        # requisite token in this case; it should be possible
-        if is_client_login():
-            raise click.UsageError(
-                "Unsupported operation. When using client credentials, "
-                "'globus timer create transfer' does not currently support "
-                "collections which use the data_access scope: "
-                f"{','.join(needs_data_access)}"
-            )
+        scopes_needed = _derive_needed_scopes(needs_data_access)
+        # If it's not a client login, we need to check
+        # that the user has the required scopes
+        if not is_client_login():
+            request_data_access = _derive_missing_scopes(auth_client, scopes_needed)
 
-        request_data_access = _derive_needed_scopes(auth_client, needs_data_access)
+            if request_data_access:
+                scope_request_opts = " ".join(
+                    f"--timer-data-access '{target}'" for target in request_data_access
+                )
+                click.echo(
+                    f"""\
+    A collection you are trying to use in this timer requires you to grant consent
+    for the Globus CLI to access it.
+    Please run
 
-        if request_data_access:
-            scope_request_opts = " ".join(
-                f"--timer-data-access '{target}'" for target in request_data_access
-            )
-            click.echo(
-                f"""\
-A collection you are trying to use in this timer requires you to grant consent
-for the Globus CLI to access it.
-Please run
+    globus session consent {scope_request_opts}
 
-  globus session consent {scope_request_opts}
+    to login with the required scopes."""
+                )
+                click.get_current_context().exit(4)
 
-to login with the required scopes."""
-            )
-            click.get_current_context().exit(4)
+        # Otherwise, add requirements to the LoginManager
+        login_manager.add_requirement(
+            globus_sdk.TimerClient.scopes.resource_server,
+            scopes=list(scopes_needed.values()),
+        )
 
     transfer_data = globus_sdk.TransferData(
         source_endpoint=source_endpoint,
@@ -289,23 +285,16 @@ to login with the required scopes."""
     else:  # unreachable
         raise NotImplementedError()
 
+    timer_client = login_manager.get_timer_client()
     body = globus_sdk.TransferTimer(name=name, schedule=schedule, body=transfer_data)
     response = timer_client.create_timer(body)
     display(response["timer"], text_mode=TextMode.text_record, fields=FORMAT_FIELDS)
 
 
 def _derive_needed_scopes(
-    auth_client: CustomAuthClient,
     needs_data_access: list[str],
-) -> list[str]:
-    # read the identity ID stored from the login flow
-    user_identity_id = get_current_identity_id()
-
-    # get the user's Globus CLI consents
-    consents = auth_client.get_consents(user_identity_id)
-
-    # check the 'needs_data_access' scope names against the 3rd-order dependencies
-    # of the Timer scope and record the names of the ones which we need to request
+) -> dict[str, MutableScope]:
+    # Render the fully nested scope strings for each target
     scopes_needed = {}
     for target in needs_data_access:
         target_scope = GCSCollectionScopeBuilder(target).data_access
@@ -315,7 +304,21 @@ def _derive_needed_scopes(
             globus_sdk.TransferClient.scopes.all,
             target_scope,
         )
+    return scopes_needed
 
+
+def _derive_missing_scopes(
+    auth_client: CustomAuthClient,
+    scopes_needed: dict[str, MutableScope],
+) -> list[str]:
+    # read the identity ID stored from the login flow
+    user_identity_id = get_current_identity_id()
+
+    # get the user's Globus CLI consents
+    consents = auth_client.get_consents(user_identity_id)
+
+    # check the 'needs_data_access' scope names against the 3rd-order dependencies
+    # of the Timer scope and record the names of the ones which we need to request
     will_request_data_access: list[str] = []
     for name, scope_object in scopes_needed.items():
         if not consents.contains_scopes([scope_object]):
