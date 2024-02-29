@@ -161,7 +161,7 @@ def transfer_command(
     If you use `--batch` and supply a SOURCE_PATH and/or DEST_PATH via the commandline,
     these paths will be used as dir prefixes to any paths read from the `--batch` input.
     """
-    from globus_cli.services.transfer import add_batch_to_transfer_data, autoactivate
+    from globus_cli.services.transfer import add_batch_to_transfer_data
 
     auth_client = login_manager.get_auth_client()
     timer_client = login_manager.get_timer_client()
@@ -217,13 +217,6 @@ def transfer_command(
     if name is None:
         now = datetime.datetime.now().isoformat()
         name = f"CLI Created Timer [{now}]"
-
-    # Check endpoint activation, figure out scopes needed.
-
-    # the autoactivate helper may present output and exit in the case of v4 endpoints
-    # which need activation (e.g. OA4MP)
-    autoactivate(transfer_client, source_endpoint, if_expires_in=86400)
-    autoactivate(transfer_client, dest_endpoint, if_expires_in=86400)
 
     # check if either source or dest requires the data_access scope, and if so
     # prompt the user to go through the requisite login flow
