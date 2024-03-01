@@ -443,6 +443,8 @@ def test_timer_creation_errors_on_data_access_with_client_creds(
     src = make_non_ha_mapped_collection()
     dst = ep_for_timer
 
+    setup_timer_consent_tree_response("fake_client_id", src)
+
     run_line(
         [
             "globus",
