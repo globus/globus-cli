@@ -26,3 +26,32 @@ Group:         tutorial
     req = get_last_request()
     parsed_qs = urllib.parse.parse_qs(urllib.parse.urlparse(req.url).query)
     assert parsed_qs == {"path": ["foo/"], "local_user": ["bar"]}
+
+
+def test_stat_not_found(run_line):
+    """
+    operation_stat returns a NotFound error, confirm non-error output
+    """
+    meta = load_response(
+        globus_sdk.TransferClient.operation_stat, case="not_found"
+    ).metadata
+    endpoint_id = meta["endpoint_id"]
+
+    result = run_line(f"globus stat {endpoint_id}:foo/")
+
+    assert result.output == "Nothing found at foo/\n"
+
+
+def test_stat_permission_denied(run_line):
+    """
+    operation_stat hits a permission denied error, confirm error output
+    """
+    meta = load_response(
+        globus_sdk.TransferClient.operation_stat, case="permission_denied"
+    ).metadata
+    endpoint_id = meta["endpoint_id"]
+
+    result = run_line(f"globus stat {endpoint_id}:foo/", assert_exit_code=1)
+
+    assert "A Transfer API Error Occurred." in result.stderr
+    assert "EndpointPermissionDenied" in result.stderr
