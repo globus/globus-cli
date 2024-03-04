@@ -23,6 +23,7 @@ from globus_cli.parsing import main_group
         "rm": ("rm", "rm_command"),
         "search": ("search", "search_command"),
         "session": ("session", "session_command"),
+        "stat": ("stat", "stat_command"),
         "task": ("task", "task_command"),
         "timer": ("timer", "timer_command"),
         "transfer": ("transfer", "transfer_command"),
