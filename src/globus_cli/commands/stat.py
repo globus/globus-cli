@@ -39,7 +39,7 @@ $ globus stat $col_id:/home/share/godata/file1.txt
 def stat_command(
     login_manager: LoginManager,
     *,
-    endpoint_plus_path: tuple[uuid.UUID, str | None],
+    endpoint_plus_path: tuple[uuid.UUID, str],
     local_user: str | None,
 ) -> None:
     """
