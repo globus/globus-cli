@@ -7,7 +7,7 @@ import globus_sdk
 
 from globus_cli.login_manager import LoginManager
 from globus_cli.parsing import ENDPOINT_PLUS_REQPATH, command, local_user_option
-from globus_cli.termio import Field, TextMode, display
+from globus_cli.termio import Field, display
 
 STAT_FIELDS = [
     Field("Name", "name"),
@@ -52,7 +52,7 @@ def stat_command(
         res = transfer_client.operation_stat(endpoint_id, path, local_user=local_user)
         display(
             res,
-            text_mode=TextMode.text_record,
+            text_mode=display.RECORD,
             fields=STAT_FIELDS,
         )
 
