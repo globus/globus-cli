@@ -2,6 +2,27 @@
 
 // scriv-insert-here
 
+== 3.27.0 (2024-03-28)
+
+Enhancements:
+
+* Add `globus group get-by-subscription` for looking up Subscription Groups
+  based on their subscription IDs.
+
+* Add `--parent-id` to `globus group create`, allowing group administrators to
+  create subgroups.
+
+* Add `globus group get-subscription-info` command to display a subscription.
+* `globus group show` now displays subscription-related information for groups
+  when present.
+
+* Add `globus stat` for getting the status of a path on a collection.
+
+Other:
+
+* Remove implicit `autoactivate` calls from various Transfer operations.
+  They are no longer needed and incur a minor performance penalty.
+
 == 3.26.0 (2024-03-01)
 
 Bugfixes:
