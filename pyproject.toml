@@ -28,7 +28,7 @@ classifiers = [
 ]
 requires-python = ">=3.8"
 dependencies = [
-    "globus-sdk==3.40.0",
+    "globus-sdk==3.41.0",
     "click>=8.1.4,<9",
     "jmespath==1.0.1",
     "packaging>=17.0",
