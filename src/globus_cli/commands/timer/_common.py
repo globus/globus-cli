@@ -66,7 +66,7 @@ class ScheduleFormatter(formatters.FieldFormatter[t.Dict[str, t.Any]]):
             start = value.get("start")
             if start:
                 start = formatters.Date.render(formatters.Date.parse(start))
-            end = value.get("end", {})
+            end = value.get("end") or {}
 
             ret = f"every {interval} seconds, starting {start}"
             if end.get("datetime"):

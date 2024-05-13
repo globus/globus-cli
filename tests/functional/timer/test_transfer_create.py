@@ -4,12 +4,15 @@ import uuid
 
 import globus_sdk
 import pytest
+import requests
+import responses
 from globus_sdk._testing import (
     RegisteredResponse,
     get_last_request,
     load_response,
     load_response_set,
 )
+from globus_sdk.config import get_service_url
 from globus_sdk.scopes import GCSCollectionScopeBuilder
 
 
@@ -194,6 +197,21 @@ def test_create_timer_simple(run_line, ep_for_timer, extra_args):
     assert transfer_body["DATA"][0]["DATA_TYPE"] == "transfer_item"
     assert transfer_body["DATA"][0]["source_path"] == "/file1"
     assert transfer_body["DATA"][0]["destination_path"] == "/file2"
+
+
+def test_create_endless_timer(run_line, ep_for_timer):
+    """Create a timer which has no end condition"""
+    create_route = f"{get_service_url('timer')}v2/timer"
+    patched_response = requests.post(create_route).json()
+    patched_response["timer"]["schedule"]["end"] = None
+
+    responses.replace("POST", create_route, json=patched_response)
+
+    resp = run_line(
+        f"globus timer create transfer {ep_for_timer}:/ {ep_for_timer}:/ --interval 1m"
+    )
+
+    assert "Schedule" in resp.output
 
 
 def test_create_timer_batch_data(run_line, ep_for_timer):
