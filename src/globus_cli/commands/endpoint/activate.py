@@ -16,7 +16,7 @@ from globus_cli.termio import display
     "--web",
     is_flag=True,
     default=False,
-    help="Use web activation. Mutually exclusive with --myproxy  and --delegate-proxy.",
+    help="Use web activation. Mutually exclusive with --myproxy.",
 )
 @click.option(
     "--no-browser",
@@ -32,7 +32,7 @@ from globus_cli.termio import display
     "--myproxy",
     is_flag=True,
     default=False,
-    help="Use myproxy activation. Mutually exclusive with --web and --delegate-proxy.",
+    help="Use myproxy activation. Mutually exclusive with --web.",
 )
 @click.option(
     "--myproxy-username",
@@ -51,24 +51,6 @@ from globus_cli.termio import display
     ),
 )
 @click.option(
-    "--delegate-proxy",
-    metavar="X.509_PEM_FILE",
-    help=(
-        "Use delegate proxy activation, takes an X.509 "
-        "certificate in pem format as an argument. Mutually "
-        "exclusive with --web and --myproxy."
-    ),
-)
-@click.option(
-    "--proxy-lifetime",
-    type=int,
-    default=None,
-    help=(
-        "Set a lifetime in hours for the proxy generated with "
-        "--delegate-proxy. [default: 12]"
-    ),
-)
-@click.option(
     "--no-autoactivate",
     is_flag=True,
     default=False,
@@ -83,7 +65,7 @@ from globus_cli.termio import display
     default=False,
     help="Force activation even if endpoint is already activated.",
 )
-@mutex_option_group("--web", "--myproxy", "--delegate-proxy")
+@mutex_option_group("--web", "--myproxy")
 @LoginManager.requires_login("transfer")
 def endpoint_activate(
     login_manager: LoginManager,
@@ -95,15 +77,13 @@ def endpoint_activate(
     myproxy_lifetime: int | None,
     web: bool,
     no_browser: bool,
-    delegate_proxy: str | None,
-    proxy_lifetime: int | None,
     no_autoactivate: bool,
     force: bool,
 ) -> None:
     """
     Activate an endpoint using Autoactivation, Myproxy, Delegate Proxy,
     or Web activation.
-    Note that --web, --delegate-proxy, and --myproxy activation are mutually
+    Note that --web and --myproxy activation are mutually
     exclusive options.
 
     \b
@@ -130,28 +110,13 @@ def endpoint_activate(
     prompted to hide your inputs and keep your password out of your
     command history, but you may pass your password with the hidden
     --myproxy-password or -P options.
-
-    \b
-    To use Delegate Proxy activation use the --delegate-proxy option with a
-    file containing an X.509 certificate as an argument (e.g. an X.509
-    gotten from the myproxy-logon command). This certificate must
-    be a valid credential or proxy credential for the user from an identity
-    provider accepted by the endpoint being activated, and the endpoint must be
-    configured with a gridmap that will match the globus user using this
-    command with the local user the certificate was made to. Note if the X.509
-    is valid, but the endpoint does not recognize the identity provider or the
-    user the error will not be detected until the user attempts to perform an
-    operation on the endpoint.
     """
-    from globus_cli.services.transfer import (
-        activation_requirements_help_text,
-        fill_delegate_proxy_activation_requirements,
-    )
+    from globus_cli.services.transfer import activation_requirements_help_text
 
     transfer_client = login_manager.get_transfer_client()
 
     # validate options
-    if no_autoactivate and not (myproxy or web or delegate_proxy):
+    if no_autoactivate and not (myproxy or web):
         raise click.UsageError(
             "--no-autoactivate requires another activation method be given."
         )
@@ -166,8 +131,6 @@ def endpoint_activate(
         raise click.UsageError("--myproxy-lifetime requires --myproxy.")
     if no_browser and not web:
         raise click.UsageError("--no-browser requires --web.")
-    if proxy_lifetime and not delegate_proxy:
-        raise click.UsageError("--proxy-lifetime requires --delegate-proxy.")
 
     # check if endpoint is already activated unless --force
     if not force:
@@ -260,18 +223,6 @@ def endpoint_activate(
         else:
             webbrowser.open(url, new=1)
             res = {"message": "Browser opened to web activation page", "url": url}
-
-    # delegate proxy activation
-    elif delegate_proxy:
-        requirements_data = transfer_client.endpoint_get_activation_requirements(
-            endpoint_id
-        ).data
-        filled_requirements_data = fill_delegate_proxy_activation_requirements(
-            requirements_data, delegate_proxy, lifetime_hours=proxy_lifetime or 12
-        )
-        res = transfer_client.endpoint_activate(
-            endpoint_id, requirements_data=filled_requirements_data
-        )
 
     # output
     display(res, text_mode=display.RAW, response_key="message")

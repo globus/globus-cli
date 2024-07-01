@@ -1,4 +1,13 @@
-def supported_activation_methods(res):
+from __future__ import annotations
+
+import uuid
+
+import globus_sdk
+
+
+def supported_activation_methods(
+    res: globus_sdk.GlobusHTTPResponse,
+) -> list[str]:
     """
     Given an activation_requirements document
     returns a list of activation methods supported by this endpoint.
@@ -18,14 +27,12 @@ def supported_activation_methods(res):
         ):
             supported.append("myproxy")
 
-        # delegate_proxy
-        if req["type"] == "delegate_proxy" and req["name"] == "public_key":
-            supported.append("delegate_proxy")
-
     return supported
 
 
-def activation_requirements_help_text(res, ep_id):
+def activation_requirements_help_text(
+    res: globus_sdk.GlobusHTTPResponse, ep_id: str | uuid.UUID
+) -> str:
     """
     Given an activation requirements document and an endpoint_id
     returns a string of help text for how to activate the endpoint
@@ -52,20 +59,6 @@ def activation_requirements_help_text(res, ep_id):
             "For oauth activation use web activation:\n"
             "'globus endpoint activate --web {}'\n".format(ep_id)
             if "oauth" in methods
-            else ""
-        ),
-        (
-            "For delegate proxy activation use:\n"
-            "'globus endpoint activate --delegate-proxy "
-            "X.509_PEM_FILE {}'\n".format(ep_id)
-            if "delegate_proxy" in methods
-            else ""
-        ),
-        (
-            "Delegate proxy activation requires an additional dependency on "
-            "cryptography. See the docs for details:\n"
-            "https://docs.globus.org/cli/reference/endpoint_activate/\n"
-            if "delegate_proxy" in methods
             else ""
         ),
     ]
