@@ -4,10 +4,12 @@ import typing as t
 import uuid
 
 import click
+from globus_sdk.paging import Paginator
 
 from globus_cli.login_manager import LoginManager
 from globus_cli.parsing import command, endpoint_id_arg
 from globus_cli.termio import Field, display, formatters
+from globus_cli.utils import PagingWrapper
 
 
 class ChoiceSlugified(click.Choice):
@@ -82,6 +84,14 @@ created-by-me:
         "the ID of the Mapped Collection"
     ),
 )
+@click.option(
+    "--limit",
+    default=25,
+    show_default=True,
+    metavar="N",
+    type=click.IntRange(1),
+    help="The maximum number of results to return.",
+)
 @LoginManager.requires_login("auth", "transfer")
 def collection_list(
     login_manager: LoginManager,
@@ -95,6 +105,7 @@ def collection_list(
         ...,
     ],
     mapped_collection_id: uuid.UUID | None,
+    limit: int,
 ) -> None:
     """
     List the Collections on a given Globus Connect Server v5 Endpoint
@@ -109,9 +120,15 @@ def collection_list(
         params["filter"] = ",".join(filters)
     if include_private_policies:
         params["include"] = "private_policies"
-    res = gcs_client.get_collection_list(**params)
+
+    paginator = Paginator.wrap(gcs_client.get_collection_list)
+    paginated_call = paginator(**params)
+    paging_wrapper = PagingWrapper(
+        paginated_call.items(), json_conversion_key="DATA", limit=limit
+    )
+
     display(
-        res,
+        paging_wrapper,
         text_mode=display.TABLE,
         fields=[
             Field("ID", "id"),
@@ -124,4 +141,5 @@ def collection_list(
             Field("Collection Type", "collection_type"),
             Field("Storage Gateway ID", "storage_gateway_id"),
         ],
+        json_converter=paging_wrapper.json_converter,
     )

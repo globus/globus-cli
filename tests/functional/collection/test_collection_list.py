@@ -30,6 +30,16 @@ def test_collection_list(run_line, add_gcs_login, base_command):
         assert name in result.stdout
 
 
+def test_collection_list_limit(run_line, add_gcs_login, base_command):
+    meta = load_response_set("cli.collection_operations").metadata
+    epid = meta["endpoint_id"]
+    add_gcs_login(epid)
+    result = run_line(f"{base_command} {epid} --limit 1")
+    lines = result.stdout.splitlines()
+    assert len(lines) == 3  # header + 1 collection
+    assert "Happy Fun Collection Name 1" in lines[2]
+
+
 def test_collection_list_opts(run_line, add_gcs_login, base_command):
     meta = load_response_set("cli.collection_operations").metadata
     epid = meta["endpoint_id"]
