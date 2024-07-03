@@ -286,6 +286,47 @@ gcs:
             "authentication_assurance_timeout": 15840,
             "authentication_timeout_mins": 15840,
           },
+        ],
+        "has_next_page": true,
+        "marker": "there"
+      }
+  - path: /collections
+    method: get
+    query_params:
+      marker: "there"
+    json:
+      {
+        "DATA_TYPE": "result#1.0.0",
+        "code": "success",
+        "detail": "success",
+        "http_response_code": 200,
+        "data": [
+          {
+            "DATA_TYPE": "collection#1.0.0",
+            "public": True,
+            "id": "1405823f-0597-4a16-b296-46d4f0ae4b15",
+            "display_name": "Happy Fun Collection Name 1",
+            "identity_id": "e926d510-cb98-11e5-a6ac-0b0216052512",
+            "collection_type": "mapped",
+            "storage_gateway_id": "6ebdbaa3-9c60-4637-9d26-1bcfa3921f6b",
+            "require_high_assurance": false,
+            "high_assurance": false,
+            "authentication_assurance_timeout": 15840,
+            "authentication_timeout_mins": 15840,
+          },
+          {
+            "DATA_TYPE": "collection#1.0.0",
+            "public": True,
+            "id": "0ff9d369-0c8b-4405-93c1-a6ce04ebe946",
+            "display_name": "Happy Fun Collection Name 2",
+            "identity_id": "e926d510-cb98-11e5-a6ac-0b0216052512",
+            "collection_type": "mapped",
+            "storage_gateway_id": "678239fa-1678-4687-b749-5e045c5506b7",
+            "require_high_assurance": false,
+            "high_assurance": false,
+            "authentication_assurance_timeout": 15840,
+            "authentication_timeout_mins": 15840,
+          },
         ]
       }
   - path: /collections/0e4a77f8-b778-4d5c-abaa-e1254e71427f
