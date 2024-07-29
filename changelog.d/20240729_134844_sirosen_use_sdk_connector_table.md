@@ -1,4 +1,4 @@
 ### Bugfixes
 
-* Connector ID to name rendering has been fixed for the Dropbox and HPSS
-  storage connectors
+* Fix rendering of connector names by connector ID for the Dropbox and HPSS
+  storage connectors.
