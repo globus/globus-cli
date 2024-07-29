@@ -2,10 +2,7 @@ import uuid
 
 import pytest
 
-from globus_cli.services.gcs import (
-    connector_display_name_to_id,
-    connector_id_to_display_name,
-)
+from globus_cli.services.gcs import ConnectorIdFormatter
 
 
 @pytest.mark.parametrize(
@@ -24,16 +21,10 @@ from globus_cli.services.gcs import (
         ("e47b6920-ff57-11ea-8aaa-000c297ab3c2", "iRODS"),
     ],
 )
-def test_connector_id_name_methods_are_inverses(connector_id, connector_name):
-    assert connector_display_name_to_id(connector_name) == connector_id
-    assert connector_id_to_display_name(connector_id) == connector_name
+def test_connector_id_to_name_formatting(connector_id, connector_name):
+    assert ConnectorIdFormatter().format(connector_id) == connector_name
 
 
 def test_name_of_unknown_connector_id():
     fake_id = str(uuid.UUID(int=0))
-    assert connector_id_to_display_name(fake_id) == f"UNKNOWN ({fake_id})"
-
-
-def test_id_of_unknown_connector_name():
-    fake_name = "foo-invalid"
-    assert connector_display_name_to_id(fake_name) is None
+    assert ConnectorIdFormatter().format(fake_id) == f"UNKNOWN ({fake_id})"
