@@ -55,16 +55,6 @@ e.g. '1h30m', '500s', '10d'
 """
 
 
-def resolve_optional_local_time(
-    start: datetime.datetime | None,
-) -> datetime.datetime | globus_sdk.utils.MissingType:
-    if start is None:
-        return globus_sdk.MISSING
-    # set the timezone to local system time if the timezone input is not aware
-    start_with_tz = start.astimezone() if start.tzinfo is None else start
-    return start_with_tz
-
-
 @command("transfer", short_help="Create a recurring transfer timer.")
 @click.argument(
     "source", metavar="SOURCE_ENDPOINT_ID[:SOURCE_PATH]", type=ENDPOINT_PLUS_OPTPATH
@@ -108,6 +98,15 @@ def resolve_optional_local_time(
     help="Stop running the transfer after this number of runs have happened.",
 )
 @mutex_option_group("--stop-after-date", "--stop-after-runs")
+@click.option(
+    "--delete",
+    is_flag=True,
+    default=False,
+    help=(
+        "Delete extraneous files in the destination directory. "
+        "Only applies to recursive directory transfers."
+    ),
+)
 @LoginManager.requires_login("auth", "timer", "transfer")
 def transfer_command(
     login_manager: LoginManager,
@@ -122,6 +121,7 @@ def transfer_command(
     label: str | None,
     stop_after_date: datetime.datetime | None,
     stop_after_runs: int | None,
+    delete: bool,
     sync_level: t.Literal["exists", "size", "mtime", "checksum"] | None,
     encrypt_data: bool,
     verify_checksum: bool,
@@ -174,13 +174,18 @@ def transfer_command(
     source_endpoint, cmd_source_path = source
     dest_endpoint, cmd_dest_path = destination
 
-    # avoid 'mutex_option_group', emit a custom error message
-    if recursive is not None and batch:
-        option_name = "--recursive" if recursive else "--no-recursive"
-        raise click.UsageError(
-            f"You cannot use {option_name} in addition to --batch. "
-            f"Instead, use {option_name} on lines of --batch input which need it."
-        )
+    if recursive is not None:
+        if batch:
+            # avoid 'mutex_option_group', emit a custom error message
+            option_name = "--recursive" if recursive else "--no-recursive"
+            raise click.UsageError(
+                f"You cannot use {option_name} in addition to --batch. "
+                f"Instead, use {option_name} on lines of --batch input which need it."
+            )
+
+        if delete and not recursive:
+            msg = "The --delete option cannot be specified with --no-recursion."
+            raise click.UsageError(msg)
     if (cmd_source_path is None or cmd_dest_path is None) and (not batch):
         raise click.UsageError(
             "transfer requires either SOURCE_PATH and DEST_PATH or --batch"
@@ -273,6 +278,7 @@ def transfer_command(
         encrypt_data=encrypt_data,
         skip_source_errors=skip_source_errors,
         fail_on_quota_errors=fail_on_quota_errors,
+        delete_destination_extra=delete,
         # mypy can't understand kwargs expansion very well
         **notify,  # type: ignore[arg-type]
     )
@@ -294,6 +300,16 @@ def transfer_command(
     body = globus_sdk.TransferTimer(name=name, schedule=schedule, body=transfer_data)
     response = timer_client.create_timer(body)
     display(response["timer"], text_mode=display.RECORD, fields=FORMAT_FIELDS)
+
+
+def resolve_optional_local_time(
+    start: datetime.datetime | None,
+) -> datetime.datetime | globus_sdk.utils.MissingType:
+    if start is None:
+        return globus_sdk.MISSING
+    # set the timezone to local system time if the timezone input is not aware
+    start_with_tz = start.astimezone() if start.tzinfo is None else start
+    return start_with_tz
 
 
 def _derive_needed_scopes(

@@ -498,3 +498,33 @@ def test_timer_creation_errors_on_data_access_with_client_creds(
 
     req = get_last_request()
     assert req.url.startswith("https://timer")
+
+
+@pytest.mark.parametrize(
+    "deletion_option,recursion_option,expected_error",
+    (
+        ("--delete", "--recursive", ""),
+        ("--delete", "", ""),
+        (
+            "--delete",
+            "--no-recursive",
+            "The --delete option cannot be specified with --no-recursion.",
+        ),
+    ),
+)
+def test_timer_creation_delete_flag_requires_recursion(
+    run_line,
+    client_login,
+    ep_for_timer,
+    deletion_option,
+    recursion_option,
+    expected_error,
+):
+    base_cmd = f"globus timer create transfer {ep_for_timer}:/foo/ {ep_for_timer}:/bar/"
+    options_list = ("--interval 60m", deletion_option, recursion_option)
+    options = " ".join(op for op in options_list if op is not None)
+
+    exit_code = 0 if not expected_error else 2
+    resp = run_line(f"{base_cmd} {options}", assert_exit_code=exit_code)
+
+    assert expected_error in resp.stderr
