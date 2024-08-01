@@ -141,8 +141,8 @@ fi
     is_flag=True,
     default=False,
     help=(
-        "Delete extraneous files in the destination directory. "
-        "Only applies to recursive directory transfers."
+        "Delete any files in the destination directory not contained in the source. "
+        'This results in "directory mirroring." Only valid on recursive transfers.'
     ),
 )
 @click.option(
