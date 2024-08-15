@@ -52,3 +52,8 @@ def test_index_delete(run_line):
         f"globus search index delete {index_id}",
         search_stdout=f"Index {index_id} is now marked for deletion.",
     )
+
+
+def test_index_delete_rejects_empty_str(run_line):
+    result = run_line(["globus", "search", "index", "delete", ""], assert_exit_code=2)
+    assert "Invalid value for 'INDEX_ID'" in result.stderr
