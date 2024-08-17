@@ -70,7 +70,7 @@ def test_login_gcs_different_identity(
     identity is prevented. The user is instructed to logout, which should correctly
     remove the `sub` in config storage (which is what originally raises that error).
     """
-    load_response_set("cli.user_info_logout")
+    load_response_set("cli.logout")
     store_well_known_config(
         "auth_user_data", {"sub": str(uuid.UUID(int=0))}, adapter=test_token_storage
     )

@@ -54,8 +54,14 @@ flow.
     is_flag=True,
     default=False,
 )
+@click.option("--delete-client", is_flag=True, hidden=True)
 @LoginManager.requires_login()
-def logout_command(login_manager: LoginManager, *, ignore_errors: bool) -> None:
+def logout_command(
+    login_manager: LoginManager,
+    *,
+    ignore_errors: bool,
+    delete_client: bool,
+) -> None:
     """
     Logout of the Globus CLI
 
@@ -89,10 +95,15 @@ def logout_command(login_manager: LoginManager, *, ignore_errors: bool) -> None:
             "Logging out of Globus{}\n".format(" as " + username if username else "")
         )
 
-    # first, try to delete the templated credentialed client
-    # ignore failure (maybe creds are already invalidated or the client was deleted)
-    # client logins don't do this as they don't use a templated client
-    if not is_client_login():
+    # By default, preserve the templated client to avoid revocation of associated
+    # consents (which can cause refresh token revocation, causing resources
+    # associated with those tokens to become inoperable)
+    # If the user has specifically requested a client deletion via hidden option,
+    # then try to delete the templated credentialed client
+    # ignoring failure by default (maybe creds are already invalidated or the
+    # client was deleted)
+    # Always skip for client logins, which don't use a templated client
+    if delete_client and not is_client_login():
         try:
             delete_templated_client()
         except globus_sdk.AuthAPIError:
@@ -108,13 +119,9 @@ def logout_command(login_manager: LoginManager, *, ignore_errors: bool) -> None:
                     "Continuing... (--ignore-errors)",
                 )
 
-    # because the client was deleted above, the tokens should all be revoked
-    # but it could have been the `--ignore-errors` case, so take a shot at revoking
-    # tokens
-    # use the native client for this purpose so that we definitely have a valid API
-    # client in this case
+    # Attempt to revoke all tokens in storage; use the internal native client to ensure
+    # we have a valid Auth client
     native_client = internal_native_client()
-
     adapter = token_storage_adapter()
 
     for rs, tokendata in adapter.get_by_resource_server().items():
