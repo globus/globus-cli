@@ -43,11 +43,6 @@ def list_commands() -> None:
     """
     Prints the name and a short description of every command available in the globus
     cli. Commands are grouped by their parent commands,
-    e.g. 'globus endpoint activate' is listed as 'activate' under 'globus endpoint'.
-
-    Note that commands with the same listed name under different parent commands
-    are distinct. e.g. 'globus task update' is a distinct command from
-    'globus endpoint update'.
     """
     # get the root context (the click context for the entire CLI tree)
     root_ctx = click.get_current_context().find_root()

@@ -112,11 +112,9 @@ def task_submission_options(f: C) -> C:
         callback=format_deadline_callback,
         help="Set a deadline for this to be canceled if not completed by.",
     )(f)
-    f = click.option(
-        "--skip-activation-check",
-        is_flag=True,
-        help="Submit the task even if the endpoint(s) aren't currently activated.",
-    )(f)
+    # deprecated -- this will be removed in a future release, as 'activation' as a
+    # concept has been removed from the ecosystem
+    f = click.option("--skip-activation-check", is_flag=True, hidden=True)(f)
 
     return f
 

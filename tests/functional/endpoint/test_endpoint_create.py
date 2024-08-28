@@ -23,7 +23,6 @@ def test_shared_creation(run_line, go_ep1_id):
     Runs endpoint create with --shared and a host path
     Confirms shared endpoint is created successfully
     """
-    load_response_set("cli.transfer_activate_success")
     load_response_set("cli.endpoint_operations")
     result = run_line(
         "globus endpoint create share_create "
@@ -95,8 +94,6 @@ def test_general_options(run_line, ep_type, type_opts, go_ep1_id):
         load_response_set("cli.gcp_create")
     else:
         load_response_set("cli.endpoint_operations")
-    if ep_type == "share":
-        load_response_set("cli.transfer_activate_success")
 
     # options with option value and expected value
     # if expected value is not set, it will be copied from the option value

@@ -31,7 +31,6 @@ def test_recursive(run_line, go_ep1_id):
     Makes a dir on ep1, then --recursive rm's it.
     Confirms delete task was successful.
     """
-    load_response_set("cli.transfer_activate_success")
     load_response_set("cli.get_submission_id")
     load_response_set("cli.submit_delete_success")
 
@@ -44,7 +43,6 @@ def test_no_file(run_line, go_ep1_id):
     """
     Attempts to remove a non-existent file. Confirms exit code 1.
     """
-    load_response_set("cli.transfer_activate_success")
     load_response_set("cli.get_submission_id")
     load_response_set("cli.submit_delete_failed")
 
@@ -61,7 +59,6 @@ def test_ignore_missing(run_line, go_ep1_id):
     Attempts to remove a non-existent file path, with --ignore-missing.
     Confirms exit code 0 and silent output.
     """
-    load_response_set("cli.transfer_activate_success")
     load_response_set("cli.get_submission_id")
     load_response_set("cli.submit_delete_success")
 
@@ -78,7 +75,6 @@ def test_timeout(run_line, go_ep1_id):
     """
     If a task is retrying without success, `rm` should wait and eventually time out.
     """
-    load_response_set("cli.transfer_activate_success")
     load_response_set("cli.get_submission_id")
     load_response_set("cli.submit_delete_queued")
 
@@ -95,7 +91,6 @@ def test_timeout_explicit_status(run_line, go_ep1_id):
     Confirms rm exits STATUS after given timeout, where
     STATUS is set via the --timeout-exit-code opt
     """
-    load_response_set("cli.transfer_activate_success")
     load_response_set("cli.get_submission_id")
     load_response_set("cli.submit_delete_queued")
 

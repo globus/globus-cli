@@ -12,7 +12,6 @@ def test_filter_rules(run_line, go_ep1_id, go_ep2_id):
     """
     # put a submission ID and autoactivate response in place
     load_response_set("cli.get_submission_id")
-    load_response_set("cli.transfer_activate_success")
 
     result = run_line(
         "globus transfer -F json --dry-run -r "
@@ -183,7 +182,6 @@ def test_transfer_recursive_options(run_line, go_ep1_id, go_ep2_id, tmp_path):
 
 @pytest.mark.parametrize("option", ("", "--recursive", "--no-recursive"))
 def test_recursion_options_in_batch_input(run_line, go_ep1_id, go_ep2_id, option):
-    load_response_set("cli.transfer_activate_success")
     load_response(globus_sdk.TransferClient.submit_transfer)
     load_response(globus_sdk.TransferClient.get_submission_id)
 

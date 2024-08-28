@@ -12,7 +12,6 @@ STANDARD_FIELDS = [
     Field("ID", "id"),
     Field("Owner", "owner_string"),
     Field("Description", "description", wrap_enabled=True),
-    Field("Activated", "activated"),
     Field("Shareable", "shareable"),
     Field("Department", "department"),
     Field("Keywords", "keywords"),

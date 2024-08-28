@@ -1,9 +1,8 @@
-import os
+import uuid
 
 
-def test_webapp_url_in_endpoint_activation_is_env_sensitive(
-    run_line, monkeypatch, go_ep1_id
-):
+def test_endpoint_activate_warns_of_removal(run_line):
+    epid = str(uuid.UUID(int=1))
     command = [
         "globus",
         "endpoint",
@@ -12,11 +11,7 @@ def test_webapp_url_in_endpoint_activation_is_env_sensitive(
         "--no-browser",
         "--force",
         "--no-autoactivate",
-        go_ep1_id,
+        epid,
     ]
     result = run_line(command)
-    assert "https://app.globus.org/file-manager" in result.output
-
-    monkeypatch.setitem(os.environ, "GLOBUS_SDK_ENVIRONMENT", "preview")
-    result = run_line(command)
-    assert "https://app.preview.globus.org/file-manager" in result.output
+    assert "removed in a future release" in result.stderr

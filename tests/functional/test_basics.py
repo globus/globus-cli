@@ -70,8 +70,7 @@ def test_transfer_call(run_line):
     Runs ls using test transfer refresh token to confirm
     test transfer refresh token is live and configured correctly
     """
-    meta = load_response_set("cli.transfer_activate_success").metadata
-    epid = meta["endpoint_id"]
+    epid = str(uuid.UUID(int=1))
     load_response(
         RegisteredResponse(
             service="transfer",
@@ -109,9 +108,8 @@ def test_transfer_batch_stdin_dryrun(run_line, go_ep1_id, go_ep2_id, output_form
     """
     Dry-runs a transfer in batchmode, confirms batchmode inputs received.
     """
-    # put a submission ID and autoactivate response in place
+    # put a submission ID response in place
     load_response_set("cli.get_submission_id")
-    load_response_set("cli.transfer_activate_success")
 
     batch_input = "abc /def\n/xyz p/q/r\n"
     result = run_line(
@@ -131,9 +129,8 @@ def test_transfer_batch_stdin_dryrun(run_line, go_ep1_id, go_ep2_id, output_form
 
 
 def test_transfer_batch_file_dryrun(run_line, go_ep1_id, go_ep2_id, tmp_path):
-    # put a submission ID and autoactivate response in place
+    # put a submission ID response in place
     load_response_set("cli.get_submission_id")
-    load_response_set("cli.transfer_activate_success")
     temp = tmp_path / "batch"
     temp.write_text("abc /def\n/xyz p/q/r\n")
     result = run_line(
@@ -158,9 +155,8 @@ def test_delete_batchmode_dryrun(run_line, go_ep1_id):
     """
     Dry-runs a delete in batchmode.
     """
-    # put a submission ID and autoactivate response in place
+    # put a submission ID response in place
     load_response_set("cli.get_submission_id")
-    load_response_set("cli.transfer_activate_success")
 
     batch_input = "abc/def\n/xyz\nabcdef\nabc/def/../xyz\n"
     result = run_line(

@@ -1,7 +1,7 @@
 import uuid
 
 import pytest
-from globus_sdk._testing import RegisteredResponse, load_response_set
+from globus_sdk._testing import RegisteredResponse
 
 
 @pytest.mark.parametrize("num_policies", (1, 3))
@@ -10,8 +10,7 @@ def test_session_required_policies(run_line, num_policies):
     confirms a correct `globus session update` command is shown in helptext
     after hitting a 403 with session_required_policies set
     """
-    meta = load_response_set("cli.transfer_activate_success").metadata
-    ep_id = meta["endpoint_id"]
+    ep_id = str(uuid.UUID(int=1))
     policies = ",".join(str(uuid.uuid4()) for _ in range(num_policies))
 
     RegisteredResponse(

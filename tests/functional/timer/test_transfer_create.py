@@ -134,14 +134,6 @@ def make_non_ha_mapped_collection():
             },
         )
     )
-    load_response(
-        RegisteredResponse(
-            path=f"/endpoint/{mapped_collection_id}/autoactivate",
-            service="transfer",
-            method="POST",
-            json={"code": "Activated.BogusCode"},
-        )
-    )
     return mapped_collection_id
 
 
@@ -156,14 +148,6 @@ def ep_for_timer():
     load_response(globus_sdk.TransferClient.get_submission_id)
     ep_meta = load_response(globus_sdk.TransferClient.get_endpoint).metadata
     ep_id = ep_meta["endpoint_id"]
-    load_response(
-        RegisteredResponse(
-            path=f"/endpoint/{ep_id}/autoactivate",
-            service="transfer",
-            method="POST",
-            json={"code": "Activated.BogusCode"},
-        )
-    )
     return ep_id
 
 
