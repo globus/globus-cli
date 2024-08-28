@@ -11,7 +11,6 @@ def endpoint_deactivate(*, endpoint_id: uuid.UUID) -> None:
     """
     Deactivate an endpoint.
 
-
     Endpoint Activation has been removed from the Globus ecosystem. This command
     no longer does anything.
     """

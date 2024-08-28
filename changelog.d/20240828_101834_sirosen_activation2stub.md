@@ -1,6 +1,6 @@
 ### Other
 
-* The CLI has removed remaining support for activation.
+* The CLI has removed remaining support for endpoint activation.
 
   * Activation commands such as `globus endpoint is-activated` are already
     hidden, but now act as no-ops when invoked and emit warnings to stderr

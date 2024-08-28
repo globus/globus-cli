@@ -42,7 +42,7 @@ def _print_tree(
 def list_commands() -> None:
     """
     Prints the name and a short description of every command available in the globus
-    cli. Commands are grouped by their parent commands,
+    cli. Commands are grouped by their parent commands.
     """
     # get the root context (the click context for the entire CLI tree)
     root_ctx = click.get_current_context().find_root()
