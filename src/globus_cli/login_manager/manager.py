@@ -38,7 +38,7 @@ from .utils import get_current_identity_id, is_remote_session
 
 # TODO: remove this after an SDK release provides TimersScopes
 try:
-    from globus_sdk.scopes import TimersScopes
+    from globus_sdk.scopes import TimersScopes  # type: ignore[attr-defined]
 except ImportError:
     from globus_sdk.scopes import TimerScopes as TimersScopes
 

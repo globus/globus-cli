@@ -14,7 +14,7 @@ from globus_sdk.scopes import (
 
 # TODO: remove this after an SDK release provides TimersScopes
 try:
-    from globus_sdk.scopes import TimersScopes
+    from globus_sdk.scopes import TimersScopes  # type: ignore[attr-defined]
 except ImportError:
     from globus_sdk.scopes import TimerScopes as TimersScopes
 
@@ -37,7 +37,7 @@ def compute_timer_scope(
     transfer_ap_scope = MutableScope(TRANSFER_AP_SCOPE_STR)
     transfer_ap_scope.add_dependency(transfer_scope)
 
-    timer_scope = TimersScopes.make_mutable("timer")
+    timer_scope: MutableScope = TimersScopes.make_mutable("timer")
     timer_scope.add_dependency(transfer_ap_scope)
     return timer_scope
 
