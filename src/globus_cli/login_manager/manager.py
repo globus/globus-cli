@@ -17,7 +17,6 @@ from globus_sdk.scopes import (
     GroupsScopes,
     MutableScope,
     SearchScopes,
-    TimerScopes,
     TransferScopes,
 )
 
@@ -36,6 +35,12 @@ from .tokenstore import (
     token_storage_adapter,
 )
 from .utils import get_current_identity_id, is_remote_session
+
+# TODO: remove this after an SDK release provides TimersScopes
+try:
+    from globus_sdk.scopes import TimersScopes
+except ImportError:
+    from globus_sdk.scopes import TimerScopes as TimersScopes
 
 if t.TYPE_CHECKING:
     from ..services.auth import CustomAuthClient
@@ -371,7 +376,7 @@ class LoginManager:
         return globus_sdk.SearchClient(authorizer=authorizer, app_name=version.app_name)
 
     def get_timer_client(self) -> globus_sdk.TimerClient:
-        authorizer = self._get_client_authorizer(TimerScopes.resource_server)
+        authorizer = self._get_client_authorizer(TimersScopes.resource_server)
         return globus_sdk.TimerClient(authorizer=authorizer, app_name=version.app_name)
 
     def _get_gcs_info(

@@ -14,12 +14,17 @@ import pytest
 import responses
 from click.testing import CliRunner
 from globus_sdk._testing import register_response_set
-from globus_sdk.scopes import TimerScopes
 from globus_sdk.transport import RequestsTransport
 from ruamel.yaml import YAML
 
 import globus_cli
 from globus_cli.login_manager.tokenstore import build_storage_adapter
+
+# TODO: remove this after an SDK release provides TimersScopes
+try:
+    from globus_sdk.scopes import TimersScopes
+except ImportError:
+    from globus_sdk.scopes import TimerScopes as TimersScopes
 
 yaml = YAML()
 log = logging.getLogger(__name__)
@@ -109,8 +114,8 @@ def mock_login_token_response():
         "search.api.globus.org": _mock_token_response_data(
             "search.api.globus.org", "urn:globus:auth:scope:search.api.globus.org:all"
         ),
-        TimerScopes.resource_server: _mock_token_response_data(
-            TimerScopes.resource_server, TimerScopes.timer
+        TimersScopes.resource_server: _mock_token_response_data(
+            TimersScopes.resource_server, TimersScopes.timer
         ),
         "flows.globus.org": _mock_token_response_data(
             "flows.globus.org",

@@ -9,9 +9,14 @@ from globus_sdk.scopes import (
     GroupsScopes,
     MutableScope,
     SearchScopes,
-    TimerScopes,
     TransferScopes,
 )
+
+# TODO: remove this after an SDK release provides TimersScopes
+try:
+    from globus_sdk.scopes import TimersScopes
+except ImportError:
+    from globus_sdk.scopes import TimerScopes as TimersScopes
 
 from globus_cli.types import ServiceNameLiteral
 
@@ -32,7 +37,7 @@ def compute_timer_scope(
     transfer_ap_scope = MutableScope(TRANSFER_AP_SCOPE_STR)
     transfer_ap_scope.add_dependency(transfer_scope)
 
-    timer_scope = TimerScopes.make_mutable("timer")
+    timer_scope = TimersScopes.make_mutable("timer")
     timer_scope.add_dependency(transfer_ap_scope)
     return timer_scope
 
@@ -88,7 +93,7 @@ class _CLIScopeRequirements(t.Dict[ServiceNameLiteral, _ServiceRequirement]):
         }
         self["timer"] = {
             "min_contract_version": 1,
-            "resource_server": TimerScopes.resource_server,
+            "resource_server": TimersScopes.resource_server,
             "nice_server_name": "Globus Timers",
             "scopes": [
                 TIMER_SCOPE_WITH_DEPENDENCIES,
