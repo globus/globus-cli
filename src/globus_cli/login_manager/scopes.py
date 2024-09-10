@@ -9,14 +9,9 @@ from globus_sdk.scopes import (
     GroupsScopes,
     MutableScope,
     SearchScopes,
+    TimersScopes,
     TransferScopes,
 )
-
-# TODO: remove this after an SDK release provides TimersScopes
-try:
-    from globus_sdk.scopes import TimersScopes  # type: ignore[attr-defined]
-except ImportError:
-    from globus_sdk.scopes import TimerScopes as TimersScopes
 
 from globus_cli.types import ServiceNameLiteral
 

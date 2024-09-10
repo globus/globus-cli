@@ -17,6 +17,7 @@ from globus_sdk.scopes import (
     GroupsScopes,
     MutableScope,
     SearchScopes,
+    TimersScopes,
     TransferScopes,
 )
 
@@ -35,12 +36,6 @@ from .tokenstore import (
     token_storage_adapter,
 )
 from .utils import get_current_identity_id, is_remote_session
-
-# TODO: remove this after an SDK release provides TimersScopes
-try:
-    from globus_sdk.scopes import TimersScopes  # type: ignore[attr-defined]
-except ImportError:
-    from globus_sdk.scopes import TimerScopes as TimersScopes
 
 if t.TYPE_CHECKING:
     from ..services.auth import CustomAuthClient
