@@ -236,7 +236,7 @@ def test_legacy_delete_and_delete_destination_are_mutex(run_line):
     assert "mutually exclusive" in result.stderr
 
 
-def test_legacy_delete_flag_deprication_warning(run_line):
+def test_legacy_delete_flag_deprecation_warning(run_line):
     ep_id = str(uuid.UUID(int=1))
     result = run_line(
         [
