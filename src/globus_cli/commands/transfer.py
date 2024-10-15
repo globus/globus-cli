@@ -140,11 +140,22 @@ fi
     "--delete",
     is_flag=True,
     default=False,
+    hidden=True,
     help=(
         "Delete any files in the destination directory not contained in the source. "
         'This results in "directory mirroring." Only valid on recursive transfers.'
     ),
 )
+@click.option(
+    "--delete-destination-extra",
+    is_flag=True,
+    default=False,
+    help=(
+        "Delete any files in the destination directory not contained in the source. "
+        'This results in "directory mirroring." Only valid on recursive transfers.'
+    ),
+)
+@mutex_option_group("--delete", "--delete-destination-extra")
 @click.option(
     "--external-checksum",
     help=(
@@ -227,6 +238,7 @@ def transfer_command(
     submission_id: str | None,
     dry_run: bool,
     delete: bool,
+    delete_destination_extra: bool,
     deadline: str | None,
     skip_activation_check: bool,
     notify: dict[str, bool],
@@ -326,6 +338,17 @@ def transfer_command(
     source_endpoint, cmd_source_path = source
     dest_endpoint, cmd_dest_path = destination
 
+    if delete:
+        click.echo(
+            click.style(
+                "`--delete` has been deprecated and "
+                "will be removed in a future release. "
+                "Use --delete-destination-extra instead.",
+                fg="yellow",
+            ),
+            err=True,
+        )
+
     # avoid 'mutex_option_group', emit a custom error message
     if recursive is not None and batch:
         option_name = "--recursive" if recursive else "--no-recursive"
@@ -367,7 +390,7 @@ def transfer_command(
         skip_source_errors=skip_source_errors,
         fail_on_quota_errors=fail_on_quota_errors,
         skip_activation_check=skip_activation_check,
-        delete_destination_extra=delete,
+        delete_destination_extra=(delete or delete_destination_extra),
         source_local_user=source_local_user,
         destination_local_user=destination_local_user,
         additional_fields={**perf_opts, **notify},

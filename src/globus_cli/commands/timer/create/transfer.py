@@ -102,11 +102,22 @@ e.g. '1h30m', '500s', '10d'
     "--delete",
     is_flag=True,
     default=False,
+    hidden=True,
     help=(
         "Delete any files in the destination directory not contained in the source. "
         'This results in "directory mirroring." Only valid on recursive transfers.'
     ),
 )
+@click.option(
+    "--delete-destination-extra",
+    is_flag=True,
+    default=False,
+    help=(
+        "Delete any files in the destination directory not contained in the source. "
+        'This results in "directory mirroring." Only valid on recursive transfers.'
+    ),
+)
+@mutex_option_group("--delete", "--delete-destination-extra")
 @LoginManager.requires_login("auth", "timer", "transfer")
 def transfer_command(
     login_manager: LoginManager,
@@ -122,6 +133,7 @@ def transfer_command(
     stop_after_date: datetime.datetime | None,
     stop_after_runs: int | None,
     delete: bool,
+    delete_destination_extra: bool,
     sync_level: t.Literal["exists", "size", "mtime", "checksum"] | None,
     encrypt_data: bool,
     verify_checksum: bool,
@@ -174,6 +186,17 @@ def transfer_command(
     source_endpoint, cmd_source_path = source
     dest_endpoint, cmd_dest_path = destination
 
+    if delete:
+        click.echo(
+            click.style(
+                "`--delete` has been deprecated and "
+                "will be removed in a future release. "
+                "Use --delete-destination-extra instead.",
+                fg="yellow",
+            ),
+            err=True,
+        )
+
     if recursive is not None:
         if batch:
             # avoid 'mutex_option_group', emit a custom error message
@@ -186,6 +209,13 @@ def transfer_command(
         if delete and not recursive:
             msg = "The --delete option cannot be specified with --no-recursion."
             raise click.UsageError(msg)
+        if delete_destination_extra and not recursive:
+            msg = (
+                "The --delete-destination-extra option cannot be specified with "
+                "--no-recursion."
+            )
+            raise click.UsageError(msg)
+
     if (cmd_source_path is None or cmd_dest_path is None) and (not batch):
         raise click.UsageError(
             "transfer requires either SOURCE_PATH and DEST_PATH or --batch"
@@ -278,7 +308,7 @@ def transfer_command(
         encrypt_data=encrypt_data,
         skip_source_errors=skip_source_errors,
         fail_on_quota_errors=fail_on_quota_errors,
-        delete_destination_extra=delete,
+        delete_destination_extra=(delete or delete_destination_extra),
         # mypy can't understand kwargs expansion very well
         **notify,  # type: ignore[arg-type]
     )

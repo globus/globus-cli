@@ -303,6 +303,41 @@ def test_stop_conditions_are_mutex(run_line):
     assert "mutually exclusive" in result.stderr
 
 
+def test_legacy_delete_and_delete_destination_are_mutex(run_line):
+    ep_id = str(uuid.UUID(int=1))
+    result = run_line(
+        [
+            "globus",
+            "timer",
+            "create",
+            "transfer",
+            "--delete",
+            "--delete-destination-extra",
+            f"{ep_id}:/foo/",
+            f"{ep_id}:/bar/",
+        ],
+        assert_exit_code=2,
+    )
+    assert "mutually exclusive" in result.stderr
+
+
+def test_timer_creation_legacy_delete_flag_deprication_warning(run_line):
+    ep_id = str(uuid.UUID(int=1))
+    result = run_line(
+        [
+            "globus",
+            "timer",
+            "create",
+            "transfer",
+            "--delete",
+            f"{ep_id}:/foo/",
+            f"{ep_id}:/bar/",
+        ],
+        assert_exit_code=2,
+    )
+    assert "--delete` has been deprecated" in result.stderr
+
+
 def test_timer_uses_once_schedule_if_stop_after_is_one(run_line, ep_for_timer):
     run_line(
         [
@@ -487,6 +522,16 @@ def test_timer_creation_errors_on_data_access_with_client_creds(
 @pytest.mark.parametrize(
     "deletion_option,recursion_option,expected_error",
     (
+        ("--delete-destination-extra", "--recursive", ""),
+        ("--delete-destination-extra", "", ""),
+        (
+            "--delete-destination-extra",
+            "--no-recursive",
+            (
+                "The --delete-destination-extra option cannot be specified with "
+                "--no-recursion."
+            ),
+        ),
         ("--delete", "--recursive", ""),
         ("--delete", "", ""),
         (

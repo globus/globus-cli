@@ -218,3 +218,34 @@ def test_recursive_and_batch_exclusive(run_line, option):
         assert_exit_code=2,
     )
     assert f"You cannot use {option} in addition to --batch" in result.stderr
+
+
+def test_legacy_delete_and_delete_destination_are_mutex(run_line):
+    ep_id = str(uuid.UUID(int=1))
+    result = run_line(
+        [
+            "globus",
+            "transfer",
+            "--delete",
+            "--delete-destination-extra",
+            ep_id,
+            ep_id,
+        ],
+        assert_exit_code=2,
+    )
+    assert "mutually exclusive" in result.stderr
+
+
+def test_legacy_delete_flag_deprication_warning(run_line):
+    ep_id = str(uuid.UUID(int=1))
+    result = run_line(
+        [
+            "globus",
+            "transfer",
+            "--delete",
+            ep_id,
+            ep_id,
+        ],
+        assert_exit_code=2,
+    )
+    assert "--delete` has been deprecated" in result.stderr
