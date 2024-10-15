@@ -64,6 +64,7 @@ _BASE_GROUP_RECORD_FIELDS = [
         "my_memberships[].role",
         formatter=formatters.SortedArray,
     ),
+    Field("Terms and Conditions", "terms_and_conditions", wrap_enabled=True),
 ]
 GROUP_FIELDS = [Field("Group ID", "id")] + _BASE_GROUP_RECORD_FIELDS
 GROUP_FIELDS_W_SUBSCRIPTION = (

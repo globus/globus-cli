@@ -74,6 +74,7 @@ groups:
         "id": "8b7d57bc-1666-11ec-88b2-f50515619d57",
         "name": "Group 1",
         "description": "The first group.",
+        "terms_and_conditions": null,
         "group_type": "regular",
         "enforce_session": false,
         "my_memberships": [

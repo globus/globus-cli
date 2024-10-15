@@ -7,11 +7,26 @@ from globus_sdk._testing import get_last_request, load_response_set
 @pytest.mark.parametrize(
     "add_args, payload_contains",
     (
-        (["--name", "New Name"], {"name": "New Name"}),
-        (["--description", "New Description"], {"description": "New Description"}),
+        (("--name", "New Name"), {"name": "New Name"}),
+        (("--description", "New Description"), {"description": "New Description"}),
         (
-            ["--name", "New Name", "--description", "New Description"],
-            {"description": "New Description", "name": "New Name"},
+            ("--terms-and-conditions", "New Terms and Conditions"),
+            {"terms_and_conditions": "New Terms and Conditions"},
+        ),
+        (
+            (
+                "--name",
+                "New Name",
+                "--description",
+                "New Description",
+                "--terms-and-conditions",
+                "New Terms and Conditions",
+            ),
+            {
+                "description": "New Description",
+                "name": "New Name",
+                "terms_and_conditions": "New Terms and Conditions",
+            },
         ),
     ),
 )
@@ -28,7 +43,7 @@ def test_group_update(run_line, add_args, payload_contains):
     group1_description = meta["group1_description"]
 
     # update name
-    result = run_line(["globus", "group", "update", group1_id] + add_args)
+    result = run_line(("globus", "group", "update", group1_id) + add_args)
     assert "Group updated successfully" in result.output
 
     # confirm that 'name' and 'description' are both always sent,

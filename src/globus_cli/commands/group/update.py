@@ -15,6 +15,9 @@ from ._common import group_id_arg
 @group_id_arg
 @click.option("--name", help="Name for the group")
 @click.option("--description", help="Description for the group")
+@click.option(
+    "--terms-and-conditions", help="Terms and conditions for group membership"
+)
 @LoginManager.requires_login("groups")
 def group_update(
     login_manager: LoginManager,
@@ -22,6 +25,7 @@ def group_update(
     group_id: uuid.UUID,
     name: str | None,
     description: str | None,
+    terms_and_conditions: str | None,
 ) -> None:
     """Update an existing group."""
     groups_client = login_manager.get_groups_client()
@@ -30,10 +34,14 @@ def group_update(
     group = groups_client.get_group(group_id)
 
     # assemble put data using existing values for any field not given
-    # note that the API does not accept the full group document, so we must
-    # specify name and description instead of just iterating kwargs
+    # note that the API only allows modification of certain fields
+    #   https://groups.api.globus.org/redoc#tag/groups/operation/update_group_v2_groups__group_id__put
     data = {}
-    for attrname, argval in (("name", name), ("description", description)):
+    for attrname, argval in (
+        ("name", name),
+        ("description", description),
+        ("terms_and_conditions", terms_and_conditions),
+    ):
         if argval is not None:
             data[attrname] = argval
         else:
