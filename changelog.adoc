@@ -2,6 +2,29 @@
 
 // scriv-insert-here
 
+== 3.31.0 (2024-10-15)
+
+Bugfixes:
+
+* Fix a whitespace issue in the `globus collection update` help text.
+
+Enhancements:
+
+* Added a `--terms-and-conditions` option to the `globus group update` command.
+
+Other:
+
+* The CLI has removed remaining support for endpoint activation.
+
+  * Activation commands such as `globus endpoint is-activated` are already
+    hidden, but now act as no-ops when invoked and emit warnings to stderr
+    about their upcoming removal.
+
+  * The `--skip-activation-check` option for Transfer task submission has
+    been deprecated.
+
+  * `Activated` is no longer a field in `globus endpoint show` output.
+
 == 3.30.1 (2024-08-20)
 
 Bugfixes:
