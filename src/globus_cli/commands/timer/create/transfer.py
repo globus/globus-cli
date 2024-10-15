@@ -187,15 +187,11 @@ def transfer_command(
     dest_endpoint, cmd_dest_path = destination
 
     if delete:
-        click.echo(
-            click.style(
-                "`--delete` has been deprecated and "
-                "will be removed in a future release. "
-                "Use --delete-destination-extra instead.",
-                fg="yellow",
-            ),
-            err=True,
+        msg = (
+            "`--delete` has been deprecated and will be removed in a future release. "
+            "Use --delete-destination-extra instead."
         )
+        click.echo(click.style(msg, fg="yellow"), err=True)
 
     if recursive is not None:
         if batch:
