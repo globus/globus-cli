@@ -49,3 +49,8 @@
 
   - Ensure that `docs.globus.org` gets updated with new docs/changelog
       Procedure is set in that repo.
+
+  - Send an email announcement to the Globus Discuss list with highlighted
+      changes and a link to the Github release page.
+      (If the Globus Python SDK is releasing within a short interval,
+      combine both announcements into a single email notice.)
