@@ -203,14 +203,14 @@ def transfer_command(
             )
 
         if delete and not recursive:
-            msg = "The --delete option cannot be specified with --no-recursion."
-            raise click.UsageError(msg)
-        if delete_destination_extra and not recursive:
-            msg = (
-                "The --delete-destination-extra option cannot be specified with "
-                "--no-recursion."
+            raise click.UsageError(
+                "The --delete option cannot be specified with --no-recursive."
             )
-            raise click.UsageError(msg)
+        if delete_destination_extra and not recursive:
+            raise click.UsageError(
+                "The --delete-destination-extra option cannot be specified with "
+                "--no-recursive."
+            )
 
     if (cmd_source_path is None or cmd_dest_path is None) and (not batch):
         raise click.UsageError(

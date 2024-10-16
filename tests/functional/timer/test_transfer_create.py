@@ -529,7 +529,7 @@ def test_timer_creation_errors_on_data_access_with_client_creds(
             "--no-recursive",
             (
                 "The --delete-destination-extra option cannot be specified with "
-                "--no-recursion."
+                "--no-recursive."
             ),
         ),
         ("--delete", "--recursive", ""),
@@ -537,7 +537,7 @@ def test_timer_creation_errors_on_data_access_with_client_creds(
         (
             "--delete",
             "--no-recursive",
-            "The --delete option cannot be specified with --no-recursion.",
+            "The --delete option cannot be specified with --no-recursive.",
         ),
     ),
 )
