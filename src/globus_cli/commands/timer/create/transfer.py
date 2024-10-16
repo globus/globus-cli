@@ -189,7 +189,7 @@ def transfer_command(
     if delete:
         msg = (
             "`--delete` has been deprecated and will be removed in a future release. "
-            "Use --delete-destination-extra instead."
+            "Use `--delete-destination-extra` instead."
         )
         click.echo(click.style(msg, fg="yellow"), err=True)
 
@@ -198,23 +198,24 @@ def transfer_command(
             # avoid 'mutex_option_group', emit a custom error message
             option_name = "--recursive" if recursive else "--no-recursive"
             raise click.UsageError(
-                f"You cannot use {option_name} in addition to --batch. "
-                f"Instead, use {option_name} on lines of --batch input which need it."
+                f"You cannot use `{option_name}` in addition to `--batch`. "
+                f"Instead, use `{option_name}` on lines of `--batch` input which "
+                "need it."
             )
 
         if delete and not recursive:
             raise click.UsageError(
-                "The --delete option cannot be specified with --no-recursive."
+                "The `--delete` option cannot be specified with `--no-recursive`."
             )
         if delete_destination_extra and not recursive:
             raise click.UsageError(
-                "The --delete-destination-extra option cannot be specified with "
-                "--no-recursive."
+                "The `--delete-destination-extra` option cannot be specified with "
+                "`--no-recursive`."
             )
 
     if (cmd_source_path is None or cmd_dest_path is None) and (not batch):
         raise click.UsageError(
-            "transfer requires either SOURCE_PATH and DEST_PATH or --batch"
+            "Transfer requires either `SOURCE_PATH` and `DEST_PATH` or `--batch`"
         )
 
     # Interval must be null iff the timer is 'once', i.e. stop-after-runs == 1.
@@ -223,12 +224,12 @@ def transfer_command(
     start_ = resolve_optional_local_time(start)
     if stop_after_runs == 1:
         if interval is not None:
-            raise click.UsageError("'--interval' is invalid with `--stop-after-runs=1`")
+            raise click.UsageError("`--interval` is invalid with `--stop-after-runs=1`")
         schedule = globus_sdk.OnceTimerSchedule(datetime=start_)
     else:
         if interval is None:
             raise click.UsageError(
-                "'--interval' is required unless `--stop-after-runs=1`"
+                "`--interval` is required unless `--stop-after-runs=1`"
             )
 
         end: dict[str, t.Any] | globus_sdk.MissingType = globus_sdk.MISSING

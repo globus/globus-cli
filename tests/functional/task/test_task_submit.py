@@ -63,7 +63,7 @@ def test_exclude_recursive(run_line, go_ep1_id, go_ep2_id):
         assert_exit_code=2,
     )
     assert (
-        "--include and --exclude can only be used with --recursive transfers"
+        "`--include` and `--exclude` can only be used with `--recursive` transfers"
         in result.stderr
     )
 
@@ -76,7 +76,7 @@ def test_exclude_recursive_batch_stdin(run_line, go_ep1_id, go_ep2_id):
         assert_exit_code=2,
     )
     assert (
-        "--include and --exclude can only be used with --recursive transfers"
+        "`--include` and `--exclude` can only be used with `--recursive` transfers"
         in result.stderr
     )
 
@@ -99,7 +99,7 @@ def test_exclude_recursive_batch_file(run_line, go_ep1_id, go_ep2_id, tmp_path):
         assert_exit_code=2,
     )
     assert (
-        "--include and --exclude can only be used with --recursive transfers"
+        "`--include` and `--exclude` can only be used with `--recursive` transfers"
         in result.stderr
     )
 

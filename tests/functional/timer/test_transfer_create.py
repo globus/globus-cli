@@ -250,7 +250,7 @@ def test_recursive_and_batch_exclusive(run_line, option):
         ],
         assert_exit_code=2,
     )
-    assert f"You cannot use {option} in addition to --batch" in result.stderr
+    assert f"You cannot use `{option}` in addition to `--batch`" in result.stderr
 
 
 def test_create_timer_requires_some_pathargs(run_line):
@@ -261,7 +261,8 @@ def test_create_timer_requires_some_pathargs(run_line):
         assert_exit_code=2,
     )
     assert (
-        "transfer requires either SOURCE_PATH and DEST_PATH or --batch" in result.stderr
+        "Transfer requires either `SOURCE_PATH` and `DEST_PATH` or `--batch`"
+        in result.stderr
     )
 
 
@@ -280,7 +281,7 @@ def test_interval_usually_required(run_line):
         ],
         assert_exit_code=2,
     )
-    assert "'--interval' is required unless `--stop-after-runs=1`" in result.stderr
+    assert "`--interval` is required unless `--stop-after-runs=1`" in result.stderr
 
 
 def test_stop_conditions_are_mutex(run_line):
@@ -335,7 +336,7 @@ def test_timer_creation_legacy_delete_flag_deprecation_warning(run_line):
         ],
         assert_exit_code=2,
     )
-    assert "--delete` has been deprecated" in result.stderr
+    assert "`--delete` has been deprecated" in result.stderr
 
 
 def test_timer_uses_once_schedule_if_stop_after_is_one(run_line, ep_for_timer):
@@ -528,8 +529,8 @@ def test_timer_creation_errors_on_data_access_with_client_creds(
             "--delete-destination-extra",
             "--no-recursive",
             (
-                "The --delete-destination-extra option cannot be specified with "
-                "--no-recursive."
+                "The `--delete-destination-extra` option cannot be specified with "
+                "`--no-recursive`."
             ),
         ),
         ("--delete", "--recursive", ""),
@@ -537,7 +538,7 @@ def test_timer_creation_errors_on_data_access_with_client_creds(
         (
             "--delete",
             "--no-recursive",
-            "The --delete option cannot be specified with --no-recursive.",
+            "The `--delete` option cannot be specified with `--no-recursive`.",
         ),
     ),
 )

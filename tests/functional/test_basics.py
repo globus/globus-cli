@@ -217,7 +217,7 @@ def test_recursive_and_batch_exclusive(run_line, option):
         ],
         assert_exit_code=2,
     )
-    assert f"You cannot use {option} in addition to --batch" in result.stderr
+    assert f"You cannot use `{option}` in addition to `--batch`" in result.stderr
 
 
 def test_legacy_delete_and_delete_destination_are_mutex(run_line):
@@ -248,4 +248,4 @@ def test_legacy_delete_flag_deprecation_warning(run_line):
         ],
         assert_exit_code=2,
     )
-    assert "--delete` has been deprecated" in result.stderr
+    assert "`--delete` has been deprecated" in result.stderr

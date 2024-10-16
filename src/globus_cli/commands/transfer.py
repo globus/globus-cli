@@ -341,7 +341,7 @@ def transfer_command(
     if delete:
         msg = (
             "`--delete` has been deprecated and will be removed in a future release. "
-            "Use --delete-destination-extra instead."
+            "Use `--delete-destination-extra` instead."
         )
         click.echo(click.style(msg, fg="yellow"), err=True)
 
@@ -349,14 +349,15 @@ def transfer_command(
     if recursive is not None and batch:
         option_name = "--recursive" if recursive else "--no-recursive"
         raise click.UsageError(
-            f"You cannot use {option_name} in addition to --batch. "
-            f"Instead, use {option_name} on lines of --batch input which need it."
+            f"You cannot use `{option_name}` in addition to `--batch`. "
+            f"Instead, use `{option_name}` on lines of `--batch` input which need it."
         )
 
     if external_checksum and batch:
         raise click.UsageError(
-            "You cannot use --external-checksum in addition to --batch. "
-            "Instead, use --external-checksum on lines of --batch input which need it."
+            "You cannot use `--external-checksum` in addition to `--batch`. "
+            "Instead, use `--external-checksum` on lines of `--batch` input which "
+            "need it."
         )
 
     # the performance options (of which there are a few), have elements which should be
@@ -403,7 +404,7 @@ def transfer_command(
     else:
         if cmd_source_path is None or cmd_dest_path is None:
             raise click.UsageError(
-                "transfer requires either SOURCE_PATH and DEST_PATH or --batch"
+                "Transfer requires either `SOURCE_PATH` and `DEST_PATH` or `--batch`"
             )
         transfer_data.add_item(
             cmd_source_path,
@@ -422,7 +423,7 @@ def transfer_command(
 
     if filter_rules and not has_recursive_items:
         raise click.UsageError(
-            "--include and --exclude can only be used with --recursive transfers"
+            "`--include` and `--exclude` can only be used with `--recursive` transfers"
         )
 
     if dry_run:
