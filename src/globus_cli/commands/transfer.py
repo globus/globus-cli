@@ -352,7 +352,13 @@ def transfer_command(
             f"You cannot use `{option_name}` in addition to `--batch`. "
             f"Instead, use `{option_name}` on lines of `--batch` input which need it."
         )
-
+    if recursive is False and (delete_destination_extra or delete):
+        option_name = (
+            "--delete-destination-extra" if delete_destination_extra else "--delete"
+        )
+        raise click.UsageError(
+            f"The `{option_name}` option cannot be specified with `--no-recursive`."
+        )
     if external_checksum and batch:
         raise click.UsageError(
             "You cannot use `--external-checksum` in addition to `--batch`. "

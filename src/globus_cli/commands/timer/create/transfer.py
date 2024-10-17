@@ -193,26 +193,21 @@ def transfer_command(
         )
         click.echo(click.style(msg, fg="yellow"), err=True)
 
-    if recursive is not None:
-        if batch:
-            # avoid 'mutex_option_group', emit a custom error message
-            option_name = "--recursive" if recursive else "--no-recursive"
-            raise click.UsageError(
-                f"You cannot use `{option_name}` in addition to `--batch`. "
-                f"Instead, use `{option_name}` on lines of `--batch` input which "
-                "need it."
-            )
-
-        if delete and not recursive:
-            raise click.UsageError(
-                "The `--delete` option cannot be specified with `--no-recursive`."
-            )
-        if delete_destination_extra and not recursive:
-            raise click.UsageError(
-                "The `--delete-destination-extra` option cannot be specified with "
-                "`--no-recursive`."
-            )
-
+    # avoid 'mutex_option_group', emit a custom error message
+    if recursive is not None and batch:
+        option_name = "--recursive" if recursive else "--no-recursive"
+        raise click.UsageError(
+            f"You cannot use `{option_name}` in addition to `--batch`. "
+            f"Instead, use `{option_name}` on lines of `--batch` input which "
+            "need it."
+        )
+    if recursive is False and (delete_destination_extra or delete):
+        option_name = (
+            "--delete-destination-extra" if delete_destination_extra else "--delete"
+        )
+        raise click.UsageError(
+            f"The `{option_name}` option cannot be specified with `--no-recursive`."
+        )
     if (cmd_source_path is None or cmd_dest_path is None) and (not batch):
         raise click.UsageError(
             "Transfer requires either `SOURCE_PATH` and `DEST_PATH` or `--batch`"

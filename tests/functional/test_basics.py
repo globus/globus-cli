@@ -220,6 +220,49 @@ def test_recursive_and_batch_exclusive(run_line, option):
     assert f"You cannot use `{option}` in addition to `--batch`" in result.stderr
 
 
+@pytest.mark.parametrize(
+    "deletion_option,recursion_option,expected_error",
+    (
+        ("--delete-destination-extra", "--recursive", ""),
+        ("--delete-destination-extra", "", ""),
+        (
+            "--delete-destination-extra",
+            "--no-recursive",
+            (
+                "The `--delete-destination-extra` option cannot be specified with "
+                "`--no-recursive`."
+            ),
+        ),
+        ("--delete", "--recursive", ""),
+        ("--delete", "", ""),
+        (
+            "--delete",
+            "--no-recursive",
+            "The `--delete` option cannot be specified with `--no-recursive`.",
+        ),
+    ),
+)
+def test_no_recursive_and_delete_exclusive(
+    run_line,
+    deletion_option,
+    recursion_option,
+    expected_error,
+):
+    load_response("transfer.get_submission_id")
+    load_response("transfer.submit_transfer")
+    ep_meta = load_response("transfer.get_endpoint").metadata
+    ep_id = ep_meta["endpoint_id"]
+
+    base_cmd = f"globus transfer {ep_id}:/foo/ {ep_id}:/bar/"
+    options_list = (deletion_option, recursion_option)
+    options = " ".join(op for op in options_list if op is not None)
+
+    exit_code = 0 if not expected_error else 2
+    result = run_line(f"{base_cmd} {options}", assert_exit_code=exit_code)
+
+    assert expected_error in result.stderr
+
+
 def test_legacy_delete_and_delete_destination_are_mutex(run_line):
     ep_id = str(uuid.UUID(int=1))
     result = run_line(
