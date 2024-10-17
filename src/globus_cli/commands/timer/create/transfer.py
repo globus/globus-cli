@@ -198,8 +198,7 @@ def transfer_command(
         option_name = "--recursive" if recursive else "--no-recursive"
         raise click.UsageError(
             f"You cannot use `{option_name}` in addition to `--batch`. "
-            f"Instead, use `{option_name}` on lines of `--batch` input which "
-            "need it."
+            f"Instead, use `{option_name}` on lines of `--batch` input which need it."
         )
     if recursive is False and (delete_destination_extra or delete):
         option_name = (

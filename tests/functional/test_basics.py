@@ -254,8 +254,7 @@ def test_no_recursive_and_delete_exclusive(
     ep_id = ep_meta["endpoint_id"]
 
     base_cmd = f"globus transfer {ep_id}:/foo/ {ep_id}:/bar/"
-    options_list = (deletion_option, recursion_option)
-    options = " ".join(op for op in options_list if op is not None)
+    options = f"{deletion_option} {recursion_option}"
 
     exit_code = 0 if not expected_error else 2
     result = run_line(f"{base_cmd} {options}", assert_exit_code=exit_code)
