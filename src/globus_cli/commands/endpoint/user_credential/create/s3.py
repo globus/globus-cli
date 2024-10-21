@@ -35,7 +35,7 @@ def s3(
     gcs_client = login_manager.get_gcs_client(endpoint_id=endpoint_id)
     auth_client = login_manager.get_auth_client()
 
-    # TODO: replace with SDK class once available
+    # TODO: replace with SDK class if one becomes available
     policies = {
         "DATA_TYPE": "s3_user_credential_policies#1.0.0",
         "s3_key_id": s3_key_id,

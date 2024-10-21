@@ -14,17 +14,12 @@ import pytest
 import responses
 from click.testing import CliRunner
 from globus_sdk._testing import register_response_set
+from globus_sdk.scopes import TimersScopes
 from globus_sdk.transport import RequestsTransport
 from ruamel.yaml import YAML
 
 import globus_cli
 from globus_cli.login_manager.tokenstore import build_storage_adapter
-
-# TODO: remove this after an SDK release provides TimersScopes
-try:
-    from globus_sdk.scopes import TimersScopes
-except ImportError:
-    from globus_sdk.scopes import TimerScopes as TimersScopes
 
 yaml = YAML()
 log = logging.getLogger(__name__)

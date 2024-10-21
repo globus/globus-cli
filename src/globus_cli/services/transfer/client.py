@@ -47,7 +47,7 @@ class CustomTransferClient(globus_sdk.TransferClient):
     def __init__(
         self,
         *,
-        authorizer: globus_sdk.GlobusAuthorizer,
+        authorizer: globus_sdk.authorizers.GlobusAuthorizer,
         app_name: str,
     ) -> None:
         super().__init__(authorizer=authorizer, app_name=app_name)

@@ -18,14 +18,7 @@ from globus_sdk.scopes import (
     TimersScopes,
     TransferScopes,
 )
-
-# TODO: remove this after an SDK release provides scopes.consents
-try:
-    from globus_sdk.scopes.consents import (  # type: ignore[import-not-found]
-        ConsentForest,
-    )
-except ImportError:
-    from globus_sdk.experimental.consents import ConsentForest
+from globus_sdk.scopes.consents import ConsentForest
 
 from globus_cli.endpointish import Endpointish, EntityType
 from globus_cli.types import ServiceNameLiteral
@@ -183,9 +176,7 @@ class LoginManager:
         else:
             # If there are dependent scopes all required scope paths are present in the
             #   user's cached consent forest.
-            return (  # type: ignore[no-any-return]
-                self._cached_consent_forest.meets_scope_requirements(required_scopes)
-            )
+            return self._cached_consent_forest.meets_scope_requirements(required_scopes)
 
     @property
     @functools.lru_cache(maxsize=1)  # noqa: B019
@@ -304,7 +295,7 @@ class LoginManager:
 
     def _get_client_authorizer(
         self, resource_server: str, *, no_tokens_msg: str | None = None
-    ) -> globus_sdk.authorizers.RenewingAuthorizer:
+    ) -> globus_sdk.ClientCredentialsAuthorizer | globus_sdk.RefreshTokenAuthorizer:
         tokens = self._token_storage.get_token_data(resource_server)
 
         if is_client_login():

@@ -16,9 +16,7 @@ from globus_cli.utils import CLIAuthRequirementsError
 # NB: GARE parsing requires other SDK components and therefore needs to be deferred to
 # avoid the performance impact of non-lazy imports
 if t.TYPE_CHECKING:
-    from globus_sdk.experimental.auth_requirements_error import (
-        GlobusAuthRequirementsError,
-    )
+    from globus_sdk.gare import GARE
 
 
 @command("resume")
@@ -66,7 +64,7 @@ def resume_command(
 def check_inactive_reason(
     login_manager: LoginManager,
     run_id: uuid.UUID,
-    gare: GlobusAuthRequirementsError | None,
+    gare: GARE | None,
 ) -> None:
     if gare is None:
         return
@@ -109,13 +107,8 @@ def check_inactive_reason(
 
 def _get_inactive_reason(
     run_doc: dict[str, t.Any] | globus_sdk.GlobusHTTPResponse
-) -> GlobusAuthRequirementsError | None:
-    try:
-        from globus_sdk.gare import to_gare  # type: ignore[import-not-found]
-    except ImportError:
-        from globus_sdk.experimental.auth_requirements_error import (
-            to_auth_requirements_error as to_gare,
-        )
+) -> GARE | None:
+    from globus_sdk.gare import to_gare
 
     if not run_doc.get("status") == "INACTIVE":
         return None
@@ -124,7 +117,7 @@ def _get_inactive_reason(
     if not isinstance(details, dict):
         return None
 
-    return to_gare(details)  # type: ignore[no-any-return]
+    return to_gare(details)
 
 
 def _has_required_consent(

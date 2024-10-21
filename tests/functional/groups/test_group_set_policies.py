@@ -1,8 +1,11 @@
 import json
 
 import pytest
-import responses
-from globus_sdk._testing import load_response_set, register_response_set
+from globus_sdk._testing import (
+    get_last_request,
+    load_response_set,
+    register_response_set,
+)
 
 
 @pytest.fixture(autouse=True, scope="session")
@@ -62,8 +65,7 @@ def test_group_set_policies(run_line, add_args, field_name, expected_value):
     result = run_line(["globus", "group", "set-policies", group_id] + add_args)
     assert "Group policies updated successfully" in result.output
 
-    # TODO: expose get_last_request in globus_sdk._testing ?
-    last_req = responses.calls[-1].request
+    last_req = get_last_request()
     body = json.loads(last_req.body)
 
     # confirm expected put body values
