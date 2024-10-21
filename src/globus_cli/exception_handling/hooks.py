@@ -272,8 +272,7 @@ def transferapi_hook(exception: globus_sdk.TransferAPIError) -> None:
 def searchapi_validationerror_hook(exception: globus_sdk.SearchAPIError) -> None:
     fields = [
         PrintableErrorField("HTTP status", exception.http_status),
-        # FIXME: raw_json because SDK is not exposing `request_id` as an attribute
-        PrintableErrorField("request_id", (exception.raw_json or {}).get("request_id")),
+        PrintableErrorField("request_id", exception.request_id),
         PrintableErrorField("code", exception.code),
         PrintableErrorField("message", exception.message, multiline=True),
     ]
@@ -298,8 +297,7 @@ def searchapi_validationerror_hook(exception: globus_sdk.SearchAPIError) -> None
 def searchapi_hook(exception: globus_sdk.SearchAPIError) -> None:
     fields = [
         PrintableErrorField("HTTP status", exception.http_status),
-        # FIXME: raw_json because SDK is not exposing `request_id` as an attribute
-        PrintableErrorField("request_id", (exception.raw_json or {}).get("request_id")),
+        PrintableErrorField("request_id", exception.request_id),
         PrintableErrorField("code", exception.code),
         PrintableErrorField("message", exception.message, multiline=True),
     ]

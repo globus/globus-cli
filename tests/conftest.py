@@ -360,15 +360,10 @@ def _register_all_response_sets():
 
             for idx, (path, method, params) in enumerate(_iter_fixture_routes(routes)):
                 if "query_params" in params:
-                    # TODO: remove this int/float conversion after we upgrade to
-                    # `responses>=0.19.0` when this issue is expected to be fixed
-                    #   https://github.com/getsentry/responses/pull/485
-                    query_params = {
-                        k: str(v) if isinstance(v, (int, float)) else v
-                        for k, v in params.pop("query_params").items()
-                    }
                     params["match"] = [
-                        responses.matchers.query_param_matcher(query_params)
+                        responses.matchers.query_param_matcher(
+                            params.pop("query_params")
+                        )
                     ]
                 response_set[f"{method}_{service}_{path}_{idx}"] = {
                     "service": service,
