@@ -22,7 +22,7 @@ class Field:
         *,
         wrap_enabled: bool = False,
         formatter: formatters.FieldFormatter[t.Any] = formatters.Str,
-    ):
+    ) -> None:
         self.name = name
         self.key = key
         self.wrap_enabled = wrap_enabled

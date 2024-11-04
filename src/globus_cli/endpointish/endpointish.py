@@ -19,7 +19,7 @@ class Endpointish:
         endpoint_id: str | uuid.UUID,
         *,
         transfer_client: globus_sdk.TransferClient,
-    ):
+    ) -> None:
         self._client = transfer_client
         self.endpoint_id = endpoint_id
 

@@ -75,7 +75,7 @@ def _format_option(optstr):
 
 
 class AdocPage:
-    def __init__(self, ctx):
+    def __init__(self, ctx) -> None:
         self.commandname = ctx.command_path
         self.short_help = ctx.command.get_short_help_str()
         self.description = textwrap.dedent(ctx.command.help).replace("\b\n", "")

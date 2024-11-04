@@ -27,7 +27,7 @@ class PrincipalFormatter(FieldFormatter[t.Tuple[str, str]]):
       - fallback
     """
 
-    def __init__(self, auth_client: globus_sdk.AuthClient):
+    def __init__(self, auth_client: globus_sdk.AuthClient) -> None:
         self.auth_client = auth_client
         self.resolved_ids = globus_sdk.IdentityMap(auth_client)
 

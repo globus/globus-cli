@@ -66,7 +66,7 @@ class TaskPath(click.ParamType):
         coerce_to_dir: bool = False,
         normalize: bool = True,
         require_absolute: bool = False,
-    ):
+    ) -> None:
         """
         Task Paths are paths for passing into Transfer or Delete tasks.
         They're only slightly more than string types: they can join themselves

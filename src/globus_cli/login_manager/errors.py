@@ -11,7 +11,7 @@ class MissingLoginError(ValueError):
         self,
         missing_servers: t.Sequence[str],
         context: LoginContext,
-    ):
+    ) -> None:
         self.missing_servers = missing_servers
 
         error_message = context.error_message or self._default_error_message()

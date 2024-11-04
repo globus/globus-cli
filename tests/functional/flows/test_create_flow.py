@@ -48,7 +48,7 @@ SPECIAL_PRINCIPALS = ["public", "all_authenticated_users"]
 class IdentityPool:
     IDENTITY_DATA = FLOW_IDENTITIES
 
-    def __init__(self):
+    def __init__(self) -> None:
         self.identities = {}
         self.assigned_sets = {}
 

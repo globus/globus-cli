@@ -27,7 +27,7 @@ class Plugin:
 
     # args to init determine plugin behavior. see:
     # https://flake8.pycqa.org/en/latest/internal/utils.html#flake8.utils.parameters_for
-    def __init__(self, tree):
+    def __init__(self, tree) -> None:
         self.tree = tree
 
     # Plugin.run() is how checks will run. For detail, see implementation of:
@@ -40,7 +40,7 @@ class Plugin:
 
 
 class ErrorRecordingVisitor(ast.NodeVisitor):
-    def __init__(self):
+    def __init__(self) -> None:
         super().__init__()
         self.collect = []
 
