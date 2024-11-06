@@ -61,20 +61,10 @@ def setup_timer_consent_tree_response(identity_id, *data_access_collection_ids):
                         **_dummy_consent_fields,
                     },
                     {
-                        "scope_name": (
-                            "https://auth.globus.org/scopes/"
-                            "actions.globus.org/transfer/transfer"
-                        ),
+                        "scope_name": globus_sdk.TransferClient.scopes.all,
                         "scope": str(uuid.uuid1()),
                         "dependency_path": [100, 101],
                         "id": 101,
-                        **_dummy_consent_fields,
-                    },
-                    {
-                        "scope_name": globus_sdk.TransferClient.scopes.all,
-                        "scope": str(uuid.uuid1()),
-                        "dependency_path": [100, 101, 102],
-                        "id": 102,
                         **_dummy_consent_fields,
                     },
                 ]
@@ -82,7 +72,7 @@ def setup_timer_consent_tree_response(identity_id, *data_access_collection_ids):
                     {
                         "scope_name": GCSCollectionScopeBuilder(name).data_access,
                         "scope": str(uuid.uuid1()),
-                        "dependency_path": [100, 101, 102, 1000 + idx],
+                        "dependency_path": [100, 101, 1000 + idx],
                         "id": 1000 + idx,
                         **_dummy_consent_fields,
                     }

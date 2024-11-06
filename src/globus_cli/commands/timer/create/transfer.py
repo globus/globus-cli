@@ -342,7 +342,6 @@ def _derive_needed_scopes(
         target_scope = GCSCollectionScopeBuilder(target).data_access
         scopes_needed[target] = _ez_make_nested_scope(
             globus_sdk.TimerClient.scopes.timer,
-            "https://auth.globus.org/scopes/actions.globus.org/transfer/transfer",
             globus_sdk.TransferClient.scopes.all,
             target_scope,
         )

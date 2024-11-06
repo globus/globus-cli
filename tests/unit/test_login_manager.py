@@ -101,7 +101,6 @@ def urlfmt_scope(rs: str, name: str) -> str:
 
 
 BASE_TIMER_SCOPE = urlfmt_scope("524230d7-ea86-4a52-8312-86065a9e0417", "timer")
-TRANSFER_AP_SCOPE = urlfmt_scope("actions.globus.org", "transfer/transfer")
 
 
 def test_requires_login_success(patch_scope_requirements, patched_tokenstorage):
@@ -297,7 +296,7 @@ def test_compute_timer_scope_no_data_access():
 
     computed = str(compute_timer_scope())
     assert computed.startswith(BASE_TIMER_SCOPE)
-    assert computed == f"{BASE_TIMER_SCOPE}[{TRANSFER_AP_SCOPE}[{transfer_scope}]]"
+    assert computed == f"{BASE_TIMER_SCOPE}[{transfer_scope}]"
 
 
 def test_compute_timer_scope_one_data_access():
@@ -307,10 +306,7 @@ def test_compute_timer_scope_one_data_access():
     computed = str(compute_timer_scope(data_access_collection_ids=["foo"]))
     assert computed.startswith(BASE_TIMER_SCOPE)
     assert foo_scope in computed
-    assert (
-        computed
-        == f"{BASE_TIMER_SCOPE}[{TRANSFER_AP_SCOPE}[{transfer_scope}[*{foo_scope}]]]"
-    )
+    assert computed == f"{BASE_TIMER_SCOPE}[{transfer_scope}[*{foo_scope}]]"
 
 
 def test_compute_timer_scope_multiple_data_access():
@@ -326,8 +322,8 @@ def test_compute_timer_scope_multiple_data_access():
     assert foo_scope in computed
     assert bar_scope in computed
     assert baz_scope in computed
-    start_part = f"{BASE_TIMER_SCOPE}[{TRANSFER_AP_SCOPE}[{transfer_scope}["
-    end_part = "]]]"
+    start_part = f"{BASE_TIMER_SCOPE}[{transfer_scope}["
+    end_part = "]]"
     assert computed == f"{start_part}*{foo_scope} *{bar_scope} *{baz_scope}{end_part}"
 
 

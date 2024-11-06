@@ -15,10 +15,6 @@ from globus_sdk.scopes import (
 
 from globus_cli.types import ServiceNameLiteral
 
-TRANSFER_AP_SCOPE_STR: str = (
-    "https://auth.globus.org/scopes/actions.globus.org/transfer/transfer"
-)
-
 
 def compute_timer_scope(
     *, data_access_collection_ids: t.Sequence[str] | None = None
@@ -29,11 +25,8 @@ def compute_timer_scope(
             Scope(GCSCollectionScopeBuilder(cid).data_access, optional=True)
         )
 
-    transfer_ap_scope = Scope(TRANSFER_AP_SCOPE_STR)
-    transfer_ap_scope.add_dependency(transfer_scope)
-
     timer_scope = Scope(TimersScopes.timer)
-    timer_scope.add_dependency(transfer_ap_scope)
+    timer_scope.add_dependency(transfer_scope)
     return timer_scope
 
 
@@ -87,7 +80,7 @@ class _CLIScopeRequirements(t.Dict[ServiceNameLiteral, _ServiceRequirement]):
             ],
         }
         self["timer"] = {
-            "min_contract_version": 1,
+            "min_contract_version": 2,
             "resource_server": TimersScopes.resource_server,
             "nice_server_name": "Globus Timers",
             "scopes": [
@@ -125,4 +118,4 @@ CLI_SCOPE_REQUIREMENTS = _CLIScopeRequirements()
 # version we were at when we got a token
 # it should be the max of the version numbers required by the various different
 # services
-CURRENT_SCOPE_CONTRACT_VERSION: t.Final[int] = 1
+CURRENT_SCOPE_CONTRACT_VERSION: t.Final[int] = 2
