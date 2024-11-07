@@ -19,10 +19,21 @@ Developer Setup
 
 These steps should help you setup a development environment for the Globus CLI.
 
-  1. Clone repo:
-     `git clone git@github.com:globus/globus-cli.git && cd globus-cli`
-  2. Create a virtualenv for development. `make localdev`.
-  3. Activate the resulting virtualenv with `source .venv/bin/activate`
+  1. Create a fork of the globus/globus-cli repository.
+
+     Follow https://github.com/globus/globus-cli/fork in a browser.
+
+  2. Clone your forked repository & navigate to it.
+
+     git clone <fork-repo-url> && cd globus-cli
+
+  3. Install dependencies in a local virtualenv for development.
+
+     make install
+
+  4. Activate the resulting virtualenv.
+
+     source .venv/bin/activate
 
 You should now have, in your virtualenv, the `globus-cli` installed, pointed at
 your local copy of the repo. `globus` will invoke code directly out of the
