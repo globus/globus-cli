@@ -53,6 +53,9 @@ TRANSFER_FIELDS = [
 SUCCESSFULL_TRANSFER_FIELDS = [
     Field("Source Path", "source_path"),
     Field("Destination Path", "destination_path"),
+    Field("Size", "size"),
+    Field("Checksum Algorithm", "checksum_algorithm"),
+    Field("Checksum", "checksum"),
 ]
 
 SKIPPED_PATHS_FIELDS = [
