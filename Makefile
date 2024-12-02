@@ -7,8 +7,9 @@ CLI_VERSION=$(shell grep '^__version__' src/globus_cli/version.py | cut -d '"' -
 	.venv/bin/pip install -e '.[development]'
 	.venv/bin/pip install -e '.[test]'
 
-.PHONY: localdev
+.PHONY: localdev install
 localdev: .venv
+install: .venv
 
 
 .PHONY: lint test reference
