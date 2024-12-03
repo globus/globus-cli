@@ -68,6 +68,21 @@ $ globus endpoint search --filter-scope my-endpoints
     type=click.IntRange(1, 1000),
     help="The maximum number of results to return.",
 )
+@click.option(
+    "--filter-entity-type",
+    default=None,
+    type=click.Choice(
+        (
+            "GCP_mapped_collection",
+            "GCP_guest_collection",
+            "GCSv5_endpoint",
+            "GCSv5_mapped_collection",
+            "GCSv5_guest_collection",
+        ),
+        case_sensitive=False,
+    ),
+    help="Filter search results to endpoints of a specific entity type.",
+)
 @click.argument("filter_fulltext", required=False)
 @LoginManager.requires_login("auth", "transfer")
 def endpoint_search(
@@ -86,6 +101,16 @@ def endpoint_search(
         "shared-by-me",
         "shared-with-me",
     ],
+    filter_entity_type: (
+        t.Literal[
+            "GCP_mapped_collection",
+            "GCP_guest_collection",
+            "GCSv5_endpoint",
+            "GCSv5_mapped_collection",
+            "GCSv5_guest_collection",
+        ]
+        | None
+    ),
 ) -> None:
     """
     Search for Globus endpoints with search filters. If --filter-scope is set to the
@@ -121,6 +146,7 @@ def endpoint_search(
             filter_fulltext=filter_fulltext,
             filter_scope=filter_scope,
             filter_owner_id=owner_id,
+            filter_entity_type=filter_entity_type,
         ).items(),
         limit=limit,
     )
