@@ -284,7 +284,7 @@ def collection_create_mapped(
             "domain_name": domain_name,
             "enable_https": enable_https,
             "force_encryption": force_encryption,
-            "identity_id": identity_id.value,
+            "identity_id": identity_id.resolve(login_manager),
             "info_link": info_link,
             "keywords": keywords,
             "organization": organization,

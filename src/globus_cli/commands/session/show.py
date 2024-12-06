@@ -5,13 +5,7 @@ import typing as t
 
 import globus_sdk
 
-from globus_cli.login_manager import (
-    LoginManager,
-    get_client_login,
-    internal_auth_client,
-    is_client_login,
-    token_storage_adapter,
-)
+from globus_cli.login_manager import LoginManager, get_client_login, is_client_login
 from globus_cli.parsing import command
 from globus_cli.termio import Field, display, print_command_hint
 
@@ -54,7 +48,6 @@ def session_show(login_manager: LoginManager) -> None:
     the time the user authenticated with that identity.
     """
     auth_client = login_manager.get_auth_client()
-    adapter = token_storage_adapter()
 
     # get a token to introspect, refreshing if necessary
     try:
@@ -64,7 +57,7 @@ def session_show(login_manager: LoginManager) -> None:
     except AttributeError:  # if we have no RefreshTokenAuthorizor
         pass
 
-    tokendata = adapter.get_token_data("auth.globus.org")
+    tokendata = login_manager.token_storage.get_token_data("auth.globus.org")
     # if there's no token (e.g. not logged in), stub with empty data
     if not tokendata:
         session_info: dict[str, t.Any] = {}
@@ -73,7 +66,7 @@ def session_show(login_manager: LoginManager) -> None:
         if is_client_login():
             introspect_client = get_client_login()
         else:
-            introspect_client = internal_auth_client()
+            introspect_client = login_manager.token_storage.internal_auth_client()
 
         access_token = tokendata["access_token"]
         res = introspect_client.oauth2_token_introspect(

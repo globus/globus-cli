@@ -10,7 +10,6 @@ from globus_sdk.scopes import GCSCollectionScopeBuilder, Scope
 
 from globus_cli.endpointish import Endpointish
 from globus_cli.login_manager import LoginManager, is_client_login
-from globus_cli.login_manager.utils import get_current_identity_id
 from globus_cli.parsing import (
     ENDPOINT_PLUS_OPTPATH,
     TimedeltaType,
@@ -265,7 +264,9 @@ def transfer_command(
         # If it's not a client login, we need to check
         # that the user has the required scopes
         if not is_client_login():
-            request_data_access = _derive_missing_scopes(auth_client, scopes_needed)
+            request_data_access = _derive_missing_scopes(
+                login_manager, auth_client, scopes_needed
+            )
 
             if request_data_access:
                 scope_request_opts = " ".join(
@@ -349,11 +350,12 @@ def _derive_needed_scopes(
 
 
 def _derive_missing_scopes(
+    login_manager: LoginManager,
     auth_client: CustomAuthClient,
     scopes_needed: dict[str, Scope],
 ) -> list[str]:
     # read the identity ID stored from the login flow
-    user_identity_id = get_current_identity_id()
+    user_identity_id = login_manager.get_current_identity_id()
 
     # get the user's Globus CLI consents
     consents = auth_client.get_consents(user_identity_id).to_forest()

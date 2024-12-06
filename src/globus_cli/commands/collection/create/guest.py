@@ -91,7 +91,10 @@ def collection_create_guest(
 
     if not user_credential_id:
         user_credential_id = _select_user_credential_id(
-            gcs_client, mapped_collection_id, local_username, identity_id.value
+            gcs_client,
+            mapped_collection_id,
+            local_username,
+            identity_id.resolve(login_manager),
         )
 
     converted_kwargs: dict[str, t.Any] = ExplicitNullType.nullify_dict(
@@ -105,7 +108,7 @@ def collection_create_guest(
             "display_name": display_name,
             "enable_https": enable_https,
             "force_encryption": force_encryption,
-            "identity_id": identity_id.value,
+            "identity_id": identity_id.resolve(login_manager),
             "info_link": info_link,
             "keywords": keywords,
             "mapped_collection_id": mapped_collection_id,
