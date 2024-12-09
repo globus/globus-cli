@@ -3,7 +3,7 @@ from __future__ import annotations
 import click
 import globus_sdk
 
-from globus_cli.login_manager.utils import get_current_identity_id
+from globus_cli.login_manager import LoginManager
 from globus_cli.termio import Field, formatters
 from globus_cli.types import DATA_CONTAINER_T
 
@@ -12,10 +12,9 @@ class LazyCurrentIdentity:
     def __init__(self, value: str | None) -> None:
         self._value = value
 
-    @property
-    def value(self) -> str:
+    def resolve(self, login_manager: LoginManager) -> str:
         if self._value is None:
-            self._value = get_current_identity_id()
+            self._value = login_manager.get_current_identity_id()
         return str(self._value)
 
 

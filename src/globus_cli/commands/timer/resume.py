@@ -8,7 +8,6 @@ import click
 import globus_sdk
 
 from globus_cli.login_manager import LoginManager
-from globus_cli.login_manager.utils import get_current_identity_id
 from globus_cli.parsing import command
 from globus_cli.termio import display
 from globus_cli.utils import CLIAuthRequirementsError
@@ -117,6 +116,6 @@ def _has_required_consent(
     login_manager: LoginManager, required_scopes: list[str]
 ) -> bool:
     auth_client = login_manager.get_auth_client()
-    user_identity_id = get_current_identity_id()
+    user_identity_id = login_manager.get_current_identity_id()
     consents = auth_client.get_consents(user_identity_id).to_forest()
     return consents.meets_scope_requirements(required_scopes)
