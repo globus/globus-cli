@@ -5,7 +5,7 @@ import typing as t
 
 import click
 
-from globus_cli.login_manager import is_client_login, token_storage_adapter
+from globus_cli.login_manager import LoginManager, is_client_login
 from globus_cli.parsing import command
 from globus_cli.termio import Field, display, formatters
 
@@ -29,13 +29,16 @@ def _profilestr_to_datadict(s: str) -> dict[str, t.Any] | None:
 
 
 def _parse_and_filter_profiles(
+    login_manager: LoginManager,
     all: bool,
 ) -> tuple[list[dict[str, t.Any]], list[dict[str, t.Any]]]:
     globus_env = os.getenv("GLOBUS_SDK_ENVIRONMENT", "production")
 
     client_profiles = []
     user_profiles = []
-    for n in token_storage_adapter().iter_namespaces(include_config_namespaces=True):
+    for n in login_manager.storage.adapter.iter_namespaces(
+        include_config_namespaces=True
+    ):
         data = _profilestr_to_datadict(n)
         if not data:  # skip any parse failures
             continue
@@ -86,8 +89,8 @@ def cli_profile_list(*, all: bool) -> None:
     These are the values for GLOBUS_PROFILE which have been recorded, as well as
     GLOBUS_CLI_CLIENT_ID values which have been used.
     """
-
-    client_profiles, user_profiles = _parse_and_filter_profiles(all)
+    login_manager = LoginManager()
+    client_profiles, user_profiles = _parse_and_filter_profiles(login_manager, all)
 
     if user_profiles:
         fields = [

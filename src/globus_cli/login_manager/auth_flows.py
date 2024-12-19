@@ -8,15 +8,11 @@ import click
 import globus_sdk
 from globus_sdk.scopes import Scope
 
-from .tokenstore import (
-    internal_auth_client,
-    read_well_known_config,
-    store_well_known_config,
-    token_storage_adapter,
-)
+from .storage import CLIStorage
 
 
 def do_link_auth_flow(
+    storage: CLIStorage,
     scopes: str | t.Sequence[str | Scope],
     *,
     session_params: dict[str, str] | None = None,
@@ -28,7 +24,7 @@ def do_link_auth_flow(
     session_params = session_params or {}
 
     # get the ConfidentialApp client object
-    auth_client = internal_auth_client()
+    auth_client = storage.cli_confidential_client
 
     # start the Confidential App Grant flow
     auth_client.oauth2_start_flow(
@@ -53,11 +49,12 @@ def do_link_auth_flow(
     auth_code = click.prompt("Enter the resulting Authorization Code here").strip()
 
     # finish auth flow
-    exchange_code_and_store(auth_client, auth_code)
+    exchange_code_and_store(storage, auth_client, auth_code)
     return True
 
 
 def do_local_server_auth_flow(
+    storage: CLIStorage,
     scopes: str | t.Sequence[str | Scope],
     *,
     session_params: dict[str, str] | None = None,
@@ -78,7 +75,7 @@ def do_local_server_auth_flow(
         redirect_uri = f"http://localhost:{port}"
 
         # get the ConfidentialApp client object and start a flow
-        auth_client = internal_auth_client()
+        auth_client = storage.cli_confidential_client
         auth_client.oauth2_start_flow(
             refresh_tokens=True,
             redirect_uri=redirect_uri,
@@ -103,11 +100,12 @@ def do_local_server_auth_flow(
         click.get_current_context().exit(1)
 
     # finish auth flow and return true
-    exchange_code_and_store(auth_client, auth_code)
+    exchange_code_and_store(storage, auth_client, auth_code)
     return True
 
 
 def exchange_code_and_store(
+    storage: CLIStorage,
     auth_client: globus_sdk.ConfidentialAppAuthClient | globus_sdk.NativeAppAuthClient,
     auth_code: str,
 ) -> None:
@@ -121,7 +119,6 @@ def exchange_code_and_store(
     """
     import jwt.exceptions
 
-    adapter = token_storage_adapter()
     tkn = auth_client.oauth2_exchange_code_for_tokens(auth_code)
 
     # use a leeway of 300s
@@ -156,7 +153,7 @@ def exchange_code_and_store(
                 err=True,
             )
         raise
-    auth_user_data = read_well_known_config("auth_user_data")
+    auth_user_data = storage.read_well_known_config("auth_user_data")
     if auth_user_data and sub_new != auth_user_data.get("sub"):
         try:
             for tokens in tkn.by_resource_server.values():
@@ -171,8 +168,8 @@ def exchange_code_and_store(
             )
         click.get_current_context().exit(1)
     if not auth_user_data:
-        store_well_known_config("auth_user_data", {"sub": sub_new})
-    adapter.store(tkn)
+        storage.store_well_known_config("auth_user_data", {"sub": sub_new})
+    storage.store(tkn)
 
 
 def _response_clock_delta(response: globus_sdk.GlobusHTTPResponse) -> float | None:

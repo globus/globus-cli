@@ -1,14 +1,7 @@
 import click
 import globus_sdk
 
-from globus_cli.login_manager import (
-    LoginManager,
-    delete_templated_client,
-    internal_native_client,
-    is_client_login,
-    remove_well_known_config,
-    token_storage_adapter,
-)
+from globus_cli.login_manager import LoginManager, is_client_login
 from globus_cli.parsing import command
 
 
@@ -105,7 +98,7 @@ def logout_command(
     # Always skip for client logins, which don't use a templated client
     if delete_client and not is_client_login():
         try:
-            delete_templated_client()
+            login_manager.storage.delete_templated_client()
         except globus_sdk.AuthAPIError:
             if not ignore_errors:
                 warnecho(
@@ -121,10 +114,9 @@ def logout_command(
 
     # Attempt to revoke all tokens in storage; use the internal native client to ensure
     # we have a valid Auth client
-    native_client = internal_native_client()
-    adapter = token_storage_adapter()
+    native_client = login_manager.storage.cli_native_client
 
-    for rs, tokendata in adapter.get_by_resource_server().items():
+    for rs, tokendata in login_manager.storage.adapter.get_by_resource_server().items():
         for tok_key in ("access_token", "refresh_token"):
             token = tokendata[tok_key]
 
@@ -145,9 +137,9 @@ def logout_command(
                         "Continuing... (--ignore-errors)",
                     )
 
-        adapter.remove_tokens_for_resource_server(rs)
+        login_manager.storage.adapter.remove_tokens_for_resource_server(rs)
 
-    remove_well_known_config("auth_user_data")
+    login_manager.storage.remove_well_known_config("auth_user_data")
 
     if is_client_login():
         click.echo(_CLIENT_LOGOUT_EPILOG)

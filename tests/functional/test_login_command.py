@@ -5,11 +5,7 @@ import globus_sdk
 import pytest
 from globus_sdk._testing import load_response_set
 
-from globus_cli.login_manager import (
-    LoginManager,
-    read_well_known_config,
-    store_well_known_config,
-)
+from globus_cli.login_manager import LoginManager
 from globus_cli.login_manager.auth_flows import exchange_code_and_store
 from tests.conftest import _mock_token_response_data
 
@@ -20,10 +16,10 @@ def test_login_validates_token(
     # undo the validate_token disabling patch which is done for most tests
     disable_login_manager_validate_token.undo()
 
-    with mock.patch("globus_cli.login_manager.manager.internal_auth_client") as m:
-        ac = mock.MagicMock(spec=globus_sdk.ConfidentialAppAuthClient)
-        m.return_value = ac
-
+    ac = mock.MagicMock(spec=globus_sdk.ConfidentialAppAuthClient)
+    with mock.patch(
+        "globus_cli.login_manager.storage.CLIStorage.cli_confidential_client", ac
+    ):
         run_line("globus login")
 
         by_rs = mock_login_token_response.by_resource_server
@@ -63,7 +59,7 @@ def test_login_gcs_different_identity(
     mock_remote_session,
     mock_local_server_flow,
     mock_login_token_response,
-    test_token_storage,
+    test_click_context,
 ):
     """
     Test the `exchange_code_and_store` behavior where logging in with a different
@@ -71,13 +67,16 @@ def test_login_gcs_different_identity(
     remove the `sub` in config storage (which is what originally raises that error).
     """
     load_response_set("cli.logout")
-    store_well_known_config(
-        "auth_user_data", {"sub": str(uuid.UUID(int=0))}, adapter=test_token_storage
+    manager = LoginManager()
+    manager.storage.store_well_known_config(
+        "auth_user_data", {"sub": str(uuid.UUID(int=0))}
     )
     mock_auth_client = mock.MagicMock(spec=globus_sdk.NativeAppAuthClient)
     mock_auth_client.oauth2_exchange_code_for_tokens = lambda _: MockToken()
     mock_local_server_flow.side_effect = (
-        lambda *args, **kwargs: exchange_code_and_store(mock_auth_client, "bogus_code")
+        lambda *args, **kwargs: exchange_code_and_store(
+            manager.storage, mock_auth_client, "bogus_code"
+        )
     )
     mock_remote_session.return_value = False
     result = run_line(f"globus login --gcs {uuid.UUID(int=0)}", assert_exit_code=1)
@@ -92,10 +91,11 @@ def test_login_gcs_different_identity(
     )
 
     monkeypatch.setattr(
-        "globus_cli.commands.logout.internal_native_client", lambda: mock_auth_client
+        "globus_cli.login_manager.storage.CLIStorage.cli_confidential_client",
+        mock_auth_client,
     )
     run_line("globus logout --yes")
-    assert read_well_known_config("auth_user_data", adapter=test_token_storage) is None
+    assert manager.storage.read_well_known_config("auth_user_data") is None
 
 
 def test_login_with_flow(monkeypatch, run_line):

@@ -1,4 +1,4 @@
-from globus_cli.login_manager.tokenstore import _resolve_namespace
+from globus_cli.login_manager.storage import _resolve_namespace
 
 
 def test_default_namespace():

@@ -25,8 +25,8 @@ from globus_cli.types import ServiceNameLiteral
 
 
 @pytest.fixture
-def patched_tokenstorage():
-    def mock_get_tokens(resource_server):
+def patched_tokenstorage(test_token_storage):
+    def fake_get_tokens(resource_server):
         fake_tokens = {
             "a.globus.org": {
                 "access_token": "fake_a_access_token",
@@ -42,7 +42,7 @@ def patched_tokenstorage():
 
         return fake_tokens.get(resource_server)
 
-    def mock_read_config(config_name):
+    def fake_read_config(self, config_name):
         if config_name == "scope_contract_versions":
             return {
                 "a.globus.org": 1,
@@ -51,12 +51,14 @@ def patched_tokenstorage():
         else:
             raise NotImplementedError
 
+    test_token_storage.get_token_data = mock.Mock()
+    test_token_storage.get_token_data.side_effect = fake_get_tokens
+
     with mock.patch(
-        "globus_cli.login_manager.tokenstore.token_storage_adapter._instance"
-    ) as mock_adapter:
-        mock_adapter.get_token_data = mock_get_tokens
-        mock_adapter.read_config = mock_read_config
-        yield mock_adapter
+        "globus_cli.login_manager.storage.CLIStorage.read_well_known_config",
+        fake_read_config,
+    ):
+        yield
 
 
 @pytest.fixture
@@ -103,7 +105,9 @@ def urlfmt_scope(rs: str, name: str) -> str:
 BASE_TIMER_SCOPE = urlfmt_scope("524230d7-ea86-4a52-8312-86065a9e0417", "timer")
 
 
-def test_requires_login_success(patch_scope_requirements, patched_tokenstorage):
+def test_requires_login_success(
+    patch_scope_requirements, patched_tokenstorage, test_click_context
+):
     # single server
     @LoginManager.requires_login("a")
     def dummy_command(login_manager):
@@ -113,7 +117,7 @@ def test_requires_login_success(patch_scope_requirements, patched_tokenstorage):
 
 
 def test_requires_login_multi_server_success(
-    patch_scope_requirements, patched_tokenstorage
+    patch_scope_requirements, patched_tokenstorage, test_click_context
 ):
     @LoginManager.requires_login("a", "b")
     def dummy_command(login_manager):
@@ -123,7 +127,7 @@ def test_requires_login_multi_server_success(
 
 
 def test_requires_login_single_server_fail(
-    patch_scope_requirements, patched_tokenstorage
+    patch_scope_requirements, patched_tokenstorage, test_click_context
 ):
     @LoginManager.requires_login("c.globus.org")
     def dummy_command(login_manager):
@@ -139,6 +143,7 @@ def test_requires_login_single_server_fail(
 
 def test_requiring_login_for_multiple_known_servers_renders_nice_error(
     patch_scope_requirements,
+    test_click_context,
 ):
     @LoginManager.requires_login("a", "b")
     def dummy_command(login_manager):
@@ -153,7 +158,9 @@ def test_requiring_login_for_multiple_known_servers_renders_nice_error(
     )
 
 
-def test_requiring_new_scope_fails(patch_scope_requirements, patched_tokenstorage):
+def test_requiring_new_scope_fails(
+    patch_scope_requirements, patched_tokenstorage, test_click_context
+):
     CLI_SCOPE_REQUIREMENTS["a"]["scopes"].append("scopeA3")
 
     @LoginManager.requires_login("a")
@@ -168,7 +175,9 @@ def test_requiring_new_scope_fails(patch_scope_requirements, patched_tokenstorag
     )
 
 
-def test_scope_contract_version_bump_forces_login(patch_scope_requirements):
+def test_scope_contract_version_bump_forces_login(
+    patch_scope_requirements, test_click_context
+):
     CLI_SCOPE_REQUIREMENTS["a"]["min_contract_version"] = 2
 
     @LoginManager.requires_login("a")
@@ -184,7 +193,7 @@ def test_scope_contract_version_bump_forces_login(patch_scope_requirements):
 
 
 def test_requires_login_fail_two_servers(
-    patch_scope_requirements, patched_tokenstorage
+    patch_scope_requirements, patched_tokenstorage, test_click_context
 ):
     @LoginManager.requires_login("c.globus.org", "d.globus.org")
     def dummy_command(login_manager):
@@ -203,7 +212,7 @@ def test_requires_login_fail_two_servers(
 
 
 def test_requires_login_fail_multi_server(
-    patch_scope_requirements, patched_tokenstorage
+    patch_scope_requirements, patched_tokenstorage, test_click_context
 ):
     @LoginManager.requires_login("c.globus.org", "d.globus.org", "e.globus.org")
     def dummy_command(login_manager):
@@ -220,7 +229,9 @@ def test_requires_login_fail_multi_server(
         assert server in str(ex.value)
 
 
-def test_requires_login_pass_manager(patch_scope_requirements, patched_tokenstorage):
+def test_requires_login_pass_manager(
+    patch_scope_requirements, patched_tokenstorage, test_click_context
+):
     @LoginManager.requires_login()
     def dummy_command(login_manager):
         assert login_manager.has_login("a.globus.org")
@@ -231,7 +242,9 @@ def test_requires_login_pass_manager(patch_scope_requirements, patched_tokenstor
     assert dummy_command()
 
 
-def test_login_manager_respects_context_error_message(patched_tokenstorage):
+def test_login_manager_respects_context_error_message(
+    patched_tokenstorage, test_click_context
+):
     dummy_id = str(uuid.uuid1())
 
     @LoginManager.requires_login()
@@ -249,7 +262,7 @@ def test_login_manager_respects_context_error_message(patched_tokenstorage):
     assert expected == str(excinfo.value)
 
 
-def test_client_login_two_requirements(client_login):
+def test_client_login_two_requirements(client_login, test_click_context):
     @LoginManager.requires_login("auth", "transfer")
     def dummy_command(login_manager):
         transfer_client = login_manager.get_transfer_client()
@@ -267,7 +280,7 @@ def test_client_login_two_requirements(client_login):
     assert dummy_command()
 
 
-def test_client_login_gcs(client_login, add_gcs_login):
+def test_client_login_gcs(client_login, add_gcs_login, test_click_context):
     with mock.patch.object(LoginManager, "_get_gcs_info") as mock_get_gcs_info:
 
         class fake_endpointish:
@@ -345,7 +358,7 @@ def test_cli_scope_requirements_min_contract_version_matches_current():
 def test_immature_signature_during_jwt_decode_emits_clock_skew_notice(
     capsys,
     monkeypatch,
-    test_token_storage,
+    test_click_context,
 ):
     """
     Test the `exchange_code_and_store` behavior when the id_token decoding fails
@@ -353,6 +366,8 @@ def test_immature_signature_during_jwt_decode_emits_clock_skew_notice(
 
     This should result in a clear error emitted to stderr.
     """
+    manager = LoginManager()
+
     mock_token_response = mock.Mock()
     mock_token_response.decode_id_token = mock.Mock(
         side_effect=jwt.exceptions.ImmatureSignatureError("test")
@@ -370,7 +385,7 @@ def test_immature_signature_during_jwt_decode_emits_clock_skew_notice(
     )
 
     with pytest.raises(jwt.exceptions.ImmatureSignatureError):
-        exchange_code_and_store(mock_auth_client, "bogus_code")
+        exchange_code_and_store(manager.storage, mock_auth_client, "bogus_code")
 
     stderr = capsys.readouterr().err
     assert "out of sync with the local clock" in stderr
@@ -390,6 +405,8 @@ def test_immature_signature_during_jwt_decode_skips_notice_if_date_cannot_parse(
 
     This should result in a clear error emitted to stderr.
     """
+    manager = LoginManager()
+
     mock_token_response = mock.Mock()
     mock_token_response.decode_id_token = mock.Mock(
         side_effect=jwt.exceptions.ImmatureSignatureError("test")
@@ -409,7 +426,7 @@ def test_immature_signature_during_jwt_decode_skips_notice_if_date_cannot_parse(
     )
 
     with pytest.raises(jwt.exceptions.ImmatureSignatureError):
-        exchange_code_and_store(mock_auth_client, "bogus_code")
+        exchange_code_and_store(manager.storage, mock_auth_client, "bogus_code")
 
     stderr = capsys.readouterr().err
     assert "This may indicate a clock skew problem." not in stderr
