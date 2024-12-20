@@ -47,5 +47,6 @@ def show_command(
                 formatter=AclPrincipalFormatter(auth_client=auth_client),
             ),
             Field("Path", "path"),
+            Field("Expiration Date", "expiration_date"),
         ],
     )

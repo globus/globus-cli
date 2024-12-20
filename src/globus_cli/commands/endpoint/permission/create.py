@@ -9,6 +9,8 @@ from globus_cli.login_manager import LoginManager
 from globus_cli.parsing import ENDPOINT_PLUS_REQPATH, command, security_principal_opts
 from globus_cli.termio import Field, display
 
+from ._common import expiration_date_option
+
 
 @command(
     "create",
@@ -50,6 +52,7 @@ $ globus endpoint permission create $ep_id:/ --permissions rw --identity go@glob
     help="A custom message to add to email notifications",
 )
 @click.argument("endpoint_plus_path", type=ENDPOINT_PLUS_REQPATH)
+@expiration_date_option
 @LoginManager.requires_login("auth", "transfer")
 def create_command(
     login_manager: LoginManager,
@@ -59,6 +62,7 @@ def create_command(
     endpoint_plus_path: tuple[uuid.UUID, str | None],
     notify_email: str | None,
     notify_message: str | None,
+    expiration_date: str | None,
 ) -> None:
     """
     Create a new access control rule on the target endpoint, granting users new
@@ -105,6 +109,7 @@ def create_command(
         path=path,
         notify_email=notify_email,
         notify_message=notify_message,
+        expiration_date=expiration_date,
     )
 
     res = transfer_client.add_endpoint_acl_rule(endpoint_id, rule_data)

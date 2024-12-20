@@ -1,6 +1,13 @@
 from __future__ import annotations
 
+import typing as t
+
+import click
+
 from globus_cli.termio import formatters
+from globus_cli.types import AnyCommand
+
+C = t.TypeVar("C", bound=AnyCommand)
 
 
 class AclPrincipalFormatter(formatters.auth.PrincipalDictFormatter):
@@ -18,3 +25,10 @@ class AclPrincipalFormatter(formatters.auth.PrincipalDictFormatter):
     # it could be made multi-environment using `globus_sdk.config.get_webapp_url()`
     def render_group_id(self, group_id: str) -> str:
         return f"https://app.globus.org/groups/{group_id}"
+
+
+def expiration_date_option(f: C) -> C:
+    return click.option(
+        "--expiration-date",
+        help="Expiration date for the permission in ISO 8601 format",
+    )(f)

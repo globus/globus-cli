@@ -2,6 +2,7 @@ metadata:
   user_id: "25de0aed-aa83-4600-a1be-a62a910af116"
   username: "foo@globusid.org"
   endpoint_id: "1405823f-0597-4a16-b296-46d4f0ae4b15"
+  permission_id: "fbe71e48-9fb4-4265-a5b5-4408d8bb5d1b"
 
 auth:
   - path: /v2/api/identities
@@ -32,3 +33,28 @@ transfer:
         "access_id": 12345,
         "message": "Access rule created successfully."
       }
+  - path: /endpoint/1405823f-0597-4a16-b296-46d4f0ae4b15/access/fbe71e48-9fb4-4265-a5b5-4408d8bb5d1b
+    method: put
+    json:
+      {
+        "DATA_TYPE": "result",
+        "code": "Updated",
+        "message": "Access rule 'fbe71e48-9fb4-4265-a5b5-4408d8bb5d1b' updated successfully",
+        "request_id": "abc123",
+        "resource": "/endpoint/1405823f-0597-4a16-b296-46d4f0ae4b15/access/fbe71e48-9fb4-4265-a5b5-4408d8bb5d1b"
+      }
+  - path: /endpoint/1405823f-0597-4a16-b296-46d4f0ae4b15/access/fbe71e48-9fb4-4265-a5b5-4408d8bb5d1b
+    method: get
+    json:
+      {
+      "DATA_TYPE": "access",
+      "create_time": "2024-12-16T21:30:15+00:00",
+      "expiration_date": "2025-01-01T00:00:00+00:00",
+      "id": "fbe71e48-9fb4-4265-a5b5-4408d8bb5d1b",
+      "path": "/",
+      "permissions": "rw",
+      "principal": "25de0aed-aa83-4600-a1be-a62a910af116",
+      "principal_type": "identity",
+      "role_id": null,
+      "role_type": null
+    }

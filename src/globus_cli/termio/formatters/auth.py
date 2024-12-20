@@ -90,6 +90,8 @@ class PrincipalURNFormatter(PrincipalFormatter):
 
 class PrincipalDictFormatter(PrincipalFormatter):
     def parse(self, value: t.Any) -> tuple[str, str]:
+        if isinstance(value, globus_sdk.GlobusHTTPResponse):
+            value = value.data
         if not isinstance(value, dict):
             raise ValueError("cannot format principal from non-dict data")
 
