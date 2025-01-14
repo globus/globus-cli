@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 import typing as t
 import uuid
 
@@ -6,6 +8,8 @@ import click
 from globus_cli.login_manager import LoginManager
 from globus_cli.parsing import command, endpoint_id_arg
 from globus_cli.termio import display
+
+from ._common import expiration_date_option
 
 
 @command(
@@ -25,17 +29,18 @@ $ globus endpoint permission update $ep_id $rule_id --permissions r
 @click.argument("rule_id")
 @click.option(
     "--permissions",
-    required=True,
     type=click.Choice(("r", "rw"), case_sensitive=False),
     help="Permissions to add. Read-Only or Read/Write",
 )
+@expiration_date_option
 @LoginManager.requires_login("transfer")
 def update_command(
     login_manager: LoginManager,
     *,
-    permissions: t.Literal["r", "rw"],
+    permissions: t.Literal["r", "rw"] | None,
     rule_id: str,
     endpoint_id: uuid.UUID,
+    expiration_date: str | None,
 ) -> None:
     """
     Update an existing access control rule's permissions.
@@ -47,6 +52,8 @@ def update_command(
 
     transfer_client = login_manager.get_transfer_client()
 
-    rule_data = assemble_generic_doc("access", permissions=permissions)
+    rule_data = assemble_generic_doc(
+        "access", permissions=permissions, expiration_date=expiration_date
+    )
     res = transfer_client.update_endpoint_acl_rule(endpoint_id, rule_id, rule_data)
     display(res, text_mode=display.RAW, response_key="message")

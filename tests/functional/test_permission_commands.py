@@ -152,3 +152,73 @@ def test_permission_create_username_lookup_fails(run_line):
     )
     assert "Identity does not exist" in result.stderr
     assert "Use --provision-identity" in result.stderr
+
+
+def test_permission_update(run_line):
+    meta = load_response_set("cli.endpoint_acl_operations").metadata
+    endpoint_id = meta["endpoint_id"]
+    permission_id = meta["permission_id"]
+
+    run_line(
+        [
+            "globus",
+            "endpoint",
+            "permission",
+            "update",
+            endpoint_id,
+            permission_id,
+            "--permissions",
+            "rw",
+            "--expiration-date",
+            "2030-03-30",
+        ],
+    )
+    sent_data = json.loads(responses.calls[-1].request.body)
+    assert sent_data["permissions"] == "rw"
+    assert sent_data["expiration_date"] == "2030-03-30"
+
+
+def test_permisison_create_expiration_date(run_line):
+    meta = load_response_set("cli.endpoint_acl_operations").metadata
+    endpoint_id = meta["endpoint_id"]
+
+    run_line(
+        [
+            "globus",
+            "endpoint",
+            "permission",
+            "create",
+            f"{endpoint_id}:/",
+            "--permissions",
+            "rw",
+            "--identity",
+            "foo@globus.org",
+            "--expiration-date",
+            "2030-03-30",
+        ],
+    )
+    sent_data = json.loads(responses.calls[-1].request.body)
+    assert sent_data["expiration_date"] == "2030-03-30"
+
+
+def test_permission_show(run_line):
+    meta = load_response_set("cli.endpoint_acl_operations").metadata
+    endpoint_id = meta["endpoint_id"]
+    permission_id = meta["permission_id"]
+
+    result = run_line(
+        [
+            "globus",
+            "endpoint",
+            "permission",
+            "show",
+            endpoint_id,
+            permission_id,
+        ],
+    )
+
+    assert f"Rule ID:         {permission_id}" in result.stdout
+    assert "Permissions:     rw" in result.stdout
+    assert "Shared With:     foo@globusid.org" in result.stdout
+    assert "Path:            /" in result.stdout
+    assert "Expiration Date: 2025-01-01T00:00:00+00:00" in result.stdout
