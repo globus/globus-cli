@@ -87,13 +87,11 @@ def _validate_flow_scope_output_handler(scopes_response: dict[str, str]) -> None
         for k, scopes in scopes_response.items()
         for scope in scopes
     ]
+
     click.echo("Discovered Scopes")
     click.echo("=================")
     if scope_entries:
-        display.render_table(
-            scope_entries,
-            fields=scopes_fields,
-        )
+        display(scope_entries, text_mode=display.TABLE, fields=scopes_fields)
     else:
         click.echo("No scopes discovered")
 

@@ -12,9 +12,9 @@ from .context import (
     term_is_interactive,
     verbosity,
 )
+from .display import display
 from .errors import PrintableErrorField, write_error_info
 from .field import Field
-from .printer import display
 
 
 def print_command_hint(message: str, *, color: str = "yellow") -> None:

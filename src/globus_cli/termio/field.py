@@ -36,5 +36,5 @@ class Field:
     def format(self, value: t.Any) -> str:
         return self.formatter.format(value)
 
-    def __call__(self, data: t.Any) -> str:
+    def serialize(self, data: t.Any) -> str:
         return self.format(self.get_value(data))

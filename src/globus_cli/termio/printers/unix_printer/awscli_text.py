@@ -116,8 +116,8 @@ def _partition_dict(item_dict, scalar_keys):
     return scalar, non_scalar
 
 
-def unix_display(data, stream=sys.stdout):
-    _format_text(data, stream)
+def unix_display(data, stream):
+    _format_text(data, stream or sys.stdout)
     try:
         sys.stdout.flush()
     except OSError as err:
