@@ -75,6 +75,11 @@ typing = [
     "types-requests",
     "types-jmespath",
 ]
+# `dev` is what's installed if you `make install`
+dev = [
+    {include-group = "test"},
+    {include-group = "typing"},
+]
 
 [tool.setuptools.dynamic.version]
 attr = "globus_cli.version.__version__"

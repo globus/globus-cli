@@ -4,7 +4,7 @@ Contributing to the Globus CLI
 First off, thank you so much for taking the time to contribute! :+1:
 
 If you want to do local development, you can setup a development virtualenv in
-`.venv` by running `make localdev`.
+`.venv` by running `make install`.
 
 Reporting Bugs & Requesting Features
 ------------------------------------
