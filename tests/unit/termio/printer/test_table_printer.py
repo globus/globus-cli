@@ -66,7 +66,7 @@ def test_table_printer_computes_column_width():
     data = ({"a": "Length - 11"}, {"a": "Length: 10"})
 
     printer = TablePrinter(fields=(field,))
-    table = DataTable(fields=(field,), data=data)
+    table = DataTable.from_data(fields=(field,), data=data)
 
     assert printer._column_width(table, 0) == 12
 
@@ -76,7 +76,7 @@ def test_table_printer_computes_ignores_header_column_width_if_not_printed():
     data = ({"a": "Length - 11"}, {"a": "Length: 10"})
 
     printer = TablePrinter(fields=(field,), print_headers=False)
-    table = DataTable(fields=(field,), data=data)
+    table = DataTable.from_data(fields=(field,), data=data)
 
     # Header is length 12; but won't be printed; next highest is 11.
     assert printer._column_width(table, 0) == 11
@@ -132,10 +132,10 @@ def test_table_printer_handles_missing_fields():
 def test_data_table_raises_index_error_when_out_of_bounds_access():
     fields = (Field("A", "a"), Field("B", "b"))
     data = ({"a": 1, "b": 2}, {"a": 3, "b": 4})
-    table = DataTable(fields=fields, data=data)
+    table = DataTable.from_data(fields=fields, data=data)
 
-    with pytest.raises(IndexError, match="Column index out of range"):
-        table.cell(2, 0)
+    with pytest.raises(IndexError, match="Table column index out of range"):
+        table[2, 0]
 
-    with pytest.raises(IndexError, match="Row index out of range"):
-        table.cell(0, 2)
+    with pytest.raises(IndexError, match="Table row index out of range"):
+        table[0, 2]

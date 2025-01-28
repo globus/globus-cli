@@ -35,14 +35,14 @@ class TablePrinter(Printer[t.Iterable[t.Any]]):
         :param stream: an optional IO stream to write to. Defaults to stdout.
         """
         echo = functools.partial(click.echo, file=stream)
-        table = DataTable(self._fields, data)
+        table = DataTable.from_data(self._fields, data)
 
         if self._print_headers:
             echo(self._serialize_row(table, self._headers))
             echo(self._serialize_row(table, fillchar="-"))
 
         for y in range(table.num_rows):
-            values = [table.cell(x, y) for x in range(table.num_columns)]
+            values = [table[x, y] for x in range(table.num_columns)]
             echo(self._serialize_row(table, values))
 
     @functools.cached_property
@@ -74,10 +74,10 @@ class TablePrinter(Printer[t.Iterable[t.Any]]):
             cells.append(value.ljust(width, fillchar))
         return " | ".join(cells)
 
-    @functools.lru_cache(maxsize=16)  # noqa: B019
+    @functools.cache  # noqa: B019
     def _column_width(self, table: DataTable, x: int) -> int:
         """The width of a column in the table."""
-        values = [table.cell(x, y) for y in range(table.num_rows)]
+        values = [table[x, y] for y in range(table.num_rows)]
         if self._print_headers:
             values.append(self._headers[x])
 
@@ -85,34 +85,51 @@ class TablePrinter(Printer[t.Iterable[t.Any]]):
 
 
 class DataTable:
-    def __init__(self, fields: tuple[Field, ...], data: t.Iterable[t.Any]) -> None:
-        self._fields = fields
-        self._data = tuple(data)
+    """
+    A data structure to hold tabular data in a 2D grid of cells.
 
-        self.num_columns = len(fields)
-        self.num_rows = len(self._data)
+    This class only models data cells; other table elements like headers are not
+    persisted and must be handled separately.
 
-    @functools.lru_cache(maxsize=256)  # noqa: B019
-    def cell(self, x: int, y: int) -> str:
+    :param cells: a 2D tuple of strings with table's cell data.
+    :raises ValueError: if any rows have different numbers of columns.
+    """
+
+    def __init__(self, cells: tuple[tuple[str, ...], ...]) -> None:
+        self._cells = cells
+
+        for row in cells:
+            if len(row) != len(cells[0]):
+                raise ValueError("All rows must have the same number of columns.")
+
+        self.num_columns = len(cells[0])
+        self.num_rows = len(cells)
+
+    @classmethod
+    def from_data(cls, fields: tuple[Field, ...], data: t.Iterable[t.Any]) -> DataTable:
+        """
+        Create a DataTable from a list of fields and iterable of data objects.
+
+        The data objects are serialized and discarded upon creation.
+        """
+        rows = []
+        for data_obj in data:
+            row = tuple(field.serialize(data_obj) for field in fields)
+            rows.append(tuple(row))
+
+        return cls(tuple(rows))
+
+    def __getitem__(self, key: tuple[int, int]) -> str:
         """
         Get the value of a cell in the table.
 
-        Note: This class only models data cells; other table elements like headers
-              are not represented and should be handled separately.
-        :param x: A 0-based column index.
-        :param y: A 0-based row index.
+        :param key: A tuple of two values (column index, row index).
         :return: A string representation of the cell's value.
         :raises IndexError: if either index is out of range.
         """
-        if x >= len(self._fields):
-            raise IndexError(
-                f"Column index out of range. (Index: {x}; Length: {len(self._fields)})"
-            )
-        if y >= len(self._data):
-            raise IndexError(
-                f"Row index out of range. (Index: {y}; Length: {len(self._data)})"
-            )
-        field = self._fields[x]
-        data_obj = self._data[y]
-
-        return field.serialize(data_obj)
+        x, y = key
+        if x < 0 or x >= self.num_columns:
+            raise IndexError(f"Table column index out of range: {x}")
+        if y < 0 or y >= self.num_rows:
+            raise IndexError(f"Table row index out of range: {y}")
+        return self._cells[y][x]
