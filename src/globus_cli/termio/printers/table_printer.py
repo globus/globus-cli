@@ -27,7 +27,7 @@ class TablePrinter(Printer[t.Iterable[t.Any]]):
         self._fields = tuple(fields)
         self._print_headers = print_headers
 
-    def print(self, data: t.Iterable[t.Any], stream: t.IO[str] | None = None) -> None:
+    def echo(self, data: t.Iterable[t.Any], stream: t.IO[str] | None = None) -> None:
         """
         Print out a rendered table.
 

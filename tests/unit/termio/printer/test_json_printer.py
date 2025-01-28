@@ -11,7 +11,7 @@ def test_json_printer_prints_with_sorted_keys():
 
     with StringIO() as stream:
         with click_context():
-            printer.print(data, stream)
+            printer.echo(data, stream)
             printed_json = stream.getvalue()
 
     # fmt: off
@@ -31,7 +31,7 @@ def test_json_printer_prints_without_sorted_keys():
 
     with StringIO() as stream:
         with click_context():
-            printer.print(data, stream)
+            printer.echo(data, stream)
             printed_json = stream.getvalue()
 
     # fmt: off

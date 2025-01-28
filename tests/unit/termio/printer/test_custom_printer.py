@@ -9,6 +9,6 @@ def test_custom_printer_does_whatever_it_wants():
         called = True
 
     printer = CustomPrinter(custom_print)
-    printer.print({"data": "data"})
+    printer.echo({"data": "data"})
 
     assert called

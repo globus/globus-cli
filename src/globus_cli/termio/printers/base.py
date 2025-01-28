@@ -15,7 +15,7 @@ DataType = t.TypeVar("DataType")
 class Printer(abc.ABC, t.Generic[DataType]):
 
     @abc.abstractmethod
-    def print(self, data: DataType, stream: t.IO[str] | None = None) -> None:
+    def echo(self, data: DataType, stream: t.IO[str] | None = None) -> None:
         raise NotImplementedError
 
     @classmethod

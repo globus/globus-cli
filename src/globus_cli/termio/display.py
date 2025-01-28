@@ -113,7 +113,7 @@ class Renderer:
         if text_preamble is not None:
             click.echo(text_preamble, file=stream)
 
-        printer.print(data, stream=stream)
+        printer.echo(data, stream=stream)
 
         if text_epilog is not None:
             click.echo(text_epilog, file=stream)
@@ -135,10 +135,10 @@ class Renderer:
         """
         if outformat_is_json() or (outformat_is_text() and text_mode == self.JSON):
             data = json_converter(response_data) if json_converter else response_data
-            JsonPrinter(sort_keys=sort_json_keys).print(data, stream=stream)
+            JsonPrinter(sort_keys=sort_json_keys).echo(data, stream=stream)
         elif outformat_is_unix():
             data = json_converter(response_data) if json_converter else response_data
-            UnixPrinter().print(data, stream=stream)
+            UnixPrinter().echo(data, stream=stream)
         elif simple_text is not None:
             click.echo(simple_text, file=stream)
         elif text_mode != self.SILENT:

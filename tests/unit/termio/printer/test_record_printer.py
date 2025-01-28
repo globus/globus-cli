@@ -17,7 +17,7 @@ def test_record_printer_prints():
     printer = RecordPrinter(fields=fields, max_width=80)
 
     with StringIO() as stream:
-        printer.print(data, stream)
+        printer.echo(data, stream)
         printed_record = stream.getvalue()
 
     # fmt: off
@@ -40,7 +40,7 @@ def test_record_printer_wraps_long_values():
     printer = RecordPrinter(fields=fields, max_width=25)
 
     with StringIO() as stream:
-        printer.print(data, stream)
+        printer.echo(data, stream)
         printed_record = stream.getvalue()
 
     # fmt: off
@@ -64,7 +64,7 @@ def test_record_printer_respects_field_wrap_setting():
     printer = RecordPrinter(fields=fields, max_width=20)
 
     with StringIO() as stream:
-        printer.print(data, stream)
+        printer.echo(data, stream)
         printed_record = stream.getvalue()
 
     # fmt: off
@@ -83,7 +83,7 @@ def test_record_printer_maintains_data_newlines_when_wrapping():
     printer = RecordPrinter(fields=fields, max_width=15)
 
     with StringIO() as stream:
-        printer.print(data, stream)
+        printer.echo(data, stream)
         printed_record = stream.getvalue()
 
     # fmt: off
@@ -106,7 +106,7 @@ def test_record_printer_matches_longest_key_length():
     printer = RecordPrinter(fields=fields, max_width=80)
 
     with StringIO() as stream:
-        printer.print(data, stream)
+        printer.echo(data, stream)
         printed_record = stream.getvalue()
 
     # fmt: off
@@ -125,7 +125,7 @@ def test_record_printer_ignores_extra_fields():
     printer = RecordPrinter(fields=fields)
 
     with StringIO() as stream:
-        printer.print(data, stream)
+        printer.echo(data, stream)
         printed_record = stream.getvalue()
 
     # fmt: off
@@ -143,7 +143,7 @@ def test_record_printer_handles_missing_fields():
     printer = RecordPrinter(fields=fields)
 
     with StringIO() as stream:
-        printer.print(data, stream)
+        printer.echo(data, stream)
         printed_record = stream.getvalue()
 
     # fmt: off

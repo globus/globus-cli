@@ -21,7 +21,7 @@ class UnixPrinter(Printer[DataObject]):
     key-value pair format with no headers or footers.
     """
 
-    def print(self, data: DataObject, stream: t.IO[str] | None = None) -> None:
+    def echo(self, data: DataObject, stream: t.IO[str] | None = None) -> None:
         res = UnixPrinter.jmespath_preprocess(data)
 
         try:

@@ -21,7 +21,7 @@ def test_table_printer_prints_with_headers():
     printer = TablePrinter(fields=fields)
 
     with StringIO() as stream:
-        printer.print(data, stream)
+        printer.echo(data, stream)
         printed_table = stream.getvalue()
 
     # fmt: off
@@ -49,7 +49,7 @@ def test_table_printer_prints_without_headers():
     printer = TablePrinter(fields=fields, print_headers=False)
 
     with StringIO() as stream:
-        printer.print(data, stream)
+        printer.echo(data, stream)
         printed_table = stream.getvalue()
 
     # fmt: off
@@ -92,7 +92,7 @@ def test_table_printer_ignores_extra_fields():
     printer = TablePrinter(fields=fields)
 
     with StringIO() as stream:
-        printer.print(data, stream)
+        printer.echo(data, stream)
         printed_table = stream.getvalue()
 
     # fmt: off
@@ -115,7 +115,7 @@ def test_table_printer_handles_missing_fields():
     printer = TablePrinter(fields=fields)
 
     with StringIO() as stream:
-        printer.print(data, stream)
+        printer.echo(data, stream)
         printed_table = stream.getvalue()
 
     # Missing fields are printed as "None"

@@ -42,7 +42,7 @@ class RecordPrinter(Printer[DataObject]):
             width=max_width or _get_terminal_content_width(),
         )
 
-    def print(self, data: DataObject, stream: t.IO[str] | None = None) -> None:
+    def echo(self, data: DataObject, stream: t.IO[str] | None = None) -> None:
         for field in self._fields:
             item = self._format_item(data, field)
             click.echo(item, file=stream)
@@ -114,7 +114,7 @@ class RecordListPrinter(Printer[t.Iterable[DataObject]]):
     ) -> None:
         self._record_printer = RecordPrinter(fields, max_width=max_width)
 
-    def print(
+    def echo(
         self,
         data: t.Iterable[DataObject],
         stream: t.IO[str] | None = None,
@@ -125,7 +125,7 @@ class RecordListPrinter(Printer[t.Iterable[DataObject]]):
                 click.echo("", file=stream)
             prepend_newline = True
 
-            self._record_printer.print(item, stream)
+            self._record_printer.echo(item, stream)
 
 
 def _get_terminal_content_width() -> int:

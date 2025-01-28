@@ -32,7 +32,7 @@ class JsonPrinter(Printer[DataObject]):
     def __init__(self, *, sort_keys: bool = True) -> None:
         self._sort_keys = sort_keys
 
-    def print(self, data: DataObject, stream: t.IO[str] | None = None) -> None:
+    def echo(self, data: DataObject, stream: t.IO[str] | None = None) -> None:
         res = JsonPrinter.jmespath_preprocess(data)
         res = json.dumps(res, indent=2, sort_keys=self._sort_keys)
         click.echo(res, file=stream)

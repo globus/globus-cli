@@ -13,5 +13,5 @@ class CustomPrinter(Printer[t.Any]):
     def __init__(self, custom_print: t.Callable[[t.Any], None]) -> None:
         self._custom_print = custom_print
 
-    def print(self, data: t.Any, stream: t.IO[str] | None = None) -> None:
+    def echo(self, data: t.Any, stream: t.IO[str] | None = None) -> None:
         self._custom_print(data)

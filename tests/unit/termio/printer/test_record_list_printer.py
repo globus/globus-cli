@@ -19,7 +19,7 @@ def test_record_list_printer_prints():
     printer = RecordListPrinter(fields=fields, max_width=80)
 
     with StringIO() as stream:
-        printer.print(data, stream)
+        printer.echo(data, stream)
         printed_records = stream.getvalue()
 
     assert printed_records == (
@@ -50,7 +50,7 @@ def test_record_list_printer_wraps_long_values():
     printer = RecordListPrinter(fields=fields, max_width=15)
 
     with StringIO() as stream:
-        printer.print(data, stream)
+        printer.echo(data, stream)
         printed_records = stream.getvalue()
 
     assert printed_records == (
