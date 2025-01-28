@@ -74,7 +74,7 @@ class TablePrinter(Printer[t.Iterable[t.Any]]):
             cells.append(value.ljust(width, fillchar))
         return " | ".join(cells)
 
-    @functools.cache  # noqa: B019
+    @functools.lru_cache(maxsize=None)  # noqa: B019
     def _column_width(self, table: DataTable, x: int) -> int:
         """The width of a column in the table."""
         values = [table[x, y] for y in range(table.num_rows)]
