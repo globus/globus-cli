@@ -41,4 +41,3 @@ class UnixPrinter(Printer[DataObject]):
                 err=True,
             )
             click.get_current_context().exit(2)
-        pass
