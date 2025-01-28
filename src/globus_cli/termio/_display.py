@@ -6,7 +6,7 @@ import typing as t
 import click
 import globus_sdk
 
-from . import outformat_is_json, outformat_is_text, outformat_is_unix
+from .context import outformat_is_json, outformat_is_text, outformat_is_unix
 from .field import Field
 from .printers import (
     CustomPrinter,
