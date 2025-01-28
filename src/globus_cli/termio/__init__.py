@@ -1,5 +1,6 @@
 import click
 
+from ._display import display
 from .context import (
     env_interactive,
     err_is_terminal,
@@ -12,7 +13,6 @@ from .context import (
     term_is_interactive,
     verbosity,
 )
-from .display import display
 from .errors import PrintableErrorField, write_error_info
 from .field import Field
 
