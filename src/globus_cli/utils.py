@@ -296,7 +296,7 @@ K = t.TypeVar("K")
 V = t.TypeVar("V")
 
 
-class LazyDict(dict[K, V]):
+class LazyDict(t.Dict[K, V]):
     """
     A dictionary with support for lazily loaded values.
     Lazy loaders are registered using the `register_loader` method.
