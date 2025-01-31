@@ -1,12 +1,12 @@
 import os
 import re
 import textwrap
-from unittest import mock
 
 import click
 import pytest
 
 from globus_cli.termio import Field, display, term_is_interactive
+from globus_cli.termio.terminal_info import VirtualTerminalInfo
 
 
 @pytest.mark.parametrize(
@@ -55,9 +55,13 @@ def test_format_record_list(capsys):
 
 def test_format_record_with_text_wrapping(capsys, monkeypatch):
     # fake the terminal width at 120
-    fake_dimensions = mock.Mock()
-    fake_dimensions.columns = 120
+    fake_dimensions = os.terminal_size((120, 20))
     monkeypatch.setattr("shutil.get_terminal_size", lambda *_, **__: fake_dimensions)
+    # Generate a new virtual terminal info object to recompute the columns
+    monkeypatch.setattr(
+        "globus_cli.termio.printers.record_printer.TERM_INFO",
+        VirtualTerminalInfo(),
+    )
     expected_width = int(0.8 * 120)
 
     # based on info from wikipedia
