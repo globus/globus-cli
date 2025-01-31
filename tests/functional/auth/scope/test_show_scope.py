@@ -67,7 +67,7 @@ class MultilineDedenter:
         text = textwrap.dedent(text)
         text = text.replace(self.line_end_str, "")
         if self.strip_newlines[0]:
-            text = text.lstrip("\n")
+            text = text.lstrip("\r\n")
         if self.strip_newlines[1]:
-            text = text.rstrip("\n")
+            text = text.rstrip("\r\n")
         return text
