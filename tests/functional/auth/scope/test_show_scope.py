@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 import json
 import textwrap
 
@@ -17,7 +19,7 @@ def test_show_scope(run_line, scope_id_or_string):
 
     result = run_line(f"globus auth scope show {scope_id_or_string}")
 
-    formatter = MultilineFormatter(strip_newlines=(True, False))
+    formatter = MultilineDedenter(strip_newlines=(True, False))
 
     assert result.stdout == formatter.dedent(
         """
@@ -52,7 +54,7 @@ def test_show_scope_json_omits_dependent_scope_string(run_line):
     assert loaded["scope"]["dependent_scopes"][0].get("scope_string") is None
 
 
-class MultilineFormatter:
+class MultilineDedenter:
     def __init__(
         self,
         strip_newlines: tuple[bool, bool],
