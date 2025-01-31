@@ -19,9 +19,7 @@ def test_show_scope(run_line, scope_id_or_string):
 
     result = run_line(f"globus auth scope show {scope_id_or_string}")
 
-    formatter = MultilineDedenter(strip_newlines=(True, False))
-
-    assert result.stdout == formatter.dedent(
+    expected_output = textwrap.dedent(
         """
         Scope String:          https://auth.globus.org/scopes/actions.globus.org/hello_world
         Scope ID:              24f3dcbe-7655-4721-bc64-d1c5d635b9a1
@@ -29,9 +27,9 @@ def test_show_scope(run_line, scope_id_or_string):
         Description:           Allow the Hello World action to extend greetings.
         Client ID:             5fac2e64-c734-4e6b-90ea-ff12ddbf9653
         Allows Refresh Tokens: True
-        Required Domains:      <LE>
+        Required Domains:
         Advertised:            True
-        Dependent Scopes:      <LE>
+        Dependent Scopes:
           - Scope String:           urn:globus:auth:scope:nexus.api.globus.org:groups
             Scope ID:               69a73d8f-cd45-4e37-bb3b-43678424aeb7
             Optional:               False
@@ -41,7 +39,12 @@ def test_show_scope(run_line, scope_id_or_string):
             Optional:               False
             Requires Refresh Token: False
         """  # noqa: E501
-    )
+    ).strip()
+
+    # Remove trailing spaces from the command output.
+    stdout = "\n".join(line.rstrip() for line in result.stdout.splitlines())
+
+    assert stdout == expected_output
 
 
 def test_show_scope_json_omits_dependent_scope_string(run_line):
@@ -52,22 +55,3 @@ def test_show_scope_json_omits_dependent_scope_string(run_line):
 
     loaded = json.loads(result.stdout)
     assert loaded["scope"]["dependent_scopes"][0].get("scope_string") is None
-
-
-class MultilineDedenter:
-    def __init__(
-        self,
-        strip_newlines: tuple[bool, bool],
-        line_end_str: str = "<LE>",
-    ) -> None:
-        self.strip_newlines = strip_newlines
-        self.line_end_str = line_end_str
-
-    def dedent(self, text: str) -> str:
-        text = textwrap.dedent(text)
-        text = text.replace(self.line_end_str, "")
-        if self.strip_newlines[0]:
-            text = text.lstrip("\r\n")
-        if self.strip_newlines[1]:
-            text = text.rstrip("\r\n")
-        return text
