@@ -270,7 +270,7 @@ def resolve_principal_urn(
         if principal.startswith("urn:globus:groups:id:"):
             return principal
 
-        resolved = principal if _is_uuid(principal) else None
+        resolved = principal if is_uuid(principal) else None
         if resolved:
             return f"urn:globus:groups:id:{resolved}"
 
@@ -284,9 +284,68 @@ def resolve_principal_urn(
         raise NotImplementedError("unrecognized principal_type")
 
 
-def _is_uuid(s: str) -> bool:
+def is_uuid(s: str) -> bool:
     try:
         uuid.UUID(s)
         return True
     except ValueError:
         return False
+
+
+K = t.TypeVar("K")
+V = t.TypeVar("V")
+
+
+class LazyDict(dict[K, V]):
+    """
+    A dictionary with support for lazily loaded values.
+    Lazy loaders are registered using the `register_loader` method.
+
+    Note: This class extends `dict`, not `UserDict` for json serializability.
+
+    Behaviors:
+    *   A lazy-loaded key is contained "in" the dictionary once registered.
+    *   A lazy-loaded key is not included in any presentation of the dictionary unless
+        it's already been loaded.
+    *   Accessing a lazy-loaded key will load it iff it hasn't been already loaded.
+    *   Otherwise, behaves like a normal dictionary.
+    """
+
+    def __init__(self, *args: t.Any, **kwargs: t.Any) -> None:
+        self._loaders: dict[K, t.Callable[[], V]] = {}
+        super().__init__(*args, **kwargs)
+
+    def register_loader(self, key: K, load: t.Callable[[], V]) -> None:
+        """
+        Register a callable (() -> Any) with a key.
+        It will be called once when the key is first accessed to load a value.
+        """
+        self._loaders[key] = load
+
+    def get(self, item: K, default: t.Any = None) -> t.Any:
+        self._maybe_load_lazy_item(item)
+        return super().get(item, default)
+
+    def __getitem__(self, item: K) -> V:
+        self._maybe_load_lazy_item(item)
+        return super().__getitem__(item)
+
+    def _maybe_load_lazy_item(self, item: K) -> None:
+        """
+        Load a lazy item into the core dictionary if it's not there and has a
+        registered loading function.
+        """
+        if not super().__contains__(item) and item in self._loaders:
+            self[item] = self._loaders[item]()
+            # Remove the loader to prevent reloading if the key is deleted explicitly.
+            del self._loaders[item]
+
+    def __contains__(self, item: object) -> bool:
+        return item in self._loaders or super().__contains__(item)
+
+    def __delitem__(self, key: K) -> None:
+        if key in self._loaders:
+            del self._loaders[key]
+
+        if key in self:
+            super().__delitem__(key)

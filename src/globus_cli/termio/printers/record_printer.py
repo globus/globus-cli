@@ -10,8 +10,11 @@ import globus_sdk
 
 from globus_cli.types import JsonValue
 
-from ..field import Field
 from .base import Printer
+
+if t.TYPE_CHECKING:
+    from ..field import Field
+
 
 DataObject = t.Union[JsonValue, globus_sdk.GlobusHTTPResponse]
 
@@ -28,18 +31,21 @@ class RecordPrinter(Printer[DataObject]):
 
     :param fields: a collection of Fields with load and render instructions; one per
         attribute.
-    :param max_width: the maximum width of the output. Defaults to 80% of the terminal
-        width.
+    :param max_content_width: the maximum width of the output. Defaults to 80% of the
+        terminal width.
     """
 
     def __init__(
-        self, fields: t.Iterable[Field], *, max_width: int | None = None
+        self,
+        fields: t.Iterable[Field],
+        *,
+        max_content_width: int | None = None,
     ) -> None:
         self._fields = list(fields)
         self._item_wrapper = TextWrapper(
             initial_indent=" " * self._key_len,
             subsequent_indent=" " * self._key_len,
-            width=max_width or _get_terminal_content_width(),
+            width=max_content_width or self.default_max_content_width(),
         )
 
     def echo(self, data: DataObject, stream: t.IO[str] | None = None) -> None:
@@ -88,6 +94,10 @@ class RecordPrinter(Printer[DataObject]):
         """The number of chars in the key column."""
         return max(len(f.name) for f in self._fields) + 2
 
+    @classmethod
+    def default_max_content_width(self) -> int:
+        return _get_terminal_content_width()
+
 
 class RecordListPrinter(Printer[t.Iterable[DataObject]]):
     """
@@ -105,14 +115,17 @@ class RecordListPrinter(Printer[t.Iterable[DataObject]]):
 
     :param fields: a collection of Fields with load and render instructions; one per
         attribute.
-    :param max_width: the maximum width of the output. Defaults to 80% of the terminal
-        width.
+    :param max_content_width: the maximum width of the output. Defaults to 80% of the
+        terminal width.
     """
 
     def __init__(
-        self, fields: t.Iterable[Field], *, max_width: int | None = None
+        self, fields: t.Iterable[Field], *, max_content_width: int | None = None
     ) -> None:
-        self._record_printer = RecordPrinter(fields, max_width=max_width)
+        self._record_printer = RecordPrinter(
+            fields,
+            max_content_width=max_content_width,
+        )
 
     def echo(
         self,
