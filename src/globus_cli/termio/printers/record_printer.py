@@ -47,8 +47,9 @@ class RecordPrinter(Printer[DataObject]):
         self._base_item_wrapper = TextWrapper(
             initial_indent=" " * self._key_len,
             subsequent_indent=" " * self._key_len,
-            width=content_width,
         )
+        if content_width is not None:
+            self._base_item_wrapper.width = content_width
 
     def echo(self, data: DataObject, stream: t.IO[str] | None = None) -> None:
         for field in self._fields:
@@ -97,7 +98,7 @@ class RecordPrinter(Printer[DataObject]):
         return max(len(f.name) for f in self._fields) + 2
 
     @property
-    def _item_wrapper(self):
+    def _item_wrapper(self) -> TextWrapper:
         """
         Access the printers TextWrapper, modifying the width if necessary.
 
