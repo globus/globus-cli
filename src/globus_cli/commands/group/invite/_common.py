@@ -14,7 +14,7 @@ if t.TYPE_CHECKING:
 
 
 def get_invite_formatter(
-    case: t.Literal["accept", "decline"]
+    case: t.Literal["accept", "decline"],
 ) -> t.Callable[[globus_sdk.GlobusHTTPResponse], None]:
     action_word = "Accepted" if case == "accept" else "Declined"
 

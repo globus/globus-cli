@@ -46,7 +46,7 @@ def add_batch_to_transfer_data(
 
 
 def display_name_or_cname(
-    ep_doc: dict[str, JsonValue] | globus_sdk.GlobusHTTPResponse
+    ep_doc: dict[str, JsonValue] | globus_sdk.GlobusHTTPResponse,
 ) -> str:
     return str(ep_doc["display_name"] or ep_doc["canonical_name"])
 

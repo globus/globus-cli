@@ -8,7 +8,7 @@ _TEST_WARNING_CONTROL: bool = False
 
 
 def simplefilter(
-    filterstr: t.Literal["default", "error", "ignore", "always", "module", "once"]
+    filterstr: t.Literal["default", "error", "ignore", "always", "module", "once"],
 ) -> None:
     """
     Wrap `warnings.simplefilter` with a check on `_TEST_WARNING_CONTROL`.

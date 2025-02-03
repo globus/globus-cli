@@ -98,7 +98,7 @@ def check_inactive_reason(
 
 
 def _get_inactive_reason(
-    timer_doc: dict[str, t.Any] | globus_sdk.GlobusHTTPResponse
+    timer_doc: dict[str, t.Any] | globus_sdk.GlobusHTTPResponse,
 ) -> GARE | None:
     from globus_sdk.gare import to_gare
 

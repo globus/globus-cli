@@ -285,7 +285,7 @@ class LoginManager:
         ]
 
         def inner(
-            func: t.Callable[Concatenate[LoginManager, P], R]
+            func: t.Callable[Concatenate[LoginManager, P], R],
         ) -> t.Callable[P, R]:
             @functools.wraps(func)
             def wrapper(*args: P.args, **kwargs: P.kwargs) -> R:
