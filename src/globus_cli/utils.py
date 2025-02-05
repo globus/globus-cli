@@ -296,6 +296,8 @@ K = t.TypeVar("K")
 V = t.TypeVar("V")
 
 
+# Note: This class extends `t.Dict` instead of `dict` for python3.8 compatibility.
+# Once we drop support for python3.8, we can switch to `dict[K, V]`.
 class LazyDict(t.Dict[K, V]):
     """
     A dictionary with support for lazily loaded values.
