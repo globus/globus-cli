@@ -59,7 +59,7 @@ def test_format_record_with_text_wrapping(capsys, monkeypatch):
     monkeypatch.setattr("shutil.get_terminal_size", lambda *_, **__: fake_dimensions)
     # Generate a new virtual terminal info object to recompute the columns
     monkeypatch.setattr(
-        "globus_cli.termio.printers.record_printer.TERM_INFO",
+        "globus_cli.termio.terminal_info.TERM_INFO",
         VirtualTerminalInfo(),
     )
     expected_width = int(0.8 * 120)

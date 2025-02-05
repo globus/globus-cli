@@ -2,14 +2,13 @@ from __future__ import annotations
 
 import functools
 import typing as t
-from textwrap import TextWrapper
 
 import click
 import globus_sdk
 
 from globus_cli.types import JsonValue
 
-from ..terminal_info import TERM_INFO
+from ..terminal_info import TerminalTextWrapper
 from .base import Printer
 
 if t.TYPE_CHECKING:
@@ -43,13 +42,11 @@ class RecordPrinter(Printer[DataObject]):
         content_width: int | None = None,
     ) -> None:
         self._fields = list(fields)
-        self._is_max_content_width_explicit = content_width is not None
-        self._base_item_wrapper = TextWrapper(
+        self._item_wrapper = TerminalTextWrapper(
             initial_indent=" " * self._key_len,
             subsequent_indent=" " * self._key_len,
+            width=content_width,
         )
-        if content_width is not None:
-            self._base_item_wrapper.width = content_width
 
     def echo(self, data: DataObject, stream: t.IO[str] | None = None) -> None:
         for field in self._fields:
@@ -96,19 +93,6 @@ class RecordPrinter(Printer[DataObject]):
     def _key_len(self) -> int:
         """The number of chars in the key column."""
         return max(len(f.name) for f in self._fields) + 2
-
-    @property
-    def _item_wrapper(self) -> TextWrapper:
-        """
-        Access the printers TextWrapper, modifying the width if necessary.
-
-        :returns: a TextWrapper instance for wrapping item values.
-        """
-        # If the class was instantiated with an explicit max_content_width, don't
-        # override it.
-        if not self._is_max_content_width_explicit:
-            self._base_item_wrapper.width = TERM_INFO.columns
-        return self._base_item_wrapper
 
 
 class RecordListPrinter(Printer[t.Iterable[DataObject]]):

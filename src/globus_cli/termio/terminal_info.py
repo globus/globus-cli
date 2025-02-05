@@ -5,11 +5,14 @@ Some printers and formatters within this termio module are concerned with text w
 To do this effectively, they need to know where exactly to start wrapping text.
 """
 
+from __future__ import annotations
+
 import contextlib
 import shutil
 import typing as t
+from textwrap import TextWrapper
 
-__all__ = ("TERM_INFO",)
+__all__ = ("TERM_INFO", "TerminalTextWrapper")
 
 
 class VirtualTerminalInfo:
@@ -26,15 +29,36 @@ class VirtualTerminalInfo:
         """
         Context manager to temporarily decrease the available width for text wrapping.
         """
-
         self._column_delta -= size
-        yield
-        self._column_delta += size
+        try:
+            yield
+        finally:
+            self._column_delta += size
 
     @property
     def columns(self) -> int:
         computed_columns = self._base_columns + self._column_delta
         return max(self.MIN_COLUMNS, computed_columns)
+
+
+class TerminalTextWrapper(TextWrapper):
+    """
+    A text wrapper customized for wrapping text to the terminal.
+
+    If width is not supplied, it will be evaluated from ``TERM_INFO``.
+    """
+
+    def __init__(self, *args: t.Any, width: int | None = None, **kwargs: t.Any) -> None:
+        super().__init__(*args, **kwargs)
+        self._width = width
+
+    @property
+    def width(self) -> int:
+        return self._width or TERM_INFO.columns
+
+    @width.setter
+    def width(self, value: int) -> None:
+        self._width = value
 
 
 TERM_INFO = VirtualTerminalInfo()
