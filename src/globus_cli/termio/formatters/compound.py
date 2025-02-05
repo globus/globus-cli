@@ -104,9 +104,9 @@ class ArrayMultilineFormatter(ArrayFormatter):
         ...
 
         Example
-        " ABC"      ->  "  -  ABC"
-        "DEF"       ->  "    DEF"
-        "   GHI"    ->  "       GHI"
+        "ABC"  ->  "  - ABC"
+        "DEF"  ->  "    DEF"
+        "GHI"  ->  "    GHI"
 
         """
         if not value:
