@@ -27,7 +27,7 @@ def test_show_scope(run_line, scope_id_or_string):
         Description:           Allow the Hello World action to extend greetings.
         Client ID:             5fac2e64-c734-4e6b-90ea-ff12ddbf9653
         Allows Refresh Tokens: True
-        Required Domains:
+        Required Domains:      []
         Advertised:            True
         Dependent Scopes:
           - Scope String:           urn:globus:auth:scope:nexus.api.globus.org:groups

@@ -70,6 +70,9 @@ class ArrayFormatter(FieldFormatter[t.List[str]]):
         return self.element_formatter.format(element)
 
     def render(self, value: list[str]) -> str:
+        if not value:
+            return "[]"
+
         return self.delimiter.join(value)
 
 
@@ -85,7 +88,7 @@ class ArrayMultilineFormatter(ArrayFormatter):
 
     def render(self, value: list[str]) -> str:
         """Override default array rendering to prepend a newline."""
-        if value == "":
+        if not value:
             return super().render(value)
         return os.linesep + super().render(value)
 
