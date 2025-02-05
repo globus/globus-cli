@@ -90,17 +90,32 @@ class ArrayMultilineFormatter(ArrayFormatter):
     def parse_element(self, element: t.Any) -> str:
         with TERM_INFO.indented(4):
             formatted = self.element_formatter.format(element)
-        return self._indent_element(formatted)
+        return self._left_pad_element(formatted)
 
     @classmethod
-    def _indent_element(cls, value: str) -> str:
-        """Indent a multi-line formatted element string."""
-        first_ = "  - "
+    def _left_pad_element(cls, value: str) -> str:
+        """
+        Insert a rectangle of characters to the left of a multiline string.
+
+        Inserted rectangle:
+        "  - "
+        "    "
+        "    "
+        ...
+
+        Example
+        " ABC"      ->  "  -  ABC"
+        "DEF"       ->  "    DEF"
+        "   GHI"    ->  "       GHI"
+
+        """
         if not value:
-            return first_
-        indent = "    "
-        indented = textwrap.indent(value, indent, lambda _: True)
-        return first_ + indented[len(indent) :]
+            return "  - "
+
+        # Empty strings are default not indented by textwrap so a predicate is needed.
+        indented = textwrap.indent(value, "    ", predicate=lambda line: True)
+
+        return "  - " + indented[4:]
 
 
 Record = t.Union[JsonDict, globus_sdk.GlobusHTTPResponse]
