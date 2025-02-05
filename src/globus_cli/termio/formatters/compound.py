@@ -84,8 +84,10 @@ class ArrayMultilineFormatter(ArrayFormatter):
         super().__init__(delimiter=os.linesep, sort=False, element_formatter=formatter)
 
     def render(self, value: list[str]) -> str:
-        prefix = os.linesep if value else ""
-        return prefix + super().render(value)
+        """Override default array rendering to prepend a newline."""
+        if value == "":
+            return super().render(value)
+        return os.linesep + super().render(value)
 
     def parse_element(self, element: t.Any) -> str:
         with TERM_INFO.indented(4):
