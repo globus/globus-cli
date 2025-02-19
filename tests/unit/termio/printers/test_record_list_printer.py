@@ -16,7 +16,7 @@ def test_record_list_printer_prints():
         {"a": 3, "b": 6, "c": 9},
     )
 
-    printer = RecordListPrinter(fields=fields, max_width=80)
+    printer = RecordListPrinter(fields=fields, max_content_width=80)
 
     with StringIO() as stream:
         printer.echo(data, stream)
@@ -47,7 +47,7 @@ def test_record_list_printer_wraps_long_values():
         {"a": 2, "b": "b"},
     )
 
-    printer = RecordListPrinter(fields=fields, max_width=15)
+    printer = RecordListPrinter(fields=fields, max_content_width=15)
 
     with StringIO() as stream:
         printer.echo(data, stream)
