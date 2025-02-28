@@ -116,11 +116,13 @@ def handle_internal_auth_requirements(
 
 @sdk_error_handler(
     error_class="FlowsAPIError",
-    condition=lambda err: globus_sdk.gare.is_gare(err.raw_json),
+    condition=lambda err: globus_sdk.gare.is_gare(err.raw_json or {}),
     exit_status=4,
 )
 def handle_flows_gare(exception: globus_sdk.FlowsAPIError) -> int | None:
-    gare = globus_sdk.gare.to_gare(exception.raw_json)
+    gare = globus_sdk.gare.to_gare(exception.raw_json or {})
+    if not gare:
+        raise ValueError("Expected a GARE, but got None")
 
     _handle_gare(gare)
 
@@ -497,7 +499,8 @@ def _handle_gare(gare: globus_sdk.gare.GARE, message: str | None = None) -> None
     required_scopes = gare.authorization_parameters.required_scopes
     if required_scopes:
         _concrete_consent_required_hook(
-            required_scopes=required_scopes, message=message
+            required_scopes=required_scopes,
+            message=message or _DEFAULT_CONSENT_REAUTH_MESSAGE,
         )
 
     session_policies = gare.authorization_parameters.session_required_policies
