@@ -5,7 +5,9 @@ import responses
 from globus_sdk._testing import load_response_set
 
 
-@pytest.mark.parametrize("subscription_id", (str(uuid.uuid4()), "DEFAULT", "null"))
+@pytest.mark.parametrize(
+    "subscription_id", (str(uuid.UUID(int=101)), "DEFAULT", "null")
+)
 def test_gcs_endpoint_set_subscription_id(subscription_id, run_line, add_gcs_login):
     meta = load_response_set("cli.collection_operations").metadata
     endpoint_id = meta["endpoint_id"]
