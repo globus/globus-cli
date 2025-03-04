@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import json
+import os
 import textwrap
 import typing as t
 
@@ -9,7 +10,7 @@ import globus_sdk
 import globus_sdk.gare
 
 from globus_cli.endpointish import WrongEntityTypeError
-from globus_cli.login_manager import MissingLoginError
+from globus_cli.login_manager import MissingLoginError, is_client_login
 from globus_cli.termio import PrintableErrorField, outformat_is_json, write_error_info
 from globus_cli.types import JsonValue
 from globus_cli.utils import CLIAuthRequirementsError
@@ -244,13 +245,7 @@ def _concrete_consent_required_hook(
 def authentication_hook(
     exception: globus_sdk.TransferAPIError | globus_sdk.AuthAPIError,
 ) -> None:
-    click.echo(
-        (
-            "Globus CLI Error: No Authentication provided. Make sure "
-            "you have logged in with 'globus login'."
-        ),
-        err=True,
-    )
+    _concrete_unauthorized_hook()
 
 
 @sdk_error_handler(error_class="TransferAPIError")
@@ -414,13 +409,7 @@ def flows_error_hook(exception: globus_sdk.FlowsAPIError) -> None:
     condition=lambda err: err.message == "invalid_grant",
 )
 def invalidrefresh_hook(exception: globus_sdk.AuthAPIError) -> None:
-    click.echo(
-        (
-            "Globus CLI Error: Your credentials are no longer "
-            "valid. Please log in again with 'globus login'."
-        ),
-        err=True,
-    )
+    _concrete_unauthorized_hook()
 
 
 @sdk_error_handler(error_class="AuthAPIError")
@@ -513,6 +502,80 @@ def _handle_gare(gare: globus_sdk.gare.GARE, message: str | None = None) -> None
             domains=session_domains,
             message=message or _DEFAULT_SESSION_REAUTH_MESSAGE,
         )
+
+
+def _concrete_unauthorized_hook() -> None:
+    if is_client_login():
+        click.echo(
+            click.style("MissingLoginError: ", fg="yellow")
+            + (
+                "Invalid Authentication provided.\n\n"
+                "'GLOBUS_CLI_CLIENT_ID' and 'GLOBUS_CLI_CLIENT_SECRET' are set but do "
+                "not appear to be valid client credentials.\n"
+                "Please check that the values are correctly set with no missing "
+                "characters.\n"
+            ),
+            err=True,
+        )
+        if not _client_id_is_valid():
+            click.secho(
+                "'GLOBUS_CLI_CLIENT_ID' does not appear to be a valid client ID.",
+                bold=True,
+                fg="red",
+                err=True,
+            )
+        if not _client_secret_appears_valid():
+            click.secho(
+                (
+                    "'GLOBUS_CLI_CLIENT_SECRET' does not appear to "
+                    "be a valid client secret."
+                ),
+                bold=True,
+                fg="red",
+                err=True,
+            )
+
+    else:
+        click.echo(
+            click.style("MissingLoginError: ", fg="yellow")
+            + (
+                "No Authentication provided.\n"
+                "Please run:\n\n"
+                "    globus login\n\n"
+                "to ensure that you are logged in."
+            ),
+            err=True,
+        )
+
+
+def _client_id_is_valid() -> bool:
+    import uuid
+
+    try:
+        uuid.UUID(os.environ["GLOBUS_CLI_CLIENT_ID"])
+        return True
+    except ValueError:
+        return False
+
+
+def _client_secret_appears_valid() -> bool:
+    """
+    This check is known to be potentially incorrect if the encoding of Auth secrets
+    changes away from b64. After discussion with the Auth team, we can use this check
+    as long as we treat it as a fallible heuristic.
+    """
+    import base64
+
+    secret = os.environ["GLOBUS_CLI_CLIENT_SECRET"]
+    if len(secret) < 30:
+        return False
+
+    try:
+        base64.b64decode(secret.encode("utf-8"))
+    except ValueError:
+        return False
+
+    return True
 
 
 def register_all_hooks() -> None:
