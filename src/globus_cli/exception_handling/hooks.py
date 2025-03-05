@@ -245,7 +245,7 @@ def _concrete_consent_required_hook(
 def authentication_hook(
     exception: globus_sdk.TransferAPIError | globus_sdk.AuthAPIError,
 ) -> None:
-    _concrete_unauthorized_hook()
+    _emit_unauthorized_message()
 
 
 @sdk_error_handler(error_class="TransferAPIError")
@@ -409,7 +409,7 @@ def flows_error_hook(exception: globus_sdk.FlowsAPIError) -> None:
     condition=lambda err: err.message == "invalid_grant",
 )
 def invalidrefresh_hook(exception: globus_sdk.AuthAPIError) -> None:
-    _concrete_unauthorized_hook()
+    _emit_unauthorized_message()
 
 
 @sdk_error_handler(error_class="AuthAPIError")
@@ -504,51 +504,55 @@ def _handle_gare(gare: globus_sdk.gare.GARE, message: str | None = None) -> None
         )
 
 
-def _concrete_unauthorized_hook() -> None:
+_UNAUTHORIZED_CLIENT_MESSAGE: str = (
+    "Invalid Authentication provided.\n\n"
+    "'GLOBUS_CLI_CLIENT_ID' and 'GLOBUS_CLI_CLIENT_SECRET' are set but do "
+    "not appear to be valid client credentials.\n"
+    "Please check that the values are correctly set with no missing "
+    "characters.\n"
+)
+_UNAUTHORIZED_USER_MESSAGE: str = (
+    "No Authentication provided.\n"
+    "Please run:\n\n"
+    "    globus login\n\n"
+    "to ensure that you are logged in."
+)
+
+
+def _emit_unauthorized_message() -> None:
+    """
+    Emit messaging for unauthorized usage, in which there are no tokens or the
+    provided credentials appear invalid.
+    """
     if is_client_login():
         click.echo(
             click.style("MissingLoginError: ", fg="yellow")
-            + (
-                "Invalid Authentication provided.\n\n"
-                "'GLOBUS_CLI_CLIENT_ID' and 'GLOBUS_CLI_CLIENT_SECRET' are set but do "
-                "not appear to be valid client credentials.\n"
-                "Please check that the values are correctly set with no missing "
-                "characters.\n"
-            ),
+            + _UNAUTHORIZED_CLIENT_MESSAGE,
             err=True,
         )
         if not _client_id_is_valid():
-            click.secho(
-                "'GLOBUS_CLI_CLIENT_ID' does not appear to be a valid client ID.",
-                bold=True,
-                fg="red",
-                err=True,
-            )
+            msg = "'GLOBUS_CLI_CLIENT_ID' does not appear to be a valid client ID."
+            click.secho(msg, bold=True, fg="red", err=True)
         if not _client_secret_appears_valid():
-            click.secho(
-                (
-                    "'GLOBUS_CLI_CLIENT_SECRET' does not appear to "
-                    "be a valid client secret."
-                ),
-                bold=True,
-                fg="red",
-                err=True,
+            msg = (
+                "'GLOBUS_CLI_CLIENT_SECRET' does not appear to "
+                "be a valid client secret."
             )
+            click.secho(msg, bold=True, fg="red", err=True)
 
     else:
         click.echo(
             click.style("MissingLoginError: ", fg="yellow")
-            + (
-                "No Authentication provided.\n"
-                "Please run:\n\n"
-                "    globus login\n\n"
-                "to ensure that you are logged in."
-            ),
+            + _UNAUTHORIZED_USER_MESSAGE,
             err=True,
         )
 
 
 def _client_id_is_valid() -> bool:
+    """
+    Check if the CLI client ID appears to be in an invalid format.
+    Assumes that the client secret env var is set.
+    """
     import uuid
 
     try:
@@ -560,9 +564,12 @@ def _client_id_is_valid() -> bool:
 
 def _client_secret_appears_valid() -> bool:
     """
-    This check is known to be potentially incorrect if the encoding of Auth secrets
-    changes away from b64. After discussion with the Auth team, we can use this check
-    as long as we treat it as a fallible heuristic.
+    Check if the CLI client secret appears to be in an invalid format.
+    Assumes that the client secret env var is set.
+
+    This check is known to be sensitive to potential changes in Globus Auth.
+    After discussion with the Auth team, we can use this check as long as we treat it
+    as a fallible heuristic. Messaging should reflect "appears to be invalid", etc.
     """
     import base64
 
