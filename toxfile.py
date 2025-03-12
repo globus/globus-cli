@@ -25,6 +25,13 @@ if t.TYPE_CHECKING:
 
 log = logging.getLogger(__name__)
 
+_INJECT_SITECUSTOMIZE = '''
+"""A sitecustomize.py injected by globus_cli_coverage_sitecustomize"""
+import coverage
+
+coverage.process_startup()
+'''
+
 
 @impl
 def tox_add_env_config(env_conf: EnvConfigSet, state: State) -> None:
@@ -33,6 +40,12 @@ def tox_add_env_config(env_conf: EnvConfigSet, state: State) -> None:
         of_type=list[str],
         default=[],
         desc="A dir tree to remove before running the environment commands",
+    )
+    env_conf.add_config(
+        keys=["globus_cli_coverage_sitecustomize"],
+        of_type=bool,
+        default=[],
+        desc="Inject a sitecustomize.py to enable `coverage` under pytest-xdist",
     )
 
 
@@ -44,3 +57,14 @@ def tox_before_run_commands(tox_env: ToxEnv) -> None:
         if path.exists():
             log.warning(f"globus_cli_rmtree: {path}")
             shutil.rmtree(path)
+
+    if tox_env.conf.load("globus_cli_coverage_sitecustomize"):
+        site_packages_path = pathlib.Path(tox_env.conf.load("env_site_packages_dir"))
+        inject_sitecustomize_path = site_packages_path / "sitecustomize.py"
+        inject_sitecustomize_path.write_text(_INJECT_SITECUSTOMIZE)
+
+        # It is important that the tox configuration also sets
+        # COVERAGE_PROCESS_START to the coverage configuration file.
+        # If this is not done, `coverage.process_startup` will be a no-op.
+        setenv = tox_env.conf.load("set_env")
+        setenv.update({"COVERAGE_PROCESS_START": "pyproject.toml"})
