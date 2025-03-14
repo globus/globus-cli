@@ -18,7 +18,17 @@ _HOOK_SRC_TYPE = t.Union[t.Callable[[E], None], t.Callable[[E], t.Optional[int]]
 
 CONDITION_TYPE = t.Callable[[E], bool]
 
-_REGISTERED_HOOKS: list[_RegisteredHook[t.Any]] = []
+_REGISTERED_HOOKS: list[DeclaredHook[t.Any]] = []
+
+
+@dataclasses.dataclass
+class DeclaredHook(t.Generic[E]):
+    hook_func: HOOK_TYPE[E]
+    condition: CONDITION_TYPE[E]
+
+
+def register_hook(hook: DeclaredHook[t.Any]) -> None:
+    _REGISTERED_HOOKS.append(hook)
 
 
 def sdk_error_handler(
@@ -26,7 +36,7 @@ def sdk_error_handler(
     error_class: str = "GlobusAPIError",
     condition: t.Callable[[E_Globus], bool] | None = None,
     exit_status: int = 1,
-) -> t.Callable[[_HOOK_SRC_TYPE[E_Globus]], HOOK_TYPE[E_Globus]]:
+) -> t.Callable[[_HOOK_SRC_TYPE[E_Globus]], DeclaredHook[E_Globus]]:
     return _error_handler(
         condition=_build_condition(condition, error_class), exit_status=exit_status
     )
@@ -36,7 +46,7 @@ def error_handler(
     *,
     error_class: type[E],
     exit_status: int = 1,
-) -> t.Callable[[_HOOK_SRC_TYPE[E]], HOOK_TYPE[E]]:
+) -> t.Callable[[_HOOK_SRC_TYPE[E]], DeclaredHook[E]]:
     return _error_handler(
         condition=_build_condition(None, error_class), exit_status=exit_status
     )
@@ -54,13 +64,13 @@ def _error_handler(
     *,
     condition: t.Callable[[E], bool],
     exit_status: int = 1,
-) -> t.Callable[[_HOOK_SRC_TYPE[E]], HOOK_TYPE[E]]:
-    """decorator for excepthooks
-
-    register each one, in order, with any relevant "condition"
+) -> t.Callable[[_HOOK_SRC_TYPE[E]], DeclaredHook[E]]:
+    """
+    Decorator for excepthooks, converting the hook functions into
+    declared hook objects.
     """
 
-    def inner_decorator(fn: _HOOK_SRC_TYPE[E]) -> HOOK_TYPE[E]:
+    def inner_decorator(fn: _HOOK_SRC_TYPE[E]) -> DeclaredHook[E]:
         @functools.wraps(fn)
         def wrapped(exception: E) -> t.NoReturn:
             hook_result = fn(exception)
@@ -80,8 +90,7 @@ def _error_handler(
 
             ctx.exit(exit_status)
 
-        _REGISTERED_HOOKS.append(_RegisteredHook(wrapped, condition))
-        return wrapped
+        return DeclaredHook(wrapped, condition)
 
     return inner_decorator
 
@@ -144,9 +153,3 @@ def _resolve_error_class(error_class: str | type[E]) -> type[E]:
         return resolved  # type: ignore[return-value]
     else:
         return error_class
-
-
-@dataclasses.dataclass
-class _RegisteredHook(t.Generic[E]):
-    hook_func: HOOK_TYPE[E]
-    condition: CONDITION_TYPE[E]

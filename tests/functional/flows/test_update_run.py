@@ -1,4 +1,5 @@
 import re
+import uuid
 
 from globus_sdk._testing import RegisteredResponse, load_response
 
@@ -116,3 +117,34 @@ def test_update_run_text_output(run_line, add_flow_login):
     assert monitors_match.group("monitors") == ", ".join(
         identity["username"] for identity in run_monitor_identities
     )
+
+
+# this is a regression test for an error shape seen in production
+# in which run update is missing `$.error.message`
+def test_handling_for_run_update_error(run_line):
+    run_id = str(uuid.uuid1())
+    RegisteredResponse(
+        service="flows",
+        path=f"/runs/{run_id}",
+        method="PUT",
+        json={
+            "error": {
+                "code": "UNPROCESSABLE_ENTITY",
+                "detail": [
+                    {
+                        "loc": ["label"],
+                        "msg": "ensure this value has at most 64 characters",
+                        "type": "value_error.any_str.max_length",
+                        "ctx": {"limit_value": 64},
+                    }
+                ],
+            },
+            "debug_id": "094a222b-2819-4129-9979-7f51f57cd7d9",
+        },
+        status=422,
+    ).add()
+    result = run_line(
+        ["globus", "flows", "run", "update", run_id, "--label", "a" * 80],
+        assert_exit_code=1,
+    )
+    assert "$.label: ensure this value has at most 64 characters" in result.stderr
