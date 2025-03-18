@@ -1,7 +1,7 @@
 import json
 import uuid
 
-from globus_sdk._testing import load_response_set
+from globus_sdk._testing import RegisteredResponse, load_response_set
 
 
 def test_list_flows(run_line):
@@ -97,3 +97,15 @@ def test_list_flows_sorted(run_line):
         assert row[2] == meta["flow_owner"]
 
     assert titles_in_order == sorted(titles_in_order)
+
+
+def test_list_flows_empty_list(run_line):
+    RegisteredResponse(service="flows", path="/flows", json={"flows": []}).add()
+
+    expected = (
+        "Flow ID | Title | Owner | Created At | Updated At\n"
+        "------- | ----- | ----- | ---------- | ----------\n"
+    )
+
+    result = run_line("globus flows list")
+    assert result.output == expected
