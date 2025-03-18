@@ -5,6 +5,7 @@ import pytest
 
 from globus_cli.services.auth import CustomAuthClient
 from globus_cli.utils import (
+    LazyDict,
     format_list_of_words,
     format_plural_str,
     resolve_principal_urn,
@@ -254,3 +255,80 @@ def test_resolve_principal_urn__when_principal_type_key_is_non_default():
         )
 
     assert e.value.message.startswith("'--foobarjohn identity' but")
+
+
+def test_lazy_dict():
+    real_dict = {"a": 1, "b": 2}
+    lazy_dict = LazyDict(real_dict)
+
+    assert "c" not in lazy_dict
+    assert real_dict == lazy_dict
+
+    lazy_dict.register_loader("c", lambda: 3)
+
+    assert "c" in lazy_dict
+    assert real_dict == lazy_dict
+
+    assert lazy_dict["c"] == 3
+    assert real_dict != lazy_dict
+
+
+def test_lazy_dict_only_loads_once():
+    load_call_count = 0
+
+    def load_data():
+        nonlocal load_call_count
+        load_call_count += 1
+        return 3
+
+    lazy_dict = LazyDict()
+    lazy_dict.register_loader("c", load_data)
+
+    assert load_call_count == 0
+
+    assert lazy_dict["c"] == 3
+    assert load_call_count == 1
+
+    assert lazy_dict["c"] == 3
+    assert lazy_dict.get("c") == 3
+    assert load_call_count == 1
+
+
+def test_lazy_dict_excludes_loaders_from_presentation_until_loaded():
+    lazy_dict = LazyDict({"a": 1, "b": 2})
+    lazy_dict.register_loader("c", lambda: 3)
+
+    assert "3" not in repr(lazy_dict)
+    assert "3" not in str(lazy_dict)
+
+    lazy_dict["c"]
+
+    assert "3" in repr(lazy_dict)
+    assert "3" in str(lazy_dict)
+
+
+def test_lazy_dict_prefers_explicit_values_to_loaders():
+    lazy_dict = LazyDict({"a": 1, "b": 2})
+    lazy_dict.register_loader("a", lambda: 3)
+
+    assert lazy_dict["a"] == 1
+
+    lazy_dict["a"] = 4
+
+    assert lazy_dict["a"] == 4
+    assert lazy_dict.get("a") == 4
+
+
+def test_lazy_dict_delete_removes_unloaded_loaders():
+    lazy = LazyDict({"a": 1})
+    lazy.register_loader("a", lambda: 1)
+    lazy.register_loader("b", lambda: 2)
+
+    assert "a" in lazy
+    assert "b" in lazy
+
+    del lazy["a"]
+    del lazy["b"]
+
+    assert "a" not in lazy
+    assert "b" not in lazy

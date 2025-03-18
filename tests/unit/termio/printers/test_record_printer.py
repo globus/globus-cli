@@ -1,9 +1,8 @@
 from io import StringIO
 
-import pytest
-
 from globus_cli.termio import Field
 from globus_cli.termio.printers import RecordPrinter
+from globus_cli.termio.terminal_info import TERM_INFO
 
 
 def test_record_printer_prints():
@@ -14,7 +13,7 @@ def test_record_printer_prints():
     )
     data = {"a": 1, "b": 4, "c": 7}
 
-    printer = RecordPrinter(fields=fields, max_width=80)
+    printer = RecordPrinter(fields=fields, content_width=80)
 
     with StringIO() as stream:
         printer.echo(data, stream)
@@ -37,7 +36,7 @@ def test_record_printer_wraps_long_values():
     )
     data = {"a": 1, "b": "a" * 40, "c": 7}
 
-    printer = RecordPrinter(fields=fields, max_width=25)
+    printer = RecordPrinter(fields=fields, content_width=25)
 
     with StringIO() as stream:
         printer.echo(data, stream)
@@ -61,7 +60,7 @@ def test_record_printer_respects_field_wrap_setting():
     )
     data = {"a": "a" * 10, "b": "b" * 10}
 
-    printer = RecordPrinter(fields=fields, max_width=20)
+    printer = RecordPrinter(fields=fields, content_width=20)
 
     with StringIO() as stream:
         printer.echo(data, stream)
@@ -80,7 +79,7 @@ def test_record_printer_maintains_data_newlines_when_wrapping():
     fields = (Field("Wrapped", "a", wrap_enabled=True),)
     data = {"a": "a\nbcdefghij"}
 
-    printer = RecordPrinter(fields=fields, max_width=15)
+    printer = RecordPrinter(fields=fields, content_width=15)
 
     with StringIO() as stream:
         printer.echo(data, stream)
@@ -103,7 +102,7 @@ def test_record_printer_matches_longest_key_length():
     )
     data = {"a": 1, "b": 4, "c": 7}
 
-    printer = RecordPrinter(fields=fields, max_width=80)
+    printer = RecordPrinter(fields=fields, content_width=80)
 
     with StringIO() as stream:
         printer.echo(data, stream)
@@ -154,16 +153,13 @@ def test_record_printer_handles_missing_fields():
     # fmt: on
 
 
-@pytest.mark.parametrize(
-    "columns,max_width",
-    (
-        (80, 80),
-        # If the terminal width is > 100, we only use 80% of it.
-        (120, 96),
-    ),
-)
-def test_record_printer_sets_default_width(monkeypatch, columns, max_width):
-    monkeypatch.setenv("COLUMNS", str(columns))
-
+def test_record_printer_sets_default_content_width():
+    expected_content_width = TERM_INFO.columns
     printer = RecordPrinter(fields=(Field("A", "a"),))
-    assert printer._item_wrapper.width == max_width
+    assert printer._item_wrapper.width == expected_content_width
+
+
+def test_record_printer_respects_explicit_content_width():
+    printer = RecordPrinter(fields=(Field("A", "a"),), content_width=5000)
+    assert TERM_INFO.columns != 5000
+    assert printer._item_wrapper.width == 5000
