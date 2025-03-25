@@ -2,6 +2,13 @@
 
 // scriv-insert-here
 
+== 3.33.1 (2025-03-25)
+
+Bugfixes:
+
+* Fix printing behavior on empty table data to avoid failures. The CLI
+  will now correctly print the header row for empty table outputs.
+
 == 3.33.0 (2025-03-12)
 
 Bugfixes:
