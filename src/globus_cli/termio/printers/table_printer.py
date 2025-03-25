@@ -35,15 +35,22 @@ class TablePrinter(Printer[t.Iterable[t.Any]]):
         :param stream: an optional IO stream to write to. Defaults to stdout.
         """
         echo = functools.partial(click.echo, file=stream)
-        table = DataTable.from_data(self._fields, data)
 
-        if self._print_headers:
-            echo(self._serialize_row(table, self._headers))
-            echo(self._serialize_row(table, fillchar="-"))
+        try:
+            table = DataTable.from_data(self._fields, data)
 
-        for y in range(table.num_rows):
-            values = [table[x, y] for x in range(table.num_columns)]
-            echo(self._serialize_row(table, values))
+            if self._print_headers:
+                echo(self._serialize_row(table, self._headers))
+                echo(self._serialize_row(table, fillchar="-"))
+
+            for y in range(table.num_rows):
+                values = [table[x, y] for x in range(table.num_columns)]
+                echo(self._serialize_row(table, values))
+        except EmptyTableError:
+            if self._print_headers:
+                header_table = DataTable((self._headers,))
+                echo(self._serialize_row(header_table, self._headers))
+                echo(self._serialize_row(header_table, fillchar="-"))
 
     @functools.cached_property
     def _headers(self) -> tuple[str, ...]:
@@ -84,6 +91,14 @@ class TablePrinter(Printer[t.Iterable[t.Any]]):
         return max(0, *(len(value) for value in values))
 
 
+class EmptyTableError(ValueError):
+    """
+    Error for trying to create an empty DataTable.
+
+    An empty table is invalid because we can't figure out how many columns it has.
+    """
+
+
 class DataTable:
     """
     A data structure to hold tabular data in a 2D grid of cells.
@@ -96,6 +111,9 @@ class DataTable:
     """
 
     def __init__(self, cells: tuple[tuple[str, ...], ...]) -> None:
+        if not cells:
+            raise EmptyTableError("Internal DataTable was empty.")
+
         self._cells = cells
 
         for row in cells:
