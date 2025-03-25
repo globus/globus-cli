@@ -29,7 +29,7 @@ classifiers = [
 ]
 requires-python = ">=3.8"
 dependencies = [
-    "globus-sdk==3.52.0",
+    "globus-sdk==3.53.0",
     "click>=8.1.4,<9",
     "jmespath==1.0.1",
     "packaging>=17.0",
@@ -56,7 +56,7 @@ test = [
     "pytest-xdist<4",
     "pytest-timeout<3",
     "click-type-test==1.1.0;python_version>='3.10'",
-    "responses==0.25.6",
+    "responses==0.25.7",
     # loading test fixture data
     "ruamel.yaml==0.18.10",
 ]
