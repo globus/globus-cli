@@ -1,18 +1,10 @@
 from __future__ import annotations
 
 import typing as t
-import uuid
 
 import globus_sdk
-import globus_sdk.scopes
 
-
-def _is_uuid(s: str) -> bool:
-    try:
-        uuid.UUID(s)
-        return True
-    except ValueError:
-        return False
+from globus_cli.utils import is_uuid
 
 
 class GetIdentitiesKwargs(t.TypedDict, total=False):
@@ -72,7 +64,7 @@ class CustomAuthClient(globus_sdk.AuthClient):
     def maybe_lookup_identity_id(
         self, identity_name: str, provision: bool = False
     ) -> str | None:
-        if _is_uuid(identity_name):
+        if is_uuid(identity_name):
             return identity_name
         else:
             return self._lookup_identity_field(
