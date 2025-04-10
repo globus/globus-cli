@@ -106,6 +106,7 @@ def mock_login_token_response():
                     "profile",
                     "email",
                     "urn:globus:auth:scope:auth.globus.org:view_identity_set",
+                    "urn:globus:auth:scope:auth.globus.org:manage_projects",
                 ]
             ),
         ),
