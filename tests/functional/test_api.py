@@ -27,13 +27,15 @@ def _register_stub_transfer_response():
 
 
 @pytest.mark.parametrize(
-    "service_name", ["gcs", "auth", "flows", "groups", "search", "timer", "transfer"]
+    "service_name",
+    ["gcs", "auth", "flows", "groups", "search", "timers", "timer", "transfer"],
 )
 @pytest.mark.parametrize("is_error_response", (False, True))
 def test_api_command_get(run_line, service_name, add_gcs_login, is_error_response):
+    sdk_service_name = "timer" if service_name == "timers" else service_name
     load_response(
         RegisteredResponse(
-            service=service_name,
+            service=sdk_service_name,
             status=500 if is_error_response else 200,
             path="/foo",
             json={"foo": "bar"},

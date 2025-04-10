@@ -356,10 +356,13 @@ def api_command() -> None:
 
 # note: this must be written as a separate call and not inlined into the loop body
 # this ensures that it acts as a closure over 'service_name'
-def build_command(service_name: ServiceNameLiteral | t.Literal["gcs"]) -> click.Command:
-    # Temporarily accommodate 'timer' as the existing, legacy subcommand name,
-    # while using "Timers" as the preferred name.
-    legacy_name = "timer" if service_name == "timers" else service_name
+def build_command(
+    command_name: ServiceNameLiteral | t.Literal["gcs", "timer"],
+) -> click.Command:
+    service_name: ServiceNameLiteral | t.Literal["gcs"] = (
+        "timers" if command_name == "timer" else command_name
+    )
+    hidden: bool = command_name == "timer"
 
     helptext = f"""\
 Make API calls to Globus {service_name.title()}
@@ -368,14 +371,14 @@ The arguments are an HTTP method name and a path within the service to which the
 should be made. The path will be joined with the known service URL.
 For example, a call of
 
-    globus api {legacy_name} GET /foo/bar
+    globus api {command_name} GET /foo/bar
 
 sends a 'GET' request to `{_get_url(service_name)}foo/bar`
 """
 
     if service_name != "gcs":
 
-        @command(legacy_name, help=helptext)
+        @command(command_name, help=helptext, hidden=hidden)
         @LoginManager.requires_login(service_name)
         @_service_command_params
         def service_command(
@@ -461,3 +464,4 @@ for service_name_ in CLI_SCOPE_REQUIREMENTS:
 del service_name_
 
 api_command.add_command(build_command("gcs"))
+api_command.add_command(build_command("timer"))
