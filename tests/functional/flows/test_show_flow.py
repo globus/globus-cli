@@ -16,6 +16,9 @@ def test_show_flow_text_output(run_line):
     flow_id = get_response.metadata["flow_id"]
     keywords = get_response.json["keywords"]
 
+    aragorn_id = _urn_to_id(get_response.json["run_managers"][0])
+    gandalf_id = _urn_to_id(get_response.json["run_monitors"][0])
+
     legolas_id = _urn_to_id(get_response.json["flow_owner"])
     viewer_identity_ids = [
         x
@@ -56,6 +59,8 @@ def test_show_flow_text_output(run_line):
         expect_owner = "legolas@rivendell.middleearth"
         expect_viewers = "gimli@rivendell.middleearth"
         expect_starters = "frodo@rivendell.middleearth"
+        expect_run_managers = "aragorn@rivendell.middleearth"
+        expect_run_monitors = "gandalf@rivendell.middleearth"
 
         starter_identity_ids = [
             x
@@ -98,6 +103,24 @@ def test_show_flow_text_output(run_line):
                             "status": "used",
                             "email": "frodo@shire.middleearth",
                         },
+                        {
+                            "username": "aragorn@rivendell.middleearth",
+                            "name": "Viggo Mortensen",
+                            "id": aragorn_id,
+                            "identity_provider": "c8abac57-560c-46c8-b386-f116ed8793d5",
+                            "organization": "Fellowship of the Ring",
+                            "status": "used",
+                            "email": "aragorn@rivendell.middleearth",
+                        },
+                        {
+                            "username": "gandalf@rivendell.middleearth",
+                            "name": "Ian McKellen",
+                            "id": gandalf_id,
+                            "identity_provider": "c8abac57-560c-46c8-b386-f116ed8793d5",
+                            "organization": "Fellowship of the Ring",
+                            "status": "used",
+                            "email": "gandalf@rivendell.middleearth",
+                        },
                     ]
                     + [
                         {
@@ -139,6 +162,8 @@ def test_show_flow_text_output(run_line):
         "Administrators",
         "Viewers",
         "Starters",
+        "Run Managers",
+        "Run Monitors",
     ):
         assert fieldname in result.output
     # array formatters worked as expected
@@ -155,6 +180,18 @@ def test_show_flow_text_output(run_line):
         re.search(
             r"Starters:\s+all_authenticated_users," + re.escape(expect_starters),
             result.output,
+        )
+        is not None
+    )
+    assert (
+        re.search(
+            r"Run Managers:\s+" + re.escape(expect_run_managers), result.output
+        )
+        is not None
+    )
+    assert (
+        re.search(
+            r"Run Monitors:\s+" + re.escape(expect_run_monitors), result.output
         )
         is not None
     )

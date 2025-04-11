@@ -27,6 +27,8 @@ def test_update_flow_text_output(run_line):
     flow_administrators = response.json["flow_administrators"]
     flow_starters = response.json["flow_starters"]
     flow_viewers = response.json["flow_viewers"]
+    run_managers = response.json["run_managers"]
+    run_monitors = response.json["run_monitors"]
 
     pool = IdentityPool()
 
@@ -35,6 +37,8 @@ def test_update_flow_text_output(run_line):
     pool.assign("administrators", flow_administrators)
     pool.assign("starters", flow_starters)
     pool.assign("viewers", flow_viewers)
+    pool.assign("run_managers", run_managers)
+    pool.assign("run_monitors", run_monitors)
 
     load_response(
         RegisteredResponse(
@@ -59,6 +63,8 @@ def test_update_flow_text_output(run_line):
         ("--viewers", ",".join(flow_viewers)),
         ("--keywords", ",".join(keywords)),
         ("--subscription-id", str(uuid.uuid4())),
+        ("--run-managers", ",".join(run_managers)),
+        ("--run-monitors", ",".join(run_monitors)),
     ]
 
     command = ["globus", "flows", "update", flow_id, *chain.from_iterable(options)]
@@ -79,6 +85,8 @@ def test_update_flow_text_output(run_line):
         "Administrators",
         "Starters",
         "Viewers",
+        "Run Managers",
+        "Run Monitors",
     }
     actual_fields = set(re.findall(r"^[\w ]+(?=:)", result.output, flags=re.M))
     assert expected_fields == actual_fields, "Expected and actual field sets differ"
@@ -120,6 +128,22 @@ def test_update_flow_text_output(run_line):
                 if principal in flow_viewers
             ],
             *pool.get_assigned_usernames("viewers"),
+        },
+        "Run Managers": {
+            *[
+                principal
+                for principal in SPECIAL_PRINCIPALS
+                if principal in run_managers
+            ],
+            *pool.get_assigned_usernames("run_managers"),
+        },
+        "Run Monitors": {
+            *[
+                principal
+                for principal in SPECIAL_PRINCIPALS
+                if principal in run_monitors
+            ],
+            *pool.get_assigned_usernames("run_monitors"),
         },
     }
 
