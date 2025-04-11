@@ -115,6 +115,32 @@ keywords_option = click.option(
     """,
 )
 
+run_managers_option = click.option(
+    "--run-manager",
+    "run_managers",
+    type=str,
+    multiple=True,
+    help="""
+        A principal that may manage the flow's runs.
+
+        This option can be specified multiple times
+        to create a list of run managers.
+    """,
+)
+
+run_monitors_option = click.option(
+    "--run-monitor",
+    "run_monitors",
+    type=str,
+    multiple=True,
+    help="""
+        A principal that may monitor the flow's runs.
+
+        This option can be specified multiple times
+        to create a list of run monitors.
+    """,
+)
+
 
 class SubscriptionIdType(click.ParamType):
     name = "SUBSCRIPTION_ID"
