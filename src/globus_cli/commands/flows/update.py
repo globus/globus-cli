@@ -99,6 +99,28 @@ ROLE_TYPES = ("flow_viewer", "flow_starter", "flow_administrator", "flow_owner")
     """,
 )
 @click.option(
+    "--run-managers",
+    type=CommaDelimitedList(),
+    help="""
+        A comma-separated list of flow run managers.
+
+        This must a list of Globus Auth group or identity IDs.
+
+        Passing an empty string will clear any existing flow run managers.
+    """,
+)
+@click.option(
+    "--run-monitors",
+    type=CommaDelimitedList(),
+    help="""
+        A comma-separated list of flow run monitors.
+
+        This must a list of Globus Auth group or identity IDs.
+
+        Passing an empty string will clear any existing flow run monitors.
+    """,
+)
+@click.option(
     "--keywords",
     type=CommaDelimitedList(),
     help="""
@@ -122,6 +144,8 @@ def update_command(
     administrators: list[str] | None,
     starters: list[str] | None,
     viewers: list[str] | None,
+    run_managers: list[str] | None,
+    run_monitors: list[str] | None,
     keywords: list[str] | None,
     subscription_id: uuid.UUID | t.Literal["DEFAULT"] | None,
 ) -> None:
@@ -158,6 +182,8 @@ def update_command(
         flow_administrators=administrators,
         flow_starters=starters,
         flow_viewers=viewers,
+        run_managers=run_managers,
+        run_monitors=run_monitors,
         keywords=keywords,
         subscription_id=subscription_id or MISSING,
     )
@@ -192,6 +218,16 @@ def update_command(
         Field(
             "Starters",
             "flow_starters",
+            formatter=formatters.ArrayFormatter(element_formatter=principal_formatter),
+        ),
+        Field(
+            "Run Managers",
+            "run_managers",
+            formatter=formatters.ArrayFormatter(element_formatter=principal_formatter),
+        ),
+        Field(
+            "Run Monitors",
+            "run_monitors",
             formatter=formatters.ArrayFormatter(element_formatter=principal_formatter),
         ),
     ]
