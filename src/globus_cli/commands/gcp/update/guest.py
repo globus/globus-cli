@@ -5,6 +5,7 @@ import uuid
 from globus_cli.constants import ExplicitNullType
 from globus_cli.login_manager import LoginManager
 from globus_cli.parsing import collection_id_arg, command, endpointish_params
+from globus_cli.parsing.shared_options import activity_notifications_option
 from globus_cli.termio import display
 
 
@@ -15,10 +16,12 @@ from globus_cli.termio import display
     keyword_style="string",
     skip=("user_message", "user_message_link", "public"),
 )
+@activity_notifications_option("GCP")
 @LoginManager.requires_login("transfer")
 def guest_command(
     login_manager: LoginManager,
     *,
+    activity_notifications: dict[str, list[str]] | None | ExplicitNullType,
     collection_id: uuid.UUID,
     display_name: str | None,
     contact_email: str | None | ExplicitNullType,
@@ -52,6 +55,7 @@ def guest_command(
         keywords=keywords,
         default_directory=default_directory,
         force_encryption=force_encryption,
+        guest_collection_activity_notification_policy=activity_notifications,
         **verify,
     )
 

@@ -15,7 +15,11 @@ from globus_cli.parsing.command_state import (
     show_server_timing_option,
     verbose_option,
 )
-from globus_cli.parsing.param_types import NotificationParamType
+from globus_cli.parsing.param_types import (
+    GCSManagerGuestActivityNotificationParamType,
+    NotificationParamType,
+    TransferGuestActivityNotificationParamType,
+)
 from globus_cli.types import AnyCommand
 
 C = t.TypeVar("C", bound=AnyCommand)
@@ -376,3 +380,44 @@ def local_user_option(f: C) -> C:
             "collections."
         ),
     )(f)
+
+
+def activity_notifications_option(
+    gc_type: t.Literal["GCP", "GCS"],
+) -> t.Callable[[C], C]:
+
+    def decorator(f: C) -> C:
+
+        help = (
+            "Comma-separated list of conditions specifying whether "
+            "activity-monitoring roles on a guest collection "
+            "should receive email notifications when a transfer "
+            "task reaches completion. Notifications may be "
+            "limited to whether the collection is a 'source' or "
+            "'destination' and whether the task's final status is "
+            "'succeeded' or 'failed'. 'all' may be used to enable "
+            "notifications for all transfer tasks. Specifying a "
+            "value of 'source' would send notifications only when the"
+            "collection is the source in the transfer. Specifying a "
+            "value of 'destination,failed' would send notifications "
+            "only when the collection is the destination in the "
+            'transfer, and the transfer failed. Use "" to remove '
+            "the activity notification policy."
+        )
+
+        if gc_type == "GCP":
+            return click.option(
+                "--activity-notifications",
+                default=None,
+                help=help,
+                type=TransferGuestActivityNotificationParamType(),
+            )(f)
+        else:
+            return click.option(
+                "--activity-notifications",
+                default=None,
+                help=help,
+                type=GCSManagerGuestActivityNotificationParamType(),
+            )(f)
+
+    return decorator

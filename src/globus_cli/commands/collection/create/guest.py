@@ -17,6 +17,7 @@ from globus_cli.endpointish import EntityType
 from globus_cli.login_manager import LoginManager, MissingLoginError
 from globus_cli.login_manager.context import LoginContext
 from globus_cli.parsing import command, endpointish_params, mutex_option_group
+from globus_cli.parsing.shared_options import activity_notifications_option
 from globus_cli.services.gcs import CustomGCSClient
 from globus_cli.termio import display
 
@@ -42,6 +43,7 @@ from globus_cli.termio import display
 @mutex_option_group("--user-credential-id", "--local-username")
 @endpointish_params.create(name="collection")
 @identity_id_option
+@activity_notifications_option("GCS")
 @click.option(
     "--enable-https/--disable-https",
     "enable_https",
@@ -74,6 +76,7 @@ def collection_create_guest(
     organization: str | None | ExplicitNullType,
     user_message: str | None | ExplicitNullType,
     user_message_link: str | None | ExplicitNullType,
+    activity_notifications: dict[str, list[str]] | None | ExplicitNullType,
     verify: dict[str, bool],
 ) -> None:
     """
@@ -99,6 +102,7 @@ def collection_create_guest(
 
     converted_kwargs: dict[str, t.Any] = ExplicitNullType.nullify_dict(
         {
+            "activity_notification_policy": activity_notifications,
             "collection_base_path": collection_base_path,
             "contact_info": contact_info,
             "contact_email": contact_email,
