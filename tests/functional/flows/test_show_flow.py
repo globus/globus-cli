@@ -184,14 +184,10 @@ def test_show_flow_text_output(run_line):
         is not None
     )
     assert (
-        re.search(
-            r"Run Managers:\s+" + re.escape(expect_run_managers), result.output
-        )
+        re.search(r"Run Managers:\s+" + re.escape(expect_run_managers), result.output)
         is not None
     )
     assert (
-        re.search(
-            r"Run Monitors:\s+" + re.escape(expect_run_monitors), result.output
-        )
+        re.search(r"Run Monitors:\s+" + re.escape(expect_run_monitors), result.output)
         is not None
     )
