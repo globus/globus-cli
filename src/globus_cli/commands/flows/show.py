@@ -20,7 +20,13 @@ def show_command(login_manager: LoginManager, *, flow_id: uuid.UUID) -> None:
     res = flows_client.get_flow(flow_id)
 
     principal_formatter = formatters.auth.PrincipalURNFormatter(auth_client)
-    for principal_set_name in ("flow_administrators", "flow_viewers", "flow_starters"):
+    for principal_set_name in (
+        "flow_administrators",
+        "flow_viewers",
+        "flow_starters",
+        "run_managers",
+        "run_monitors",
+    ):
         for value in res.get(principal_set_name, ()):
             principal_formatter.add_item(value)
     principal_formatter.add_item(res.get("flow_owner"))
@@ -46,6 +52,16 @@ def show_command(login_manager: LoginManager, *, flow_id: uuid.UUID) -> None:
         Field(
             "Starters",
             "flow_starters",
+            formatter=formatters.ArrayFormatter(element_formatter=principal_formatter),
+        ),
+        Field(
+            "Run Managers",
+            "run_managers",
+            formatter=formatters.ArrayFormatter(element_formatter=principal_formatter),
+        ),
+        Field(
+            "Run Monitors",
+            "run_monitors",
             formatter=formatters.ArrayFormatter(element_formatter=principal_formatter),
         ),
     ]

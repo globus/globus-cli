@@ -122,6 +122,8 @@ def test_create_flow_text_output(run_line):
     flow_administrators = response.metadata["params"]["flow_administrators"]
     flow_starters = response.metadata["params"]["flow_starters"]
     flow_viewers = response.metadata["params"]["flow_viewers"]
+    flow_run_managers = response.metadata["params"]["run_managers"]
+    flow_run_monitors = response.metadata["params"]["run_monitors"]
 
     pool = IdentityPool()
 
@@ -130,6 +132,8 @@ def test_create_flow_text_output(run_line):
     pool.assign("administrators", flow_administrators)
     pool.assign("starters", flow_starters)
     pool.assign("viewers", flow_viewers)
+    pool.assign("run_managers", flow_run_managers)
+    pool.assign("run_monitors", flow_run_monitors)
 
     load_response(
         RegisteredResponse(
@@ -155,6 +159,10 @@ def test_create_flow_text_output(run_line):
         command.extend(("--starter", flow_starter))
     for flow_viewer in flow_viewers:
         command.extend(("--viewer", flow_viewer))
+    for flow_run_manager in flow_run_managers:
+        command.extend(("--run-manager", flow_run_manager))
+    for flow_run_monitor in flow_run_monitors:
+        command.extend(("--run-monitor", flow_run_monitor))
     for keyword in keywords:
         command.extend(("--keyword", keyword))
     if input_schema is not None:
@@ -180,7 +188,10 @@ def test_create_flow_text_output(run_line):
         "Administrators",
         "Starters",
         "Viewers",
+        "Run Managers",
+        "Run Monitors",
     }
+
     actual_fields = set(re.findall(r"^[\w ]+(?=:)", result.output, flags=re.M))
     assert expected_fields == actual_fields, "Expected and actual field sets differ"
 
@@ -222,6 +233,22 @@ def test_create_flow_text_output(run_line):
             ],
             *pool.get_assigned_usernames("viewers"),
         },
+        "Run Managers": {
+            *[
+                principal
+                for principal in SPECIAL_PRINCIPALS
+                if principal in flow_run_managers
+            ],
+            *pool.get_assigned_usernames("run_managers"),
+        },
+        "Run Monitors": {
+            *[
+                principal
+                for principal in SPECIAL_PRINCIPALS
+                if principal in flow_run_monitors
+            ],
+            *pool.get_assigned_usernames("run_monitors"),
+        },
     }
 
     for name, expected_values in expected_sets.items():
@@ -250,6 +277,8 @@ def test_create_flow_with_subscription_id(run_line, subscription_id, valid):
     flow_administrators = response.metadata["params"]["flow_administrators"]
     flow_starters = response.metadata["params"]["flow_starters"]
     flow_viewers = response.metadata["params"]["flow_viewers"]
+    run_managers = response.metadata["params"]["run_managers"]
+    run_monitors = response.metadata["params"]["run_monitors"]
 
     pool = IdentityPool()
 
@@ -258,6 +287,8 @@ def test_create_flow_with_subscription_id(run_line, subscription_id, valid):
     pool.assign("administrators", flow_administrators)
     pool.assign("starters", flow_starters)
     pool.assign("viewers", flow_viewers)
+    pool.assign("run_managers", run_managers)
+    pool.assign("run_monitors", run_monitors)
 
     load_response(
         RegisteredResponse(
@@ -293,6 +324,12 @@ def test_create_flow_with_subscription_id(run_line, subscription_id, valid):
         command.extend(("--subtitle", subtitle))
     if description is not None:
         command.extend(("--description", description))
+    if run_managers is not None:
+        for run_manager in run_managers:
+            command.extend(("--run-manager", run_manager))
+    if run_monitors is not None:
+        for run_monitor in run_monitors:
+            command.extend(("--run-monitor", run_monitor))
 
     run_line(command, assert_exit_code=0 if valid else 2)
     if valid:
