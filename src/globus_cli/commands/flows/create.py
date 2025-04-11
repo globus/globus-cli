@@ -12,6 +12,8 @@ from globus_cli.commands.flows._common import (
     starters_option,
     subtitle_option,
     viewers_option,
+    run_managers_option,
+    run_monitors_option,
 )
 from globus_cli.login_manager import LoginManager
 from globus_cli.parsing import JSONStringOrFile, ParsedJSONData, command
@@ -38,6 +40,8 @@ ROLE_TYPES = ("flow_viewer", "flow_starter", "flow_administrator", "flow_owner")
 @starters_option
 @viewers_option
 @keywords_option
+@run_managers_option
+@run_monitors_option
 @click.option(
     "--subscription-id",
     help="Set a subscription_id for the flow, marking it as subscription tier.",
@@ -56,6 +60,8 @@ def create_command(
     starters: tuple[str, ...],
     viewers: tuple[str, ...],
     keywords: tuple[str, ...],
+    run_managers: tuple[str, ...],
+    run_monitors: tuple[str, ...],
     subscription_id: uuid.UUID | None,
 ) -> None:
     """
@@ -106,6 +112,8 @@ def create_command(
         flow_starters=list(starters),
         flow_administrators=list(administrators),
         keywords=list(keywords),
+        run_managers=list(run_managers),
+        run_monitors=list(run_monitors),
         subscription_id=subscription_id,
     )
 
@@ -139,6 +147,16 @@ def create_command(
         Field(
             "Starters",
             "flow_starters",
+            formatter=formatters.ArrayFormatter(element_formatter=principal_formatter),
+        ),
+        Field(
+            "Run Managers",
+            "run_managers",
+            formatter=formatters.ArrayFormatter(element_formatter=principal_formatter),
+        ),
+        Field(
+            "Run Monitors",
+            "run_monitors",
             formatter=formatters.ArrayFormatter(element_formatter=principal_formatter),
         ),
     ]
