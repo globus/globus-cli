@@ -213,10 +213,10 @@ def task_list(
         [
             _process_filterval("label", label_data),
             _process_filterval(
-                "request_time", [filter_requested_before, filter_requested_after]
+                "request_time", [filter_requested_after, filter_requested_before]
             ),
             _process_filterval(
-                "completion_time", [filter_completed_before, filter_completed_after]
+                "completion_time", [filter_completed_after, filter_completed_before]
             ),
         ]
     )

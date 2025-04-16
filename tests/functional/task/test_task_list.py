@@ -166,10 +166,10 @@ def test_task_list_control_filter_request_and_completion_time(
 
     if use_request_time:
         request_time_filter = parsed_filters["request_time"].split(",")
-        assert request_time_filter == [before or "", after or ""]
+        assert request_time_filter == [after or "", before or ""]
     if use_completion_time:
         completion_time_filter = parsed_filters["completion_time"].split(",")
-        assert completion_time_filter == [before or "", after or ""]
+        assert completion_time_filter == [after or "", before or ""]
 
 
 @pytest.mark.parametrize("number_of_ids", (1, 3, 5))
