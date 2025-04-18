@@ -83,7 +83,7 @@ class ActivityNotificationPolicyType(JSONStringOrFile):
             else:
                 self.fail(f"{invalid_choices!r} were not valid choices.", param, ctx)
 
-        data = {"status": [p.upper() for p in parts]}
+        data: JsonValue = {"status": [p.upper() for p in parts]}
         return ParsedJSONData(None, data)
 
     def shell_complete(
@@ -249,9 +249,10 @@ def start_command(
             raise click.UsageError("Flow input must be a JSON object")
         input_document_json = input_document.data
 
-    notify_policy = None
+    notify_policy: dict[str, t.Any] | None = None
     if activity_notification_policy:
-        notify_policy = activity_notification_policy.data
+        # type ignore as this is JSON data which we know is constrained to a dict
+        notify_policy = activity_notification_policy.data  # type: ignore[assignment]
 
     flow_client = login_manager.get_specific_flow_client(flow_id)
     response = flow_client.run_flow(
