@@ -45,6 +45,9 @@ ROLE_TYPES = ("flow_viewer", "flow_starter", "flow_administrator", "flow_owner")
     multiple=True,
     help="""
         A principal that may manage the flow's runs.
+
+        This option can be specified multiple times
+        to create a list of run managers.
     """,
 )
 @click.option(
@@ -54,6 +57,9 @@ ROLE_TYPES = ("flow_viewer", "flow_starter", "flow_administrator", "flow_owner")
     multiple=True,
     help="""
         A principal that may monitor the flow's runs.
+
+        This option can be specified multiple times
+        to create a list of run monitors.
     """,
 )
 @click.option(
