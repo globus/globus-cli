@@ -206,8 +206,9 @@ class ActivityNotificationPolicyType(JSONStringOrFile):
     help="""
         The activity notification policy for the run.
 
-        This may be given as a JSON file or JSON data containing a full policy
-        document, or a comma-delimited list of statuses for notification.
+        This may be given as a comma-delimited list of statuses for notification;
+        alternatively, this can also be provided as JSON data--or a path to a
+        JSON file--containing a full notification policy document.
     """,
 )
 @LoginManager.requires_login("flows")
