@@ -9,8 +9,6 @@ from globus_cli.commands.flows._common import (
     description_option,
     input_schema_option_with_default,
     keywords_option,
-    run_managers_option,
-    run_monitors_option,
     starters_option,
     subtitle_option,
     viewers_option,
@@ -40,8 +38,24 @@ ROLE_TYPES = ("flow_viewer", "flow_starter", "flow_administrator", "flow_owner")
 @starters_option
 @viewers_option
 @keywords_option
-@run_managers_option
-@run_monitors_option
+@click.option(
+    "--run-manager",
+    "run_managers",
+    type=str,
+    multiple=True,
+    help="""
+        A principal that may manage the flow's runs.
+    """,
+)
+@click.option(
+    "--run-monitor",
+    "run_monitors",
+    type=str,
+    multiple=True,
+    help="""
+        A principal that may monitor the flow's runs.
+    """,
+)
 @click.option(
     "--subscription-id",
     help="Set a subscription_id for the flow, marking it as subscription tier.",
