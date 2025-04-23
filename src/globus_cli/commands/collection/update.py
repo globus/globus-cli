@@ -116,7 +116,7 @@ class _FullDataField(Field):
 def collection_update(
     login_manager: LoginManager,
     *,
-    activity_notifications: dict[str, list[str]] | None | ExplicitNullType,
+    activity_notifications: t.Dict[str, t.List[str]] | None | ExplicitNullType,
     collection_id: uuid.UUID,
     display_name: str | None,
     description: str | None | ExplicitNullType,

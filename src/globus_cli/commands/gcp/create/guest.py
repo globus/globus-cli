@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import typing as t
 import uuid
 
 import click
@@ -39,7 +40,7 @@ def guest_command(
     organization: str | None | ExplicitNullType,
     verify: dict[str, bool],
     disable_verify: bool | None,
-    activity_notifications: dict[str, list[str]] | None | ExplicitNullType,
+    activity_notifications: t.Dict[str, t.List[str]] | None | ExplicitNullType,
 ) -> None:
     """
     Create a new Guest Collection on a Globus Connect Personal Endpoint

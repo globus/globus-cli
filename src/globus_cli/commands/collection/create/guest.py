@@ -76,7 +76,7 @@ def collection_create_guest(
     organization: str | None | ExplicitNullType,
     user_message: str | None | ExplicitNullType,
     user_message_link: str | None | ExplicitNullType,
-    activity_notifications: dict[str, list[str]] | None | ExplicitNullType,
+    activity_notifications: t.Dict[str, t.List[str]] | None | ExplicitNullType,
     verify: dict[str, bool],
 ) -> None:
     """

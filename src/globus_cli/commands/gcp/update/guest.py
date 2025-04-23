@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import typing as t
 import uuid
 
 from globus_cli.constants import ExplicitNullType
@@ -21,7 +22,7 @@ from globus_cli.termio import display
 def guest_command(
     login_manager: LoginManager,
     *,
-    activity_notifications: dict[str, list[str]] | None | ExplicitNullType,
+    activity_notifications: t.Dict[str, t.List[str]] | None | ExplicitNullType,
     collection_id: uuid.UUID,
     display_name: str | None,
     contact_email: str | None | ExplicitNullType,

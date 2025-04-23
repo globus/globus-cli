@@ -1,3 +1,5 @@
+import typing as t
+
 import click
 from click.shell_completion import CompletionItem
 
@@ -23,8 +25,11 @@ class GCSManagerGuestActivityNotificationParamType(click.ParamType):
         return "{all,succeeded,failed,source,destination}"
 
     def convert(
-        self, value: str, param: click.Parameter | None, ctx: click.Context | None
-    ) -> dict[str, list[str]] | ExplicitNullType:
+        self,
+        value: str,
+        param: t.Union[click.Parameter, None],
+        ctx: t.Union[click.Context, None],
+    ) -> t.Union[t.Dict[str, t.List[str]], ExplicitNullType]:
 
         if value == "":
             return {
@@ -38,13 +43,13 @@ class GCSManagerGuestActivityNotificationParamType(click.ParamType):
                 "transfer_use": sorted(self.VALID_TRANSFER_USES),
             }
 
-        policy: dict[str, list[str]] = {
+        policy: t.Dict[str, t.List[str]] = {
             "status": [],
             "transfer_use": [],
         }
 
         # ignore white space, parse input sans case-sensitivity
-        lowercase_vals: set[str] = {s.strip().lower() for s in value.split(",")}
+        lowercase_vals: t.Set[str] = {s.strip().lower() for s in value.split(",")}
 
         if "all" in lowercase_vals:
             raise click.UsageError(
@@ -67,7 +72,7 @@ class GCSManagerGuestActivityNotificationParamType(click.ParamType):
 
         # Fill in implied values.
         k: str
-        v: list[str]
+        v: t.List[str]
         for k, v in policy.items():
             if k == "transfer_use" and not v:
                 v = list(self.VALID_TRANSFER_USES)
@@ -80,7 +85,7 @@ class GCSManagerGuestActivityNotificationParamType(click.ParamType):
 
     def shell_complete(
         self, ctx: click.Context, param: click.Parameter, incomplete: str
-    ) -> list[CompletionItem]:
+    ) -> t.List[CompletionItem]:
         all_compoundable_options = ["destination", "failed", "source", "succeeded"]
 
         all_options = ["all"] + all_compoundable_options
@@ -148,10 +153,13 @@ class TransferGuestActivityNotificationParamType(
 ):
 
     def convert(
-        self, value: str, param: click.Parameter | None, ctx: click.Context | None
-    ) -> dict[str, list[str]] | ExplicitNullType:
+        self,
+        value: str,
+        param: t.Union[click.Parameter, None],
+        ctx: t.Union[click.Context, None],
+    ) -> t.Union[t.Dict[str, t.List[str]], ExplicitNullType]:
 
-        policy: dict[str, list[str]] | ExplicitNullType = super().convert(
+        policy: t.Union[t.Dict[str, t.List[str]], ExplicitNullType] = super().convert(
             value, param, ctx
         )
 
