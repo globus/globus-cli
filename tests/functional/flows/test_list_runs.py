@@ -74,3 +74,35 @@ def test_list_runs_paginated_response(run_line, limit_delta):
             uuid.UUID(row[0])
         except ValueError:
             pytest.fail(f"Run ID is not a valid UUID: {row[0]}")
+
+
+def test_list_runs_filter_role(run_line):
+    load_response("flows.list_runs").metadata
+
+    result = run_line(
+        [
+            "globus",
+            "flows",
+            "run",
+            "list",
+            "--filter-role",
+            "run_owner",
+            "--filter-role",
+            "flow_run_manager",
+        ]
+    )
+    output_lines = result.output.split("\n")
+    assert len(output_lines) == 4
+
+    header_line = output_lines[0]
+    header_row = [item.strip() for item in header_line.split(" | ")]
+    assert header_row == ["Run ID", "Flow Title", "Run Label", "Status"]
+
+
+def test_list_runs_invalid_filter_role(run_line):
+    load_response("flows.list_runs")
+
+    run_line(
+        "globus flows run list --filter-role up-up-down-down-left-right-left-right-b-a",
+        assert_exit_code=2,
+    )

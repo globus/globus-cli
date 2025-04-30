@@ -25,7 +25,7 @@ def test_list_flows_json(run_line):
     json.loads(result.output)
 
 
-def test_list_flows_filter_role(run_line):
+def test_list_flows_filter_role_single(run_line):
     load_response_set("cli.flows_list")
 
     expected = (
@@ -37,6 +37,22 @@ def test_list_flows_filter_role(run_line):
     )
 
     result = run_line("globus flows list --filter-role flow_viewer")
+    assert result.output == expected
+
+
+def test_list_flows_filter_role_multiple(run_line):
+    load_response_set("cli.flows_list")
+
+    expected = (
+        "Flow ID | Title           | Owner            | Created At          | Updated At         \n"  # noqa: E501
+        "------- | --------------- | ---------------- | ------------------- | -------------------\n"  # noqa: E501
+        "id-b    | Fairytale Index | shrek@globus.org | 2007-05-18 00:00:00 | 2007-05-18 00:00:00\n"  # noqa: E501
+        "id-a    | Swamp Transfer  | shrek@globus.org | 2001-04-01 00:00:00 | 2004-05-19 00:00:00\n"  # noqa: E501
+    )
+
+    result = run_line(
+        "globus flows list --filter-role flow_viewer --filter-role run_manager"
+    )
     assert result.output == expected
 
 
