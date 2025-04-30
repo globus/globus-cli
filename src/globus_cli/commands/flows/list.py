@@ -10,7 +10,14 @@ from globus_cli.parsing import ColonDelimitedChoiceTuple, command
 from globus_cli.termio import Field, display, formatters
 from globus_cli.utils import PagingWrapper
 
-ROLE_TYPES = ("flow_viewer", "flow_starter", "flow_administrator", "flow_owner")
+ROLE_TYPES = (
+    "flow_viewer",
+    "flow_starter",
+    "flow_administrator",
+    "flow_owner",
+    "run_manager",
+    "run_monitor",
+)
 ORDER_BY_FIELDS = (
     "id",
     "scope_string",
@@ -31,6 +38,7 @@ ORDER_BY_FIELDS = (
     "--filter-role",
     type=click.Choice(ROLE_TYPES),
     help="Filter results by the flow's role type associated with the caller",
+    multiple=True,
 )
 @click.option(
     "--filter-fulltext",
@@ -71,10 +79,17 @@ ORDER_BY_FIELDS = (
 def list_command(
     login_manager: LoginManager,
     *,
-    filter_role: (
-        t.Literal["flow_viewer", "flow_starter", "flow_administrator", "flow_owner"]
-        | None
-    ),
+    filter_role: tuple[
+        t.Literal[
+            "flow_viewer",
+            "flow_starter",
+            "flow_administrator",
+            "flow_owner",
+            "run_manager",
+            "run_monitor",
+        ],
+        ...,
+    ],
     orderby: tuple[
         tuple[
             t.Literal[
@@ -98,7 +113,7 @@ def list_command(
     paginator = Paginator.wrap(flows_client.list_flows)
     flow_iterator = PagingWrapper(
         paginator(
-            filter_role=filter_role,
+            filter_roles=",".join(filter_role),
             filter_fulltext=filter_fulltext,
             orderby=",".join(f"{field} {order}" for field, order in orderby),
         ).items(),
