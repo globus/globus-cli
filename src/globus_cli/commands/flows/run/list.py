@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import typing as t
 import uuid
 
 import click
@@ -9,6 +10,14 @@ from globus_cli.login_manager import LoginManager
 from globus_cli.parsing import command
 from globus_cli.termio import Field, display
 from globus_cli.utils import PagingWrapper
+
+ROLE_TYPES = (
+    "run_owner",
+    "run_manager",
+    "run_monitor",
+    "flow_run_manager",
+    "flow_run_monitor",
+)
 
 
 @command("list")
@@ -23,6 +32,12 @@ from globus_cli.utils import PagingWrapper
     type=click.UUID,
 )
 @click.option(
+    "--filter-role",
+    type=click.Choice(ROLE_TYPES),
+    help="Filter results by the run's role type associated with the caller",
+    multiple=True,
+)
+@click.option(
     "--limit",
     default=25,
     show_default=True,
@@ -32,7 +47,20 @@ from globus_cli.utils import PagingWrapper
 )
 @LoginManager.requires_login("flows")
 def list_command(
-    login_manager: LoginManager, *, limit: int, filter_flow_id: tuple[uuid.UUID, ...]
+    login_manager: LoginManager,
+    *,
+    limit: int,
+    filter_flow_id: tuple[uuid.UUID, ...],
+    filter_role: tuple[
+        t.Literal[
+            "run_owner",
+            "run_manager",
+            "run_monitor",
+            "flow_run_manager",
+            "flow_run_monitor",
+        ],
+        ...,
+    ],
 ) -> None:
     """
     List runs.
@@ -45,7 +73,10 @@ def list_command(
 
     paginator = Paginator.wrap(flows_client.list_runs)
     run_iterator = PagingWrapper(
-        paginator(filter_flow_id=filter_flow_id).items(),
+        paginator(
+            filter_flow_id=filter_flow_id,
+            filter_roles=",".join(filter_role),
+        ).items(),
         json_conversion_key="runs",
         limit=limit,
     )
