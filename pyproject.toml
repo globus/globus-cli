@@ -89,7 +89,12 @@ profile = "black"
 
 [tool.pytest.ini_options]
 addopts = "--timeout 3 --color=yes"
-filterwarnings = ["error"]
+filterwarnings = [
+    "error",
+    # ignore SDK warnings for 'filter_role' until
+    # 'filter_roles' update is applied
+    "ignore:The `filter_role` parameter is deprecated.:globus_sdk.exc.RemovedInV4Warning:",
+]
 
 [tool.scriv]
 version = "literal: src/globus_cli/version.py: __version__"
