@@ -33,6 +33,7 @@ ROLE_TYPES = (
 )
 @click.option(
     "--filter-role",
+    "filter_roles",
     type=click.Choice(ROLE_TYPES),
     help="Filter results by the run's role type associated with the caller",
     multiple=True,
@@ -51,7 +52,7 @@ def list_command(
     *,
     limit: int,
     filter_flow_id: tuple[uuid.UUID, ...],
-    filter_role: tuple[
+    filter_roles: tuple[
         t.Literal[
             "run_owner",
             "run_manager",
@@ -75,7 +76,7 @@ def list_command(
     run_iterator = PagingWrapper(
         paginator(
             filter_flow_id=filter_flow_id,
-            filter_roles=",".join(filter_role),
+            filter_roles=filter_roles,  # type: ignore[arg-type],
         ).items(),
         json_conversion_key="runs",
         limit=limit,

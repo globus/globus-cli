@@ -36,6 +36,7 @@ ORDER_BY_FIELDS = (
 @command("list")
 @click.option(
     "--filter-role",
+    "filter_roles",
     type=click.Choice(ROLE_TYPES),
     help="Filter results by the flow's role type associated with the caller",
     multiple=True,
@@ -79,7 +80,7 @@ ORDER_BY_FIELDS = (
 def list_command(
     login_manager: LoginManager,
     *,
-    filter_role: tuple[
+    filter_roles: tuple[
         t.Literal[
             "flow_viewer",
             "flow_starter",
@@ -113,7 +114,7 @@ def list_command(
     paginator = Paginator.wrap(flows_client.list_flows)
     flow_iterator = PagingWrapper(
         paginator(
-            filter_roles=",".join(filter_role),
+            filter_roles=filter_roles,  # type: ignore[arg-type],
             filter_fulltext=filter_fulltext,
             orderby=",".join(f"{field} {order}" for field, order in orderby),
         ).items(),
