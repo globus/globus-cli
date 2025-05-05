@@ -1,9 +1,9 @@
 import uuid
 
 import pytest
+from globus_sdk._testing import load_response
 
 from globus_cli.commands.flows.run.list import ROLE_TYPES
-from globus_sdk._testing import load_response
 
 
 def test_list_runs_simple(run_line):
