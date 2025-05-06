@@ -76,7 +76,7 @@ def list_command(
     run_iterator = PagingWrapper(
         paginator(
             filter_flow_id=filter_flow_id,
-            filter_roles=filter_roles,  # type: ignore[arg-type],
+            filter_roles=filter_roles,  # type: ignore[arg-type]
         ).items(),
         json_conversion_key="runs",
         limit=limit,

@@ -114,7 +114,7 @@ def list_command(
     paginator = Paginator.wrap(flows_client.list_flows)
     flow_iterator = PagingWrapper(
         paginator(
-            filter_roles=filter_roles,  # type: ignore[arg-type],
+            filter_roles=filter_roles,  # type: ignore[arg-type]
             filter_fulltext=filter_fulltext,
             orderby=",".join(f"{field} {order}" for field, order in orderby),
         ).items(),
