@@ -18,6 +18,7 @@ from globus_cli.parsing import (
     emptyable_opt_list_callback,
     endpointish_params,
 )
+from globus_cli.parsing.shared_options import activity_notifications_option
 from globus_cli.termio import Field, display
 
 _MULTI_USE_OPTION_STR = "Give this option multiple times in a single command"
@@ -110,10 +111,12 @@ class _FullDataField(Field):
         'Set a value of "" to clear this.'
     ),
 )
+@activity_notifications_option("GCS")
 @LoginManager.requires_login("auth", "transfer")
 def collection_update(
     login_manager: LoginManager,
     *,
+    activity_notifications: t.Dict[str, t.List[str]] | None | ExplicitNullType,
     collection_id: uuid.UUID,
     display_name: str | None,
     description: str | None | ExplicitNullType,
@@ -181,6 +184,7 @@ def collection_update(
             "user_message_link": user_message_link,
             "sharing_users_allow": sharing_users_allow,
             "sharing_users_deny": sharing_users_deny,
+            "activity_notification_policy": activity_notifications,
         }
     )
     converted_kwargs.update(verify)

@@ -4,6 +4,10 @@ from .endpoint_plus_path import (
     ENDPOINT_PLUS_REQPATH,
     EndpointPlusPath,
 )
+from .guest_activity_notify_param import (
+    GCSManagerGuestActivityNotificationParamType,
+    TransferGuestActivityNotificationParamType,
+)
 from .identity_type import IdentityType, ParsedIdentity
 from .json_strorfile import JSONStringOrFile, ParsedJSONData
 from .location import LocationType
@@ -18,6 +22,7 @@ __all__ = (
     "ENDPOINT_PLUS_OPTPATH",
     "ENDPOINT_PLUS_REQPATH",
     "EndpointPlusPath",
+    "GCSManagerGuestActivityNotificationParamType",
     "IdentityType",
     "JSONStringOrFile",
     "LocationType",
@@ -27,5 +32,6 @@ __all__ = (
     "StringOrNull",
     "TaskPath",
     "TimedeltaType",
+    "TransferGuestActivityNotificationParamType",
     "UrlOrNull",
 )

@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import typing as t
 import uuid
 
 import click
@@ -7,6 +8,7 @@ import click
 from globus_cli.constants import ExplicitNullType
 from globus_cli.login_manager import LoginManager
 from globus_cli.parsing import ENDPOINT_PLUS_REQPATH, command, endpointish_params
+from globus_cli.parsing.shared_options import activity_notifications_option
 from globus_cli.termio import Field, display
 
 from ._common import deprecated_verify_option
@@ -20,6 +22,7 @@ from ._common import deprecated_verify_option
 )
 @click.argument("HOST_GCP_PATH", type=ENDPOINT_PLUS_REQPATH)
 @deprecated_verify_option
+@activity_notifications_option("GCP")
 @LoginManager.requires_login("transfer")
 def guest_command(
     login_manager: LoginManager,
@@ -37,6 +40,7 @@ def guest_command(
     organization: str | None | ExplicitNullType,
     verify: dict[str, bool],
     disable_verify: bool | None,
+    activity_notifications: t.Dict[str, t.List[str]] | None | ExplicitNullType,
 ) -> None:
     """
     Create a new Guest Collection on a Globus Connect Personal Endpoint
@@ -66,6 +70,7 @@ def guest_command(
         keywords=keywords,
         default_directory=default_directory,
         force_encryption=force_encryption,
+        guest_collection_activity_notification_policy=activity_notifications,
         **verify,
     )
 
