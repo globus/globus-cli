@@ -3,9 +3,7 @@ CLI_VERSION=$(shell grep '^__version__' src/globus_cli/version.py | cut -d '"' -
 .venv:
 	python -m venv --upgrade-deps .venv
 	.venv/bin/pip install -e '.'
-	# TODO: update once `pip` v25.1 is released to use `pip install --group`
-	.venv/bin/pip install dependency-groups
-	.venv/bin/pip-install-dependency-groups dev
+	.venv/bin/pip install --group dev
 
 .PHONY: install
 install: .venv
