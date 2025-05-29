@@ -1,7 +1,8 @@
 import json
+import urllib.parse
 import uuid
 
-from globus_sdk._testing import RegisteredResponse, load_response_set
+from globus_sdk._testing import RegisteredResponse, get_last_request, load_response_set
 
 
 def test_list_flows(run_line):
@@ -16,6 +17,16 @@ def test_list_flows(run_line):
 
     result = run_line("globus flows list")
     assert result.output == expected
+
+    # confirm that none of the filtering parameters were sent to the API
+    # and that the default orderby was sent
+    last_req = get_last_request()
+    parsed_url = urllib.parse.urlparse(last_req.url)
+    parsed_params = urllib.parse.parse_qs(parsed_url.query)
+    assert "filter_fulltext" not in parsed_params
+    assert "filter_roles" not in parsed_params
+    assert "orderby" in parsed_params
+    assert parsed_params["orderby"] == ["updated_at DESC"]
 
 
 def test_list_flows_json(run_line):

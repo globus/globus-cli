@@ -114,7 +114,9 @@ def list_command(
     paginator = Paginator.wrap(flows_client.list_flows)
     flow_iterator = PagingWrapper(
         paginator(
-            filter_roles=filter_roles,
+            # `filter_roles=()` results in an API error
+            # the query param sent by the SDK would be `filter_roles=` (empty string)
+            filter_roles=filter_roles or None,
             filter_fulltext=filter_fulltext,
             orderby=",".join(f"{field} {order}" for field, order in orderby),
         ).items(),
