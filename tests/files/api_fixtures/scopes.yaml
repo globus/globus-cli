@@ -1,0 +1,97 @@
+
+metadata:
+  hello_world_id: "24f3dcbe-7655-4721-bc64-d1c5d635b9a1"
+  hello_world_string: "https://auth.globus.org/scopes/actions.globus.org/hello_world"
+
+auth:
+  - path: /v2/api/scopes/24f3dcbe-7655-4721-bc64-d1c5d635b9a1
+    method: get
+    json:
+      {
+        "scope": {
+          "advertised": true,
+          "allows_refresh_token": true,
+          "client": "5fac2e64-c734-4e6b-90ea-ff12ddbf9653",
+          "dependent_scopes": [
+            {
+              "optional": false,
+              "requires_refresh_token": false,
+              "scope": "69a73d8f-cd45-4e37-bb3b-43678424aeb7"
+            },
+            {
+              "optional": false,
+              "requires_refresh_token": false,
+              "scope": "73320ffe-4cb4-4b25-a0a3-83d53d59ce4f"
+            }
+          ],
+          "description": "Allow the Hello World action to extend greetings.",
+          "id": "24f3dcbe-7655-4721-bc64-d1c5d635b9a1",
+          "name": "Hello World Action",
+          "required_domains": [],
+          "scope_string": "https://auth.globus.org/scopes/actions.globus.org/hello_world"
+        }
+      }
+
+  - path: /v2/api/scopes
+    method: get
+    query_params:
+      scope_strings: "https://auth.globus.org/scopes/actions.globus.org/hello_world"
+    json:
+      {
+        "scopes": [
+          {
+            "advertised": true,
+            "allows_refresh_token": true,
+            "client": "5fac2e64-c734-4e6b-90ea-ff12ddbf9653",
+            "dependent_scopes": [
+              {
+                "optional": false,
+                "requires_refresh_token": false,
+                "scope": "69a73d8f-cd45-4e37-bb3b-43678424aeb7"
+              },
+              {
+                "optional": false,
+                "requires_refresh_token": false,
+                "scope": "73320ffe-4cb4-4b25-a0a3-83d53d59ce4f"
+              }
+            ],
+            "description": "Allow the Hello World action to extend greetings.",
+            "id": "24f3dcbe-7655-4721-bc64-d1c5d635b9a1",
+            "name": "Hello World Action",
+            "required_domains": [ ],
+            "scope_string": "https://auth.globus.org/scopes/actions.globus.org/hello_world"
+          }
+        ]
+      }
+
+  - path: /v2/api/scopes
+    method: get
+    query_params:
+      ids: "69a73d8f-cd45-4e37-bb3b-43678424aeb7,73320ffe-4cb4-4b25-a0a3-83d53d59ce4f"
+    json:
+      {
+        "scopes": [
+          {
+            "advertised": false,
+            "allows_refresh_token": true,
+            "client": "2b2dae68-b536-4acf-9347-cf930e22fa36",
+            "dependent_scopes": [ ],
+            "description": "Access to all capabilities of the Globus Groups service.",
+            "id": "69a73d8f-cd45-4e37-bb3b-43678424aeb7",
+            "name": "Manage your Globus groups (v1)",
+            "required_domains": [ ],
+            "scope_string": "urn:globus:auth:scope:nexus.api.globus.org:groups"
+          },
+          {
+            "advertised": true,
+            "allows_refresh_token": true,
+            "client": "04896e9e-b98e-437e-becd-8084b9e234a0",
+            "dependent_scopes": [ ],
+            "description": "View information about groups where you are a member, manager or administrator.",
+            "id": "73320ffe-4cb4-4b25-a0a3-83d53d59ce4f",
+            "name": "View Groups and Memberships",
+            "required_domains": [ ],
+            "scope_string": "urn:globus:auth:scope:groups.api.globus.org:view_my_groups_and_memberships"
+          }
+        ]
+      }
