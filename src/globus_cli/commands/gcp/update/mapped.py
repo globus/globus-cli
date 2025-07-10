@@ -6,13 +6,19 @@ import click
 
 from globus_cli.constants import ExplicitNullType
 from globus_cli.login_manager import LoginManager
-from globus_cli.parsing import collection_id_arg, command, endpointish_params
+from globus_cli.parsing import (
+    collection_id_arg,
+    command,
+    endpointish_params,
+    subscription_admin_verified_option,
+)
 from globus_cli.termio import display
 
 
 @command("mapped", short_help="Update a GCP Mapped Collection.")
 @collection_id_arg
 @endpointish_params.update(name="collection", keyword_style="string")
+@subscription_admin_verified_option
 @click.option(
     "--subscription-id",
     help="Set the collection as managed with the given subscription ID",
@@ -34,6 +40,7 @@ def mapped_command(
     force_encryption: bool | None,
     verify: dict[str, bool],
     subscription_id: str | None,
+    subscription_admin_verified: bool | None,
     user_message: str | None | ExplicitNullType,
     user_message_link: str | None | ExplicitNullType,
     public: bool | None,
@@ -65,6 +72,7 @@ def mapped_command(
         public=public,
         user_message=user_message,
         user_message_link=user_message_link,
+        subscription_admin_verified=subscription_admin_verified,
         **verify,
     )
 

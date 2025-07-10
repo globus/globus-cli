@@ -61,6 +61,10 @@ def _update_guest_responses():
         (["--display-name", "My Cool GCP"], {"display_name": "My Cool GCP"}),
         (["--public"], {"public": True}),
         (["--private"], {"public": False}),
+        (
+            ["--subscription-admin-verified", "true"],
+            {"subscription_admin_verified": True},
+        ),
     ),
 )
 def test_gcp_update_mapped(run_line, addopts, expect_payload_fields):
@@ -83,6 +87,10 @@ def test_gcp_update_mapped(run_line, addopts, expect_payload_fields):
     (
         (["--keywords", "foo,bar,baz"], {"keywords": "foo,bar,baz"}),
         (["--display-name", "frobulator"], {"display_name": "frobulator"}),
+        (
+            ["--subscription-admin-verified", "true"],
+            {"subscription_admin_verified": True},
+        ),
     ),
 )
 def test_gcp_update_guest(run_line, addopts, expect_payload_fields):

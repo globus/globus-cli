@@ -18,10 +18,12 @@ from .param_types import (
 )
 from .shared_callbacks import emptyable_opt_list_callback
 from .shared_options import (
+    activity_notifications_option,
     delete_and_rm_options,
     local_user_option,
     no_local_server_option,
     security_principal_opts,
+    subscription_admin_verified_option,
     synchronous_task_wait_options,
     task_notify_option,
     task_submission_options,
@@ -88,6 +90,8 @@ __all__ = [
     "verify_checksum_option",
     "endpointish_params",
     "local_user_option",
+    "activity_notifications_option",
+    "subscription_admin_verified_option",
     # shared callbacks
     "emptyable_opt_list_callback",
 ]
