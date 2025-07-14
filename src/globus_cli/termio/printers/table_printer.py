@@ -5,8 +5,10 @@ import typing as t
 
 import click
 
-from ..field import Field
 from .base import Printer
+
+if t.TYPE_CHECKING:
+    from ..field import Field
 
 
 class TablePrinter(Printer[t.Iterable[t.Any]]):
