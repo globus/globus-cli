@@ -5,14 +5,25 @@ import pytest
 from globus_sdk._testing import load_response, register_response_set
 
 
+@pytest.fixture(scope="session")
+def identity_info():
+    return {
+        "username": "gargamel@globus.org",
+        "id": str(uuid.UUID(int=5)),
+        "name": "Gargamel Smurfnapper",
+        # Azrael is his cat
+        "organization": "Friends of Azrael",
+    }
+
+
 @pytest.fixture(scope="session", autouse=True)
-def _register_responses():
+def _register_responses(identity_info):
     storage_gateway_id = str(uuid.uuid4())
     collection_id = str(uuid.uuid4())
-    domain = "globus.org"
-    username = f"gargamel@{domain}"
-    identity_id = str(uuid.uuid4())
     endpoint_id = str(uuid.uuid4())
+
+    username = identity_info["username"]
+    domain = username.partition("@")[2]
 
     register_response_set(
         "cli.collection_create_mapped.storage_gateway_list",
@@ -138,7 +149,7 @@ def _register_responses():
                             "high_assurance": False,
                             "https_url": None,
                             "id": collection_id,
-                            "identity_id": identity_id,
+                            "identity_id": identity_info["id"],
                             "last_access": None,
                             "manager_url": "https://abc.xyz.data.globus.org",
                             "policies": {
@@ -156,9 +167,7 @@ def _register_responses():
                 },
                 "metadata": {
                     "collection_id": collection_id,
-                    "username": username,
                     "domain": domain,
-                    "identity_id": identity_id,
                     "storage_gateway_id": storage_gateway_id,
                 },
             }
@@ -195,31 +204,6 @@ def _register_responses():
         },
     )
 
-    register_response_set(
-        "cli.collection_create_mapped.get_identities",
-        {
-            "default": {
-                "service": "auth",
-                "path": "/v2/api/identities",
-                "method": "GET",
-                "json": {
-                    "identities": [
-                        {
-                            "email": username,
-                            "id": identity_id,
-                            "identity_provider": str(uuid.uuid4()),
-                            "name": "Gargamel Smurfnapper",
-                            # Azrael is his cat
-                            "organization": "Friends of Azrael",
-                            "status": "used",
-                            "username": username,
-                        }
-                    ]
-                },
-            }
-        },
-    )
-
 
 @pytest.mark.parametrize(
     "only_one_storage_gateway, implicit_storage_gateway",
@@ -234,8 +218,9 @@ def test_mapped_collection_create(
     add_gcs_login,
     only_one_storage_gateway,
     implicit_storage_gateway,
+    get_identities_mocker,
+    identity_info,
 ):
-    load_response("cli.collection_create_mapped.get_identities")
     load_response(
         "cli.collection_create_mapped.storage_gateway_list",
         case="default" if only_one_storage_gateway else "multiple",
@@ -244,8 +229,9 @@ def test_mapped_collection_create(
     create_meta = load_response(
         "cli.collection_create_mapped.mapped_collection_create"
     ).metadata
+    get_identities_mocker.configure_one(**identity_info)
 
-    owner_username = create_meta["username"]
+    owner_username = identity_info["username"]
     epid = gcs_meta["endpoint_id"]
 
     cmd = ["globus", "gcs", "collection", "create", "mapped", epid, "/"]
@@ -318,15 +304,17 @@ def test_mapped_collection_create_accepts_various_policy_options(
     run_line,
     add_gcs_login,
     add_opts,
+    get_identities_mocker,
+    identity_info,
 ):
-    load_response("cli.collection_create_mapped.get_identities")
     load_response("cli.collection_create_mapped.storage_gateway_list")
     gcs_meta = load_response("cli.collection_create_mapped.get_endpoint").metadata
     create_meta = load_response(
         "cli.collection_create_mapped.mapped_collection_create"
     ).metadata
+    get_identities_mocker.configure_one(**identity_info)
 
-    owner_username = create_meta["username"]
+    owner_username = identity_info["username"]
     epid = gcs_meta["endpoint_id"]
 
     cmd = ["globus", "gcs", "collection", "create", "mapped", epid, "/"] + add_opts

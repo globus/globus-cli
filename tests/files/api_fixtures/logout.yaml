@@ -44,21 +44,6 @@ auth:
           }
         ]
       }
-  - path: /v2/api/identities
-    json:
-      {
-        "identities": [
-          {
-            "username": "foo@globusid.org",
-            "name": "Foo McUser",
-            "id": "25de0aed-aa83-4600-a1be-a62a910af116",
-            "identity_provider": "c8abac57-560c-46c8-b386-f116ed8793d5",
-            "organization": "McUser Group",
-            "status": "used",
-            "email": "foo.mcuser@globus.org"
-          }
-        ]
-      }
   - path: /v2/oauth2/token/revoke
     method: post
     json: {"active": False}

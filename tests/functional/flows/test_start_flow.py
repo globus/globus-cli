@@ -6,10 +6,10 @@ import typing as t
 
 import pytest
 import responses
-from globus_sdk._testing import RegisteredResponse, load_response
+from globus_sdk._testing import load_response
 
 
-def test_start_flow_text_output(run_line, add_flow_login):
+def test_start_flow_text_output(run_line, add_flow_login, get_identities_mocker):
     # Load the response mock and extract critical metadata.
     response = load_response("flows.run_flow")
     flow_id = response.metadata["flow_id"]
@@ -21,7 +21,7 @@ def test_start_flow_text_output(run_line, add_flow_login):
     add_flow_login(flow_id)
 
     identity_info = _setup_identity_mock_response(
-        response.json["run_owner"], run_managers, run_monitors
+        get_identities_mocker, response.json["run_owner"], run_managers, run_monitors
     )
 
     # Construct the command line.
@@ -102,13 +102,14 @@ def test_start_flow_rejects_non_object_input(run_line, add_flow_login):
     ),
 )
 def test_start_flow_sends_expected_activity_notification_policy(
-    run_line, add_flow_login, activity_arg, expect_sent_policy
+    run_line, add_flow_login, get_identities_mocker, activity_arg, expect_sent_policy
 ):
     response = load_response("flows.run_flow")
     flow_id = response.metadata["flow_id"]
     add_flow_login(flow_id)
 
     _setup_identity_mock_response(
+        get_identities_mocker,
         response.json["run_owner"],
         response.metadata["request_params"]["run_managers"],
         response.metadata["request_params"]["run_monitors"],
@@ -145,27 +146,22 @@ def test_start_flow_sends_expected_activity_notification_policy(
 
 
 def _setup_identity_mock_response(
-    run_owner: str, run_managers: list[str], run_monitors: list[str]
+    get_identities_mocker,
+    run_owner: str,
+    run_managers: list[str],
+    run_monitors: list[str],
 ) -> dict[str, t.Any]:
     # Configure identities.
     owner_identity = {
         "username": "yogi@jellystone.park",
         "name": "Yogi",
         "id": run_owner.split(":")[-1],
-        "identity_provider": "c8abac57-560c-46c8-b386-f116ed8793d5",
-        "organization": "Hanna-Barbera",
-        "status": "used",
-        "email": "yogi@jellystone.park",
     }
     run_manager_identities = [
         {
             "username": "booboo@jellystone.park",
             "name": "Boo Boo",
             "id": run_managers[0].split(":")[-1],
-            "identity_provider": "c8abac57-560c-46c8-b386-f116ed8793d5",
-            "organization": "Hanna-Barbera",
-            "status": "used",
-            "email": "booboo@jellystone.park",
         },
     ]
     run_monitor_identities = [
@@ -173,33 +169,15 @@ def _setup_identity_mock_response(
             "username": "snaggle@jellystone.park",
             "name": "Snagglepuss",
             "id": run_monitors[0].split(":")[-1],
-            "identity_provider": "c8abac57-560c-46c8-b386-f116ed8793d5",
-            "organization": "Hanna-Barbera",
-            "status": "used",
-            "email": "snagglepuss@jellystone.park",
         },
         {
             "username": "yakky@jellystone.park",
             "name": "Yakky Doodle",
             "id": run_monitors[1].split(":")[-1],
-            "identity_provider": "c8abac57-560c-46c8-b386-f116ed8793d5",
-            "organization": "Hanna-Barbera",
-            "status": "used",
-            "email": "yakky@jellystone.park",
         },
     ]
-    load_response(
-        RegisteredResponse(
-            service="auth",
-            path="/v2/api/identities",
-            json={
-                "identities": [
-                    owner_identity,
-                    *run_manager_identities,
-                    *run_monitor_identities,
-                ],
-            },
-        )
+    get_identities_mocker.configure(
+        [owner_identity, *run_manager_identities, *run_monitor_identities]
     )
 
     return {

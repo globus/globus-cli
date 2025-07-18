@@ -3,17 +3,17 @@ import uuid
 
 import pytest
 import responses
-from globus_sdk._testing import RegisteredResponse, load_response, load_response_set
+from globus_sdk._testing import load_response_set
 
 DUMMY_ID1 = str(uuid.UUID(int=1))
 DUMMY_ID2 = str(uuid.UUID(int=2))
 
 
 @pytest.mark.parametrize("provision", [True, False])
-def test_permission_create_identity_name(run_line, provision):
+def test_permission_create_identity_name(run_line, get_identities_mocker, provision):
     meta = load_response_set("cli.endpoint_acl_operations").metadata
     user_id = meta["user_id"]
-    username = meta["username"]
+    user_metadata = get_identities_mocker.configure_one(id=user_id).metadata
     ep = meta["endpoint_id"]
 
     result = run_line(
@@ -26,7 +26,7 @@ def test_permission_create_identity_name(run_line, provision):
             "--permissions",
             "rw",
             "--provision-identity" if provision else "--identity",
-            username,
+            user_metadata["username"],
         ]
     )
     sent_data = json.loads(responses.calls[-1].request.body)
@@ -129,12 +129,8 @@ def test_permission_create_incompatible_security_principal_opts(
     assert expecterr in result.stderr
 
 
-def test_permission_create_username_lookup_fails(run_line):
-    load_response(
-        RegisteredResponse(
-            service="auth", path="/v2/api/identities", json={"identities": []}
-        )
-    )
+def test_permission_create_username_lookup_fails(run_line, get_identities_mocker):
+    get_identities_mocker.configure_empty()
     dummy_ep = str(uuid.uuid1())
     result = run_line(
         [
@@ -178,8 +174,10 @@ def test_permission_update(run_line):
     assert sent_data["expiration_date"] == "2030-03-30"
 
 
-def test_permisison_create_expiration_date(run_line):
+def test_permisison_create_expiration_date(run_line, get_identities_mocker):
     meta = load_response_set("cli.endpoint_acl_operations").metadata
+    user_id = meta["user_id"]
+    user_metadata = get_identities_mocker.configure_one(id=user_id).metadata
     endpoint_id = meta["endpoint_id"]
 
     run_line(
@@ -192,7 +190,7 @@ def test_permisison_create_expiration_date(run_line):
             "--permissions",
             "rw",
             "--identity",
-            "foo@globus.org",
+            user_metadata["username"],
             "--expiration-date",
             "2030-03-30",
         ],
@@ -201,12 +199,14 @@ def test_permisison_create_expiration_date(run_line):
     assert sent_data["expiration_date"] == "2030-03-30"
 
 
-def test_permission_show(run_line):
+def test_permission_show(run_line, get_identities_mocker):
     meta = load_response_set("cli.endpoint_acl_operations").metadata
+    user_id = meta["user_id"]
+    user_metadata = get_identities_mocker.configure_one(id=user_id).metadata
     endpoint_id = meta["endpoint_id"]
     permission_id = meta["permission_id"]
 
-    result = run_line(
+    run_line(
         [
             "globus",
             "endpoint",
@@ -215,10 +215,11 @@ def test_permission_show(run_line):
             endpoint_id,
             permission_id,
         ],
+        search_stdout=[
+            ("Rule ID", permission_id),
+            ("Permissions", "rw"),
+            ("Shared With", user_metadata["username"]),
+            ("Path", "/"),
+            ("Expiration Date", "2025-01-01T00:00:00+00:00"),
+        ],
     )
-
-    assert f"Rule ID:         {permission_id}" in result.stdout
-    assert "Permissions:     rw" in result.stdout
-    assert "Shared With:     foo@globusid.org" in result.stdout
-    assert "Path:            /" in result.stdout
-    assert "Expiration Date: 2025-01-01T00:00:00+00:00" in result.stdout

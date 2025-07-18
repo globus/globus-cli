@@ -504,12 +504,8 @@ def test_group_member_simple_action_error(run_line, action, error_detail):
             assert "Could not invite the user" in result.stderr
 
 
-def test_group_member_invite_by_username_no_such_user(run_line):
-    load_response(
-        RegisteredResponse(
-            service="auth", path="/v2/api/identities", json={"identities": []}
-        )
-    )
+def test_group_member_invite_by_username_no_such_user(run_line, get_identities_mocker):
+    get_identities_mocker.configure_empty()
     meta = load_response("group_member_invite").metadata
     username = meta["username"]
     group_id = meta["group_id"]
@@ -521,30 +517,15 @@ def test_group_member_invite_by_username_no_such_user(run_line):
 
 
 @pytest.mark.parametrize("w_provision_option", (True, False))
-def test_group_member_invite_by_username(run_line, w_provision_option):
+def test_group_member_invite_by_username(
+    run_line, w_provision_option, get_identities_mocker
+):
     meta = load_response("group_member_invite").metadata
     username = meta["username"]
     identity_id = meta["identity_id"]
     group_id = meta["group_id"]
-    load_response(
-        RegisteredResponse(
-            service="auth",
-            path="/v2/api/identities",
-            json={
-                "identities": [
-                    {
-                        "username": username,
-                        "name": "Foo McUser",
-                        "id": identity_id,
-                        "identity_provider": "c8abac57-560c-46c8-b386-f116ed8793d5",
-                        "organization": "McUser Group",
-                        "status": "used",
-                        "email": "foo.mcuser@globus.org",
-                    }
-                ]
-            },
-        )
-    )
+    get_identities_mocker.configure_one(username=username, id=identity_id)
+
     add_args = []
     if w_provision_option:
         add_args = ["--provision-identity"]

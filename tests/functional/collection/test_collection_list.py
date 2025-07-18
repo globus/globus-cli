@@ -20,8 +20,9 @@ def get_last_gcs_call(gcs_addr):
         return None
 
 
-def test_collection_list(run_line, add_gcs_login, base_command):
+def test_collection_list(run_line, add_gcs_login, get_identities_mocker, base_command):
     meta = load_response_set("cli.collection_operations").metadata
+    get_identities_mocker.configure_one(id=meta["identity_id"])
     epid = meta["endpoint_id"]
     add_gcs_login(epid)
     result = run_line(f"{base_command} {epid}")
@@ -31,8 +32,11 @@ def test_collection_list(run_line, add_gcs_login, base_command):
 
 
 @pytest.mark.parametrize("limit", (1, 3))
-def test_collection_list_limit(limit, run_line, add_gcs_login, base_command):
+def test_collection_list_limit(
+    limit, run_line, add_gcs_login, get_identities_mocker, base_command
+):
     meta = load_response_set("cli.collection_operations").metadata
+    get_identities_mocker.configure_one(id=meta["identity_id"])
     epid = meta["endpoint_id"]
     add_gcs_login(epid)
     result = run_line(f"{base_command} {epid} --limit {limit}")
@@ -41,8 +45,11 @@ def test_collection_list_limit(limit, run_line, add_gcs_login, base_command):
     assert "Happy Fun Collection Name 1" in lines[2]
 
 
-def test_collection_list_opts(run_line, add_gcs_login, base_command):
+def test_collection_list_opts(
+    run_line, add_gcs_login, get_identities_mocker, base_command
+):
     meta = load_response_set("cli.collection_operations").metadata
+    get_identities_mocker.configure_one(id=meta["identity_id"])
     epid = meta["endpoint_id"]
     add_gcs_login(epid)
     cid = meta["mapped_collection_id"]
@@ -95,8 +102,11 @@ def test_collection_list_on_mapped_collection(run_line, base_command):
         ["mapped-collections", "managed-by_me", "created-by-me"],
     ],
 )
-def test_collection_list_filters(run_line, add_gcs_login, filter_val, base_command):
+def test_collection_list_filters(
+    run_line, add_gcs_login, get_identities_mocker, filter_val, base_command
+):
     meta = load_response_set("cli.collection_operations").metadata
+    get_identities_mocker.configure_one(id=meta["identity_id"])
     epid = meta["endpoint_id"]
     add_gcs_login(epid)
     if not isinstance(filter_val, list):

@@ -23,13 +23,10 @@ def test_jmespath_extract_from_list(run_line, go_ep2_id):
     resource.
     """
     load_response_set("cli.endpoint_operations")
-    load_response_set("cli.go_user_info")
     # list tutorial endpoints with a search, but extract go#ep2
     result = run_line(
         (
-            "globus endpoint search 'Tutorial' "
-            "--filter-owner-id go@globusid.org "
-            "--jmespath \"DATA[?id=='{}'] | [0]\""
+            "globus endpoint search 'Tutorial' --jmespath \"DATA[?id=='{}'] | [0]\""
         ).format(go_ep2_id)
     )
     outputdict = json.loads(result.output)

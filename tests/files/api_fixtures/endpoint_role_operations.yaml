@@ -1,6 +1,7 @@
 metadata:
   endpoint_id: "c574170d-3690-4343-bd16-2c9e49bd1ab0"
   role_id: "75bdc786-1c9f-4388-a604-328cd7ee5597"
+  role_identity_id: "2ae27258-25e0-4b2b-abc9-b3b85ee0c26c"
 
 
 transfer:
@@ -103,26 +104,6 @@ transfer:
         "user_message": null,
         "user_message_link": null,
         "username": "u_f8e33pwjszg6liri3mve3bzpre"
-      }
-
-auth:
-  # Identity lookup
-  - path: /v2/api/identities
-    method: get
-    json:
-      {
-        "identities": [
-          {
-            "name": "Foo Barson",
-            "organization": "Globus",
-            "username": "foo@globus.org",
-            "email": "foo@globus.org",
-            "identity_type": "login",
-            "identity_provider": "d51f5c44-a53b-4d47-ac95-283a4a4643f5",
-            "status": "used",
-            "id": "78d0af73-85a1-4505-9e2c-27675854198a"
-          }
-        ]
       }
 
 
