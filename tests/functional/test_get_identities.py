@@ -1,7 +1,5 @@
 import json
 
-from globus_sdk._testing import load_response_set
-
 
 def test_get_identities_requires_at_least_one(run_line):
     result = run_line("globus get-identities", assert_exit_code=2)
@@ -42,27 +40,27 @@ def test_invalid_username(run_line):
     assert "'invalid' does not appear to be a valid identity" in result.stderr
 
 
-def test_default_multiple_inputs(run_line):
+def test_default_multiple_inputs(run_line, get_identities_mocker):
     """
     Runs get-identities with id username, duplicate and invalid inputs
     Confirms order is preserved and all values are as expected
     """
-    meta = load_response_set("cli.multiuser_get_identities").metadata
-    users = meta["users"]
+    meta = get_identities_mocker.configure([{}, {}]).metadata
+    users = meta["user_docs"]
     in_vals = [
         users[0]["username"],
-        users[0]["user_id"],
+        users[0]["id"],
         "invalid@nosuchdomain.exists",
         users[1]["username"],
         users[1]["username"],
     ]
 
     expected = [
-        users[0]["user_id"],
+        users[0]["id"],
         users[0]["username"],
         "NO_SUCH_IDENTITY",
-        users[1]["user_id"],
-        users[1]["user_id"],
+        users[1]["id"],
+        users[1]["id"],
     ]
 
     result = run_line("globus get-identities " + " ".join(in_vals))

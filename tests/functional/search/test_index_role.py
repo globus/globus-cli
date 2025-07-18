@@ -15,9 +15,18 @@ def _last_search_call():
     return sent
 
 
-def test_index_role_list(run_line):
-    load_response_set("cli.multiuser_get_identities")
+def test_index_role_list(run_line, get_identities_mocker):
     meta = load_response_set("cli.search").metadata
+
+    sam_spade_username = "sam-spade@maltese.falcon"
+    bruce_wayne_username = "bruce.wayne@gotham.city"
+    get_identities_mocker.configure(
+        [
+            {"id": meta["primary_user_id"], "username": sam_spade_username},
+            {"id": meta["secondary_user_id"], "username": bruce_wayne_username},
+        ]
+    )
+
     list_data = meta["index_role_list_data"]
     index_id = meta["index_id"]
 
@@ -29,7 +38,13 @@ def test_index_role_list(run_line):
 
     for role_id, data in list_data.items():
         role_name = data["role"]
-        principal = data["value"]
+        principal_key = data["value_meta_key"]
+        if principal_key == "primary_user_id":
+            principal = sam_spade_username
+        elif principal_key == "secondary_user_id":
+            principal = bruce_wayne_username
+        elif principal_key == "group_id":
+            principal = f"Globus Group ({meta['group_id']})"
 
         for line in output_lines:
             if role_id in line:
@@ -38,74 +53,89 @@ def test_index_role_list(run_line):
 
 
 @pytest.mark.parametrize(
-    "cli_args",
+    "principal_type, add_args",
     [
-        ["foo@globusid.org"],
-        ["urn:globus:auth:identity:25de0aed-aa83-4600-a1be-a62a910af116"],
-        ["25de0aed-aa83-4600-a1be-a62a910af116"],
-        ["25de0aed-aa83-4600-a1be-a62a910af116", "--type", "identity"],
-        [
-            "--type",
-            "identity",
-            "urn:globus:auth:identity:25de0aed-aa83-4600-a1be-a62a910af116",
-        ],
+        ("username", []),
+        ("identity_urn", []),
+        ("identity_id", []),
+        ("identity_id", ["--type", "identity"]),
+        ("identity_urn", ["--type", "identity"]),
     ],
 )
-def test_index_role_create_identity(run_line, cli_args):
-    load_response_set("cli.multiuser_get_identities")
+def test_index_role_create_identity(
+    run_line, get_identities_mocker, principal_type, add_args
+):
     meta = load_response_set("cli.search").metadata
+
+    username = "sam-spade@maltese.falcon"
+    get_identities_mocker.configure(
+        [
+            {"id": meta["primary_user_id"], "username": username},
+            {"id": meta["secondary_user_id"]},
+        ]
+    )
+
     index_id = meta["index_id"]
 
+    if principal_type == "username":
+        principal = username
+    elif principal_type == "identity_id":
+        principal = meta["primary_user_id"]
+    elif principal_type == "identity_urn":
+        principal = f"urn:globus:auth:identity:{meta['primary_user_id']}"
+    else:
+        raise NotImplementedError(principal_type)
+
     run_line(
-        ["globus", "search", "index", "role", "create", index_id, "writer"] + cli_args
+        ["globus", "search", "index", "role", "create", index_id, "writer", principal]
+        + add_args
     )
     sent = _last_search_call().request
     assert sent.method == "POST"
     data = json.loads(sent.body)
     assert data["role_name"] == "writer"
-    assert (
-        data["principal"]
-        == "urn:globus:auth:identity:25de0aed-aa83-4600-a1be-a62a910af116"
-    )
+    assert data["principal"] == f"urn:globus:auth:identity:{meta['primary_user_id']}"
 
 
 @pytest.mark.parametrize(
-    "cli_args",
+    "principal_type, add_args",
     [
-        ["urn:globus:groups:id:a6de8802-6bce-4dd8-afa0-28dc38db5c77"],
-        [
-            "--type",
-            "group",
-            "urn:globus:groups:id:a6de8802-6bce-4dd8-afa0-28dc38db5c77",
-        ],
-        ["--type", "group", "a6de8802-6bce-4dd8-afa0-28dc38db5c77"],
-        [
-            "--type",
-            "group",
-            "urn:globus:groups:id:a6de8802-6bce-4dd8-afa0-28dc38db5c77",
-        ],
+        ("group_urn", []),
+        ("group_urn", ["--type", "group"]),
+        ("group_id", ["--type", "group"]),
     ],
 )
-def test_index_role_create_group(run_line, cli_args):
+def test_index_role_create_group(
+    run_line, get_identities_mocker, principal_type, add_args
+):
     # NOTE: this test uses the same fixture data, but the fixtures are populated with
     # role information for an identity-related role
     # as a result, the response and output will not match, but the command should still
     # succeed and we can inspect the request sent
     # however, we need to include the get-identities data for the username lookup step
-    load_response_set("cli.multiuser_get_identities")
     meta = load_response_set("cli.search").metadata
+    get_identities_mocker.configure(
+        [{"id": meta["primary_user_id"]}, {"id": meta["secondary_user_id"]}]
+    )
+
     index_id = meta["index_id"]
 
+    if principal_type == "group_id":
+        principal = meta["group_id"]
+    elif principal_type == "group_urn":
+        principal = f"urn:globus:groups:id:{meta['group_id']}"
+    else:
+        raise NotImplementedError(principal_type)
+
     run_line(
-        ["globus", "search", "index", "role", "create", index_id, "admin"] + cli_args
+        ["globus", "search", "index", "role", "create", index_id, "admin", principal]
+        + add_args
     )
     sent = _last_search_call().request
     assert sent.method == "POST"
     data = json.loads(sent.body)
     assert data["role_name"] == "admin"
-    assert (
-        data["principal"] == "urn:globus:groups:id:a6de8802-6bce-4dd8-afa0-28dc38db5c77"
-    )
+    assert data["principal"] == f"urn:globus:groups:id:{meta['group_id']}"
 
 
 @pytest.mark.parametrize(

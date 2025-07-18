@@ -21,15 +21,18 @@ metadata:
   index_role_list_data:
     "MDAwMjQx":
       role: owner
-      value: "foo@globusid.org"
+      value_meta_key: "primary_user_id"
     "MDQ0ODYz":
       role: writer
-      value: "bar@globusid.org"
+      value_meta_key: "secondary_user_id"
     "MDQ0ODkz":
       role: writer
-      value: "Globus Group (9da26beb-33f5-4e1a-b9f6-a44a624c4ddd)"
+      value_meta_key: "group_id"
   subject: "https://en.wikipedia.org/wiki/Salsa_verde"
   multi_entry_subject: "multi-entry-subject"
+  primary_user_id: "25de0aed-aa83-4600-a1be-a62a910af116"
+  secondary_user_id: "a5cd4055-ca33-43c0-923f-810fca2ebd68"
+  group_id: "9da26beb-33f5-4e1a-b9f6-a44a624c4ddd"
 
 search:
   - path: /v1/index/6f831ac8-4c41-4812-b383-6fb04f8b9f9f/search
