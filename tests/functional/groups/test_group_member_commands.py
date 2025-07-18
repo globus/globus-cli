@@ -505,7 +505,7 @@ def test_group_member_simple_action_error(run_line, action, error_detail):
 
 
 def test_group_member_invite_by_username_no_such_user(run_line, get_identities_mocker):
-    get_identities_mocker.setup_empty_reply()
+    get_identities_mocker.configure_empty()
     meta = load_response("group_member_invite").metadata
     username = meta["username"]
     group_id = meta["group_id"]
@@ -524,7 +524,7 @@ def test_group_member_invite_by_username(
     username = meta["username"]
     identity_id = meta["identity_id"]
     group_id = meta["group_id"]
-    get_identities_mocker.setup_one_identity(username=username, id=identity_id)
+    get_identities_mocker.configure_one(username=username, id=identity_id)
 
     add_args = []
     if w_provision_option:

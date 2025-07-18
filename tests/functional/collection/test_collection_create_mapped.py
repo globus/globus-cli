@@ -229,7 +229,7 @@ def test_mapped_collection_create(
     create_meta = load_response(
         "cli.collection_create_mapped.mapped_collection_create"
     ).metadata
-    get_identities_mocker.setup_one_identity(**identity_info)
+    get_identities_mocker.configure_one(**identity_info)
 
     owner_username = identity_info["username"]
     epid = gcs_meta["endpoint_id"]
@@ -312,7 +312,7 @@ def test_mapped_collection_create_accepts_various_policy_options(
     create_meta = load_response(
         "cli.collection_create_mapped.mapped_collection_create"
     ).metadata
-    get_identities_mocker.setup_one_identity(**identity_info)
+    get_identities_mocker.configure_one(**identity_info)
 
     owner_username = identity_info["username"]
     epid = gcs_meta["endpoint_id"]

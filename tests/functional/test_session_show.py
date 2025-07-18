@@ -81,7 +81,7 @@ def create_introspect_data(user_attrs, auth_time):
 
 def test_session_show_text(run_line, monkeypatch, get_identities_mocker):
     meta = load_response_set("cthulhu_introspect").metadata
-    get_identities_mocker.setup_one_identity(**meta["user_attrs"])
+    get_identities_mocker.configure_one(**meta["user_attrs"])
 
     monkeypatch.setattr(datetime, "datetime", utconly_datetime)
 

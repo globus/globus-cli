@@ -135,7 +135,7 @@ def test_index_role_create_invalid_args(
     run_line, get_identities_mocker, cli_args, expect_message
 ):
     # empty identity lookup results for the cases which do callout
-    get_identities_mocker.setup_empty_reply()
+    get_identities_mocker.configure_empty()
     index_id = str(uuid.uuid1())
 
     result = run_line(

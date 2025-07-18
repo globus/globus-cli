@@ -424,16 +424,13 @@ def disable_client_retries(monkeypatch):
 class GetIdentitiesMocker:
     """A utility for setting up `GET /v2/api/identities` mocks."""
 
-    def setup_empty_reply(self):
-        resp = RegisteredResponse(
-            service="auth",
-            path="/v2/api/identities",
-            json={"identities": []},
-        )
-        resp.add()
-        return resp
+    _DEFAULT_IDP_ID = str(uuid.uuid4())
+    _DEFAULT_IDENTITY_ID = str(uuid.uuid4())
 
-    def setup_one_identity(
+    def configure_empty(self):
+        return self.configure([])
+
+    def configure_one(
         self,
         username="shrek@globus.org",
         email="shrek+contactme@globus.org",
@@ -443,27 +440,61 @@ class GetIdentitiesMocker:
             "Significantly From Their Source Material"
         ),
         status="used",
-        identity_provider=None,
-        id=None,
+        identity_provider=_DEFAULT_IDP_ID,
+        id=_DEFAULT_IDENTITY_ID,
     ):
         """Setup a single-identity mock."""
-        idp_id = identity_provider or str(uuid.UUID(int=1))
-        identity_id = id or str(uuid.UUID(int=2))
-
         identity_doc = {
             "email": email,
-            "id": identity_id,
-            "identity_provider": idp_id,
+            "id": id,
+            "identity_provider": identity_provider,
             "name": name,
             "organization": organization,
             "status": status,
             "username": username,
         }
+        return self.configure([identity_doc], add_metadata=identity_doc)
+
+    def configure(self, partial_documents, *, add_metadata=None):
+        """Configure a mock with however many partials were given.
+
+        Example usage:
+
+        >>> mocker.configure(
+        >>>     [
+        >>>         {"username": "foo@globusid.org", "id": my_coordinated_id1},
+        >>>         {"username": "bar@globusid.org", "id": my_coordinated_id2},
+        >>>         {"username": "baz@globusid.org"},
+        >>>     ]
+        >>> )
+        """
+
+        user_docs = []
+        for n, partial in enumerate(partial_documents):
+            user_docs.append(
+                {
+                    "id": partial.get("id", str(uuid.uuid4())),
+                    "identity_provider": partial.get(
+                        "identity_provider", self._DEFAULT_IDP_ID
+                    ),
+                    "organization": partial.get(
+                        "organization", "Globus Cloning Intergalactic"
+                    ),
+                    "status": partial.get("status", "used"),
+                    "email": partial.get("email", f"clone{n}+contacme@globus.org"),
+                    "name": partial.get("name", f"Clone {n}"),
+                    "username": partial.get("username", f"clone{n}@globus.org"),
+                }
+            )
+
         resp = RegisteredResponse(
             service="auth",
             path="/v2/api/identities",
-            json={"identities": [identity_doc]},
-            metadata=identity_doc,
+            json={"identities": user_docs},
+            metadata={
+                "user_docs": user_docs,
+                **(add_metadata or {}),
+            },
         )
 
         resp.add()

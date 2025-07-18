@@ -22,7 +22,7 @@ def get_last_gcs_call(gcs_addr):
 
 def test_collection_list(run_line, add_gcs_login, get_identities_mocker, base_command):
     meta = load_response_set("cli.collection_operations").metadata
-    get_identities_mocker.setup_one_identity(id=meta["identity_id"])
+    get_identities_mocker.configure_one(id=meta["identity_id"])
     epid = meta["endpoint_id"]
     add_gcs_login(epid)
     result = run_line(f"{base_command} {epid}")
@@ -36,7 +36,7 @@ def test_collection_list_limit(
     limit, run_line, add_gcs_login, get_identities_mocker, base_command
 ):
     meta = load_response_set("cli.collection_operations").metadata
-    get_identities_mocker.setup_one_identity(id=meta["identity_id"])
+    get_identities_mocker.configure_one(id=meta["identity_id"])
     epid = meta["endpoint_id"]
     add_gcs_login(epid)
     result = run_line(f"{base_command} {epid} --limit {limit}")
@@ -49,7 +49,7 @@ def test_collection_list_opts(
     run_line, add_gcs_login, get_identities_mocker, base_command
 ):
     meta = load_response_set("cli.collection_operations").metadata
-    get_identities_mocker.setup_one_identity(id=meta["identity_id"])
+    get_identities_mocker.configure_one(id=meta["identity_id"])
     epid = meta["endpoint_id"]
     add_gcs_login(epid)
     cid = meta["mapped_collection_id"]
@@ -106,7 +106,7 @@ def test_collection_list_filters(
     run_line, add_gcs_login, get_identities_mocker, filter_val, base_command
 ):
     meta = load_response_set("cli.collection_operations").metadata
-    get_identities_mocker.setup_one_identity(id=meta["identity_id"])
+    get_identities_mocker.configure_one(id=meta["identity_id"])
     epid = meta["endpoint_id"]
     add_gcs_login(epid)
     if not isinstance(filter_val, list):

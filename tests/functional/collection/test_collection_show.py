@@ -10,9 +10,7 @@ def base_command(request):
 
 def test_collection_show(run_line, add_gcs_login, get_identities_mocker, base_command):
     meta = load_response_set("cli.collection_operations").metadata
-    user_meta = get_identities_mocker.setup_one_identity(
-        id=meta["identity_id"]
-    ).metadata
+    user_meta = get_identities_mocker.configure_one(id=meta["identity_id"]).metadata
     cid = meta["mapped_collection_id"]
     epid = meta["endpoint_id"]
     add_gcs_login(epid)
@@ -33,7 +31,7 @@ def test_collection_show_private_policies(
     run_line, add_gcs_login, get_identities_mocker, base_command
 ):
     meta = load_response_set("cli.collection_show_private_policies").metadata
-    user_meta = get_identities_mocker.setup_one_identity(id=meta["user_id"]).metadata
+    user_meta = get_identities_mocker.configure_one(id=meta["user_id"]).metadata
     cid = meta["collection_id"]
     epid = meta["endpoint_id"]
     add_gcs_login(epid)

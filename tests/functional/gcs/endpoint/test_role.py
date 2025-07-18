@@ -19,7 +19,7 @@ def test_endpoint_role_create(
     run_line, add_gcs_login, get_identities_mocker, principal_type, add_args
 ):
     meta = load_response_set("cli.endpoint_role_operations").metadata
-    user_meta = get_identities_mocker.setup_one_identity(
+    user_meta = get_identities_mocker.configure_one(
         id=meta["role_identity_id"]
     ).metadata
 
@@ -91,7 +91,7 @@ def test_endpoint_role_create_with_invalid_principal_input(
 
 def test_endpoint_role_list(run_line, add_gcs_login, get_identities_mocker):
     meta = load_response_set("cli.endpoint_role_operations").metadata
-    get_identities_mocker.setup_one_identity(id=meta["role_identity_id"])
+    get_identities_mocker.configure_one(id=meta["role_identity_id"])
     endpoint_id = meta["endpoint_id"]
     role_id = meta["role_id"]
 
@@ -104,7 +104,7 @@ def test_endpoint_role_list(run_line, add_gcs_login, get_identities_mocker):
 
 def test_endpoint_role_show(run_line, add_gcs_login, get_identities_mocker):
     meta = load_response_set("cli.endpoint_role_operations").metadata
-    get_identities_mocker.setup_one_identity(id=meta["role_identity_id"]).metadata
+    get_identities_mocker.configure_one(id=meta["role_identity_id"]).metadata
 
     endpoint_id = meta["endpoint_id"]
     role_id = meta["role_id"]

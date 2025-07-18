@@ -32,7 +32,7 @@ def test_user_credential_show(add_gcs_login, run_line, get_identities_mocker):
 
     meta = load_response_set("cli.collection_operations").metadata
     ep_id = meta["endpoint_id"]
-    get_identities_mocker.setup_one_identity(id=meta["identity_id"])
+    get_identities_mocker.configure_one(id=meta["identity_id"])
     add_gcs_login(ep_id)
 
     line = f"globus endpoint user-credential show {ep_id} {cred_id}"
@@ -110,9 +110,7 @@ def test_user_credential_create_posix(add_gcs_login, run_line, get_identities_mo
     cred_id = cred_meta["id"]
 
     meta = load_response_set("cli.collection_operations").metadata
-    user_meta = get_identities_mocker.setup_one_identity(
-        id=meta["identity_id"]
-    ).metadata
+    user_meta = get_identities_mocker.configure_one(id=meta["identity_id"]).metadata
     add_gcs_login(meta["endpoint_id"])
 
     gateway_id = str(uuid.uuid4())
@@ -149,9 +147,7 @@ def test_user_credential_create_posix(add_gcs_login, run_line, get_identities_mo
 def test_user_credential_create_s3(add_gcs_login, run_line, get_identities_mocker):
     cred_meta = load_response_set(globus_sdk.GCSClient.create_user_credential).metadata
     meta = load_response_set("cli.collection_operations").metadata
-    user_meta = get_identities_mocker.setup_one_identity(
-        id=meta["identity_id"]
-    ).metadata
+    user_meta = get_identities_mocker.configure_one(id=meta["identity_id"]).metadata
     add_gcs_login(meta["endpoint_id"])
 
     gateway_id = str(uuid.uuid4())

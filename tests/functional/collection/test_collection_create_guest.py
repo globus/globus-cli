@@ -12,7 +12,7 @@ from globus_cli.endpointish import EntityType
 
 def test_guest_collection_create(run_line, get_identities_mocker, add_gcs_login):
     meta = load_response_set("cli.collection_operations").metadata
-    get_identities_mocker.setup_one_identity(id=meta["identity_id"])
+    get_identities_mocker.configure_one(id=meta["identity_id"])
     endpoint_id = meta["endpoint_id"]
     mapped_collection_id = meta["mapped_collection_id"]
     guest_collection_id = meta["guest_collection_id"]

@@ -12,7 +12,7 @@ def test_default_one_id(run_line, get_identities_mocker):
     """
     Runs get-identities with one id, confirms correct username returned.
     """
-    meta = get_identities_mocker.setup_one_identity().metadata
+    meta = get_identities_mocker.configure_one().metadata
     user_id = meta["id"]
     username = meta["username"]
     result = run_line(f"globus get-identities {user_id}")
@@ -23,7 +23,7 @@ def test_default_one_username(run_line, get_identities_mocker):
     """
     Runs get-identities with one username, confirms correct id returned.
     """
-    meta = get_identities_mocker.setup_one_identity().metadata
+    meta = get_identities_mocker.configure_one().metadata
     user_id = meta["id"]
     username = meta["username"]
     result = run_line("globus get-identities " + username)
@@ -31,7 +31,7 @@ def test_default_one_username(run_line, get_identities_mocker):
 
 
 def test_default_nosuchidentity(run_line, get_identities_mocker):
-    get_identities_mocker.setup_empty_reply()
+    get_identities_mocker.configure_empty()
     result = run_line("globus get-identities invalid@nosuchdomain.exists")
     assert "NO_SUCH_IDENTITY\n" == result.output
 
@@ -73,7 +73,7 @@ def test_verbose(run_line, get_identities_mocker):
     """
     Runs get-identities with --verbose, confirms expected fields found.
     """
-    meta = get_identities_mocker.setup_one_identity().metadata
+    meta = get_identities_mocker.configure_one().metadata
     user_id = meta["id"]
     result = run_line("globus get-identities --verbose " + user_id)
     for key in ["username", "id", "name", "organization", "email"]:
@@ -84,7 +84,7 @@ def test_json(run_line, get_identities_mocker):
     """
     Runs get-identities with -F json confirms expected values.
     """
-    meta = get_identities_mocker.setup_one_identity().metadata
+    meta = get_identities_mocker.configure_one().metadata
     user_id = meta["id"]
     output = json.loads(run_line("globus get-identities -F json " + user_id).output)
     for key in ["id", "username", "name", "organization", "email"]:
