@@ -14,7 +14,7 @@ import globus_sdk
 import pytest
 import responses
 from click.testing import CliRunner
-from globus_sdk._testing import register_response_set
+from globus_sdk._testing import RegisteredResponse, register_response_set
 from globus_sdk.scopes import TimersScopes
 from globus_sdk.tokenstorage import SQLiteAdapter
 from globus_sdk.transport import RequestsTransport
@@ -352,6 +352,11 @@ def mocked_responses(monkeypatch):
     responses.reset()
 
 
+@pytest.fixture
+def get_identities_mocker():
+    return GetIdentitiesMocker()
+
+
 def _iter_fixture_routes(routes):
     # walk a fixture file either as a list of routes
     for x in routes:
@@ -414,3 +419,44 @@ def disable_client_retries(monkeypatch):
     monkeypatch.setattr(
         globus_sdk.ConfidentialAppAuthClient, "transport_class", NoRetryTransport
     )
+
+
+class GetIdentitiesMocker:
+    """A utility for setting up `GET /v2/api/identities` mocks."""
+
+    def setup_one_identity(
+        self,
+        username="shrek@globus.org",
+        email="shrek+contactme@globus.org",
+        name="Shrek by William Steig",
+        organization=(
+            "Fairytales Whose Movie Adaptations Diverge "
+            "Significantly From Their Source Material"
+        ),
+        status="used",
+        identity_provider=None,
+        id=None,
+    ):
+        """Setup a single-identity mock."""
+        idp_id = identity_provider or str(uuid.UUID(int=1))
+        identity_id = id or str(uuid.UUID(int=2))
+
+        identity_doc = {
+            "email": email,
+            "id": identity_id,
+            "identity_provider": idp_id,
+            "name": name,
+            "organization": organization,
+            "status": status,
+            "username": username,
+        }
+        resp = RegisteredResponse(
+            service="auth",
+            path="/v2/api/identities",
+            json={"identities": [identity_doc]},
+            metadata=identity_doc,
+        )
+
+        resp.add()
+
+        return resp

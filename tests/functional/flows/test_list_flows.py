@@ -89,8 +89,12 @@ def test_list_flows_filter_fulltext(run_line):
     assert result.output == expected
 
 
-def test_list_flows_paginated_response(run_line):
+def test_list_flows_paginated_response(run_line, get_identities_mocker):
     meta = load_response_set("flows_list_paginated").metadata
+    owner_id = meta["owner_id"]
+    username = get_identities_mocker.setup_one_identity(id=owner_id).metadata[
+        "username"
+    ]
 
     result = run_line("globus flows list --limit 1000")
     output_lines = result.output.split("\n")[:-1]  # trim the final newline/empty str
@@ -103,11 +107,15 @@ def test_list_flows_paginated_response(run_line):
         #    Hello, World (Example {1})   <-- trailing space
         #    Hello, World (Example {10})  <-- no trailing space
         assert row[1].rstrip() == f"Hello, World (Example {i})"
-        assert row[2] == meta["flow_owner"]
+        assert row[2] == username
 
 
-def test_list_flows_sorted(run_line):
+def test_list_flows_sorted(run_line, get_identities_mocker):
     meta = load_response_set("flows_list_orderby_title_asc").metadata
+    owner_id = meta["owner_id"]
+    username = get_identities_mocker.setup_one_identity(id=owner_id).metadata[
+        "username"
+    ]
 
     result = run_line(
         ["globus", "flows", "list", "--limit", "100", "--orderby", "title:asc"]
@@ -121,7 +129,7 @@ def test_list_flows_sorted(run_line):
         row = line.split(" | ")
         assert row[0] == str(uuid.UUID(int=i))
         titles_in_order.append(row[1].strip())
-        assert row[2] == meta["flow_owner"]
+        assert row[2] == username
 
     assert titles_in_order == sorted(titles_in_order)
 

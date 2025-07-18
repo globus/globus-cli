@@ -129,30 +129,9 @@ def setup_paginated_responses() -> None:
                     )
                 ],
             },
-            "auth_get_identities": {
-                "service": "auth",
-                "path": "/v2/api/identities",
-                "json": {
-                    "identities": [
-                        {
-                            "username": "shrek@globus.org",
-                            "name": "Shrek by William Steig",
-                            "id": OWNER_ID,
-                            "identity_provider": "c8abac57-560c-46c8-b386-f116ed8793d5",
-                            "organization": (
-                                "Fairytales Whose Movie Adaptations Diverge "
-                                "Significantly From Their Source Material"
-                            ),
-                            "status": "used",
-                            "email": "shrek@globus.org",
-                        }
-                    ]
-                },
-            },
         },
         metadata={
             "owner_id": OWNER_ID,
-            "flow_owner": "shrek@globus.org",
             "num_pages": 3,
             "expect_markers": ["fake_marker_0", "fake_marker_1", None],
             "total_items": 60,
@@ -181,30 +160,9 @@ def setup_custom_orderby_response() -> None:
                 },
                 "match": [matchers.query_param_matcher({"orderby": "title ASC"})],
             },
-            "auth_get_identities": {
-                "service": "auth",
-                "path": "/v2/api/identities",
-                "json": {
-                    "identities": [
-                        {
-                            "username": "shrek@globus.org",
-                            "name": "Shrek by William Steig",
-                            "id": OWNER_ID,
-                            "identity_provider": "c8abac57-560c-46c8-b386-f116ed8793d5",
-                            "organization": (
-                                "Fairytales Whose Movie Adaptations Diverge "
-                                "Significantly From Their Source Material"
-                            ),
-                            "status": "used",
-                            "email": "shrek@globus.org",
-                        }
-                    ]
-                },
-            },
         },
         metadata={
             "owner_id": OWNER_ID,
-            "flow_owner": "shrek@globus.org",
             "total_items": 26,
         },
     )
