@@ -424,6 +424,15 @@ def disable_client_retries(monkeypatch):
 class GetIdentitiesMocker:
     """A utility for setting up `GET /v2/api/identities` mocks."""
 
+    def setup_empty_reply(self):
+        resp = RegisteredResponse(
+            service="auth",
+            path="/v2/api/identities",
+            json={"identities": []},
+        )
+        resp.add()
+        return resp
+
     def setup_one_identity(
         self,
         username="shrek@globus.org",

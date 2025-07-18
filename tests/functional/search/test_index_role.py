@@ -131,14 +131,11 @@ def test_index_role_create_group(run_line, cli_args):
         ),
     ],
 )
-def test_index_role_create_invalid_args(run_line, cli_args, expect_message):
+def test_index_role_create_invalid_args(
+    run_line, get_identities_mocker, cli_args, expect_message
+):
     # empty identity lookup results for the cases which do callout
-    responses.add(
-        "GET",
-        "https://auth.globus.org/v2/api/identities",
-        headers={"Content-Type": "application/json"},
-        json={"identities": []},
-    )
+    get_identities_mocker.setup_empty_reply()
     index_id = str(uuid.uuid1())
 
     result = run_line(

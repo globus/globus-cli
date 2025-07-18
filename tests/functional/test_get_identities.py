@@ -1,6 +1,6 @@
 import json
 
-from globus_sdk._testing import RegisteredResponse, load_response, load_response_set
+from globus_sdk._testing import load_response_set
 
 
 def test_get_identities_requires_at_least_one(run_line):
@@ -30,15 +30,8 @@ def test_default_one_username(run_line, get_identities_mocker):
     assert user_id + "\n" == result.output
 
 
-def test_default_nosuchidentity(run_line):
-    """
-    Runs get-identities with one username, confirms correct id returned.
-    """
-    load_response(
-        RegisteredResponse(
-            service="auth", path="/v2/api/identities", json={"identities": []}
-        )
-    )
+def test_default_nosuchidentity(run_line, get_identities_mocker):
+    get_identities_mocker.setup_empty_reply()
     result = run_line("globus get-identities invalid@nosuchdomain.exists")
     assert "NO_SUCH_IDENTITY\n" == result.output
 

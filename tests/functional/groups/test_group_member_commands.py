@@ -504,12 +504,8 @@ def test_group_member_simple_action_error(run_line, action, error_detail):
             assert "Could not invite the user" in result.stderr
 
 
-def test_group_member_invite_by_username_no_such_user(run_line):
-    load_response(
-        RegisteredResponse(
-            service="auth", path="/v2/api/identities", json={"identities": []}
-        )
-    )
+def test_group_member_invite_by_username_no_such_user(run_line, get_identities_mocker):
+    get_identities_mocker.setup_empty_reply()
     meta = load_response("group_member_invite").metadata
     username = meta["username"]
     group_id = meta["group_id"]

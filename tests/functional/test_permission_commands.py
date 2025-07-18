@@ -3,7 +3,7 @@ import uuid
 
 import pytest
 import responses
-from globus_sdk._testing import RegisteredResponse, load_response, load_response_set
+from globus_sdk._testing import load_response_set
 
 DUMMY_ID1 = str(uuid.UUID(int=1))
 DUMMY_ID2 = str(uuid.UUID(int=2))
@@ -129,12 +129,8 @@ def test_permission_create_incompatible_security_principal_opts(
     assert expecterr in result.stderr
 
 
-def test_permission_create_username_lookup_fails(run_line):
-    load_response(
-        RegisteredResponse(
-            service="auth", path="/v2/api/identities", json={"identities": []}
-        )
-    )
+def test_permission_create_username_lookup_fails(run_line, get_identities_mocker):
+    get_identities_mocker.setup_empty_reply()
     dummy_ep = str(uuid.uuid1())
     result = run_line(
         [
