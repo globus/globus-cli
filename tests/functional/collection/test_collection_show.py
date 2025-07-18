@@ -8,10 +8,12 @@ def base_command(request):
     return f"globus {request.param} show"
 
 
-def test_collection_show(run_line, add_gcs_login, base_command):
+def test_collection_show(run_line, add_gcs_login, get_identities_mocker, base_command):
     meta = load_response_set("cli.collection_operations").metadata
+    user_meta = get_identities_mocker.setup_one_identity(
+        id=meta["identity_id"]
+    ).metadata
     cid = meta["mapped_collection_id"]
-    username = meta["username"]
     epid = meta["endpoint_id"]
     add_gcs_login(epid)
 
@@ -19,7 +21,7 @@ def test_collection_show(run_line, add_gcs_login, base_command):
         f"{base_command} {cid}",
         search_stdout=[
             ("Display Name", "Happy Fun Collection Name"),
-            ("Owner", username),
+            ("Owner", user_meta["username"]),
             ("ID", cid),
             ("Collection Type", "mapped"),
             ("Connector", "POSIX"),

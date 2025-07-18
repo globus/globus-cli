@@ -3,7 +3,6 @@ metadata:
   guest_collection_id: "0e4a77f8-b778-4d5c-abaa-e1254e71427f"
   endpoint_id: "cf37806c-572c-47ff-88e2-511c646ef1a4"
   gcp_endpoint_id: "06e2c959-d311-4bab-b2ea-25ad77d9fc12"
-  username: "sirosen@globusid.org"
   local_username: "recyclops"
   identity_id: "e926d510-cb98-11e5-a6ac-0b0216052512"
   gcs_hostname: "abc.xyz.data.globus.org"
@@ -154,21 +153,6 @@ transfer:
       }
 
 auth:
-  - path: /v2/api/identities
-    json:
-      {
-        "identities": [
-          {
-            "email": "sirosen@uchicago.edu",
-            "id": "e926d510-cb98-11e5-a6ac-0b0216052512",
-            "identity_provider": "41143743-f3c8-4d60-bbdb-eeecaba85bd9",
-            "name": "Stephen Rosen",
-            "organization": "University of Chicago",
-            "status": "used",
-            "username": "sirosen@globusid.org"
-          }
-        ]
-      }
   - path: /v2/api/identities/25de0aed-aa83-4600-a1be-a62a910af116/consents
     json:
       {

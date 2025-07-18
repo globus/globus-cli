@@ -26,12 +26,13 @@ def test_user_credential_list(add_gcs_login, run_line):
     assert expected == result.output
 
 
-def test_user_credential_show(add_gcs_login, run_line):
+def test_user_credential_show(add_gcs_login, run_line, get_identities_mocker):
     cred_meta = load_response_set(globus_sdk.GCSClient.get_user_credential).metadata
     cred_id = cred_meta["id"]
 
     meta = load_response_set("cli.collection_operations").metadata
     ep_id = meta["endpoint_id"]
+    get_identities_mocker.setup_one_identity(id=meta["identity_id"])
     add_gcs_login(ep_id)
 
     line = f"globus endpoint user-credential show {ep_id} {cred_id}"
@@ -104,24 +105,32 @@ def test_user_credential_create_from_json_rejects_malformed_data(
     assert "User Credential JSON must be a JSON object" in result.stderr
 
 
-def test_user_credential_create_posix(add_gcs_login, run_line):
+def test_user_credential_create_posix(add_gcs_login, run_line, get_identities_mocker):
     cred_meta = load_response_set(globus_sdk.GCSClient.create_user_credential).metadata
     cred_id = cred_meta["id"]
 
     meta = load_response_set("cli.collection_operations").metadata
-    ep_id = meta["endpoint_id"]
-    identity_id = meta["identity_id"]
-    add_gcs_login(ep_id)
+    user_meta = get_identities_mocker.setup_one_identity(
+        id=meta["identity_id"]
+    ).metadata
+    add_gcs_login(meta["endpoint_id"])
 
     gateway_id = str(uuid.uuid4())
-    globus_identity = "user@globusid.org"
     local_username = "user"
 
-    line = (
-        f"globus endpoint user-credential create posix {ep_id} "
-        f"{gateway_id} {globus_identity} {local_username}"
+    result = run_line(
+        [
+            "globus",
+            "endpoint",
+            "user-credential",
+            "create",
+            "posix",
+            meta["endpoint_id"],
+            gateway_id,
+            user_meta["username"],
+            local_username,
+        ]
     )
-    result = run_line(line)
 
     expected = f"Created User Credential {cred_id}\n"
     assert result.output == expected
@@ -131,34 +140,42 @@ def test_user_credential_create_posix(add_gcs_login, run_line):
     expected_body = {
         "DATA_TYPE": "user_credential#1.0.0",
         "storage_gateway_id": gateway_id,
-        "identity_id": identity_id,
+        "identity_id": meta["identity_id"],
         "username": local_username,
     }
     assert sent_body == expected_body
 
 
-def test_user_credential_create_s3(add_gcs_login, run_line):
+def test_user_credential_create_s3(add_gcs_login, run_line, get_identities_mocker):
     cred_meta = load_response_set(globus_sdk.GCSClient.create_user_credential).metadata
-    cred_id = cred_meta["id"]
-
     meta = load_response_set("cli.collection_operations").metadata
-    ep_id = meta["endpoint_id"]
-    identity_id = meta["identity_id"]
-    add_gcs_login(ep_id)
+    user_meta = get_identities_mocker.setup_one_identity(
+        id=meta["identity_id"]
+    ).metadata
+    add_gcs_login(meta["endpoint_id"])
 
     gateway_id = str(uuid.uuid4())
-    globus_identity = "user@globusid.org"
     local_username = "user"
     key_id = "foo"
     secret_key = "bar"
 
-    line = (
-        f"globus endpoint user-credential create s3 {ep_id} {gateway_id} "
-        f"{globus_identity} {local_username} {key_id} {secret_key}"
+    result = run_line(
+        [
+            "globus",
+            "endpoint",
+            "user-credential",
+            "create",
+            "s3",
+            meta["endpoint_id"],
+            gateway_id,
+            user_meta["username"],
+            local_username,
+            key_id,
+            secret_key,
+        ]
     )
-    result = run_line(line)
 
-    expected = f"Created User Credential {cred_id}\n"
+    expected = f"Created User Credential {cred_meta['id']}\n"
     assert result.output == expected
 
     # confirm passed values were used
@@ -166,7 +183,7 @@ def test_user_credential_create_s3(add_gcs_login, run_line):
     expected_body = {
         "DATA_TYPE": "user_credential#1.0.0",
         "storage_gateway_id": gateway_id,
-        "identity_id": identity_id,
+        "identity_id": meta["identity_id"],
         "username": local_username,
         "policies": {
             "DATA_TYPE": "s3_user_credential_policies#1.0.0",
