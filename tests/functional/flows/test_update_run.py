@@ -4,7 +4,7 @@ import uuid
 from globus_sdk._testing import RegisteredResponse, load_response
 
 
-def test_update_run_text_output(run_line, add_flow_login):
+def test_update_run_text_output(run_line, add_flow_login, get_identities_mocker):
     # Load the response mock and extract critical metadata.
     response = load_response("flows.update_run")
     flow_id = response.metadata["flow_id"]
@@ -20,20 +20,12 @@ def test_update_run_text_output(run_line, add_flow_login):
         "username": "yogi@jellystone.park",
         "name": "Yogi",
         "id": response.json["run_owner"].split(":")[-1],
-        "identity_provider": "c8abac57-560c-46c8-b386-f116ed8793d5",
-        "organization": "Hanna-Barbera",
-        "status": "used",
-        "email": "yogi@jellystone.park",
     }
     run_manager_identities = [
         {
             "username": "booboo@jellystone.park",
             "name": "Boo Boo",
             "id": run_managers[0].split(":")[-1],
-            "identity_provider": "c8abac57-560c-46c8-b386-f116ed8793d5",
-            "organization": "Hanna-Barbera",
-            "status": "used",
-            "email": "booboo@jellystone.park",
         },
     ]
     run_monitor_identities = [
@@ -41,33 +33,15 @@ def test_update_run_text_output(run_line, add_flow_login):
             "username": "snaggle@jellystone.park",
             "name": "Snagglepuss",
             "id": run_monitors[0].split(":")[-1],
-            "identity_provider": "c8abac57-560c-46c8-b386-f116ed8793d5",
-            "organization": "Hanna-Barbera",
-            "status": "used",
-            "email": "snagglepuss@jellystone.park",
         },
         {
             "username": "yakky@jellystone.park",
             "name": "Yakky Doodle",
             "id": run_monitors[1].split(":")[-1],
-            "identity_provider": "c8abac57-560c-46c8-b386-f116ed8793d5",
-            "organization": "Hanna-Barbera",
-            "status": "used",
-            "email": "yakky@jellystone.park",
         },
     ]
-    load_response(
-        RegisteredResponse(
-            service="auth",
-            path="/v2/api/identities",
-            json={
-                "identities": [
-                    owner_identity,
-                    *run_manager_identities,
-                    *run_monitor_identities,
-                ],
-            },
-        )
+    get_identities_mocker.configure(
+        [owner_identity, *run_manager_identities, *run_monitor_identities]
     )
 
     # Construct the command line.

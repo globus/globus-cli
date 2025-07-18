@@ -11,34 +11,18 @@ FLOW_IDENTITIES = {
     "pete": {
         "username": "pete@kreb.star",
         "name": "Pete Wrigley",
-        "identity_provider": "c8abac57-560c-46c8-b386-f116ed8793d5",
-        "organization": "KrebStar Corp",
-        "status": "used",
-        "email": "pete@kreb.star",
     },
     "nona": {
         "username": "nona@wellsville.gov",
         "name": "Nona F. Mecklenberg",
-        "identity_provider": "c8abac57-560c-46c8-b386-f116ed8793d5",
-        "organization": "The City of Wellsville",
-        "status": "used",
-        "email": "nona@wellsville.gov",
     },
     "artie": {
         "username": "artie@super.hero",
         "name": "The Strongest Man in the World",
-        "identity_provider": "c8abac57-560c-46c8-b386-f116ed8793d5",
-        "organization": "Personal Superheroes",
-        "status": "used",
-        "email": "artie@super.hero",
     },
     "monica": {
         "username": "monica@kreb.scouts",
         "name": "Monica Perling",
-        "identity_provider": "c8abac57-560c-46c8-b386-f116ed8793d5",
-        "organization": "Kreb Scouts",
-        "status": "used",
-        "email": "monica@kreb.scouts",
     },
 }
 
@@ -110,7 +94,7 @@ def value_for_field_from_output(name, output):
     return match.group("value")
 
 
-def test_create_flow_text_output(run_line):
+def test_create_flow_text_output(run_line, get_identities_mocker):
     # Load the response mock and extract metadata
     response = load_response("flows.create_flow")
     definition = response.metadata["params"]["definition"]
@@ -135,15 +119,7 @@ def test_create_flow_text_output(run_line):
     pool.assign("run_managers", flow_run_managers)
     pool.assign("run_monitors", flow_run_monitors)
 
-    load_response(
-        RegisteredResponse(
-            service="auth",
-            path="/v2/api/identities",
-            json={
-                "identities": list(pool.identities.values()),
-            },
-        )
-    )
+    get_identities_mocker.configure(pool.identities.values())
 
     # Construct the command line
     command = [
