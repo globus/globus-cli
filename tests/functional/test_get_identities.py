@@ -3,23 +3,28 @@ import json
 from globus_sdk._testing import RegisteredResponse, load_response, load_response_set
 
 
-def test_default_one_id(run_line):
+def test_get_identities_requires_at_least_one(run_line):
+    result = run_line("globus get-identities", assert_exit_code=2)
+    assert "Missing argument" in result.stderr
+
+
+def test_default_one_id(run_line, get_identities_mocker):
     """
     Runs get-identities with one id, confirms correct username returned.
     """
-    meta = load_response_set("cli.foo_user_info").metadata
-    user_id = meta["user_id"]
+    meta = get_identities_mocker.setup_one_identity().metadata
+    user_id = meta["id"]
     username = meta["username"]
     result = run_line(f"globus get-identities {user_id}")
     assert username + "\n" == result.output
 
 
-def test_default_one_username(run_line):
+def test_default_one_username(run_line, get_identities_mocker):
     """
     Runs get-identities with one username, confirms correct id returned.
     """
-    meta = load_response_set("cli.foo_user_info").metadata
-    user_id = meta["user_id"]
+    meta = get_identities_mocker.setup_one_identity().metadata
+    user_id = meta["id"]
     username = meta["username"]
     result = run_line("globus get-identities " + username)
     assert user_id + "\n" == result.output
@@ -71,24 +76,23 @@ def test_default_multiple_inputs(run_line):
     assert "\n".join(expected) + "\n" == result.output
 
 
-def test_verbose(run_line):
+def test_verbose(run_line, get_identities_mocker):
     """
     Runs get-identities with --verbose, confirms expected fields found.
     """
-    meta = load_response_set("cli.foo_user_info").metadata
-    user_id = meta["user_id"]
+    meta = get_identities_mocker.setup_one_identity().metadata
+    user_id = meta["id"]
     result = run_line("globus get-identities --verbose " + user_id)
-    for key in ["username", "user_id", "name", "organization", "email"]:
+    for key in ["username", "id", "name", "organization", "email"]:
         assert meta[key] in result.output
 
 
-def test_json(run_line):
+def test_json(run_line, get_identities_mocker):
     """
     Runs get-identities with -F json confirms expected values.
     """
-    meta = load_response_set("cli.foo_user_info").metadata
-    user_id = meta["user_id"]
+    meta = get_identities_mocker.setup_one_identity().metadata
+    user_id = meta["id"]
     output = json.loads(run_line("globus get-identities -F json " + user_id).output)
-    assert meta["user_id"] == output["identities"][0]["id"]
-    for key in ["username", "name", "organization", "email"]:
+    for key in ["id", "username", "name", "organization", "email"]:
         assert meta[key] == output["identities"][0][key]

@@ -29,11 +29,6 @@ def test_command_parsing(run_line):
     assert "List all Globus CLI Commands with short help output." in result.output
 
 
-def test_command_missing_args(run_line):
-    result = run_line("globus get-identities", assert_exit_code=2)
-    assert "Missing argument" in result.stderr
-
-
 def test_invalid_command(run_line):
     result = run_line("globus invalid-command", assert_exit_code=2)
     assert "Error: No such command" in result.stderr
@@ -52,17 +47,6 @@ def test_json_raw_string_output(run_line):
     load_response_set("cli.foo_user_info")
     result = run_line("globus whoami --jmespath name")
     assert '"Foo McUser"\n' == result.output
-
-
-def test_auth_call(run_line):
-    """
-    Runs get-identities using test auth refresh token to confirm
-    test auth refresh token is live and configured correctly
-    """
-    meta = load_response_set("cli.foo_user_info").metadata
-    user_id = meta["user_id"]
-    result = run_line("globus get-identities foo@globusid.org")
-    assert user_id in result.output
 
 
 def test_transfer_call(run_line):
