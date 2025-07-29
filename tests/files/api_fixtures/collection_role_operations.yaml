@@ -1,0 +1,54 @@
+metadata:
+  collection_id: "1405823f-0597-4a16-b296-46d4f0ae4b15"
+  endpoint_id: "cf37806c-572c-47ff-88e2-511c646ef1a4"
+  role_id: "75bdc786-1c9f-4388-a604-328cd7ee5597"
+  principal_urn: "urn:globus:auth:identity:65eae898-6c3c-45db-99ff-04d7425b8154"
+
+transfer:
+  - path: /endpoint/1405823f-0597-4a16-b296-46d4f0ae4b15
+    json:
+      {
+        "DATA": [
+          {
+            "DATA_TYPE": "server",
+            "hostname": "abc.xyz.data.globus.org"
+          }
+        ],
+        "DATA_TYPE": "endpoint",
+        "activated": false,
+        "canonical_name": "cf37806c-572c-47ff-88e2-511c646ef1a4#1405823f-0597-4a16-b296-46d4f0ae4b15",
+        "display_name": "Happy Fun Mapped Collection Name",
+        "entity_type": "GCSv5_mapped_collection",
+        "gcs_manager_url": "https://abc.xyz.data.globus.org",
+        "id": "1405823f-0597-4a16-b296-46d4f0ae4b15",
+        "owner_id": "cf37806c-572c-47ff-88e2-511c646ef1a4"
+      }
+
+auth:
+  - path: /v2/api/identities
+    json:
+      {
+        "identities": [
+          {
+            "email": "test@globusid.org",
+            "id": "65eae898-6c3c-45db-99ff-04d7425b8154",
+            "identity_provider": "927d7238-f917-4eb2-9ace-c523fa9ba34e",
+            "name": "Test User",
+            "organization": "Globus",
+            "status": "used",
+            "username": "test@globusid.org"
+          }
+        ]
+      }
+
+gcs:
+  - path: /roles/75bdc786-1c9f-4388-a604-328cd7ee5597
+    method: get
+    json:
+      {
+        "DATA_TYPE": "role#1.0.0",
+        "collection": "1405823f-0597-4a16-b296-46d4f0ae4b15",
+        "id": "75bdc786-1c9f-4388-a604-328cd7ee5597",
+        "principal": "urn:globus:auth:identity:65eae898-6c3c-45db-99ff-04d7425b8154",
+        "role": "activity_manager"
+      }
