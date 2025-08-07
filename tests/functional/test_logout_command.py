@@ -2,14 +2,38 @@ import urllib
 
 import pytest
 import responses
-from globus_sdk._testing import load_response_set
+from globus_sdk._testing import RegisteredResponse
 
 from globus_cli.login_manager import LoginManager
 
 
+@pytest.fixture(autouse=True)
+def _userinfo_matching_logged_in_user(logged_in_user_id, userinfo_mocker):
+    userinfo_mocker.configure_unlinked(sub=logged_in_user_id)
+
+
+@pytest.fixture(autouse=True)
+def _delete_client_api_matching_logged_in_client(logged_in_client_id):
+    RegisteredResponse(
+        service="auth",
+        method="DELETE",
+        path=f"/v2/api/clients/{logged_in_client_id}",
+        json={},
+    ).add()
+
+
+@pytest.fixture(autouse=True)
+def _mock_revoke_tokens():
+    RegisteredResponse(
+        service="auth",
+        method="POST",
+        path="/v2/oauth2/token/revoke",
+        json={"active": False},
+    ).add()
+
+
 @pytest.mark.parametrize("delete_client", [True, False])
 def test_logout(delete_client, run_line, mock_login_token_response, test_click_context):
-    load_response_set("cli.logout")
     manager = LoginManager()
 
     # Collect all of the stored tokens
@@ -65,7 +89,6 @@ def test_logout(delete_client, run_line, mock_login_token_response, test_click_c
 def test_logout_with_client_id(
     delete_client, run_line, mock_login_token_response, client_login, test_click_context
 ):
-    load_response_set("cli.logout")
     manager = LoginManager()
 
     # Collect all of the stored tokens

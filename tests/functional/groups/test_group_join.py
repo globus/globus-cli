@@ -1,4 +1,5 @@
 import json
+import uuid
 
 import pytest
 import responses
@@ -7,18 +8,14 @@ from globus_sdk._testing import load_response, register_response_set
 
 @pytest.fixture(autouse=True, scope="session")
 def _register_invitation_responses():
-    group_id = "ee49e222-d007-11e4-8b51-22000aa51e6e"
-    identity_id = "00000000-0000-0000-0000-000000000001"
+    group_id = str(uuid.uuid4())
+    identity_id = str(uuid.UUID(int=1))
     username = "test_user1"
-    identity_id2 = "00000000-0000-0000-0000-000000000002"
-    username2 = "test_user2"
 
     _common_metadata = {
         "group_id": group_id,
         "identity_id": identity_id,
         "username": username,
-        "identity_id2": identity_id2,
-        "username2": username2,
     }
 
     def action_response(action: str, success, *, error_detail_present=True):
@@ -72,51 +69,12 @@ def _register_invitation_responses():
             metadata=_common_metadata,
         )
 
-    register_response_set(
-        "group_join_userinfo",
-        {
-            "default": {
-                "service": "auth",
-                "path": "/v2/oauth2/userinfo",
-                "json": {
-                    "preferred_username": username,
-                    "name": "Foo McUser",
-                    "sub": identity_id,
-                    "email": "foo.mcuser@globus.org",
-                    "identity_set": [
-                        {
-                            "username": username2,
-                            "name": "Foo2 McUser",
-                            "sub": identity_id2,
-                            "identity_provider": "c8abac57-560c-46c8-b386-f116ed8793d5",
-                            "identity_provider_display_name": "Globus ID",
-                            "organization": "McUsers and Company",
-                            "status": "used",
-                            "email": "foo2.mcuser@globus.org",
-                        },
-                        {
-                            "username": username,
-                            "name": "Foo McUser",
-                            "sub": identity_id,
-                            "identity_provider": "c8abac57-560c-46c8-b386-f116ed8793d5",
-                            "identity_provider_display_name": "Globus ID",
-                            "organization": "McUser Group",
-                            "status": "used",
-                            "email": "foo.mcuser@globus.org",
-                        },
-                    ],
-                },
-            }
-        },
-        metadata=_common_metadata,
-    )
-
 
 @pytest.mark.parametrize("action", ("join", "request_join"))
 @pytest.mark.parametrize("with_id_arg", (True, False))
-def test_group_join(run_line, action, with_id_arg):
+def test_group_join(run_line, userinfo_mocker, action, with_id_arg):
     meta = load_response(f"group_{action}_response").metadata
-    load_response("group_join_userinfo")
+    userinfo_mocker.configure_unlinked(sub=meta["identity_id"])
 
     add_args = []
     if with_id_arg:
@@ -134,12 +92,12 @@ def test_group_join(run_line, action, with_id_arg):
 
 @pytest.mark.parametrize("action", ("join", "request_join"))
 @pytest.mark.parametrize("error_detail_present", (True, False))
-def test_group_join_failure(run_line, action, error_detail_present):
-    load_response("group_join_userinfo")
+def test_group_join_failure(run_line, userinfo_mocker, action, error_detail_present):
     meta = load_response(
         f"group_{action}_response",
         case="error" if error_detail_present else "error_nodetail",
     ).metadata
+    userinfo_mocker.configure_unlinked(sub=meta["identity_id"])
 
     add_args = []
     if action == "request_join":

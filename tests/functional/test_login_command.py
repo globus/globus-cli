@@ -3,7 +3,7 @@ from unittest import mock
 
 import globus_sdk
 import pytest
-from globus_sdk._testing import load_response_set
+from globus_sdk._testing import RegisteredResponse
 
 from globus_cli.login_manager import LoginManager
 from globus_cli.login_manager.auth_flows import exchange_code_and_store
@@ -56,6 +56,8 @@ class MockToken:
 def test_login_gcs_different_identity(
     monkeypatch,
     run_line,
+    logged_in_client_id,
+    userinfo_mocker,
     mock_remote_session,
     mock_local_server_flow,
     mock_login_token_response,
@@ -66,7 +68,7 @@ def test_login_gcs_different_identity(
     identity is prevented. The user is instructed to logout, which should correctly
     remove the `sub` in config storage (which is what originally raises that error).
     """
-    load_response_set("cli.logout")
+    userinfo_mocker.configure_unlinked(sub=str(uuid.UUID(int=10)))
     manager = LoginManager()
     manager.storage.store_well_known_config(
         "auth_user_data", {"sub": str(uuid.UUID(int=0))}
@@ -90,6 +92,19 @@ def test_login_gcs_different_identity(
         any_order=True,
     )
 
+    # setup network mocks to ensure that 'logout' can run
+    RegisteredResponse(
+        service="auth",
+        method="DELETE",
+        path=f"/v2/api/clients/{logged_in_client_id}",
+        json={},
+    ).add()
+    RegisteredResponse(
+        service="auth",
+        method="POST",
+        path="/v2/oauth2/token/revoke",
+        json={"active": False},
+    ).add()
     monkeypatch.setattr(
         "globus_cli.login_manager.storage.CLIStorage.cli_confidential_client",
         mock_auth_client,
