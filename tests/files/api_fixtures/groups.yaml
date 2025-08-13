@@ -2,6 +2,7 @@ metadata:
   group1_id: "8b7d57bc-1666-11ec-88b2-f50515619d57"
   group1_name: "Group 1"
   group1_description: "The first group."
+  group1_subscription_admin_verified_id: "e787245d-b5d8-47d1-8ff1-74bc3c5d72f3"
   group2_id: "93fca046-1666-11ec-88b2-f50515619d57"
   group2_name: "Group 2"
   group_remove_id: "7fa8b8c1-aad3-47cf-a844-4b1cdbf7c124"
@@ -92,7 +93,8 @@ groups:
           "is_high_assurance": false,
           "join_requests": false,
           "signup_fields": []
-        }
+        },
+        "subscription_admin_verified_id": "e787245d-b5d8-47d1-8ff1-74bc3c5d72f3"
       }
   - path: /groups/8b7d57bc-1666-11ec-88b2-f50515619d57
     method: put
@@ -110,7 +112,8 @@ groups:
           "is_high_assurance": false,
           "join_requests": false,
           "signup_fields": []
-        }
+        },
+        "subscription_admin_verified_id": "e787245d-b5d8-47d1-8ff1-74bc3c5d72f3"
       }
   - path: /groups/8b7d57bc-1666-11ec-88b2-f50515619d57
     method: delete
