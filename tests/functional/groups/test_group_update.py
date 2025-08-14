@@ -14,6 +14,10 @@ from globus_sdk._testing import get_last_request, load_response_set
             {"terms_and_conditions": "New Terms and Conditions"},
         ),
         (
+            ("--revoke-subscription-verification",),
+            {"subscription_admin_verified_id": None},
+        ),
+        (
             (
                 "--name",
                 "New Name",
@@ -21,11 +25,13 @@ from globus_sdk._testing import get_last_request, load_response_set
                 "New Description",
                 "--terms-and-conditions",
                 "New Terms and Conditions",
+                "--revoke-subscription-verification",
             ),
             {
                 "description": "New Description",
                 "name": "New Name",
                 "terms_and_conditions": "New Terms and Conditions",
+                "subscription_admin_verified_id": None,
             },
         ),
     ),
@@ -41,6 +47,9 @@ def test_group_update(run_line, add_args, payload_contains):
     group1_id = meta["group1_id"]
     group1_name = meta["group1_name"]
     group1_description = meta["group1_description"]
+    group1_subscription_admin_verified_id = meta[
+        "group1_subscription_admin_verified_id"
+    ]
 
     # update name
     result = run_line(("globus", "group", "update", group1_id) + add_args)
@@ -58,3 +67,10 @@ def test_group_update(run_line, add_args, payload_contains):
         assert sent["description"] == payload_contains["description"]
     else:
         assert sent["description"] == group1_description
+    if "subscription_admin_verified_id" in payload_contains:
+        assert sent["subscription_admin_verified_id"] is None
+    else:
+        assert (
+            sent["subscription_admin_verified_id"]
+            == group1_subscription_admin_verified_id
+        )
