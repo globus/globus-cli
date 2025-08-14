@@ -192,3 +192,10 @@ groups:
           ]
         }
       }
+  - path: /groups/8b7d57bc-1666-11ec-88b2-f50515619d57/subscription_admin_verified
+    method: put
+    json:
+      {
+        "group_id": "8b7d57bc-1666-11ec-88b2-f50515619d57",
+        "subscription_admin_verified_id": "e787245d-b5d8-47d1-8ff1-74bc3c5d72f3"
+      }
