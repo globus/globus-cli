@@ -19,6 +19,7 @@ from globus_cli.parsing import group
         ),
         "get-by-subscription": (".get_by_subscription", "group_get_by_subscription"),
         "update": (".update", "group_update"),
+        "subscription-verify": (".subscription_verify", "group_subscription_verify"),
     },
 )
 def group_command() -> None:
