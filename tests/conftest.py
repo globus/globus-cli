@@ -14,7 +14,7 @@ import globus_sdk
 import pytest
 import responses
 from click.testing import CliRunner
-from globus_sdk._testing import RegisteredResponse, register_response_set
+from globus_sdk._testing import register_response_set
 from globus_sdk.scopes import TimersScopes
 from globus_sdk.tokenstorage import SQLiteAdapter
 from globus_sdk.transport import RequestsTransport
@@ -29,6 +29,10 @@ log = logging.getLogger(__name__)
 
 _test_file_dir = os.path.normpath(os.path.join(os.path.dirname(__file__), "files"))
 _PYTEST_VERBOSE = False
+
+
+# local plugins
+pytest_plugins = ("tests.plugins.api_mockers",)
 
 
 def pytest_configure(config):
@@ -154,22 +158,29 @@ def user_profile(monkeypatch):
 
 
 @pytest.fixture(scope="session")
-def mock_user_data():
-    # NB: this carefully matches the ID provided by our "foo_user_info" data fixture
-    # in the future, this should be adjusted such that this is the source of truth
-    # for the response mocks
-    return {"sub": "25de0aed-aa83-4600-a1be-a62a910af116"}
+def logged_in_user_id():
+    return "25de0aed-aa83-4600-a1be-a62a910af116"
+
+
+@pytest.fixture(scope="session")
+def mock_user_data(logged_in_user_id):
+    return {"sub": logged_in_user_id}
+
+
+@pytest.fixture(scope="session")
+def logged_in_client_id():
+    return "fakeClientIDString"
 
 
 @pytest.fixture
-def test_token_storage(mock_login_token_response, mock_user_data):
+def test_token_storage(logged_in_client_id, mock_login_token_response, mock_user_data):
     """Put memory-backed sqlite token storage in place for the testsuite to use."""
     mockstore = SQLiteAdapter(":memory:")
     real_close = mockstore.close
     mockstore.close = mock.Mock()
     mockstore.store_config(
         "auth_client_data",
-        {"client_id": "fakeClientIDString", "client_secret": "fakeClientSecret"},
+        {"client_id": logged_in_client_id, "client_secret": "fakeClientSecret"},
     )
     mockstore.store_config("auth_user_data", mock_user_data)
     mockstore.store(mock_login_token_response)
@@ -352,11 +363,6 @@ def mocked_responses(monkeypatch):
     responses.reset()
 
 
-@pytest.fixture
-def get_identities_mocker():
-    return GetIdentitiesMocker()
-
-
 def _iter_fixture_routes(routes):
     # walk a fixture file either as a list of routes
     for x in routes:
@@ -419,84 +425,3 @@ def disable_client_retries(monkeypatch):
     monkeypatch.setattr(
         globus_sdk.ConfidentialAppAuthClient, "transport_class", NoRetryTransport
     )
-
-
-class GetIdentitiesMocker:
-    """A utility for setting up `GET /v2/api/identities` mocks."""
-
-    _DEFAULT_IDP_ID = str(uuid.uuid4())
-    _DEFAULT_IDENTITY_ID = str(uuid.uuid4())
-
-    def configure_empty(self):
-        return self.configure([])
-
-    def configure_one(
-        self,
-        username="shrek@globus.org",
-        email="shrek+contactme@globus.org",
-        name="Shrek by William Steig",
-        organization=(
-            "Fairytales Whose Movie Adaptations Diverge "
-            "Significantly From Their Source Material"
-        ),
-        status="used",
-        identity_provider=_DEFAULT_IDP_ID,
-        id=_DEFAULT_IDENTITY_ID,
-    ):
-        """Setup a single-identity mock."""
-        identity_doc = {
-            "email": email,
-            "id": id,
-            "identity_provider": identity_provider,
-            "name": name,
-            "organization": organization,
-            "status": status,
-            "username": username,
-        }
-        return self.configure([identity_doc], add_metadata=identity_doc)
-
-    def configure(self, partial_documents, *, add_metadata=None):
-        """Configure a mock with however many partials were given.
-
-        Example usage:
-
-        >>> mocker.configure(
-        >>>     [
-        >>>         {"username": "foo@globusid.org", "id": my_coordinated_id1},
-        >>>         {"username": "bar@globusid.org", "id": my_coordinated_id2},
-        >>>         {"username": "baz@globusid.org"},
-        >>>     ]
-        >>> )
-        """
-
-        user_docs = []
-        for n, partial in enumerate(partial_documents):
-            user_docs.append(
-                {
-                    "id": partial.get("id", str(uuid.uuid4())),
-                    "identity_provider": partial.get(
-                        "identity_provider", self._DEFAULT_IDP_ID
-                    ),
-                    "organization": partial.get(
-                        "organization", "Globus Cloning Intergalactic"
-                    ),
-                    "status": partial.get("status", "used"),
-                    "email": partial.get("email", f"clone{n}+contactme@globus.org"),
-                    "name": partial.get("name", f"Clone {n}"),
-                    "username": partial.get("username", f"clone{n}@globus.org"),
-                }
-            )
-
-        resp = RegisteredResponse(
-            service="auth",
-            path="/v2/api/identities",
-            json={"identities": user_docs},
-            metadata={
-                "user_docs": user_docs,
-                **(add_metadata or {}),
-            },
-        )
-
-        resp.add()
-
-        return resp

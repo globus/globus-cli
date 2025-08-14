@@ -6,12 +6,7 @@ import globus_sdk
 import pytest
 import requests
 import responses
-from globus_sdk._testing import (
-    RegisteredResponse,
-    get_last_request,
-    load_response,
-    load_response_set,
-)
+from globus_sdk._testing import RegisteredResponse, get_last_request, load_response
 from globus_sdk.config import get_service_url
 from globus_sdk.scopes import GCSCollectionScopeBuilder
 
@@ -409,7 +404,12 @@ def test_start_time_without_timezone_converts_to_have_tzinfo(
     "has_matching_consent", ("neither", "source", "destination", "both")
 )
 def test_timer_creation_supports_data_access_on_source_or_dest(
-    run_line, ep_for_timer, data_access_position, has_matching_consent
+    run_line,
+    logged_in_user_id,
+    userinfo_mocker,
+    ep_for_timer,
+    data_access_position,
+    has_matching_consent,
 ):
     if data_access_position == "source":
         src = make_non_ha_mapped_collection()
@@ -423,8 +423,8 @@ def test_timer_creation_supports_data_access_on_source_or_dest(
     else:
         raise NotImplementedError
 
-    userinfo_meta = load_response_set("cli.foo_user_info").metadata
-    identity_id = userinfo_meta["user_id"]
+    userinfo_meta = userinfo_mocker.configure_unlinked(sub=logged_in_user_id).metadata
+    identity_id = userinfo_meta["sub"]
     # setup the consent tree response
     if has_matching_consent == "neither":
         setup_timer_consent_tree_response(identity_id)

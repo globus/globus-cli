@@ -34,19 +34,13 @@ def test_invalid_command(run_line):
     assert "Error: No such command" in result.stderr
 
 
-def test_whoami(run_line):
-    load_response_set("cli.foo_user_info")
-    result = run_line("globus whoami")
-    assert result.output == "foo@globusid.org\n"
-
-
-def test_json_raw_string_output(run_line):
+def test_json_raw_string_output(run_line, userinfo_mocker):
     """
     Get single-field jmespath output and make sure it's quoted.
     """
-    load_response_set("cli.foo_user_info")
+    userinfo_mocker.configure_unlinked(name="Geordi La Forge")
     result = run_line("globus whoami --jmespath name")
-    assert '"Foo McUser"\n' == result.output
+    assert '"Geordi La Forge"\n' == result.output
 
 
 def test_transfer_call(run_line):
