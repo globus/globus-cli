@@ -9,7 +9,7 @@ from globus_cli.login_manager import LoginManager
 from globus_cli.parsing import command
 from globus_cli.termio import display
 
-from ._common import group_id_arg, GroupSubscriptionVerifiedIdType
+from ._common import GroupSubscriptionVerifiedIdType, group_id_arg
 
 
 @command("set-subscription-admin-verified")
@@ -34,8 +34,8 @@ def group_set_subscription_admin_verified(
     groups_client = login_manager.get_groups_client()
 
     admin_verified_id: str | None = (
-        None 
-        if subscription_admin_verified_id == EXPLICIT_NULL 
+        None
+        if subscription_admin_verified_id == EXPLICIT_NULL
         else str(subscription_admin_verified_id)
     )
 
