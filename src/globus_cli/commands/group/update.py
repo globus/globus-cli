@@ -5,11 +5,12 @@ import uuid
 
 import click
 
+from globus_cli.constants import EXPLICIT_NULL, ExplicitNullType
 from globus_cli.login_manager import LoginManager
 from globus_cli.parsing import command
 from globus_cli.termio import display
 
-from ._common import group_id_arg
+from ._common import GroupSubscriptionVerifiedIdType, group_id_arg
 
 
 @command("update")
@@ -20,9 +21,12 @@ from ._common import group_id_arg
     "--terms-and-conditions", help="Terms and conditions for group membership"
 )
 @click.option(
-    "--revoke-subscription-verification",
-    is_flag=True,
-    help="Flag to remove the subscription admin verification from the group.",
+    "--subscription-admin-verified-id",
+    type=GroupSubscriptionVerifiedIdType(),
+    help=(
+        "The ID of the subscription to which the group belongs. Use the special value"
+        ' "null" to remove subscription verification from the group.'
+    ),
 )
 @LoginManager.requires_login("groups")
 def group_update(
@@ -32,7 +36,7 @@ def group_update(
     name: str | None,
     description: str | None,
     terms_and_conditions: str | None,
-    revoke_subscription_verification: bool,
+    subscription_admin_verified_id: uuid.UUID | None | ExplicitNullType,
 ) -> None:
     """Update an existing group."""
     groups_client = login_manager.get_groups_client()
@@ -53,10 +57,19 @@ def group_update(
             data[attrname] = argval
         else:
             data[attrname] = group[attrname]
-    if revoke_subscription_verification:
+
+    if subscription_admin_verified_id == EXPLICIT_NULL:
         data["subscription_admin_verified_id"] = None
-    else:
+    elif (
+        subscription_admin_verified_id == group["subscription_admin_verified_id"]
+        or subscription_admin_verified_id is None
+    ):
         data["subscription_admin_verified_id"] = group["subscription_admin_verified_id"]
+    else:
+        raise click.UsageError(
+            "To set the `subscription_admin_verified_id` to a new, non-null value, use "
+            "`globus group set-subscription-admin-verified`"
+        )
 
     response = groups_client.update_group(group_id, data)
 

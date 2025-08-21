@@ -1,4 +1,5 @@
 import json
+import uuid
 
 import pytest
 from globus_sdk._testing import get_last_request, load_response_set
@@ -14,7 +15,7 @@ from globus_sdk._testing import get_last_request, load_response_set
             {"terms_and_conditions": "New Terms and Conditions"},
         ),
         (
-            ("--revoke-subscription-verification",),
+            ("--subscription-admin-verified-id", "null"),
             {"subscription_admin_verified_id": None},
         ),
         (
@@ -25,7 +26,8 @@ from globus_sdk._testing import get_last_request, load_response_set
                 "New Description",
                 "--terms-and-conditions",
                 "New Terms and Conditions",
-                "--revoke-subscription-verification",
+                "--subscription-admin-verified-id",
+                "null",
             ),
             {
                 "description": "New Description",
@@ -74,3 +76,23 @@ def test_group_update(run_line, add_args, payload_contains):
             sent["subscription_admin_verified_id"]
             == group1_subscription_admin_verified_id
         )
+
+
+def test_group_set_subscription_admin_verified_id(run_line):
+    """
+    Basic failure test for subscription_admin_verified_id.
+    """
+    meta = load_response_set("cli.groups").metadata
+
+    group1_id = meta["group1_id"]
+    new_id = str(uuid.uuid4())
+
+    result = run_line(
+        f"globus group update {group1_id} --subscription-admin-verified-id {new_id}",
+        assert_exit_code=2,
+    )
+
+    assert (
+        "To set the `subscription_admin_verified_id` to a new, non-null value, use "
+        "`globus group set-subscription-admin-verified`"
+    ) in result.stderr
