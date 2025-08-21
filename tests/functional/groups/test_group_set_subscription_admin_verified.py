@@ -8,7 +8,10 @@ from globus_sdk._testing import get_last_request, load_response_set
     "add_args, expected_value",
     [
         (
-            ["--subscription-admin-verified-id", "e787245d-b5d8-47d1-8ff1-74bc3c5d72f3"],
+            [
+                "--subscription-admin-verified-id",
+                "e787245d-b5d8-47d1-8ff1-74bc3c5d72f3",
+            ],
             "e787245d-b5d8-47d1-8ff1-74bc3c5d72f3",
         ),
         (
@@ -25,7 +28,9 @@ def test_group_set_subscription_admin_verified(run_line, add_args, expected_valu
 
     group1_id = meta["group1_id"]
 
-    result = run_line(["globus", "group", "set-subscription-admin-verified", group1_id] + add_args)
+    result = run_line(
+        ["globus", "group", "set-subscription-admin-verified", group1_id] + add_args
+    )
 
     assert "Group subscription verification updated successfully" in result.output
 
