@@ -5,6 +5,7 @@ from globus_cli.parsing import group
     "role",
     lazy_subcommands={
         "show": (".show", "show_command"),
+        "delete": (".delete", "delete_command"),
     },
 )
 def role_command() -> None:
