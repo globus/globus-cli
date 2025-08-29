@@ -1,9 +1,11 @@
 from __future__ import annotations
 
 import typing as t
+import uuid
 
 import click
 
+from globus_cli.constants import EXPLICIT_NULL, ExplicitNullType
 from globus_cli.termio import Field, formatters
 from globus_cli.types import AnyCommand
 
@@ -74,3 +76,22 @@ GROUP_FIELDS_W_SUBSCRIPTION = (
 
 def group_id_arg(f: C) -> C:
     return click.argument("GROUP_ID", type=click.UUID)(f)
+
+
+class GroupSubscriptionVerifiedIdType(click.ParamType):
+    name = "TEXT"
+
+    def convert(
+        self, value: str, param: click.Parameter | None, ctx: click.Context | None
+    ) -> uuid.UUID | ExplicitNullType:
+        if value.lower() == "null":
+            return EXPLICIT_NULL
+
+        try:
+            return uuid.UUID(value)
+        except ValueError:
+            msg = (
+                f"{value} is invalid. Expected either a UUID or the special value "
+                '"null"'
+            )
+            self.fail(msg, param, ctx)
