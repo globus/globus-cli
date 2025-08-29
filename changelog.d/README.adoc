@@ -1,4 +1,13 @@
-= Changelog Dir
+= Adding Change Notes with PRs
+
+It is important to maintain a changelog to explain to users what changed
+between versions.
+
+To avoid merge conflicts, we use
+link:https://scriv.readthedocs.io/en/stable/[Scriv] to maintain our changelog.
+
+Scriv uses separate files, "fragments", for each pull request.
+On release, those fragments are compiled into the changelog.
 
 This is a directory of news fragment files created by `scriv`.
 
@@ -14,3 +23,40 @@ or "newsfile".
 When doing a release, _do not_ use `scriv collect`, but
 `tox -e prepare-release` instead. This will run `scriv`, but also any
 additional prep steps.
+
+== Categories
+
+Change categories for ``globus-cli`` are defined as follows.
+
+Bugfixes::
+    A fix for something we deemed improper or undesirable behavior.
+
+Enhancements::
+    New features or behaviors, such as new flags and commands.
+
+Other::
+    Any changes which don't fit the above two categories, but which users should know about.
+    (e.g., "Removed support for Python 3.8.")
+
+== Rationale
+
+When making a change to `globus-cli`, it is important to communicate the differences that end-users will experience in a manner that they can understand.
+
+Details of the change that are primarily of interest only to `globus-cli` developers may be irrelevant to most users.
+If so, those details can be omitted from the change notes.
+When the maintainers publish a new release, they'll automatically use these records to compose a change log for the new version.
+
+We write change notes in the past tense because this suits the users who will be reading these notes.
+Combined with others, the notes will be a part of the "news digest" telling the readers what **changed** in a specific version of `globus-cli`.
+
+This methodology has several benefits, including those covered by the
+link:https://scriv.readthedocs.io/en/stable/philosophy.html[Scriv Philosophy]:
+
+- Change notes separate the user-facing description of changes from the implementation details.
+  Details go into the git history, but users aren't expected to care about them.
+
+- The release engineer may not have been involved in each issue and pull request.
+  Writing the notes early in the process involves the developers in the best position to write good notes.
+
+- Describing a change can help during code review.
+  The reviewer can better identify which effects of a change were intentional and which were not.

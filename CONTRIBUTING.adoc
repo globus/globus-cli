@@ -1,23 +1,24 @@
-Contributing to the Globus CLI
-==============================
+= Contributing to the Globus CLI
 
 First off, thank you so much for taking the time to contribute! :+1:
 
-If you want to do local development, you can setup a development virtualenv in
-`.venv` by running `make install`.
+This document is meant to help you get started and save you time.
+It is **not** meant to be a barrier or hurdle.
+Don't be afraid to open incomplete PRs and ask questions!
 
-Reporting Bugs & Requesting Features
-------------------------------------
+No contribution is too small. Typo and grammar fixes are welcome.
+
+== Reporting Bugs & Requesting Features
 
   - Check if there's a matching
       https://github.com/globus/globus-cli/issues[issue]
       before opening a new issue or pull request
   - When possible, provide a usage example to reproduce bugs
 
-Developer Setup
----------------
+== Getting Started & Interactive Development
 
-These steps should help you setup a development environment for the Globus CLI.
+These steps should help you setup a development environment for the Globus CLI
+in which you can interactively write and test commands.
 
   1. Create a fork of the globus/globus-cli repository.
 
@@ -38,52 +39,49 @@ These steps should help you setup a development environment for the Globus CLI.
 You should now have, in your virtualenv, the `globus-cli` installed, pointed at
 your local copy of the repo. `globus` will invoke code directly out of the
 repo.
-You can write and test commands interactively in this setup.
 
-Linting & Testing
------------------
+== Running Tests
 
-We use `tox` to run tests and `pre-commit` to run (optional) pre-commit hooks.
-Use `pre-commit install` to setup the hooks.
+We use `tox` to run our tests against all supported Python versions.
 
-All code is autoformatted with https://github.com/ambv/black[black] and
-https://github.com/PyCQA/isort[isort]. You may run
-`make lint` to do this or configure these tools for use in your editor.
+You can use a tool like `pyenv` to install all of the Python versions, or
+install `uv` and the `tox-uv` plugin to have `uv` manage the interpreter versions for you.
+(`tox-uv` will also use `uv` to provision test environments.)
 
-Expectations for Pull Requests
-------------------------------
+For example:
 
-  - *Make sure it merges cleanly*. We may request that you rebase if your PR
-      has merge conflicts.
-  - *List any issues closed by the pull request*
-  - *Squash intermediate and fixup commits*. We recommend running
-    `git rebase --interactive` prior to submitting a pull request.
+    uv tool install tox --with=tox-uv
 
-These are our guidelines for good commit messages:
+Once installed, you can run all tests with
 
-  - No lines over 72 characters
-  - No GitHub emoji -- use your words
-  - Reference issues and pull requests where appropriate
-  - Present tense and imperative mood
+    tox run
 
-Additional Recommendations
-~~~~~~~~~~~~~~~~~~~~~~~~~~
+[TIP]
+====
+Try `tox l` to list environments, `tox r` as a shorthand for `tox run`, and
+`tox p` to run tests in parallel.
 
-  - All options should have descriptive help text
-  - For complex functionality, include sample usage in the helptext for the
-      relevant command. If it's a specific flag or feature that has complex
-      behavior, make it a separate section of the help text. See
-      `globus transfer async-transfer --help` for an example
-  - Comment liberally in source
-  - Every command gets its own module, named after the command name
-  - Think very hard before adding a new dependency -- keep the dependencies of
-      `globus_cli` as lightweight as possible
-  - Use the verbs `create`, `show`, `update`, and `remove` for underlying API
-      CRUD operations
+To run a single environment, use the `-e` flag, for example: `tox r -e py3.13`.
+====
 
+== Linting, Formatting, & Type Checking
 
-Releasing a Version
--------------------
+We use `pre-commit` to run (optional) pre-commit hooks for linting and formatting.
+Use `pre-commit install` if you want to setup the hooks locally.
+
+Code is also type-checked with `mypy`, which you can run with `tox run -e mypy`.
+
+== Changelogs
+
+Most changes to CLI functionality should be included in the changelog.
+
+Pull Requests are required to either be labeled `no-news-is-good-news` or
+have a changelog fragment.
+
+See link:./changelog.d/README.adoc[the changelog doc] for information about
+how to create fragments for your changes.
+
+== Releasing a Version
 
 If you are a CLI maintainer, you need to be able to do a release.
 For steps, see the link:./RELEASING.adoc[RELEASING doc].
