@@ -45,7 +45,7 @@ class _ServiceRequirement(t.TypedDict):
 class _CLIScopeRequirements(t.Dict[ServiceNameLiteral, _ServiceRequirement]):
     def __init__(self) -> None:
         self["auth"] = {
-            "min_contract_version": 0,
+            "min_contract_version": 1,
             "resource_server": AuthScopes.resource_server,
             "nice_server_name": "Globus Auth",
             "scopes": [
@@ -53,6 +53,7 @@ class _CLIScopeRequirements(t.Dict[ServiceNameLiteral, _ServiceRequirement]):
                 AuthScopes.profile,
                 AuthScopes.email,
                 AuthScopes.view_identity_set,
+                AuthScopes.manage_projects,
             ],
         }
         self["transfer"] = {
