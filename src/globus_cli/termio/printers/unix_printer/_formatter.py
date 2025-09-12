@@ -199,10 +199,13 @@ def partition_dict(
     for key in non_scalar_keys:
         value = item[key]
 
-        # converse of the above: we are not guaranteed that the non-scalar keys
+        # converse of the above: we are not "guaranteed" that the non-scalar keys
         # do not map to scalars on a heterogeneous list[dict] structure
+        #
+        # in practice, this is not reachable because `extract_scalar_keys()` prefers
+        # to categorize data as scalar
         if not isinstance(value, (list, dict)):
-            raise ValueError(
+            raise UnixFormattingError(
                 "Error during UNIX formatting of response data. "
                 "Lists where key-value mappings are not uniformly scalar or non-scalar "
                 "are not supported."

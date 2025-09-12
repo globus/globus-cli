@@ -1,11 +1,9 @@
 from io import StringIO
 
-import click
-
 from globus_cli.termio.printers import JsonPrinter
 
 
-def test_json_printer_prints_with_sorted_keys():
+def test_json_printer_prints_with_sorted_keys(click_context):
     printer = JsonPrinter()
     data = {"b": 1, "a": 2, "c": 3}
 
@@ -25,7 +23,7 @@ def test_json_printer_prints_with_sorted_keys():
     # fmt: on
 
 
-def test_json_printer_prints_without_sorted_keys():
+def test_json_printer_prints_without_sorted_keys(click_context):
     printer = JsonPrinter(sort_keys=False)
     data = {"b": 1, "a": 2, "c": 3}
 
@@ -43,8 +41,3 @@ def test_json_printer_prints_without_sorted_keys():
         "}\n"
     )
     # fmt: on
-
-
-def click_context(command: str = "cmd") -> click.Context:
-    ctx = click.Context(click.Command(command), obj={"jmespath": "a.b."})
-    return ctx
