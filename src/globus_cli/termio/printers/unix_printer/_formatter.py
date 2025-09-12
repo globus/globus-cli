@@ -4,8 +4,6 @@ import sys
 import typing as t
 from itertools import chain
 
-import click
-
 if sys.version_info >= (3, 10):
     from typing import TypeAlias
 else:
@@ -18,14 +16,6 @@ NonScalar: TypeAlias = "list[Scalar | NonScalar] | dict[str, Scalar | NonScalar]
 
 class UnixFormattingError(ValueError):
     """Class of errors indicating that the data could not be formatted."""
-
-
-def unix_display(data: Scalar | NonScalar, stream: t.IO[str] | None = None) -> None:
-    """
-    Format an object in 'UNIX' format, writing it to some stream output.
-    """
-    for line in emit_any_value(data):
-        click.echo(line, file=stream)
 
 
 def emit_any_value(item: Scalar | NonScalar) -> t.Iterator[str]:
