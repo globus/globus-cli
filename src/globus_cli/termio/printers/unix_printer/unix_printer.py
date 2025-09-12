@@ -8,7 +8,7 @@ import globus_sdk
 from globus_cli.types import JsonValue
 
 from ..base import Printer
-from .awscli_text import unix_display
+from ._formatter import UnixFormattingError, unix_display
 
 DataObject = t.Union[JsonValue, globus_sdk.GlobusHTTPResponse]
 
@@ -25,15 +25,16 @@ class UnixPrinter(Printer[DataObject]):
         res = UnixPrinter.jmespath_preprocess(data)
 
         try:
-            unix_display(res, stream=stream)  # type: ignore[no-untyped-call]
+            unix_display(res, stream)
         # Attr errors indicate that we got data which cannot be unix formatted
         # likely a scalar + non-scalar in an array, though there may be other cases
         # print good error and exit(2) (Count this as UsageError!)
-        except AttributeError:
+        except UnixFormattingError as err:
             click.echo(
                 "UNIX formatting of output failed."
+                f"\n{err}"
                 "\n  "
-                "This usually means that data has a structure which cannot be "
+                "This means that data has a structure which cannot be "
                 "handled by the UNIX formatter."
                 "\n  "
                 "To avoid this error in the future, ensure that you query the "
