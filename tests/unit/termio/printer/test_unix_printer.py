@@ -238,3 +238,19 @@ def test_list_of_dicts_containing_malicious_dict_like(print_data, capfd):
         "Lists where key-value mappings are not uniformly scalar or non-scalar "
         "are not supported."
     ) in captured.err
+
+
+def test_dict_with_missing_values_treated_as_null(print_data):
+    data = [
+        {"x": 3, "y": 1, "z": 5},
+        {"x": 100, "y": 200},
+    ]
+    expect_output = _format_output(
+        [
+            ["3", "1", "5"],
+            ["100", "200", "None"],
+        ]
+    )
+
+    result = print_data(data)
+    assert result == expect_output
