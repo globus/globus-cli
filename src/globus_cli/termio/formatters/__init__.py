@@ -2,7 +2,9 @@ from . import auth
 from .base import FieldFormatter, FormattingFailedWarning
 from .compound import (
     ArrayFormatter,
+    ArrayMultilineFormatter,
     ParentheticalDescriptionFormatter,
+    RecordFormatter,
     SortedJsonFormatter,
 )
 from .primitive import (
@@ -30,6 +32,8 @@ __all__ = (
     "FuzzyBoolFormatter",
     "StaticStringFormatter",
     "ArrayFormatter",
+    "ArrayMultilineFormatter",
+    "RecordFormatter",
     "SortedJsonFormatter",
     "ParentheticalDescriptionFormatter",
     "Str",

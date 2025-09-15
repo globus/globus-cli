@@ -4,6 +4,7 @@ from globus_cli.parsing import main_group
 @main_group(
     lazy_subcommands={
         "api": ("api", "api_command"),
+        "auth": ("auth", "auth_command"),
         "bookmark": ("bookmark", "bookmark_command"),
         "cli-profile-list": ("cli_profile_list", "cli_profile_list"),
         "collection": ("collection", "collection_command"),

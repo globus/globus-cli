@@ -7,7 +7,6 @@ import click
 import globus_sdk
 
 from .context import outformat_is_json, outformat_is_text, outformat_is_unix
-from .field import Field
 from .printers import (
     CustomPrinter,
     JsonPrinter,
@@ -18,6 +17,9 @@ from .printers import (
     UnixPrinter,
 )
 from .server_timing import maybe_show_server_timing
+
+if t.TYPE_CHECKING:
+    from .field import Field
 
 
 class TextMode(enum.Enum):
