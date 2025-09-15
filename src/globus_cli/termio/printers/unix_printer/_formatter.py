@@ -168,11 +168,6 @@ def partition_dict(
     non_scalar_keys = sorted(set(item.keys()) - set(scalar_keys))
 
     for key in scalar_keys:
-        # NOTE:
-        # the previous implementation used `.get(key, "")`, meaning
-        # that in this very specific case, it converted a missing element to the empty
-        # string rather than None -- this is considered a bug which we are fixing in
-        # the new implementation
         value = item.get(key)
 
         # we are not guaranteed that the scalar keys really map to scalars
