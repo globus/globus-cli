@@ -58,6 +58,7 @@ DELETE_RESPONSE = RegisteredResponse(
         "stop_after_n": 1,
         "submitted_at": "2022-04-05T16:27:48.805427",
         "update_pending": True,
+        "activity": None,
     },
 )
 

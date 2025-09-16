@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import dataclasses
 import datetime
 import typing as t
 from urllib.parse import urlparse
@@ -79,6 +80,68 @@ class ScheduleFormatter(formatters.FieldFormatter[t.Dict[str, t.Any]]):
             return f"unrecognized schedule type: {value}"
 
 
+@dataclasses.dataclass
+class ParsedActivityInfo:
+    code: str
+    start_timestamp: str | None
+    next_run: str | None
+
+
+class ActivityFormatter(formatters.FieldFormatter[t.Optional[ParsedActivityInfo]]):
+    def parse(self, value: t.Any) -> ParsedActivityInfo | None:
+        if not isinstance(value, list) or len(value) != 2:
+            raise ValueError("bad activity values")
+
+        activity, next_run = value
+        if activity is None:
+            return None
+
+        if not isinstance(activity, dict):
+            raise ValueError("malformed 'activity' field")
+
+        code = activity.get("code")
+        if not isinstance(code, str):
+            raise ValueError("cannot format activity when 'code' is not a string")
+
+        start_timestamp: str | None = activity.get("start_timestamp")
+        if start_timestamp is not None:
+            start_timestamp = formatters.Date.format(start_timestamp)
+
+        formatted_next_run: str | None = None
+        if next_run is not None:
+            formatted_next_run = formatters.Date.format(next_run)
+
+        return ParsedActivityInfo(
+            code=code,
+            start_timestamp=start_timestamp,
+            next_run=formatted_next_run,
+        )
+
+    def render(self, value: ParsedActivityInfo | None) -> str:
+        if value is None:
+            return "This timer is no longer active"
+
+        if value.code == "awaiting_next_run":
+            if value.next_run is None:  # unreachable in practice
+                return "Awaiting the next run"
+            return f"Awaiting the next run, scheduled to occur at {value.next_run}"
+        elif value.code == "run_in_progress":
+            if value.start_timestamp is None:  # unreachable in practice
+                return "Awaiting completion of the latest run"
+            return (
+                "Awaiting completion of the latest run, "
+                f"started at {value.start_timestamp}"
+            )
+        elif value.code == "retrying":
+            if value.start_timestamp is None:  # unreachable in practice
+                return "Retrying current run"
+            return f"Retrying current run, started at {value.start_timestamp}"
+        elif value.code == "paused":
+            return "Paused, awaiting user action"
+        else:
+            return f"<Unrecognized activity.code: {value.code}>"
+
+
 _COMMON_FIELDS = [
     Field("Timer ID", "job_id"),
     Field("Name", "name"),
@@ -86,11 +149,16 @@ _COMMON_FIELDS = [
     Field("Submitted At", "submitted_at", formatter=formatters.Date),
     Field("Start", "start", formatter=formatters.Date),
     Field("Interval", "interval", formatter=TimedeltaFormatter()),
+    Field("Status", "status"),
+    Field(
+        "Activity",
+        "[activity, next_run]",
+        formatter=ActivityFormatter(),
+    ),
 ]
 
 
 TIMER_FORMAT_FIELDS = _COMMON_FIELDS + [
-    Field("Status", "status"),
     Field("Last Run", "last_ran_at", formatter=formatters.Date),
     Field("Next Run", "next_run", formatter=formatters.Date),
     Field("Stop After Date", "stop_after.date"),
@@ -100,7 +168,6 @@ TIMER_FORMAT_FIELDS = _COMMON_FIELDS + [
 ]
 
 DELETED_TIMER_FORMAT_FIELDS = _COMMON_FIELDS + [
-    Field("Status", "status"),
     Field("Stop After Date", "stop_after.date"),
     Field("Stop After Number of Runs", "stop_after.n_runs"),
 ]
