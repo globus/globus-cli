@@ -38,7 +38,7 @@ def group_set_subscription_admin_verified(
         None if subscription_id == EXPLICIT_NULL else str(subscription_id)
     )
 
-    response = groups_client.set_subscription_admin_verified_id(
+    response = groups_client.set_subscription_admin_verified(
         group_id, admin_verified_id
     )
 
