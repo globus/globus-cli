@@ -392,7 +392,6 @@ def transfer_command(
         deadline=deadline,
         skip_source_errors=skip_source_errors,
         fail_on_quota_errors=fail_on_quota_errors,
-        skip_activation_check=skip_activation_check,
         delete_destination_extra=(delete or delete_destination_extra),
         source_local_user=source_local_user,
         destination_local_user=destination_local_user,

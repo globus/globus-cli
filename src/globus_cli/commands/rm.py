@@ -88,7 +88,6 @@ def rm_command(
         local_user=local_user,
         additional_fields={
             "ignore_missing": ignore_missing,
-            "skip_activation_check": skip_activation_check,
             "interpret_globs": enable_globs,
             **notify,
         },
