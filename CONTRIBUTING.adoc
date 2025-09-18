@@ -52,7 +52,7 @@ For example:
 
     uv tool install tox --with=tox-uv
 
-Once installed, you can run all tests with
+Once installed, you can run all tests with:
 
     tox run
 
