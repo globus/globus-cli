@@ -29,7 +29,7 @@ classifiers = [
 requires-python = ">=3.9"
 dependencies = [
     "globus-sdk==3.63.0",
-    "click>=8.1.4,<9",
+    "click>=8.1.4,<8.3",
     "jmespath==1.0.1",
     "packaging>=17.0",
     "typing_extensions>=4.0;python_version<'3.11'",
