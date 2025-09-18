@@ -51,6 +51,9 @@ install `uv` and the `tox-uv` plugin to have `uv` manage the interpreter version
 For example:
 
     uv tool install tox --with=tox-uv
+    # or
+    pipx install tox
+    pipx inject tox tox-uv
 
 Once installed, you can run all tests with:
 
