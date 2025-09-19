@@ -78,11 +78,12 @@ Code is also type-checked with `mypy`, which you can run with `tox run -e mypy`.
 
 Most changes to CLI functionality should be included in the changelog.
 
-Pull Requests are required to either be labeled `no-news-is-good-news` or
-have a changelog fragment.
+Pull Requests must have a changelog fragment or be approved by a maintainer to not need one.
 
 See link:./changelog.d/README.adoc[the changelog doc] for information about
 how to create fragments for your changes.
+
+Maintainers use the `no-news-is-good-news` label to indicate that no changelog is needed.
 
 == Releasing a Version
 
