@@ -162,7 +162,7 @@ class TimerResourceType(click.ParamType):
     "timer_targets",
     "--timer",
     type=TimerResourceType(),
-    help="TODO - Better Help Text",
+    help="A target resource in the form flow:<flow_id>. May be given multiple times.",
     multiple=True,
 )
 def login_command(
