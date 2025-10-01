@@ -29,6 +29,7 @@ from .shared_options import (
     task_submission_options,
 )
 from .shared_options.endpointish import endpointish_params
+from .shared_options.flow_options import flow_input_document_option
 from .shared_options.id_args import (
     collection_id_arg,
     endpoint_id_arg,
@@ -75,6 +76,7 @@ __all__ = [
     "endpoint_id_arg",
     "flow_id_arg",
     "run_id_arg",
+    "flow_input_document_option",
     "task_submission_options",
     "delete_and_rm_options",
     "synchronous_task_wait_options",

@@ -12,7 +12,6 @@ from globus_cli.endpointish import Endpointish
 from globus_cli.login_manager import LoginManager, is_client_login
 from globus_cli.parsing import (
     ENDPOINT_PLUS_OPTPATH,
-    TimedeltaType,
     command,
     encrypt_data_option,
     fail_on_quota_errors_option,
@@ -26,26 +25,12 @@ from globus_cli.parsing import (
     transfer_recursive_option,
     verify_checksum_option,
 )
-from globus_cli.termio import Field, display, formatters
+from globus_cli.termio import display
 
-from .._common import DATETIME_FORMATS, ScheduleFormatter
+from ._common import CREATE_FORMAT_FIELDS, TimerSchedule, timer_schedule_options
 
 if t.TYPE_CHECKING:
     from globus_cli.services.auth import CustomAuthClient
-
-
-FORMAT_FIELDS = [
-    Field("Timer ID", "job_id"),
-    Field("Name", "name"),
-    Field("Type", "timer_type"),
-    Field("Submitted At", "submitted_at", formatter=formatters.Date),
-    Field("Status", "status"),
-    Field("Last Run", "last_ran_at", formatter=formatters.Date),
-    Field("Next Run", "next_run", formatter=formatters.Date),
-    Field("Schedule", "schedule", formatter=ScheduleFormatter()),
-    Field("Number of Runs", "number_of_runs"),
-    Field("Number of Timer Errors", "number_of_errors"),
-]
 
 
 INTERVAL_HELP = """\
@@ -79,31 +64,12 @@ e.g. '1h30m', '500s', '10d'
 @fail_on_quota_errors_option
 @task_notify_option
 @filter_rule_options
-@click.option(
-    "--start",
-    type=click.DateTime(formats=DATETIME_FORMATS),
-    help="Start time for the timer. Defaults to current time.",
-)
-@click.option(
-    "--interval",
-    type=TimedeltaType(),
-    help=INTERVAL_HELP,
-)
 @click.option("--name", type=str, help="A name for the timer.")
+@timer_schedule_options
 @click.option(
     "--label",
     type=str,
     help="A label for the Transfer tasks submitted by the timer.",
-)
-@click.option(
-    "--stop-after-date",
-    type=click.DateTime(formats=DATETIME_FORMATS),
-    help="Stop running the transfer after this date.",
-)
-@click.option(
-    "--stop-after-runs",
-    type=click.IntRange(min=1),
-    help="Stop running the transfer after this number of runs have happened.",
 )
 @mutex_option_group("--stop-after-date", "--stop-after-runs")
 @click.option(
@@ -131,15 +97,12 @@ def transfer_command(
     login_manager: LoginManager,
     *,
     name: str | None,
+    schedule: TimerSchedule,
     source: tuple[uuid.UUID, str | None],
     destination: tuple[uuid.UUID, str | None],
     batch: t.TextIO | None,
     recursive: bool | None,
-    start: datetime.datetime | None,
-    interval: int | None,
     label: str | None,
-    stop_after_date: datetime.datetime | None,
-    stop_after_runs: int | None,
     delete: bool,
     delete_destination_extra: bool,
     sync_level: t.Literal["exists", "size", "mtime", "checksum"] | None,
@@ -219,37 +182,6 @@ def transfer_command(
     if (cmd_source_path is None or cmd_dest_path is None) and (not batch):
         raise click.UsageError(
             "Transfer requires either `SOURCE_PATH` and `DEST_PATH` or `--batch`"
-        )
-
-    # Interval must be null iff the timer is 'once', i.e. stop-after-runs == 1.
-    # and it must be non-null if the timer is 'recurring'
-    schedule: globus_sdk.RecurringTimerSchedule | globus_sdk.OnceTimerSchedule
-    start_ = resolve_optional_local_time(start)
-    if stop_after_runs == 1:
-        if interval is not None:
-            raise click.UsageError("`--interval` is invalid with `--stop-after-runs=1`")
-        schedule = globus_sdk.OnceTimerSchedule(datetime=start_)
-    else:
-        if interval is None:
-            raise click.UsageError(
-                "`--interval` is required unless `--stop-after-runs=1`"
-            )
-
-        end: dict[str, t.Any] | globus_sdk.MissingType = globus_sdk.MISSING
-        # reminder: these two cases are mutex
-        if stop_after_runs is not None:
-            end = {
-                "condition": "iterations",
-                "count": stop_after_runs,
-            }
-        elif stop_after_date is not None:
-            end = {
-                "condition": "time",
-                "datetime": resolve_optional_local_time(stop_after_date),
-            }
-
-        schedule = globus_sdk.RecurringTimerSchedule(
-            interval_seconds=interval, end=end, start=start_
         )
 
     # default name, dynamically computed from the current time
@@ -335,7 +267,7 @@ def transfer_command(
     timer_client = login_manager.get_timer_client()
     body = globus_sdk.TransferTimer(name=name, schedule=schedule, body=transfer_data)
     response = timer_client.create_timer(body)
-    display(response["timer"], text_mode=display.RECORD, fields=FORMAT_FIELDS)
+    display(response["timer"], text_mode=display.RECORD, fields=CREATE_FORMAT_FIELDS)
 
 
 def resolve_optional_local_time(

@@ -9,7 +9,13 @@ import click
 
 from globus_cli._click_compat import shim_get_metavar
 from globus_cli.login_manager import LoginManager
-from globus_cli.parsing import JSONStringOrFile, ParsedJSONData, command, flow_id_arg
+from globus_cli.parsing import (
+    JSONStringOrFile,
+    ParsedJSONData,
+    command,
+    flow_id_arg,
+    flow_input_document_option,
+)
 from globus_cli.termio import Field, display, formatters
 from globus_cli.types import JsonValue
 
@@ -138,29 +144,7 @@ class ActivityNotificationPolicyType(JSONStringOrFile):
 
 @command("start", short_help="Start a flow.")
 @flow_id_arg
-@click.option(
-    "--input",
-    "input_document",
-    type=JSONStringOrFile(),
-    help="""
-        The JSON input parameters used to start the flow.
-
-        The input document may be specified inline,
-        or it may be a path to a JSON file, prefixed with "file:".
-
-        Example: Inline JSON:
-
-        \b
-            --input '{"src": "~/source"}'
-
-        Example: Path to JSON file:
-
-        \b
-            --input parameters.json
-
-        If unspecified, the default is an empty JSON object ('{}').
-    """,
-)
+@flow_input_document_option
 @click.option(
     "--label",
     type=str,

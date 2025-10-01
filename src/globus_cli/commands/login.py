@@ -5,7 +5,11 @@ import uuid
 
 import click
 from click import Context, Parameter
-from globus_sdk.scopes import GCSCollectionScopeBuilder, GCSEndpointScopeBuilder
+from globus_sdk.scopes import (
+    GCSCollectionScopeBuilder,
+    GCSEndpointScopeBuilder,
+    TimersScopes,
+)
 from globus_sdk.services.flows import SpecificFlowClient
 
 from globus_cli._click_compat import shim_get_metavar
@@ -93,6 +97,34 @@ class GCSEndpointType(click.ParamType):
         return endpoint_id if not collection_id else (endpoint_id, collection_id)
 
 
+class TimerResourceType(click.ParamType):
+    name = "TIMER_RESOURCE"
+
+    @shim_get_metavar
+    def get_metavar(self, param: click.Parameter, ctx: click.Context) -> str:
+        return "flow:<flow_id>"
+
+    def convert(
+        self, value: t.Any, param: Parameter | None, ctx: Context | None
+    ) -> tuple[t.Literal["flow"], uuid.UUID]:
+        if not isinstance(value, str):
+            self.fail(f"Invalid Timer Resource type: {type(value)}", param, ctx)
+
+        parts = value.split(":")
+        if len(parts) != 2 or parts[0] != "flow":
+            msg = "Invalid resource specification. Please use the form flow:<flow_id>"
+            self.fail(
+                msg,
+                param,
+                ctx,
+            )
+
+        try:
+            return parts[0], uuid.UUID(parts[1])
+        except ValueError:
+            self.fail(f"Flow ID ({parts[1]}) is not a valid UUID", param, ctx)
+
+
 @command(
     "login",
     short_help="Log into Globus to get credentials for the Globus CLI.",
@@ -126,11 +158,19 @@ class GCSEndpointType(click.ParamType):
     """,
     multiple=True,
 )
+@click.option(
+    "timer_targets",
+    "--timer",
+    type=TimerResourceType(),
+    help="TODO - Better Help Text",
+    multiple=True,
+)
 def login_command(
     no_local_server: bool,
     force: bool,
     gcs_servers: tuple[t.Union[uuid.UUID, tuple[uuid.UUID, uuid.UUID]], ...],
     flow_ids: tuple[uuid.UUID, ...],
+    timer_targets: tuple[tuple[t.Literal["flow"], str], ...],
 ) -> None:
     """
     Get credentials for the Globus CLI.
@@ -181,6 +221,11 @@ def login_command(
         flow_scope = SpecificFlowClient(flow_id).scopes
         assert flow_scope is not None
         manager.add_requirement(flow_scope.resource_server, [flow_scope.user])
+
+    for resource_type, resource_id in timer_targets:
+        assert resource_type == "flow"
+        scope = f"{TimersScopes.timer}[{SpecificFlowClient(resource_id).scopes.user}]"
+        manager.add_requirement(TimersScopes.resource_server, [scope])
 
     # if not forcing, stop if user already logged in
     if not force and manager.is_logged_in():
