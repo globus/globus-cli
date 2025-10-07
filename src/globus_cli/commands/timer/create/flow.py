@@ -1,14 +1,12 @@
 from __future__ import annotations
 
-import datetime
-import textwrap
 import uuid
+from datetime import datetime
 
 import click
 import globus_sdk
-from globus_sdk.scopes import Scope, SpecificFlowScopeBuilder, TimersScopes
 
-from globus_cli.login_manager import LoginManager, is_client_login
+from globus_cli.login_manager import LoginManager
 from globus_cli.parsing import (
     ParsedJSONData,
     command,
@@ -51,25 +49,23 @@ def flow_command(
 
         globus timer create flow $flow_id --start 1970-12-25 --stop-after-runs 1
     """
-    if name is None:
-        now = datetime.datetime.now().isoformat()
-        name = f"CLI Created Timer [{now}]"
+    name = name or f"CLI Created Timer [{datetime.now().isoformat()}]"
 
-    verify_flow_exists(login_manager, flow_id)
-    verify_requester_has_required_consents(login_manager, flow_id)
+    _verify_flow_exists(login_manager, flow_id)
+    timers = login_manager.get_timer_client(flow_id=flow_id)
 
     timer_doc = globus_sdk.FlowTimer(
         flow_id=flow_id,
         name=name,
         schedule=schedule,
-        body={"body": input_document or {}},
+        body={"body": input_document.data if input_document else {}},
     )
-    response = login_manager.get_timer_client().create_timer(timer_doc)
+    response = timers.create_timer(timer_doc)
 
     display(response["timer"], text_mode=display.RECORD, fields=CREATE_FORMAT_FIELDS)
 
 
-def verify_flow_exists(login_manager: LoginManager, flow_id: uuid.UUID) -> None:
+def _verify_flow_exists(login_manager: LoginManager, flow_id: uuid.UUID) -> None:
     """
     Verify that the flow with the given ID exists.
 
@@ -84,36 +80,3 @@ def verify_flow_exists(login_manager: LoginManager, flow_id: uuid.UUID) -> None:
             click.echo("Please verify that you have access to this flow.", err=True)
             click.get_current_context().exit(2)
         raise
-
-
-def verify_requester_has_required_consents(
-    login_manager: LoginManager, flow_id: uuid.UUID
-) -> None:
-    """
-    Verify that the request has the proper consents to create a flow timer.
-
-    If an additional consents are required, print instructions and exit.
-    """
-    flow_scope = Scope(SpecificFlowScopeBuilder(str(flow_id)).user)
-    required_scope = Scope(TimersScopes.timer, dependencies=[flow_scope])
-
-    if is_client_login():
-        # Client consents don't require interactive logins.
-        login_manager.add_requirement(TimersScopes.resource_server, [required_scope])
-        return
-
-    requester_id = login_manager.get_current_identity_id()
-    consents = login_manager.get_auth_client().get_consents(requester_id).to_forest()
-
-    if not consents.meets_scope_requirements(required_scope):
-        click.echo(
-            textwrap.dedent(
-                f"""
-                Warning: Flow timer creation requires additional consent.
-                Please resolve with the following command, then rerun your original one:
-
-                    globus login --timer flow:{flow_id}
-                """
-            )
-        )
-        click.get_current_context().exit(4)

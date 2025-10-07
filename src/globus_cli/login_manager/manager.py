@@ -16,6 +16,7 @@ from globus_sdk.scopes import (
     GroupsScopes,
     Scope,
     SearchScopes,
+    SpecificFlowScopeBuilder,
     TimersScopes,
     TransferScopes,
 )
@@ -374,9 +375,29 @@ class LoginManager:
         authorizer = self._get_client_authorizer(SearchScopes.resource_server)
         return globus_sdk.SearchClient(authorizer=authorizer, app_name=version.app_name)
 
-    def get_timer_client(self) -> globus_sdk.TimerClient:
+    def get_timer_client(
+        self, *, flow_id: uuid.UUID | None = None
+    ) -> globus_sdk.TimerClient:
+        """
+        :param flow_id: If provided, the requester must have (or be able to
+            programmatically supply) a dependent user-consent for this flow.
+        """
+        if flow_id:
+            self._assert_requester_has_timer_flow_consent(flow_id)
+
         authorizer = self._get_client_authorizer(TimersScopes.resource_server)
         return globus_sdk.TimerClient(authorizer=authorizer, app_name=version.app_name)
+
+    def _assert_requester_has_timer_flow_consent(self, flow_id: uuid.UUID) -> None:
+        flow_scope = Scope(SpecificFlowScopeBuilder(str(flow_id)).user)
+        required_scope = Scope(TimersScopes.timer, dependencies=[flow_scope])
+
+        self.add_requirement(TimersScopes.resource_server, [required_scope])
+        login_context = LoginContext(
+            login_command=f"globus login --timer flow:{flow_id}",
+            error_message="Missing 'user' consent for a flow timer.",
+        )
+        self.assert_logins(TimersScopes.resource_server, login_context=login_context)
 
     def _get_gcs_info(
         self,
