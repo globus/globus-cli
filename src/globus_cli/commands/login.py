@@ -114,14 +114,13 @@ class TimerResourceType(click.ParamType):
 
         parts = value.split(":")
 
-        if len(parts) == 2 and parts[0] != "flow":
+        if len(parts) == 2 and parts[0] == "flow":
             try:
                 return "flow", uuid.UUID(parts[1])
             except ValueError:
-                self.fail(f"Flow ID ({parts[1]}) is not a valid UUID", param, ctx)
+                self.fail(f"Flow ID '{parts[1]}' is not a valid UUID", param, ctx)
         else:
-            msg = f"Invalid resource: {value}. Expected: 'flow:<flow_id>'"
-            self.fail(msg, param, ctx)
+            self.fail("Expected a resource in the form 'flow:<flow_id>'", param, ctx)
 
 
 @command(
