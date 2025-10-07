@@ -71,7 +71,6 @@ e.g. '1h30m', '500s', '10d'
     type=str,
     help="A label for the Transfer tasks submitted by the timer.",
 )
-@mutex_option_group("--stop-after-date", "--stop-after-runs")
 @click.option(
     "--delete",
     is_flag=True,
@@ -268,16 +267,6 @@ def transfer_command(
     body = globus_sdk.TransferTimer(name=name, schedule=schedule, body=transfer_data)
     response = timer_client.create_timer(body)
     display(response["timer"], text_mode=display.RECORD, fields=CREATE_FORMAT_FIELDS)
-
-
-def resolve_optional_local_time(
-    start: datetime.datetime | None,
-) -> datetime.datetime | globus_sdk.utils.MissingType:
-    if start is None:
-        return globus_sdk.MISSING
-    # set the timezone to local system time if the timezone input is not aware
-    start_with_tz = start.astimezone() if start.tzinfo is None else start
-    return start_with_tz
 
 
 def _derive_needed_scopes(

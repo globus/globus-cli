@@ -4,10 +4,12 @@ import typing as t
 import uuid
 
 import click
+import globus_sdk
 from click import Context, Parameter
 from globus_sdk.scopes import (
     GCSCollectionScopeBuilder,
     GCSEndpointScopeBuilder,
+    SpecificFlowScopeBuilder,
     TimersScopes,
 )
 from globus_sdk.services.flows import SpecificFlowClient
@@ -170,7 +172,7 @@ def login_command(
     force: bool,
     gcs_servers: tuple[t.Union[uuid.UUID, tuple[uuid.UUID, uuid.UUID]], ...],
     flow_ids: tuple[uuid.UUID, ...],
-    timer_targets: tuple[tuple[t.Literal["flow"], str], ...],
+    timer_targets: tuple[tuple[t.Literal["flow"], uuid.UUID], ...],
 ) -> None:
     """
     Get credentials for the Globus CLI.
@@ -224,8 +226,9 @@ def login_command(
 
     for resource_type, resource_id in timer_targets:
         assert resource_type == "flow"
-        scope = f"{TimersScopes.timer}[{SpecificFlowClient(resource_id).scopes.user}]"
-        manager.add_requirement(TimersScopes.resource_server, [scope])
+        flow_scope = globus_sdk.Scope(SpecificFlowScopeBuilder(str(resource_id)).user)
+        required_scope = globus_sdk.Scope(TimersScopes.timer, dependencies=[flow_scope])
+        manager.add_requirement(TimersScopes.resource_server, [required_scope])
 
     # if not forcing, stop if user already logged in
     if not force and manager.is_logged_in():
