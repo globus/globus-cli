@@ -113,18 +113,15 @@ class TimerResourceType(click.ParamType):
             self.fail(f"Invalid Timer Resource type: {type(value)}", param, ctx)
 
         parts = value.split(":")
-        if len(parts) != 2 or parts[0] != "flow":
-            msg = "Invalid resource specification. Please use the form flow:<flow_id>"
-            self.fail(
-                msg,
-                param,
-                ctx,
-            )
 
-        try:
-            return parts[0], uuid.UUID(parts[1])
-        except ValueError:
-            self.fail(f"Flow ID ({parts[1]}) is not a valid UUID", param, ctx)
+        if len(parts) == 2 and parts[0] != "flow":
+            try:
+                return "flow", uuid.UUID(parts[1])
+            except ValueError:
+                self.fail(f"Flow ID ({parts[1]}) is not a valid UUID", param, ctx)
+        else:
+            msg = f"Invalid resource: {value}. Expected: 'flow:<flow_id>'"
+            self.fail(msg, param, ctx)
 
 
 @command(
@@ -220,9 +217,9 @@ def login_command(
 
     for flow_id in flow_ids:
         # Rely on the SpecificFlowClient's scope builder.
-        flow_scope = SpecificFlowClient(flow_id).scopes
-        assert flow_scope is not None
-        manager.add_requirement(flow_scope.resource_server, [flow_scope.user])
+        flow_scopes = SpecificFlowClient(flow_id).scopes
+        assert flow_scopes is not None
+        manager.add_requirement(flow_scopes.resource_server, [flow_scopes.user])
 
     for resource_type, resource_id in timer_targets:
         assert resource_type == "flow"

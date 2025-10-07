@@ -8,9 +8,8 @@ import globus_sdk
 from globus_cli.commands.timer._common import DATETIME_FORMATS, ScheduleFormatter
 from globus_cli.parsing import TimedeltaType, mutex_option_group
 from globus_cli.termio import Field, formatters
-from globus_cli.types import AnyCommand
 
-C = t.TypeVar("C", bound=AnyCommand)
+R = t.TypeVar("R")
 
 
 CREATE_FORMAT_FIELDS = [
@@ -33,7 +32,7 @@ TimerSchedule: t.TypeAlias = t.Union[
 ]
 
 
-def timer_schedule_options(f: C) -> C:
+def timer_schedule_options(f: t.Callable[..., R]) -> t.Callable[..., R]:
     """
     A decorator which register "schedule" related timer options on a command.
 
@@ -81,13 +80,13 @@ def timer_schedule_options(f: C) -> C:
     @mutex_option_group("--stop-after-date", "--stop-after-runs")
     @wraps(f)
     def wrapper(
-        *args,
+        *args: t.Any,
         start: datetime | None,
         interval: int | None,
         stop_after_date: datetime | None,
         stop_after_runs: int | None,
-        **kwargs,
-    ) -> t.Callable[[C], C]:
+        **kwargs: t.Any,
+    ) -> R:
         schedule = _create_schedule(start, interval, stop_after_date, stop_after_runs)
 
         return f(*args, schedule=schedule, **kwargs)
