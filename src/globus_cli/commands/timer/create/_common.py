@@ -1,3 +1,6 @@
+from __future__ import annotations
+
+import sys
 import typing as t
 from datetime import datetime
 from functools import wraps
@@ -8,6 +11,11 @@ import globus_sdk
 from globus_cli.commands.timer._common import DATETIME_FORMATS, ScheduleFormatter
 from globus_cli.parsing import TimedeltaType, mutex_option_group
 from globus_cli.termio import Field, formatters
+
+if sys.version_info >= (3, 10):
+    from typing import TypeAlias
+else:
+    from typing_extensions import TypeAlias
 
 R = t.TypeVar("R")
 
@@ -26,7 +34,7 @@ CREATE_FORMAT_FIELDS = [
 ]
 
 
-TimerSchedule: t.TypeAlias = t.Union[
+TimerSchedule: TypeAlias = t.Union[
     globus_sdk.RecurringTimerSchedule,
     globus_sdk.OnceTimerSchedule,
 ]
