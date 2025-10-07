@@ -24,10 +24,9 @@ def resolve_times_to_utc(monkeypatch):
         # this is *significantly* different from the real code at runtime
         return dt.replace(tzinfo=datetime.timezone.utc)
 
-    monkeypatch.setattr(
-        "globus_cli.commands.timer.create.transfer.resolve_optional_local_time",
-        fake_resolve,
-    )
+    from globus_cli.commands.timer.create import _common as module
+
+    monkeypatch.setattr(module, "_to_local_tz", fake_resolve)
 
 
 def setup_timer_consent_tree_response(identity_id, *data_access_collection_ids):
@@ -302,14 +301,14 @@ def test_legacy_delete_and_delete_destination_are_mutex(run_line):
             "--delete-destination-extra",
             f"{ep_id}:/foo/",
             f"{ep_id}:/bar/",
+            "--stop-after-runs=1",
         ],
         assert_exit_code=2,
     )
     assert "mutually exclusive" in result.stderr
 
 
-def test_timer_creation_legacy_delete_flag_deprecation_warning(run_line):
-    ep_id = str(uuid.UUID(int=1))
+def test_timer_creation_legacy_delete_flag_deprecation_warning(run_line, ep_for_timer):
     result = run_line(
         [
             "globus",
@@ -317,10 +316,11 @@ def test_timer_creation_legacy_delete_flag_deprecation_warning(run_line):
             "create",
             "transfer",
             "--delete",
-            f"{ep_id}:/foo/",
-            f"{ep_id}:/bar/",
+            f"{ep_for_timer}:/foo/",
+            f"{ep_for_timer}:/bar/",
+            "--stop-after-runs=1",
         ],
-        assert_exit_code=2,
+        assert_exit_code=0,
     )
     assert "`--delete` has been deprecated" in result.stderr
 
