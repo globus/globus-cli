@@ -30,7 +30,7 @@ def test_successful_gcs_collection_role_delete(
 
     # now test the command and confirm that a successful role deletion is reported
     run_line(
-        ["globus", "gcs", "collection", "role", "delete", collection_id, role_id],
+        ["globus", "collection", "role", "delete", collection_id, role_id],
         search_stdout=[
             "success",
         ],

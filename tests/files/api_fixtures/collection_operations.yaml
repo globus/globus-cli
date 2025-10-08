@@ -1,6 +1,6 @@
 metadata:
+  role: "activity_monitor"
   role_id: "0174edd0-998c-4147-a123-99ea38068145"
-  role_identity_id: "081cfa08-b857-4f26-bf2b-13d08e581545"
   mapped_collection_id: "1405823f-0597-4a16-b296-46d4f0ae4b15"
   guest_collection_id: "0e4a77f8-b778-4d5c-abaa-e1254e71427f"
   endpoint_id: "cf37806c-572c-47ff-88e2-511c646ef1a4"
@@ -430,6 +430,26 @@ gcs:
             "tlsftp_url": "http://example.com"
           }
         ]
+      }
+  - path: /roles
+    method: post
+    json:
+      {
+        "DATA_TYPE": "result#1.1.0",
+        "code": "success",
+        "data": [
+          {
+            "DATA_TYPE": "role#1.0.0",
+            "collection": "1405823f-0597-4a16-b296-46d4f0ae4b15",
+            "id": "0174edd0-998c-4147-a123-99ea38068145",
+            "principal": "urn:globus:auth:identity:e926d510-cb98-11e5-a6ac-0b0216052512",
+            "role": "activity_monitor"
+          }
+        ],
+        "detail": "success",
+        "has_next_page": False,
+        "http_response_code" : 200,
+        "message": "Created new role 0174edd0-998c-4147-a123-99ea38068145"
       }
   - path: /roles/0174edd0-998c-4147-a123-99ea38068145
     method: delete
