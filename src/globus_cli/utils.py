@@ -10,12 +10,9 @@ from globus_cli.types import AnyCallable
 if t.TYPE_CHECKING:
     from globus_cli.services.auth import CustomAuthClient
 
-# NB: GARE parsing requires other SDK components and therefore needs to be deferred to
-# avoid the performance impact of non-lazy imports
-if t.TYPE_CHECKING:
-    from globus_sdk.experimental.auth_requirements_error import (
-        GlobusAuthRequirementsError,
-    )
+    # NB: GARE parsing requires other SDK components and therefore needs to be deferred
+    # to avoid the performance impact of non-lazy imports
+    from globus_sdk.gare import GARE
 
 F = t.TypeVar("F", bound=AnyCallable)
 
@@ -195,7 +192,7 @@ class CLIAuthRequirementsError(Exception):
         self,
         message: str,
         *,
-        gare: GlobusAuthRequirementsError | None = None,
+        gare: GARE | None = None,
         epilog: str | None = None,
     ) -> None:
         self.message = message
