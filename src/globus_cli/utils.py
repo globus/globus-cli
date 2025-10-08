@@ -8,11 +8,11 @@ import click
 from globus_cli.types import AnyCallable
 
 if t.TYPE_CHECKING:
-    from globus_cli.services.auth import CustomAuthClient
-
     # NB: GARE parsing requires other SDK components and therefore needs to be deferred
     # to avoid the performance impact of non-lazy imports
     from globus_sdk.gare import GARE
+
+    from globus_cli.services.auth import CustomAuthClient
 
 F = t.TypeVar("F", bound=AnyCallable)
 
