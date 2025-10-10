@@ -6,6 +6,7 @@ import typing as t
 import uuid
 
 import click
+import globus_sdk
 
 from globus_cli._click_compat import shim_get_metavar
 from globus_cli.login_manager import LoginManager
@@ -149,6 +150,7 @@ class ActivityNotificationPolicyType(JSONStringOrFile):
     "--label",
     type=str,
     help="A label to give the run.",
+    default=globus_sdk.MISSING,
 )
 @click.option(
     "--manager",
@@ -203,7 +205,7 @@ def start_command(
     *,
     flow_id: uuid.UUID,
     input_document: ParsedJSONData | None,
-    label: str | None,
+    label: str | globus_sdk.MissingType,
     managers: tuple[str, ...],
     monitors: tuple[str, ...],
     tags: tuple[str, ...],
@@ -236,10 +238,13 @@ def start_command(
             raise click.UsageError("Flow input must be a JSON object")
         input_document_json = input_document.data
 
-    notify_policy: dict[str, t.Any] | None = None
+    notify_policy: dict[str, t.Any] | globus_sdk.MissingType = globus_sdk.MISSING
     if activity_notification_policy:
-        # type ignore as this is JSON data which we know is constrained to a dict
-        notify_policy = activity_notification_policy.data  # type: ignore[assignment]
+        if not isinstance(activity_notification_policy.data, dict):
+            raise click.UsageError(
+                "Activity Notification Policy must be a JSON object."
+            )
+        notify_policy = activity_notification_policy.data
 
     flow_client = login_manager.get_specific_flow_client(flow_id)
     response = flow_client.run_flow(
