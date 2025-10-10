@@ -11,12 +11,12 @@ import globus_sdk
 from globus_sdk.scopes import (
     AuthScopes,
     FlowsScopes,
-    GCSCollectionScopeBuilder,
-    GCSEndpointScopeBuilder,
+    GCSCollectionScopes,
+    GCSEndpointScopes,
     GroupsScopes,
     Scope,
     SearchScopes,
-    SpecificFlowScopeBuilder,
+    SpecificFlowScopes,
     TimersScopes,
     TransferScopes,
 )
@@ -389,8 +389,8 @@ class LoginManager:
         return globus_sdk.TimerClient(authorizer=authorizer, app_name=version.app_name)
 
     def _assert_requester_has_timer_flow_consent(self, flow_id: uuid.UUID) -> None:
-        flow_scope = Scope(SpecificFlowScopeBuilder(str(flow_id)).user)
-        required_scope = Scope(TimersScopes.timer, dependencies=[flow_scope])
+        flow_scope = SpecificFlowScopes(flow_id).user
+        required_scope = TimersScopes.timer.with_dependency(flow_scope)
 
         self.add_requirement(TimersScopes.resource_server, [required_scope])
         login_context = LoginContext(
@@ -480,7 +480,7 @@ class LoginManager:
 
         if not include_data_access:
             # Just require an endpoint:manage_collections scope
-            scope = Scope(GCSEndpointScopeBuilder(gcs_id).manage_collections)
+            scope = GCSEndpointScopes(gcs_id).manage_collections
             login_context = LoginContext(
                 login_command=f"globus login --gcs {gcs_id}",
                 error_message="Missing 'manage_collections' consent on an endpoint.",
@@ -488,9 +488,10 @@ class LoginManager:
         else:
             # Require an endpoint:manage_collections scope with a dependent
             #   collection[data_access] scope
-            scope = Scope(GCSEndpointScopeBuilder(gcs_id).manage_collections)
-            data_access = GCSCollectionScopeBuilder(str(collection_id)).data_access
-            scope.add_dependency(data_access)
+            data_access = GCSCollectionScopes(collection_id).data_access
+            scope = GCSEndpointScopes(gcs_id).manage_collections.with_dependency(
+                data_access
+            )
 
             login_context = LoginContext(
                 login_command=f"globus login --gcs {gcs_id}:{str(collection_id)}",

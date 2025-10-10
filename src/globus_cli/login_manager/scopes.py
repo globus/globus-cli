@@ -5,7 +5,7 @@ import typing as t
 from globus_sdk.scopes import (
     AuthScopes,
     FlowsScopes,
-    GCSCollectionScopeBuilder,
+    GCSCollectionScopes,
     GroupsScopes,
     Scope,
     SearchScopes,
@@ -19,19 +19,16 @@ from globus_cli.types import ServiceNameLiteral
 def compute_timer_scope(
     *, data_access_collection_ids: t.Sequence[str] | None = None
 ) -> Scope:
-    transfer_scope = Scope(TransferScopes.all)
-    for cid in data_access_collection_ids or ():
-        transfer_scope.add_dependency(
-            Scope(GCSCollectionScopeBuilder(cid).data_access, optional=True)
-        )
+    transfer_scope = TransferScopes.all.with_dependencies(
+        GCSCollectionScopes(cid).data_access.with_optional(True)
+        for cid in data_access_collection_ids or ()
+    )
 
-    timer_scope = Scope(TimersScopes.timer)
-    timer_scope.add_dependency(transfer_scope)
-    return timer_scope
+    return TimersScopes.timer.with_dependency(transfer_scope)
 
 
 # with no args, this builds
-#   timer[transferAP[transfer]]
+#   timer[transfer]
 TIMER_SCOPE_WITH_DEPENDENCIES = compute_timer_scope()
 
 
@@ -39,7 +36,7 @@ class _ServiceRequirement(t.TypedDict):
     min_contract_version: int
     resource_server: str
     nice_server_name: str
-    scopes: list[str | Scope]
+    scopes: list[Scope]
 
 
 class _CLIScopeRequirements(t.Dict[ServiceNameLiteral, _ServiceRequirement]):
