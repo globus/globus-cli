@@ -2,7 +2,7 @@ from __future__ import annotations
 
 import re
 
-from globus_sdk._testing import load_response
+from globus_sdk.testing import load_response
 
 
 def _urn_to_id(s: str) -> str | None:

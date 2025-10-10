@@ -3,7 +3,7 @@ import uuid
 
 import pytest
 import responses
-from globus_sdk._testing import load_response_set
+from globus_sdk.testing import load_response_set
 
 DUMMY_ID1 = str(uuid.UUID(int=1))
 DUMMY_ID2 = str(uuid.UUID(int=2))

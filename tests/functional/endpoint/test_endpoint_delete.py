@@ -1,6 +1,6 @@
 import json
 
-from globus_sdk._testing import load_response_set
+from globus_sdk.testing import load_response_set
 
 
 def test_simple_deletion(run_line):

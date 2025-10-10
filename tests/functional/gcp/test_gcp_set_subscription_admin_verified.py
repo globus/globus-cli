@@ -1,5 +1,5 @@
 import pytest
-from globus_sdk._testing import (
+from globus_sdk.testing import (
     load_response_set,
 )
 

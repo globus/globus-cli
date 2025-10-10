@@ -1,6 +1,6 @@
 import json
 
-from globus_sdk._testing import RegisteredResponse
+from globus_sdk.testing import RegisteredResponse
 
 
 def test_flows_generic_hook_on_long_detail(run_line):

@@ -7,7 +7,7 @@ import globus_sdk
 import pytest
 import requests
 import responses
-from globus_sdk._testing import RegisteredResponse, get_last_request, load_response
+from globus_sdk.testing import RegisteredResponse, get_last_request, load_response
 from globus_sdk.config import get_service_url
 from globus_sdk.scopes import GCSCollectionScopeBuilder
 

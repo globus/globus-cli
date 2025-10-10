@@ -1,7 +1,7 @@
 import uuid
 
 import pytest
-from globus_sdk._testing import load_response
+from globus_sdk.testing import load_response
 
 from globus_cli.commands.flows.run.list import ROLE_TYPES
 

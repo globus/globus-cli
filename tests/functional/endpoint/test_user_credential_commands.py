@@ -3,7 +3,7 @@ import uuid
 
 import globus_sdk
 import responses
-from globus_sdk._testing import get_response_set, load_response_set
+from globus_sdk.testing import get_response_set, load_response_set
 
 
 def test_user_credential_list(add_gcs_login, run_line):

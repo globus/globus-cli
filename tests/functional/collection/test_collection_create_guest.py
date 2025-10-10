@@ -4,7 +4,7 @@ from copy import copy
 import pytest
 import requests
 import responses
-from globus_sdk._testing import load_response_set
+from globus_sdk.testing import load_response_set
 from globus_sdk.config import get_service_url
 
 from globus_cli.endpointish import EntityType

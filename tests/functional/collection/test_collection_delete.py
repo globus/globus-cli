@@ -1,5 +1,5 @@
 import pytest
-from globus_sdk._testing import load_response_set
+from globus_sdk.testing import load_response_set
 
 
 # toggle between the (newer) 'gcs' variant and the 'bare' variant

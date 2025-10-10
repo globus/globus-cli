@@ -1,7 +1,7 @@
 import json
 
 import pytest
-from globus_sdk._testing import RegisteredResponse
+from globus_sdk.testing import RegisteredResponse
 
 
 def test_base_json_hook(run_line):

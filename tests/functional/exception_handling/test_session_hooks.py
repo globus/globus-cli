@@ -1,7 +1,7 @@
 import uuid
 
 import pytest
-from globus_sdk._testing import RegisteredResponse
+from globus_sdk.testing import RegisteredResponse
 
 
 def tests_consent_required_gets_preference_over_authorization_parameters(run_line):

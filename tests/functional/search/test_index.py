@@ -1,4 +1,4 @@
-from globus_sdk._testing import load_response, load_response_set
+from globus_sdk.testing import load_response, load_response_set
 
 
 def test_index_list(run_line):

@@ -1,7 +1,7 @@
 import uuid
 
 import pytest
-from globus_sdk._testing import load_response, register_response_set
+from globus_sdk.testing import load_response, register_response_set
 
 TASK_ID = str(uuid.UUID(int=0))
 RULE_ID = str(uuid.UUID(int=1))

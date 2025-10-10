@@ -1,7 +1,7 @@
 import uuid
 
 import globus_sdk
-from globus_sdk._testing import RegisteredResponse, get_last_request
+from globus_sdk.testing import RegisteredResponse, get_last_request
 
 from globus_cli.login_manager.storage import CLIStorage, _resolve_namespace
 

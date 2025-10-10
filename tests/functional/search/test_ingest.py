@@ -3,7 +3,7 @@ import uuid
 
 import pytest
 import responses
-from globus_sdk._testing import RegisteredResponse, load_response
+from globus_sdk.testing import RegisteredResponse, load_response
 
 
 @pytest.fixture

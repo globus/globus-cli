@@ -7,7 +7,7 @@ import urllib.parse
 import uuid
 
 import pytest
-from globus_sdk._testing import RegisteredResponse, get_last_request
+from globus_sdk.testing import RegisteredResponse, get_last_request
 
 
 def _make_mapped_collection_search_result(

@@ -1,6 +1,6 @@
 import json
 
-from globus_sdk._testing import load_response
+from globus_sdk.testing import load_response
 
 
 def test_show_run_definition(run_line, add_flow_login):

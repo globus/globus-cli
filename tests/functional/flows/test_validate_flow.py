@@ -4,7 +4,7 @@ import uuid
 from itertools import chain
 
 import pytest
-from globus_sdk._testing import (
+from globus_sdk.testing import (
     get_last_request,
     load_response_set,
     register_response_set,

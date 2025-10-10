@@ -6,7 +6,7 @@ import typing as t
 
 import pytest
 import responses
-from globus_sdk._testing import load_response
+from globus_sdk.testing import load_response
 
 
 def test_start_flow_text_output(run_line, add_flow_login, get_identities_mocker):

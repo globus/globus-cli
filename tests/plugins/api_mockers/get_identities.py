@@ -1,6 +1,6 @@
 import uuid
 
-from globus_sdk._testing import RegisteredResponse
+from globus_sdk.testing import RegisteredResponse
 
 
 class GetIdentitiesMocker:

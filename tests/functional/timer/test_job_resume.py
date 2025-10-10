@@ -2,7 +2,7 @@ import uuid
 
 import globus_sdk
 import pytest
-from globus_sdk._testing import load_response, load_response_set, register_response_set
+from globus_sdk.testing import load_response, load_response_set, register_response_set
 
 
 def test_resume_timer_active(run_line):

@@ -2,7 +2,7 @@ import json
 import uuid
 
 import pytest
-from globus_sdk._testing import get_last_request, load_response_set
+from globus_sdk.testing import get_last_request, load_response_set
 
 # options with option value and expected value
 # if expected value is not set, it will be copied from the option value

@@ -3,7 +3,7 @@ import re
 
 import globus_sdk
 import pytest
-from globus_sdk._testing import RegisteredResponse, load_response, load_response_set
+from globus_sdk.testing import RegisteredResponse, load_response, load_response_set
 
 from globus_cli.commands.timer._common import TIMER_FORMAT_FIELDS
 

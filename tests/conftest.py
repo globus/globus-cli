@@ -14,7 +14,7 @@ import globus_sdk
 import pytest
 import responses
 from click.testing import CliRunner
-from globus_sdk._testing import register_response_set
+from globus_sdk.testing import register_response_set
 from globus_sdk.scopes import TimersScopes
 from globus_sdk.tokenstorage import SQLiteAdapter
 from globus_sdk.transport import RequestsTransport

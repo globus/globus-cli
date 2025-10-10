@@ -2,7 +2,7 @@ import json
 import urllib.parse
 import uuid
 
-from globus_sdk._testing import RegisteredResponse, get_last_request, load_response_set
+from globus_sdk.testing import RegisteredResponse, get_last_request, load_response_set
 
 
 def test_list_flows(run_line):

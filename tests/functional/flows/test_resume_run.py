@@ -2,7 +2,7 @@ import uuid
 
 import globus_sdk
 import pytest
-from globus_sdk._testing import (
+from globus_sdk.testing import (
     RegisteredResponse,
     load_response,
     load_response_set,

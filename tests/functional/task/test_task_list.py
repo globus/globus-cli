@@ -3,7 +3,7 @@ import uuid
 
 import pytest
 import responses
-from globus_sdk._testing import get_last_request, load_response_set
+from globus_sdk.testing import get_last_request, load_response_set
 
 
 def _get_last_request_filter_string():

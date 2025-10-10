@@ -2,7 +2,7 @@ import re
 
 import pytest
 import responses
-from globus_sdk._testing import RegisteredResponse, load_response
+from globus_sdk.testing import RegisteredResponse, load_response
 
 
 @pytest.mark.parametrize("include_flow_description", (True, False))

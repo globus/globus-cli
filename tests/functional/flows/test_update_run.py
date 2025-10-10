@@ -1,7 +1,7 @@
 import re
 import uuid
 
-from globus_sdk._testing import RegisteredResponse, load_response
+from globus_sdk.testing import RegisteredResponse, load_response
 
 
 def test_update_run_text_output(run_line, add_flow_login, get_identities_mocker):

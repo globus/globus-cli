@@ -1,7 +1,7 @@
 import uuid
 
 import globus_sdk
-from globus_sdk._testing import RegisteredResponse, load_response
+from globus_sdk.testing import RegisteredResponse, load_response
 from globus_sdk.scopes import SpecificFlowScopeBuilder
 
 

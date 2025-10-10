@@ -1,5 +1,5 @@
 import pytest
-from globus_sdk._testing import load_response_set
+from globus_sdk.testing import load_response_set
 
 
 def test_update_endpoint(run_line, add_gcs_login):

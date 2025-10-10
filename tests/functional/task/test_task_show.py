@@ -1,6 +1,6 @@
 import uuid
 
-from globus_sdk._testing import load_response_set
+from globus_sdk.testing import load_response_set
 
 ID_ZERO = uuid.UUID(int=0)
 

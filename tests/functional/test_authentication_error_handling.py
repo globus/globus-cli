@@ -6,7 +6,7 @@ invalidated and are treated as invalid by the services
 import uuid
 
 import pytest
-from globus_sdk._testing import RegisteredResponse
+from globus_sdk.testing import RegisteredResponse
 
 
 def test_whoami_unauthorized_error(run_line):

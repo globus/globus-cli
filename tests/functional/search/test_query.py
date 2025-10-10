@@ -2,7 +2,7 @@ import json
 
 import pytest
 import responses
-from globus_sdk._testing import load_response_set
+from globus_sdk.testing import load_response_set
 
 
 @pytest.mark.parametrize(

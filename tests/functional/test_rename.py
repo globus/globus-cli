@@ -1,6 +1,6 @@
 import json
 
-from globus_sdk._testing import get_last_request, load_response_set
+from globus_sdk.testing import get_last_request, load_response_set
 
 
 def test_simple_rename_success(run_line, go_ep1_id):

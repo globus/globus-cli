@@ -2,7 +2,7 @@ import datetime
 import uuid
 
 import pytest
-from globus_sdk._testing import load_response_set, register_response_set
+from globus_sdk.testing import load_response_set, register_response_set
 
 
 class utconly_datetime(datetime.datetime):

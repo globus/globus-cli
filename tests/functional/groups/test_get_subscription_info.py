@@ -1,6 +1,6 @@
 import uuid
 
-from globus_sdk._testing import RegisteredResponse
+from globus_sdk.testing import RegisteredResponse
 
 
 def test_group_get_subscription_info_text(run_line):

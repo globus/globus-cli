@@ -5,7 +5,7 @@ import typing as t
 import uuid
 
 import pytest
-from globus_sdk._testing import register_response_set
+from globus_sdk.testing import register_response_set
 from responses import matchers
 
 OWNER_ID = "e061df5a-b7b9-4578-a73b-6d4a4edfd66e"

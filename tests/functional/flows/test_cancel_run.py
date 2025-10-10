@@ -1,4 +1,4 @@
-from globus_sdk._testing import load_response
+from globus_sdk.testing import load_response
 
 
 def test_cancel_run_text_output(run_line):

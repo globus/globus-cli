@@ -2,7 +2,7 @@ import json
 import uuid
 
 import pytest
-from globus_sdk._testing import get_last_request, load_response_set
+from globus_sdk.testing import get_last_request, load_response_set
 
 
 @pytest.mark.parametrize("parent_group_id", (None, str(uuid.UUID(int=0))))

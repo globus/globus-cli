@@ -2,7 +2,7 @@ import json
 
 import globus_sdk
 import pytest
-from globus_sdk._testing import get_last_request, load_response, load_response_set
+from globus_sdk.testing import get_last_request, load_response, load_response_set
 
 
 def test_filter_rules(run_line, go_ep1_id, go_ep2_id):

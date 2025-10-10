@@ -1,6 +1,6 @@
 import urllib.parse
 
-from globus_sdk._testing import (
+from globus_sdk.testing import (
     RegisteredResponse,
     get_last_request,
     load_response,

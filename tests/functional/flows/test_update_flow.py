@@ -4,7 +4,7 @@ import uuid
 from itertools import chain
 
 import pytest
-from globus_sdk._testing import RegisteredResponse, get_last_request, load_response
+from globus_sdk.testing import RegisteredResponse, get_last_request, load_response
 
 from tests.functional.flows.test_create_flow import (
     SPECIAL_PRINCIPALS,

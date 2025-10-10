@@ -1,5 +1,5 @@
 import globus_sdk
-from globus_sdk._testing import get_response_set, load_response_set
+from globus_sdk.testing import get_response_set, load_response_set
 
 
 def test_storage_gateway_list(add_gcs_login, run_line):

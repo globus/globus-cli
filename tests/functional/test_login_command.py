@@ -3,7 +3,7 @@ from unittest import mock
 
 import globus_sdk
 import pytest
-from globus_sdk._testing import RegisteredResponse
+from globus_sdk.testing import RegisteredResponse
 
 from globus_cli.login_manager import LoginManager
 from globus_cli.login_manager.auth_flows import exchange_code_and_store

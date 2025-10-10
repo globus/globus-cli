@@ -2,13 +2,13 @@ import datetime
 import json
 
 import pytest
-from globus_sdk._testing import (
+from globus_sdk.testing import (
     RegisteredResponse,
     load_response,
     load_response_set,
     register_response_set,
 )
-from globus_sdk._testing.data.flows.get_run_logs import (
+from globus_sdk.testing.data.flows.get_run_logs import (
     PAGINATED_RUN_LOG_RESPONSES,
     RUN_ID,
 )

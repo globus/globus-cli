@@ -3,7 +3,7 @@ import uuid
 
 import pytest
 import responses
-from globus_sdk._testing import (
+from globus_sdk.testing import (
     RegisteredResponse,
     get_last_request,
     load_response,
@@ -50,7 +50,7 @@ def test_api_command_get(run_line, service_name, add_gcs_login, is_error_respons
                 service="transfer",
                 path=f"/endpoint/{endpoint_id}",
                 # this data contains the GCS server hostname which is baked into
-                # globus_sdk._testing, so there's some "magical" data coordination at
+                # globus_sdk.testing, so there's some "magical" data coordination at
                 # play here
                 json={
                     "DATA": [
