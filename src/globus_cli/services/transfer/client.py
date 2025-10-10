@@ -51,7 +51,7 @@ class CustomTransferClient(globus_sdk.TransferClient):
         app_name: str,
     ) -> None:
         super().__init__(authorizer=authorizer, app_name=app_name)
-        self.transport.register_retry_check(_retry_client_consent)
+        self.retry_config.checks.register_check(_retry_client_consent)
 
     # TODO: Remove this function when endpoints natively support recursive ls
     def recursive_operation_ls(
