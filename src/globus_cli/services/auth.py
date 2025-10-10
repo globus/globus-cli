@@ -52,13 +52,6 @@ class CustomAuthClient(globus_sdk.AuthClient):
 
         return value
 
-    # this method has been added in the latest SDK versions but is not
-    # present in the last release
-    # this is therefore temporary until an SDK release ships with the change
-    # so that CLI testing against SDK main can succeed
-    if not hasattr(globus_sdk.AuthClient, "userinfo"):
-        userinfo = globus_sdk.AuthClient.oauth2_userinfo
-
     @t.overload
     def maybe_lookup_identity_id(
         self, identity_name: str, provision: t.Literal[True]
