@@ -3,6 +3,7 @@ from __future__ import annotations
 import uuid
 
 import click
+import globus_sdk
 
 from globus_cli.commands.flows._common import (
     administrators_option,
@@ -74,8 +75,8 @@ def create_command(
     title: str,
     definition: ParsedJSONData,
     input_schema: ParsedJSONData | None,
-    subtitle: str | None,
-    description: str | None,
+    subtitle: str | globus_sdk.MissingType,
+    description: str | globus_sdk.MissingType,
     administrators: tuple[str, ...],
     starters: tuple[str, ...],
     viewers: tuple[str, ...],

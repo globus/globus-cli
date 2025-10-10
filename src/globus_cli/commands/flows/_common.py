@@ -4,6 +4,7 @@ import typing as t
 import uuid
 
 import click
+import globus_sdk
 
 from globus_cli.parsing import JSONStringOrFile
 
@@ -43,6 +44,7 @@ subtitle_option = click.option(
     "--subtitle",
     type=str,
     help="A concise summary of the flow's purpose.",
+    default=globus_sdk.MISSING,
 )
 
 
@@ -50,6 +52,7 @@ description_option = click.option(
     "--description",
     type=str,
     help="A detailed description of the flow's purpose.",
+    default=globus_sdk.MISSING,
 )
 
 
@@ -140,4 +143,5 @@ subscription_id_option = click.option(
 
         The value may be a UUID or the word "DEFAULT".
     """,
+    default=globus_sdk.MISSING,
 )
