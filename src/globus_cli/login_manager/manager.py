@@ -19,6 +19,7 @@ from globus_sdk.scopes import (
     SpecificFlowScopes,
     TimersScopes,
     TransferScopes,
+    ScopeParser,
 )
 from globus_sdk.scopes.consents import ConsentForest
 
@@ -51,16 +52,16 @@ R = t.TypeVar("R")
 class LoginManager:
     def __init__(self) -> None:
         self.storage = CLIStorage()
-        self._nonstatic_requirements: dict[str, list[str | Scope]] = {}
+        self._nonstatic_requirements: dict[str, list[Scope]] = {}
 
     def close(self) -> None:
         self.storage.close()
 
-    def add_requirement(self, rs_name: str, scopes: t.Sequence[str | Scope]) -> None:
+    def add_requirement(self, rs_name: str, scopes: t.Sequence[Scope]) -> None:
         self._nonstatic_requirements[rs_name] = list(scopes)
 
     @property
-    def login_requirements(self) -> t.Iterator[tuple[str, list[str | Scope]]]:
+    def login_requirements(self) -> t.Iterator[tuple[str, list[Scope]]]:
         for req in CLI_SCOPE_REQUIREMENTS.values():
             yield req["resource_server"], req["scopes"]
         yield from self._nonstatic_requirements.items()
@@ -168,7 +169,7 @@ class LoginManager:
         required_scopes: list[Scope] = []
         for scope in requirements:
             scope_string = scope if isinstance(scope, str) else str(scope)
-            required_scopes.extend(Scope.parse(scope_string=scope_string))
+            required_scopes.extend(ScopeParser.parse(scope_string))
 
         if not any(scope.dependencies for scope in required_scopes):
             # If there are no dependent scopes, simply verify local scope strings match
@@ -486,9 +487,14 @@ class LoginManager:
                 error_message="Missing 'manage_collections' consent on an endpoint.",
             )
         else:
+            if collection_id is None:
+                raise ValueError(
+                    "Cannot handle data_access scope with unset collection_id."
+                )
+
             # Require an endpoint:manage_collections scope with a dependent
             #   collection[data_access] scope
-            data_access = GCSCollectionScopes(collection_id).data_access
+            data_access = GCSCollectionScopes(str(collection_id)).data_access
             scope = GCSEndpointScopes(gcs_id).manage_collections.with_dependency(
                 data_access
             )
