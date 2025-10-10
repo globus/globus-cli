@@ -3,7 +3,7 @@ metadata:
   setup_key: "b379e973-f5c5-4501-8377-5a0ecf37a99b"
 
 transfer:
-  - path: /endpoint
+  - path: /v0.10/endpoint
     method: post
     json:
       {

@@ -52,7 +52,7 @@ def test_transfer_call(run_line):
     load_response(
         RegisteredResponse(
             service="transfer",
-            path=f"/operation/endpoint/{epid}/ls",
+            path=f"/v0.10/operation/endpoint/{epid}/ls",
             json={
                 # not *quite* verbatim data from the API, but very similar and in the
                 # right format with all fields populated

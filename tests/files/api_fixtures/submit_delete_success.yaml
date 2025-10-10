@@ -2,7 +2,7 @@ metadata:
   task_id: "6b0aed60-575c-11eb-87bb-02187389bd35"
 
 transfer:
-  - path: /delete
+  - path: /v0.10/delete
     method: post
     json:
       {
@@ -21,7 +21,7 @@ transfer:
           "title": "related task"
         }
       }
-  - path: /task/6b0aed60-575c-11eb-87bb-02187389bd35
+  - path: /v0.10/task/6b0aed60-575c-11eb-87bb-02187389bd35
     json:
       {
         "bytes_checksummed": 0,

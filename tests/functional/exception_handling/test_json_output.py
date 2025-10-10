@@ -10,7 +10,7 @@ def test_base_json_hook(run_line):
     """
     response = RegisteredResponse(
         service="transfer",
-        path="/foo",
+        path="/v0.10/foo",
         status=400,
         json={"bar": "baz"},
     ).add()

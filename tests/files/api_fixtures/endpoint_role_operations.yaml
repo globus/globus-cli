@@ -6,7 +6,7 @@ metadata:
 
 transfer:
   # Endpoint Introspect
-  - path: /endpoint/c574170d-3690-4343-bd16-2c9e49bd1ab0
+  - path: /v0.10/endpoint/c574170d-3690-4343-bd16-2c9e49bd1ab0
     method: get
     json:
       {

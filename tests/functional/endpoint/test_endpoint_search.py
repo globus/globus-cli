@@ -125,7 +125,7 @@ def singular_search_response():
     owner_string = "globus@globus.org"
     return RegisteredResponse(
         service="transfer",
-        path="/endpoint_search",
+        path="/v0.10/endpoint_search",
         metadata={
             "collection_id": collection_id,
             "endpoint_id": endpoint_id,

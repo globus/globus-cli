@@ -4,7 +4,7 @@ metadata:
   permission_id: "fbe71e48-9fb4-4265-a5b5-4408d8bb5d1b"
 
 transfer:
-  - path: /endpoint/1405823f-0597-4a16-b296-46d4f0ae4b15/access
+  - path: /v0.10/endpoint/1405823f-0597-4a16-b296-46d4f0ae4b15/access
     method: post
     json:
       {
@@ -15,7 +15,7 @@ transfer:
         "access_id": 12345,
         "message": "Access rule created successfully."
       }
-  - path: /endpoint/1405823f-0597-4a16-b296-46d4f0ae4b15/access/fbe71e48-9fb4-4265-a5b5-4408d8bb5d1b
+  - path: /v0.10/endpoint/1405823f-0597-4a16-b296-46d4f0ae4b15/access/fbe71e48-9fb4-4265-a5b5-4408d8bb5d1b
     method: put
     json:
       {
@@ -25,7 +25,7 @@ transfer:
         "request_id": "abc123",
         "resource": "/endpoint/1405823f-0597-4a16-b296-46d4f0ae4b15/access/fbe71e48-9fb4-4265-a5b5-4408d8bb5d1b"
       }
-  - path: /endpoint/1405823f-0597-4a16-b296-46d4f0ae4b15/access/fbe71e48-9fb4-4265-a5b5-4408d8bb5d1b
+  - path: /v0.10/endpoint/1405823f-0597-4a16-b296-46d4f0ae4b15/access/fbe71e48-9fb4-4265-a5b5-4408d8bb5d1b
     method: get
     json:
       {

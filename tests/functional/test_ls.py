@@ -85,7 +85,7 @@ def test_orderby_encoding(run_line, go_ep1_id):
     load_response(
         RegisteredResponse(
             service="transfer",
-            path=f"/operation/endpoint/{go_ep1_id}/ls",
+            path=f"/v0.10/operation/endpoint/{go_ep1_id}/ls",
             json={
                 "DATA": [],
             },

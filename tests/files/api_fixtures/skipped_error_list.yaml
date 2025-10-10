@@ -2,7 +2,7 @@ metadata:
   task_id: "549ef13c-600f-11eb-9608-0afa7b051b85"
 
 transfer:
-  - path: /task/549ef13c-600f-11eb-9608-0afa7b051b85/skipped_errors
+  - path: /v0.10/task/549ef13c-600f-11eb-9608-0afa7b051b85/skipped_errors
     method: get
     status: 200
     json:

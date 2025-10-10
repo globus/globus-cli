@@ -2,7 +2,7 @@ metadata:
   task_id: 42277910-0c18-11ec-ba76-138ac5bdb19f
 
 transfer:
-  - path: /task_list
+  - path: /v0.10/task_list
     json:
       {
         "DATA": [
@@ -67,7 +67,7 @@ transfer:
         "offset": 0,
         "total": 1
       }
-  - path: /task/42277910-0c18-11ec-ba76-138ac5bdb19f/cancel
+  - path: /v0.10/task/42277910-0c18-11ec-ba76-138ac5bdb19f/cancel
     method: post
     json:
       {

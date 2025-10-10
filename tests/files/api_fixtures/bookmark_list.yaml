@@ -14,7 +14,7 @@ metadata:
       path: /
 
 transfer:
-  - path: /bookmark_list
+  - path: /v0.10/bookmark_list
     json:
       {
         "DATA": [
@@ -44,7 +44,7 @@ transfer:
           }
         ]
       }
-  - path: /endpoint/1405823f-0597-4a16-b296-46d4f0ae4b15
+  - path: /v0.10/endpoint/1405823f-0597-4a16-b296-46d4f0ae4b15
     json:
       {
         "DATA_TYPE": "endpoint",
@@ -67,7 +67,7 @@ transfer:
           }
         ]
       }
-  - path: /endpoint/7b123e08-6638-11eb-8282-0275e0cda761
+  - path: /v0.10/endpoint/7b123e08-6638-11eb-8282-0275e0cda761
     status: 404
     json:
       {
@@ -75,7 +75,7 @@ transfer:
         "message": "Endpoint '7b123e08-6638-11eb-8282-0275e0cda761' has been deleted",
         "request_id": "TgFtEL2lG"
       }
-  - path: /endpoint/4c5f4e22-4628-4ab7-b57d-3af25c1ed1e4
+  - path: /v0.10/endpoint/4c5f4e22-4628-4ab7-b57d-3af25c1ed1e4
     json:
       {
         "DATA": [],

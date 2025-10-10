@@ -4,7 +4,7 @@ metadata:
   user_id: "e926d510-cb98-11e5-a6ac-0b0216052512"
 
 transfer:
-  - path: /endpoint/1405823f-0597-4a16-b296-46d4f0ae4b15
+  - path: /v0.10/endpoint/1405823f-0597-4a16-b296-46d4f0ae4b15
     json:
       {
         "DATA": [
@@ -24,7 +24,7 @@ transfer:
         "non_functional": false,
         "owner_id": "cf37806c-572c-47ff-88e2-511c646ef1a4"
       }
-  - path: /endpoint/cf37806c-572c-47ff-88e2-511c646ef1a4
+  - path: /v0.10/endpoint/cf37806c-572c-47ff-88e2-511c646ef1a4
     json:
      {
         "DATA": [
@@ -43,7 +43,7 @@ transfer:
         "non_functional": true,
         "owner_id": "cf37806c-572c-47ff-88e2-511c646ef1a4"
       }
-  - path: /endpoint/cf37806c-572c-47ff-88e2-511c646ef1a4/server_list
+  - path: /v0.10/endpoint/cf37806c-572c-47ff-88e2-511c646ef1a4/server_list
     json:
      {
         "DATA": [

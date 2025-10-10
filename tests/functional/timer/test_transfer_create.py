@@ -84,7 +84,7 @@ def make_non_ha_mapped_collection():
     load_response(
         RegisteredResponse(
             service="transfer",
-            path=f"/endpoint/{mapped_collection_id}",
+            path=f"/v0.10/endpoint/{mapped_collection_id}",
             method="GET",
             json={
                 "DATA": [

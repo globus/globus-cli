@@ -38,7 +38,7 @@ def test_transfer_call_unauthorized(run_line):
     ep_id = str(uuid.uuid1())
     RegisteredResponse(
         service="transfer",
-        path=f"/operation/endpoint/{ep_id}/ls",
+        path=f"/v0.10/operation/endpoint/{ep_id}/ls",
         status=401,
         json={
             "code": "ClientError.AuthenticationFailed",

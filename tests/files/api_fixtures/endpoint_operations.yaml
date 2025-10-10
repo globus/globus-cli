@@ -5,7 +5,7 @@ metadata:
   go_ep2_id: "313ce13e-b597-5858-ae13-29e46fea26e6"
 
 transfer:
-  - path: /endpoint
+  - path: /v0.10/endpoint
     method: post
     json:
       {
@@ -16,7 +16,7 @@ transfer:
         "id": "1405823f-0597-4a16-b296-46d4f0ae4b15",
         "request_id": "ABCdef789"
       }
-  - path: /endpoint/1405823f-0597-4a16-b296-46d4f0ae4b15
+  - path: /v0.10/endpoint/1405823f-0597-4a16-b296-46d4f0ae4b15
     method: put
     json:
       {
@@ -26,7 +26,7 @@ transfer:
         "request_id": "SlzMEdxjp",
         "resource": "/endpoint/1405823f-0597-4a16-b296-46d4f0ae4b15"
       }
-  - path: /endpoint/1405823f-0597-4a16-b296-46d4f0ae4b15/subscription
+  - path: /v0.10/endpoint/1405823f-0597-4a16-b296-46d4f0ae4b15/subscription
     method: put
     json:
       {
@@ -36,7 +36,7 @@ transfer:
         "request_id": "ABCdef789",
         "resource": "/endpoint/1405823f-0597-4a16-b296-46d4f0ae4b15"
       }
-  - path: /endpoint/1405823f-0597-4a16-b296-46d4f0ae4b15
+  - path: /v0.10/endpoint/1405823f-0597-4a16-b296-46d4f0ae4b15
     json:
       {
         "DATA_TYPE": "endpoint",
@@ -89,7 +89,7 @@ transfer:
           }
         ]
       }
-  - path: /shared_endpoint
+  - path: /v0.10/shared_endpoint
     method: post
     json:
       {
@@ -100,7 +100,7 @@ transfer:
         "request_id": "ABCdef789"
       }
   # shared EP
-  - path: /endpoint/b379e973-f5c5-4501-8377-5a0ecf37a99b
+  - path: /v0.10/endpoint/b379e973-f5c5-4501-8377-5a0ecf37a99b
     method: put
     json:
       {
@@ -110,7 +110,7 @@ transfer:
         "request_id": "SlzMEdxjp",
         "resource": "/endpoint/b379e973-f5c5-4501-8377-5a0ecf37a99b"
       }
-  - path: /endpoint/b379e973-f5c5-4501-8377-5a0ecf37a99b/subscription
+  - path: /v0.10/endpoint/b379e973-f5c5-4501-8377-5a0ecf37a99b/subscription
     method: put
     json:
       {
@@ -120,7 +120,7 @@ transfer:
         "request_id": "ABCdef789",
         "resource": "/endpoint/b379e973-f5c5-4501-8377-5a0ecf37a99b"
       }
-  - path: /endpoint/b379e973-f5c5-4501-8377-5a0ecf37a99b
+  - path: /v0.10/endpoint/b379e973-f5c5-4501-8377-5a0ecf37a99b
     json:
       {
         "DATA_TYPE": "endpoint",
@@ -165,7 +165,7 @@ transfer:
         ]
       }
   # gcp endpoint
-  - path: /endpoint/06e2c959-d311-4bab-b2ea-25ad77d9fc12
+  - path: /v0.10/endpoint/06e2c959-d311-4bab-b2ea-25ad77d9fc12
     method: put
     json:
       {
@@ -175,7 +175,7 @@ transfer:
         "request_id": "SlzMEdxjp",
         "resource": "/endpoint/06e2c959-d311-4bab-b2ea-25ad77d9fc12"
       }
-  - path: /endpoint/06e2c959-d311-4bab-b2ea-25ad77d9fc12/subscription
+  - path: /v0.10/endpoint/06e2c959-d311-4bab-b2ea-25ad77d9fc12/subscription
     method: put
     json:
       {
@@ -185,7 +185,7 @@ transfer:
         "request_id": "ABCdef789",
         "resource": "/endpoint/06e2c959-d311-4bab-b2ea-25ad77d9fc12"
       }
-  - path: /endpoint/06e2c959-d311-4bab-b2ea-25ad77d9fc12
+  - path: /v0.10/endpoint/06e2c959-d311-4bab-b2ea-25ad77d9fc12
     json:
       {
         "DATA_TYPE": "endpoint",
@@ -244,7 +244,7 @@ transfer:
           }
         ]
       }
-  - path: /endpoint/313ce13e-b597-5858-ae13-29e46fea26e6
+  - path: /v0.10/endpoint/313ce13e-b597-5858-ae13-29e46fea26e6
     json:
       {
         "DATA": [
@@ -332,7 +332,7 @@ transfer:
         "user_message_link": null,
         "username": "go"
       }
-  - path: /endpoint_search
+  - path: /v0.10/endpoint_search
     json:
       {
         "DATA_TYPE": "endpoint_list",
@@ -551,7 +551,7 @@ transfer:
           }
         ]
       }
-  - path: /endpoint/1405823f-0597-4a16-b296-46d4f0ae4b15
+  - path: /v0.10/endpoint/1405823f-0597-4a16-b296-46d4f0ae4b15
     method: delete
     json:
       {
@@ -561,7 +561,7 @@ transfer:
         "request_id": "X8AlP9Ned",
         "resource": "/endpoint/1405823f-0597-4a16-b296-46d4f0ae4b15"
       }
-  - path: /endpoint/1405823f-0597-4a16-b296-46d4f0ae4b15/access
+  - path: /v0.10/endpoint/1405823f-0597-4a16-b296-46d4f0ae4b15/access
     method: post
     json:
       {

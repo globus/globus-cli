@@ -2,7 +2,7 @@ metadata:
   collection_id_success: "11111111-1111-1111-1111-111111111111"
   collection_id_fail: "ffffffff-ffff-ffff-ffff-ffffffffffff"
 transfer:
-  - path: /endpoint/11111111-1111-1111-1111-111111111111
+  - path: /v0.10/endpoint/11111111-1111-1111-1111-111111111111
     method: get
     json:
       {
@@ -108,7 +108,7 @@ transfer:
         "user_message_link": null,
         "username": "u_yyyyyyyyyyyyyyyyyyyyyyyyyy"
       }
-  - path: /endpoint/ffffffff-ffff-ffff-ffff-ffffffffffff
+  - path: /v0.10/endpoint/ffffffff-ffff-ffff-ffff-ffffffffffff
     method: get
     json:
       {
@@ -215,7 +215,7 @@ transfer:
         "user_message_link": null,
         "username": "u_uuuuuuuuuuuuuuuuuuuuuuuuuu"
       }
-  - path: /endpoint/11111111-1111-1111-1111-111111111111/subscription_admin_verified
+  - path: /v0.10/endpoint/11111111-1111-1111-1111-111111111111/subscription_admin_verified
     method: put
     json:
       {
@@ -225,7 +225,7 @@ transfer:
         "request_id": "9jFjlPyEQ",
         "resource": "/endpoint/11111111-1111-1111-1111-111111111111/subscription_admin_verified",
       }
-  - path: /endpoint/ffffffff-ffff-ffff-ffff-ffffffffffff/subscription_admin_verified
+  - path: /v0.10/endpoint/ffffffff-ffff-ffff-ffff-ffffffffffff/subscription_admin_verified
     method: put
     status: 403
     json:

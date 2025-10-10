@@ -4,7 +4,7 @@ metadata:
 # the description field was generated from the CLI changelog with
 #   head -n20 changelog.adoc | sed ':a;N;$!ba;s/\n/\\n/g'
 transfer:
-  - path: /endpoint/1405823f-0597-4a16-b296-46d4f0ae4b15
+  - path: /v0.10/endpoint/1405823f-0597-4a16-b296-46d4f0ae4b15
     json:
       {
         "DATA_TYPE": "endpoint",

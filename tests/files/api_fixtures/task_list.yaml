@@ -1,5 +1,5 @@
 transfer:
-  - path: /task_list
+  - path: /v0.10/task_list
     json:
       {
         "DATA": [

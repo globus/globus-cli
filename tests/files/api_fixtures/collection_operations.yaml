@@ -11,7 +11,7 @@ metadata:
   guest_display_name: "Happy Fun Guest Collection Name"
 
 transfer:
-  - path: /endpoint/1405823f-0597-4a16-b296-46d4f0ae4b15
+  - path: /v0.10/endpoint/1405823f-0597-4a16-b296-46d4f0ae4b15
     json:
       {
         "DATA": [
@@ -48,7 +48,7 @@ transfer:
         "shareable": false,
         "subscription_id": null
       }
-  - path: /endpoint/0e4a77f8-b778-4d5c-abaa-e1254e71427f
+  - path: /v0.10/endpoint/0e4a77f8-b778-4d5c-abaa-e1254e71427f
     json:
       {
         "DATA": [
@@ -85,7 +85,7 @@ transfer:
         "shareable": false,
         "subscription_id": null
       }
-  - path: /endpoint/cf37806c-572c-47ff-88e2-511c646ef1a4
+  - path: /v0.10/endpoint/cf37806c-572c-47ff-88e2-511c646ef1a4
     json:
      {
         "DATA": [
@@ -122,7 +122,7 @@ transfer:
         "shareable": false,
         "subscription_id": null
       }
-  - path: /endpoint/cf37806c-572c-47ff-88e2-511c646ef1a4/server_list
+  - path: /v0.10/endpoint/cf37806c-572c-47ff-88e2-511c646ef1a4/server_list
     json:
      {
         "DATA": [
@@ -134,7 +134,7 @@ transfer:
         "DATA_TYPE": "endpoint_server_list"
       }
   # GCP endpoint
-  - path: /endpoint/06e2c959-d311-4bab-b2ea-25ad77d9fc12
+  - path: /v0.10/endpoint/06e2c959-d311-4bab-b2ea-25ad77d9fc12
     json:
       {
         "DATA": [

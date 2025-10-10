@@ -20,7 +20,7 @@ def tests_consent_required_gets_preference_over_authorization_parameters(run_lin
 
     RegisteredResponse(
         service="transfer",
-        path=f"/operation/endpoint/{ep_id}/ls",
+        path=f"/v0.10/operation/endpoint/{ep_id}/ls",
         status=403,
         json={
             "authorization_parameters": {
@@ -49,7 +49,7 @@ def test_session_required_policies(run_line, num_policies):
 
     RegisteredResponse(
         service="transfer",
-        path=f"/operation/endpoint/{ep_id}/ls",
+        path=f"/v0.10/operation/endpoint/{ep_id}/ls",
         status=403,
         json={
             "authorization_parameters": {

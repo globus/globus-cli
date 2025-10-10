@@ -7,7 +7,7 @@ metadata:
     example.com: [999]
 
 transfer:
-  - path: /endpoint/096a65b1-3e90-44e6-9cb4-550b2d5401c0/server
+  - path: /v0.10/endpoint/096a65b1-3e90-44e6-9cb4-550b2d5401c0/server
     method: post
     json:
       {
@@ -18,7 +18,7 @@ transfer:
         "resource": "/endpoint/096a65b1-3e90-44e6-9cb4-550b2d5401c0/server",
         "request_id": "ABCdef789"
       }
-  - path: /endpoint/096a65b1-3e90-44e6-9cb4-550b2d5401c0/server/985
+  - path: /v0.10/endpoint/096a65b1-3e90-44e6-9cb4-550b2d5401c0/server/985
     method: delete
     json:
       {
@@ -33,7 +33,7 @@ transfer:
   # so several of these include both endpoint data and server data
   #
   # server endpoint
-  - path: /endpoint/096a65b1-3e90-44e6-9cb4-550b2d5401c0
+  - path: /v0.10/endpoint/096a65b1-3e90-44e6-9cb4-550b2d5401c0
     json:
       {
         "DATA_TYPE": "endpoint",
@@ -78,7 +78,7 @@ transfer:
           }
         ]
       }
-  - path: /endpoint/096a65b1-3e90-44e6-9cb4-550b2d5401c0/server_list
+  - path: /v0.10/endpoint/096a65b1-3e90-44e6-9cb4-550b2d5401c0/server_list
     json:
       {
         "DATA_TYPE": "endpoint_server_list",
@@ -95,7 +95,7 @@ transfer:
         ]
       }
   # gcp endpoint
-  - path: /endpoint/06e2c959-d311-4bab-b2ea-25ad77d9fc12
+  - path: /v0.10/endpoint/06e2c959-d311-4bab-b2ea-25ad77d9fc12
     json:
       {
         "DATA_TYPE": "endpoint",
@@ -146,7 +146,7 @@ transfer:
           }
         ]
       }
-  - path: /endpoint/06e2c959-d311-4bab-b2ea-25ad77d9fc12/server_list
+  - path: /v0.10/endpoint/06e2c959-d311-4bab-b2ea-25ad77d9fc12/server_list
     json:
       {
         "DATA_TYPE": "endpoint_server_list",
@@ -169,7 +169,7 @@ transfer:
         ]
       }
   # many servers endpoint
-  - path: /endpoint/9fbee8d6-d705-4f86-80cf-32f6b265ce88
+  - path: /v0.10/endpoint/9fbee8d6-d705-4f86-80cf-32f6b265ce88
     json:
       {
         "DATA_TYPE": "endpoint",
@@ -241,7 +241,7 @@ transfer:
           }
         ]
       }
-  - path: /endpoint/9fbee8d6-d705-4f86-80cf-32f6b265ce88/server_list
+  - path: /v0.10/endpoint/9fbee8d6-d705-4f86-80cf-32f6b265ce88/server_list
     json:
       {
         "DATA_TYPE": "endpoint_server_list",
