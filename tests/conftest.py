@@ -89,7 +89,7 @@ def _mock_token_response_data(rs_name, scope, token_blob=None):
         #   auth response structure.
         scope = " ".join(scope)
     return {
-        "scope": scope,
+        "scope": str(scope),
         "refresh_token": f"{token_blob}RT",
         "access_token": f"{token_blob}AT",
         "token_type": "bearer",
