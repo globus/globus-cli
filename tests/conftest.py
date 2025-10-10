@@ -17,7 +17,6 @@ from click.testing import CliRunner
 from globus_sdk.testing import register_response_set
 from globus_sdk.scopes import TimersScopes
 from globus_sdk.token_storage.legacy import SQLiteAdapter
-from globus_sdk.transport import RequestsTransport
 from ruamel.yaml import YAML
 
 import globus_cli
@@ -414,14 +413,20 @@ def _register_all_response_sets():
 
 @pytest.fixture(autouse=True)
 def disable_client_retries(monkeypatch):
-    class NoRetryTransport(RequestsTransport):
-        DEFAULT_MAX_RETRIES = 0
+    for client_class in (
+        globus_sdk.TransferClient,
+        globus_sdk.AuthClient,
+        globus_sdk.NativeAppAuthClient,
+        globus_sdk.ConfidentialAppAuthClient,
+    ):
+        _apply_no_retries_patch(client_class, monkeypatch)
 
-    monkeypatch.setattr(globus_sdk.TransferClient, "transport_class", NoRetryTransport)
-    monkeypatch.setattr(globus_sdk.AuthClient, "transport_class", NoRetryTransport)
-    monkeypatch.setattr(
-        globus_sdk.NativeAppAuthClient, "transport_class", NoRetryTransport
-    )
-    monkeypatch.setattr(
-        globus_sdk.ConfidentialAppAuthClient, "transport_class", NoRetryTransport
-    )
+
+def _apply_no_retries_patch(client_class, monkeypatch):
+    true_init = client_class.__init__
+
+    def patched_init(self, *args, **kwargs):
+        true_init(self, *args, **kwargs)
+        self.retry_config.max_retries = 0
+
+    monkeypatch.setattr(client_class, "__init__", patched_init)
