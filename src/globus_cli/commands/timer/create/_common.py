@@ -143,7 +143,7 @@ def _create_schedule(
         )
 
 
-def _to_local_tz(start: datetime | None) -> datetime | globus_sdk.utils.MissingType:
+def _to_local_tz(start: datetime | None) -> datetime | globus_sdk.MissingType:
     if start is None:
         return globus_sdk.MISSING
 

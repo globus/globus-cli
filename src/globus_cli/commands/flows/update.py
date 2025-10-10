@@ -4,7 +4,7 @@ import typing as t
 import uuid
 
 import click
-from globus_sdk.utils import MISSING
+import globus_sdk
 
 from globus_cli.commands.flows._common import (
     description_option,
@@ -185,7 +185,7 @@ def update_command(
         run_managers=run_managers,
         run_monitors=run_monitors,
         keywords=keywords,
-        subscription_id=subscription_id or MISSING,
+        subscription_id=subscription_id or globus_sdk.MISSING,
     )
 
     # Configure formatters for principals
