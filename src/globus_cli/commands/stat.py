@@ -40,7 +40,7 @@ def stat_command(
     login_manager: LoginManager,
     *,
     endpoint_plus_path: tuple[uuid.UUID, str],
-    local_user: str | None,
+    local_user: str | globus_sdk.MissingType,
 ) -> None:
     """
     Get the status of a path on a collection.

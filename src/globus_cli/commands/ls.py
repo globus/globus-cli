@@ -4,6 +4,7 @@ import typing as t
 import uuid
 
 import click
+import globus_sdk
 
 from globus_cli.login_manager import LoginManager
 from globus_cli.parsing import (
@@ -187,7 +188,7 @@ def ls_command(
         ...,
     ],
     filter_val: str | None,
-    local_user: str | None,
+    local_user: str | globus_sdk.MissingType,
 ) -> None:
     """
     List the contents of a directory on an endpoint. If no path is given, the default
@@ -231,8 +232,7 @@ def ls_command(
         ls_params["orderby"] = ",".join(f"{o[0]} {o[1]}" for o in orderby)
     if path:
         ls_params["path"] = path
-    if local_user:
-        ls_params["local_user"] = local_user
+    ls_params["local_user"] = local_user
 
     # this char has special meaning in the LS API's filter clause
     # can't be part of the pattern (but we don't support globbing across

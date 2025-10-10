@@ -59,7 +59,7 @@ def rm_command(
     deadline: str | None,
     skip_activation_check: bool,
     notify: dict[str, bool],
-    local_user: str | None,
+    local_user: str | globus_sdk.MissingType,
     meow: bool,
     heartbeat: bool,
     polling_interval: int,

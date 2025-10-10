@@ -3,6 +3,7 @@ from __future__ import annotations
 import uuid
 
 import click
+import globus_sdk
 
 from globus_cli.login_manager import LoginManager
 from globus_cli.parsing import command, endpoint_id_arg, local_user_option
@@ -32,7 +33,7 @@ def rename_command(
     endpoint_id: uuid.UUID,
     source: str,
     destination: str,
-    local_user: str | None,
+    local_user: str | globus_sdk.MissingType,
 ) -> None:
     """Rename a file or directory on an endpoint.
 

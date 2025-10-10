@@ -3,6 +3,7 @@ from __future__ import annotations
 import uuid
 
 import click
+import globus_sdk
 
 from globus_cli.login_manager import LoginManager
 from globus_cli.parsing import ENDPOINT_PLUS_REQPATH, command, local_user_option
@@ -28,7 +29,7 @@ def mkdir_command(
     login_manager: LoginManager,
     *,
     endpoint_plus_path: tuple[uuid.UUID, str],
-    local_user: str | None,
+    local_user: str | globus_sdk.MissingType,
 ) -> None:
     """Make a directory on an endpoint at the given path."""
     endpoint_id, path = endpoint_plus_path

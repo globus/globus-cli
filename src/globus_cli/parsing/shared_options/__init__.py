@@ -7,6 +7,8 @@ import typing as t
 
 import click
 
+import globus_sdk
+
 from globus_cli.parsing.command_state import (
     debug_option,
     format_option,
@@ -379,6 +381,7 @@ def local_user_option(f: C) -> C:
             "account to map to. Only usable with Globus Connect Server v5 mapped "
             "collections."
         ),
+        default=globus_sdk.MISSING,
     )(f)
 
 
