@@ -3,6 +3,7 @@ from __future__ import annotations
 import uuid
 
 import click
+import globus_sdk
 from globus_sdk.services.gcs import UserCredentialDocument
 
 from globus_cli.login_manager import LoginManager
@@ -27,7 +28,7 @@ def s3(
     local_username: str,
     s3_key_id: str,
     s3_secret_key: str,
-    display_name: str | None,
+    display_name: str | globus_sdk.MissingType,
 ) -> None:
     """
     Create a User Credential for an S3 Storage Gateway.
@@ -44,7 +45,9 @@ def s3(
 
     data = UserCredentialDocument(
         storage_gateway_id=storage_gateway,
-        identity_id=auth_client.maybe_lookup_identity_id(globus_identity),
+        identity_id=(
+            auth_client.maybe_lookup_identity_id(globus_identity) or globus_sdk.MISSING
+        ),
         username=local_username,
         policies=policies,
         display_name=display_name,

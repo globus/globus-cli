@@ -1,6 +1,7 @@
 import typing as t
 
 import click
+import globus_sdk
 
 from globus_cli.types import AnyCommand
 
@@ -30,7 +31,11 @@ def user_credential_create_and_update_params(
             f = click.argument("globus-identity")(f)
             f = click.argument("storage-gateway", type=click.UUID)(f)
 
-        f = click.option("--display-name", help="Display name for the credential.")(f)
+        f = click.option(
+            "--display-name",
+            help="Display name for the credential.",
+            default=globus_sdk.MISSING,
+        )(f)
 
         return f
 

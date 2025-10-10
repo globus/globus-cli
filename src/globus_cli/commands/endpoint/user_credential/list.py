@@ -3,6 +3,7 @@ from __future__ import annotations
 import uuid
 
 import click
+import globus_sdk
 
 from globus_cli.login_manager import LoginManager
 from globus_cli.parsing import command, endpoint_id_arg
@@ -13,7 +14,7 @@ from globus_cli.termio import Field, display, formatters
 @endpoint_id_arg
 @click.option(
     "--storage-gateway",
-    default=None,
+    default=globus_sdk.MISSING,
     type=click.UUID,
     help=(
         "Filter results to User Credentials on a Storage Gateway specified by "
@@ -25,7 +26,7 @@ def user_credential_list(
     login_manager: LoginManager,
     *,
     endpoint_id: uuid.UUID,
-    storage_gateway: uuid.UUID | None,
+    storage_gateway: uuid.UUID | globus_sdk.MissingType,
 ) -> None:
     """
     List all of your User Credentials on a Globus Connect Server v5 Endpoint.

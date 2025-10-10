@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import uuid
 
+import globus_sdk
 from globus_sdk.services.gcs import UserCredentialDocument
 
 from globus_cli.login_manager import LoginManager
@@ -22,7 +23,7 @@ def posix(
     storage_gateway: uuid.UUID,
     globus_identity: str,
     local_username: str,
-    display_name: str | None,
+    display_name: str | globus_sdk.MissingType,
 ) -> None:
     """
     Create a User Credential for a POSIX storage gateway.
@@ -32,7 +33,9 @@ def posix(
 
     data = UserCredentialDocument(
         storage_gateway_id=storage_gateway,
-        identity_id=auth_client.maybe_lookup_identity_id(globus_identity),
+        identity_id=(
+            auth_client.maybe_lookup_identity_id(globus_identity) or globus_sdk.MISSING
+        ),
         username=local_username,
         display_name=display_name,
     )
