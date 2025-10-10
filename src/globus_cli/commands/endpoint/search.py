@@ -3,6 +3,7 @@ from __future__ import annotations
 import typing as t
 
 import click
+import globus_sdk
 from globus_sdk.paging import Paginator
 
 from globus_cli.login_manager import LoginManager
@@ -70,7 +71,7 @@ $ globus endpoint search --filter-scope my-endpoints
 )
 @click.option(
     "--filter-entity-type",
-    default=None,
+    default=globus_sdk.MISSING,
     type=click.Choice(
         (
             "GCP_mapped_collection",
@@ -83,12 +84,12 @@ $ globus endpoint search --filter-scope my-endpoints
     ),
     help="Filter search results to endpoints of a specific entity type.",
 )
-@click.argument("filter_fulltext", required=False)
+@click.argument("filter_fulltext", required=False, default=globus_sdk.MISSING)
 @LoginManager.requires_login("auth", "transfer")
 def endpoint_search(
     login_manager: LoginManager,
     *,
-    filter_fulltext: str | None,
+    filter_fulltext: str | globus_sdk.MissingType,
     limit: int,
     filter_owner_id: str | None,
     filter_scope: t.Literal[
@@ -109,7 +110,7 @@ def endpoint_search(
             "GCSv5_mapped_collection",
             "GCSv5_guest_collection",
         ]
-        | None
+        | globus_sdk.MissingType
     ),
 ) -> None:
     """
@@ -145,7 +146,7 @@ def endpoint_search(
         paginator(
             filter_fulltext=filter_fulltext,
             filter_scope=filter_scope,
-            filter_owner_id=owner_id,
+            filter_owner_id=owner_id if owner_id is not None else globus_sdk.MISSING,
             filter_entity_type=filter_entity_type,
         ).items(),
         limit=limit,
