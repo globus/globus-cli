@@ -7,6 +7,7 @@ from collections import defaultdict
 
 import click
 import globus_sdk
+from globus_sdk.scopes import ScopeParser
 
 from globus_cli import termio, version
 from globus_cli._click_compat import shim_get_metavar
@@ -350,14 +351,17 @@ def _execute_service_command(
 def _handle_scope_string(
     login_manager: LoginManager,
     resource_server: str,
-    scope_string: tuple[str, ...],
+    scope_strings: tuple[str, ...],
 ) -> None:
     if not is_client_login():
         raise click.UsageError(
             "Scope requirements (--scope-string) are currently only "
             "supported for confidential-client authorized calls."
         )
-    login_manager.add_requirement(resource_server, scope_string)
+    login_manager.add_requirement(
+        resource_server,
+        tuple(scope for s in scope_strings for scope in ScopeParser.parse(s)),
+    )
 
 
 @group("api")
