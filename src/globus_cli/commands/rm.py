@@ -79,7 +79,6 @@ def rm_command(
     transfer_client = login_manager.get_transfer_client()
 
     delete_data = globus_sdk.DeleteData(
-        transfer_client,
         endpoint_id,
         label=label,
         recursive=recursive,
@@ -110,7 +109,7 @@ def rm_command(
     delete_data.add_item(path)
 
     if dry_run:
-        display(delete_data.data, response_key="DATA", fields=[Field("Path", "path")])
+        display(delete_data, response_key="DATA", fields=[Field("Path", "path")])
         # exit safely
         return
 
