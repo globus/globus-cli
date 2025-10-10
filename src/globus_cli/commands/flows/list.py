@@ -3,6 +3,7 @@ from __future__ import annotations
 import typing as t
 
 import click
+import globus_sdk
 from globus_sdk.paging import Paginator
 
 from globus_cli.login_manager import LoginManager
@@ -48,6 +49,7 @@ ORDER_BY_FIELDS = (
         "Filter results based on pattern matching within a subset of fields: "
         "[id, title, subtitle, description, flow_owner, flow_administrators]"
     ),
+    default=globus_sdk.MISSING,
 )
 @click.option(
     "--orderby",
@@ -104,7 +106,7 @@ def list_command(
         ],
         ...,
     ],
-    filter_fulltext: str | None,
+    filter_fulltext: str | globus_sdk.MissingType,
     limit: int,
 ) -> None:
     """
@@ -116,7 +118,7 @@ def list_command(
         paginator(
             # `filter_roles=()` results in an API error
             # the query param sent by the SDK would be `filter_roles=` (empty string)
-            filter_roles=filter_roles or None,
+            filter_roles=filter_roles or globus_sdk.MISSING,
             filter_fulltext=filter_fulltext,
             orderby=",".join(f"{field} {order}" for field, order in orderby),
         ).items(),
