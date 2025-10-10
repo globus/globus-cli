@@ -96,9 +96,6 @@ profile = "black"
 addopts = "-n auto --maxprocesses 4 --dist loadscope --timeout 3 --color=yes"
 filterwarnings = [
     "error",
-    # ignore SDK warnings for 'filter_role' until
-    # 'filter_roles' update is applied
-    "ignore:The `filter_role` parameter is deprecated.:globus_sdk.exc.RemovedInV4Warning:",
 ]
 
 [tool.coverage.run]
