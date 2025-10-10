@@ -2,7 +2,7 @@ import uuid
 
 import globus_sdk
 from globus_sdk.testing import RegisteredResponse, load_response
-from globus_sdk.scopes import SpecificFlowScopeBuilder
+from globus_sdk.scopes import SpecificFlowScopes
 
 
 def test_create_flow_timer(run_line, userinfo_mocker, logged_in_user_id):
@@ -39,7 +39,7 @@ def setup_timer_consent_tree_response(identity_id, *flow_ids):
             json={
                 "consents": [
                     {
-                        "scope_name": globus_sdk.TimersClient.scopes.timer,
+                        "scope_name": str(globus_sdk.TimersClient.scopes.timer),
                         "scope": str(uuid.uuid1()),
                         "dependency_path": [200],
                         "id": 200,
@@ -48,7 +48,7 @@ def setup_timer_consent_tree_response(identity_id, *flow_ids):
                 ]
                 + [
                     {
-                        "scope_name": SpecificFlowScopeBuilder(flow_id).user,
+                        "scope_name": str(SpecificFlowScopes(flow_id).user),
                         "scope": str(uuid.uuid1()),
                         "dependency_path": [200, 2000 + idx],
                         "id": 2000 + idx,

@@ -4,12 +4,11 @@ import typing as t
 import uuid
 
 import click
-import globus_sdk
 from click import Context, Parameter
 from globus_sdk.scopes import (
-    GCSCollectionScopeBuilder,
-    GCSEndpointScopeBuilder,
-    SpecificFlowScopeBuilder,
+    GCSCollectionScopes,
+    GCSEndpointScopes,
+    SpecificFlowScopes,
     TimersScopes,
 )
 from globus_sdk.services.flows import SpecificFlowClient
@@ -208,11 +207,11 @@ def login_command(
             else:
                 server_id, collection_id = gcs_server
             rs_name = str(server_id)
-            scope = GCSEndpointScopeBuilder(rs_name).make_mutable("manage_collections")
+            scope = GCSEndpointScopes(rs_name).manage_collections
             if collection_id:
-                data_access = GCSCollectionScopeBuilder(str(collection_id)).data_access
-                scope.add_dependency(data_access)
-            manager.add_requirement(rs_name, [str(scope)])
+                data_access = GCSCollectionScopes(str(collection_id)).data_access
+                scope = scope.with_dependency(data_access)
+            manager.add_requirement(rs_name, [scope])
 
     for flow_id in flow_ids:
         # Rely on the SpecificFlowClient's scope builder.
@@ -222,8 +221,8 @@ def login_command(
 
     for resource_type, resource_id in timer_targets:
         assert resource_type == "flow"
-        flow_scope = globus_sdk.Scope(SpecificFlowScopeBuilder(str(resource_id)).user)
-        required_scope = globus_sdk.Scope(TimersScopes.timer, dependencies=[flow_scope])
+        flow_scope = SpecificFlowScopes(resource_id).user
+        required_scope = TimersScopes.timer.with_dependency(flow_scope)
         manager.add_requirement(TimersScopes.resource_server, [required_scope])
 
     # if not forcing, stop if user already logged in

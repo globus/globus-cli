@@ -6,7 +6,7 @@ import uuid
 
 import click
 import globus_sdk
-from globus_sdk.scopes import GCSCollectionScopeBuilder, Scope
+from globus_sdk.scopes import GCSCollectionScopes, Scope
 
 from globus_cli.endpointish import Endpointish
 from globus_cli.login_manager import LoginManager, is_client_login
@@ -275,11 +275,13 @@ def _derive_needed_scopes(
     # Render the fully nested scope strings for each target
     scopes_needed = {}
     for target in needs_data_access:
-        target_scope = GCSCollectionScopeBuilder(target).data_access
-        scopes_needed[target] = _ez_make_nested_scope(
-            globus_sdk.TimerClient.scopes.timer,
-            globus_sdk.TransferClient.scopes.all,
-            target_scope,
+        # FIXME: the target scope should be made optional (atomically revocable)
+        target_scope = GCSCollectionScopes(target).data_access
+        timers_scope = globus_sdk.TimerClient.scopes.timer
+        transfer_scope = globus_sdk.TransferClient.scopes.all
+
+        scopes_needed[target] = timers_scope.with_dependency(
+            transfer_scope.with_dependency(target_scope)
         )
     return scopes_needed
 
@@ -304,11 +306,3 @@ def _derive_missing_scopes(
 
     # return these ultimately filtered requirements
     return will_request_data_access
-
-
-# shorthand helper for constructing a nested scope
-def _ez_make_nested_scope(*scope_strings: str) -> Scope:
-    current_node = Scope(scope_strings[-1])
-    for current_scope in scope_strings[-2::-1]:
-        current_node = Scope(current_scope, dependencies=[current_node])
-    return current_node

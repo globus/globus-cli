@@ -9,7 +9,7 @@ import requests
 import responses
 from globus_sdk.testing import RegisteredResponse, get_last_request, load_response
 from globus_sdk.config import get_service_url
-from globus_sdk.scopes import GCSCollectionScopeBuilder
+from globus_sdk.scopes import GCSCollectionScopes
 
 
 @pytest.fixture
@@ -49,14 +49,14 @@ def setup_timer_consent_tree_response(identity_id, *data_access_collection_ids):
             json={
                 "consents": [
                     {
-                        "scope_name": globus_sdk.TimerClient.scopes.timer,
+                        "scope_name": str(globus_sdk.TimerClient.scopes.timer),
                         "scope": str(uuid.uuid1()),
                         "dependency_path": [100],
                         "id": 100,
                         **_dummy_consent_fields,
                     },
                     {
-                        "scope_name": globus_sdk.TransferClient.scopes.all,
+                        "scope_name": str(globus_sdk.TransferClient.scopes.all),
                         "scope": str(uuid.uuid1()),
                         "dependency_path": [100, 101],
                         "id": 101,
@@ -65,7 +65,7 @@ def setup_timer_consent_tree_response(identity_id, *data_access_collection_ids):
                 ]
                 + [
                     {
-                        "scope_name": GCSCollectionScopeBuilder(name).data_access,
+                        "scope_name": str(GCSCollectionScopes(name).data_access),
                         "scope": str(uuid.uuid1()),
                         "dependency_path": [100, 101, 1000 + idx],
                         "id": 1000 + idx,
