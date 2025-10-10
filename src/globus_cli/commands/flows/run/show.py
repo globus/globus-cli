@@ -28,7 +28,7 @@ def show_command(
     auth_client = login_manager.get_auth_client()
 
     response = flows_client.get_run(
-        run_id, include_flow_description=include_flow_description or None
+        run_id, include_flow_description=include_flow_description
     )
 
     principal_formatter = formatters.auth.PrincipalURNFormatter(auth_client)

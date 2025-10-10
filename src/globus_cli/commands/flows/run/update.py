@@ -3,6 +3,7 @@ from __future__ import annotations
 import uuid
 
 import click
+import globus_sdk
 
 from globus_cli.login_manager import LoginManager
 from globus_cli.parsing import CommaDelimitedList, command, run_id_arg
@@ -15,6 +16,7 @@ from globus_cli.termio import Field, display, formatters
     "--label",
     type=str,
     help="A label to give the run.",
+    default=globus_sdk.MISSING,
 )
 @click.option(
     "--managers",
@@ -25,6 +27,7 @@ from globus_cli.termio import Field, display, formatters
 
         Passing an empty string will clear any existing run managers.
     """,
+    default=globus_sdk.MISSING,
 )
 @click.option(
     "--monitors",
@@ -35,6 +38,7 @@ from globus_cli.termio import Field, display, formatters
 
         Passing an empty string will clear any existing run monitors.
     """,
+    default=globus_sdk.MISSING,
 )
 @click.option(
     "--tags",
@@ -45,16 +49,17 @@ from globus_cli.termio import Field, display, formatters
 
         Passing an empty string will clear any existing tags.
     """,
+    default=globus_sdk.MISSING,
 )
 @LoginManager.requires_login("flows")
 def update_command(
     login_manager: LoginManager,
     *,
     run_id: uuid.UUID,
-    label: str | None = None,
-    run_monitors: list[str] | None = None,
-    run_managers: list[str] | None = None,
-    tags: list[str] | None = None,
+    label: str | globus_sdk.MissingType,
+    run_monitors: list[str] | globus_sdk.MissingType,
+    run_managers: list[str] | globus_sdk.MissingType,
+    tags: list[str] | globus_sdk.MissingType,
 ) -> None:
     """
     Update a run.
