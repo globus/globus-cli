@@ -12,7 +12,7 @@ metadata:
   group_user_remove_error: "bcb0b12e-fdde-4283-8d77-e484716ce310"
 
 groups:
-  - path: /groups/my_groups
+  - path: /v2/groups/my_groups
     method: get
     json:
       [
@@ -50,7 +50,7 @@ groups:
           ]
         }
     ]
-  - path: /groups
+  - path: /v2/groups
     method: post
     json:
       {
@@ -68,7 +68,7 @@ groups:
           "signup_fields": []
         }
       }
-  - path: /groups/8b7d57bc-1666-11ec-88b2-f50515619d57
+  - path: /v2/groups/8b7d57bc-1666-11ec-88b2-f50515619d57
     method: get
     json:
       {
@@ -96,7 +96,7 @@ groups:
         },
         "subscription_admin_verified_id": "e787245d-b5d8-47d1-8ff1-74bc3c5d72f3"
       }
-  - path: /groups/8b7d57bc-1666-11ec-88b2-f50515619d57
+  - path: /v2/groups/8b7d57bc-1666-11ec-88b2-f50515619d57
     method: put
     json:
       {
@@ -115,7 +115,7 @@ groups:
         },
         "subscription_admin_verified_id": "e787245d-b5d8-47d1-8ff1-74bc3c5d72f3"
       }
-  - path: /groups/8b7d57bc-1666-11ec-88b2-f50515619d57
+  - path: /v2/groups/8b7d57bc-1666-11ec-88b2-f50515619d57
     method: delete
     json:
       {
@@ -133,7 +133,7 @@ groups:
           "signup_fields": []
         }
       }
-  - path: /groups/8b7d57bc-1666-11ec-88b2-f50515619d57
+  - path: /v2/groups/8b7d57bc-1666-11ec-88b2-f50515619d57
     method: post
     json:
       {
@@ -147,7 +147,7 @@ groups:
           }
         ]
       }
-  - path: /groups/00000000-0000-0000-0000-000000000002
+  - path: /v2/groups/00000000-0000-0000-0000-000000000002
     method: post
     json:
       {
@@ -163,7 +163,7 @@ groups:
         }
       }
   # edit members request to test removal:
-  - path: /groups/7fa8b8c1-aad3-47cf-a844-4b1cdbf7c124
+  - path: /v2/groups/7fa8b8c1-aad3-47cf-a844-4b1cdbf7c124
     method: post
     json:
       {
@@ -177,7 +177,7 @@ groups:
           }
         ]
       }
-  - path: /groups/bcb0b12e-fdde-4283-8d77-e484716ce310
+  - path: /v2/groups/bcb0b12e-fdde-4283-8d77-e484716ce310
     method: post
     json:
       {
@@ -192,7 +192,7 @@ groups:
           ]
         }
       }
-  - path: /groups/8b7d57bc-1666-11ec-88b2-f50515619d57/subscription_admin_verified
+  - path: /v2/groups/8b7d57bc-1666-11ec-88b2-f50515619d57/subscription_admin_verified
     method: put
     json:
       {

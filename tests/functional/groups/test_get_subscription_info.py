@@ -10,7 +10,7 @@ def test_group_get_subscription_info_text(run_line):
 
     RegisteredResponse(
         service="groups",
-        path=f"/subscription_info/{subscription_id}",
+        path=f"/v2/subscription_info/{subscription_id}",
         json={
             "group_id": group_id,
             "subscription_id": subscription_id,

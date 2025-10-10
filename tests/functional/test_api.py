@@ -76,7 +76,7 @@ def test_api_groups_v2_path_stripping(run_line):
         RegisteredResponse(
             service="groups",
             status=200,
-            path="/foo",
+            path="/v2/foo",
             json={"foo": "bar"},
         )
     )

@@ -280,7 +280,7 @@ def test_group_invite_basic(run_line, action, with_id_arg):
     load_response(
         RegisteredResponse(
             service="groups",
-            path=f"/groups/{group_id}",
+            path=f"/v2/groups/{group_id}",
             json={
                 "description": "Un film Italiano muy bien conocido",
                 "enforce_session": False,
@@ -314,7 +314,7 @@ def test_group_invite_basic(run_line, action, with_id_arg):
     load_response(
         RegisteredResponse(
             service="groups",
-            path=f"/groups/{group_id}",
+            path=f"/v2/groups/{group_id}",
             method="POST",
             json={
                 action: [
@@ -350,7 +350,7 @@ def test_group_invite_failure(run_line, action, error_detail_present):
     load_response(
         RegisteredResponse(
             service="groups",
-            path=f"/groups/{group_id}",
+            path=f"/v2/groups/{group_id}",
             json={
                 "description": "Un film Italiano muy bien conocido",
                 "enforce_session": False,
@@ -388,7 +388,7 @@ def test_group_invite_failure(run_line, action, error_detail_present):
     load_response(
         RegisteredResponse(
             service="groups",
-            path=f"/groups/{group_id}",
+            path=f"/v2/groups/{group_id}",
             method="POST",
             json={
                 action: [],
