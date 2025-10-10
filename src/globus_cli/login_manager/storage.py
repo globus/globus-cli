@@ -6,7 +6,7 @@ import sys
 import typing as t
 
 import globus_sdk
-from globus_sdk.tokenstorage import SQLiteAdapter
+from globus_sdk.token_storage.legacy import SQLiteAdapter
 
 from ._old_config import invalidate_old_config
 from .client_login import get_client_login, is_client_login

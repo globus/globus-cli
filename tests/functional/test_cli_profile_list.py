@@ -2,7 +2,7 @@ import uuid
 from unittest import mock
 
 import pytest
-from globus_sdk.tokenstorage import SQLiteAdapter
+from globus_sdk.token_storage.legacy import SQLiteAdapter
 
 
 def _add_namespace_to_test_storage(storage, namespace, token_data):
