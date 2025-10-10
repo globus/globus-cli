@@ -4,6 +4,7 @@ import textwrap
 import typing as t
 
 import click
+import globus_sdk
 
 from globus_cli.types import AnyCommand
 
@@ -15,7 +16,7 @@ def sync_level_option(*, aliases: tuple[str, ...] = ()) -> t.Callable[[C], C]:
         return click.option(
             "--sync-level",
             *aliases,
-            default=None,
+            default=globus_sdk.MISSING,
             show_default=True,
             type=click.Choice(
                 ("exists", "size", "mtime", "checksum"), case_sensitive=False
@@ -34,7 +35,7 @@ def transfer_recursive_option(f: C) -> C:
         "--recursive/--no-recursive",
         "-r",
         is_flag=True,
-        default=None,
+        default=globus_sdk.MISSING,
         help=(
             "Use --recursive to flag that the paths are directories "
             "and should be transferred recursively. "

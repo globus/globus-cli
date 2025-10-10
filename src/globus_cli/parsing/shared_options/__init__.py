@@ -90,10 +90,10 @@ def task_submission_options(f: C) -> C:
     """
 
     def format_deadline_callback(
-        ctx: click.Context, param: click.Parameter, value: datetime.datetime | None
-    ) -> str | None:
-        if not value:
-            return None
+        ctx: click.Context, param: click.Parameter, value: datetime.datetime | globus_sdk.MissingType
+    ) -> str | globus_sdk.MissingType:
+        if value is globus_sdk.MISSING or not value:
+            return globus_sdk.MISSING
         return value.strftime("%Y-%m-%d %H:%M:%S")
 
     f = click.option(
@@ -109,11 +109,14 @@ def task_submission_options(f: C) -> C:
             "generate-submission-id`. Used for safe resubmission in the "
             "presence of network failures."
         ),
+        default=globus_sdk.MISSING,
     )(f)
-    f = click.option("--label", default=None, help="Set a label for this task.")(f)
+    f = click.option(
+        "--label", default=globus_sdk.MISSING, help="Set a label for this task."
+    )(f)
     f = click.option(
         "--deadline",
-        default=None,
+        default=globus_sdk.MISSING,
         type=click.DateTime(),
         callback=format_deadline_callback,
         help="Set a deadline for this to be canceled if not completed by.",
@@ -136,7 +139,11 @@ def delete_and_rm_options(
 
     def decorator(f: C) -> C:
         f = click.option(
-            "--recursive", "-r", is_flag=True, help="Recursively delete dirs"
+            "--recursive",
+            "-r",
+            is_flag=True,
+            help="Recursively delete dirs",
+            default=globus_sdk.MISSING,
         )(f)
         f = click.option(
             "--ignore-missing",

@@ -14,21 +14,21 @@ from globus_cli.utils import shlex_process_stream
 def add_batch_to_transfer_data(
     source_base_path: str | None,
     dest_base_path: str | None,
-    checksum_algorithm: str | None,
+    checksum_algorithm: str | globus_sdk.MissingType,
     transfer_data: globus_sdk.TransferData,
     batch: t.TextIO,
 ) -> None:
     @click.command()
-    @click.option("--external-checksum")
-    @click.option("--recursive/--no-recursive", "-r", default=None, is_flag=True)
+    @click.option("--external-checksum", default=globus_sdk.MISSING)
+    @click.option("--recursive/--no-recursive", "-r", default=globus_sdk.MISSING, is_flag=True)
     @click.argument("source_path", type=TaskPath(base_dir=source_base_path))
     @click.argument("dest_path", type=TaskPath(base_dir=dest_base_path))
     @mutex_option_group("--recursive", "--external-checksum")
     def process_batch_line(
         dest_path: TaskPath,
         source_path: TaskPath,
-        recursive: bool | None,
-        external_checksum: str | None,
+        recursive: bool | globus_sdk.MissingType,
+        external_checksum: str | globus_sdk.MissingType,
     ) -> None:
         """
         Parse a line of batch input and turn it into a transfer submission

@@ -100,11 +100,13 @@ def transfer_command(
     source: tuple[uuid.UUID, str | None],
     destination: tuple[uuid.UUID, str | None],
     batch: t.TextIO | None,
-    recursive: bool | None,
-    label: str | None,
+    recursive: bool | globus_sdk.MissingType,
+    label: str | globus_sdk.MissingType,
     delete: bool,
     delete_destination_extra: bool,
-    sync_level: t.Literal["exists", "size", "mtime", "checksum"] | None,
+    sync_level: (
+        t.Literal["exists", "size", "mtime", "checksum"] | globus_sdk.MissingType
+    ),
     encrypt_data: bool,
     verify_checksum: bool,
     preserve_timestamp: bool,
@@ -252,7 +254,7 @@ def transfer_command(
 
     if batch:
         add_batch_to_transfer_data(
-            cmd_source_path, cmd_dest_path, None, transfer_data, batch
+            cmd_source_path, cmd_dest_path, globus_sdk.MISSING, transfer_data, batch
         )
     elif cmd_source_path is not None and cmd_dest_path is not None:
         transfer_data.add_item(

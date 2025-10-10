@@ -165,11 +165,11 @@ fi
         "transfer integrity. Assumed to be an MD5 checksum if "
         "--checksum-algorithm is not given."
     ),
+    default=globus_sdk.MISSING,
 )
 @click.option(
     "--checksum-algorithm",
-    default=None,
-    show_default=True,
+    default=globus_sdk.MISSING,
     help="Specify an algorithm for --external-checksum or --verify-checksum",
 )
 @click.option(
@@ -179,6 +179,7 @@ fi
         "user account to map to. Only usable with Globus Connect Server v5 mapped "
         "collections."
     ),
+    default=globus_sdk.MISSING,
 )
 @click.option(
     "--destination-local-user",
@@ -187,43 +188,46 @@ fi
         "local user account to map to. Only usable with Globus Connect Server v5 "
         "mapped collections."
     ),
+    default=globus_sdk.MISSING,
 )
-@click.option("--perf-cc", type=int, hidden=True)
-@click.option("--perf-p", type=int, hidden=True)
-@click.option("--perf-pp", type=int, hidden=True)
-@click.option("--perf-udt", is_flag=True, default=None, hidden=True)
+@click.option("--perf-cc", type=int, default=globus_sdk.MISSING, hidden=True)
+@click.option("--perf-p", type=int, default=globus_sdk.MISSING, hidden=True)
+@click.option("--perf-pp", type=int, default=globus_sdk.MISSING, hidden=True)
+@click.option("--perf-udt", is_flag=True, default=globus_sdk.MISSING, hidden=True)
 @mutex_option_group("--recursive", "--external-checksum")
 @LoginManager.requires_login("transfer")
 def transfer_command(
     login_manager: LoginManager,
     *,
     batch: t.TextIO | None,
-    sync_level: t.Literal["exists", "size", "mtime", "checksum"] | None,
-    recursive: bool | None,
+    sync_level: (
+        t.Literal["exists", "size", "mtime", "checksum"] | globus_sdk.MissingType
+    ),
+    recursive: bool | globus_sdk.MissingType,
     source: tuple[uuid.UUID, str | None],
     destination: tuple[uuid.UUID, str | None],
-    checksum_algorithm: str | None,
-    external_checksum: str | None,
+    checksum_algorithm: str | globus_sdk.MissingType,
+    external_checksum: str | globus_sdk.MissingType,
     skip_source_errors: bool,
     fail_on_quota_errors: bool,
     filter_rules: list[tuple[t.Literal["include", "exclude"], str]],
-    label: str | None,
+    label: str | globus_sdk.MissingType,
     preserve_timestamp: bool,
     verify_checksum: bool,
     encrypt_data: bool,
-    submission_id: str | None,
+    submission_id: str | globus_sdk.MissingType,
     dry_run: bool,
     delete: bool,
     delete_destination_extra: bool,
-    deadline: str | None,
+    deadline: str | globus_sdk.MissingType,
     skip_activation_check: bool,
     notify: dict[str, bool],
-    perf_cc: int | None,
-    perf_p: int | None,
-    perf_pp: int | None,
-    perf_udt: bool | None,
-    source_local_user: str | None,
-    destination_local_user: str | None,
+    perf_cc: int | globus_sdk.MissingType,
+    perf_p: int | globus_sdk.MissingType,
+    perf_pp: int | globus_sdk.MissingType,
+    perf_udt: bool | globus_sdk.MissingType,
+    source_local_user: str | globus_sdk.MissingType,
+    destination_local_user: str | globus_sdk.MissingType,
 ) -> None:
     """
     Copy a file or directory from one endpoint to another as an asynchronous
@@ -409,7 +413,7 @@ def transfer_command(
 
     if dry_run:
         display(
-            transfer_data.data,
+            transfer_data,
             response_key="DATA",
             fields=[
                 Field("Source Path", "source_path"),
