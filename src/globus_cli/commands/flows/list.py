@@ -51,7 +51,7 @@ ORDER_BY_FIELDS = (
 )
 @click.option(
     "--orderby",
-    default=["updated_at:DESC"],
+    default=("updated_at:DESC",),
     show_default=True,
     type=ColonDelimitedChoiceTuple(
         choices=tuple(

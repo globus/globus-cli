@@ -1,7 +1,10 @@
 from __future__ import annotations
 
+import typing as t
+
 import click
 import pytest
+from globus_cli.commands.flows.list import ORDER_BY_FIELDS, list_command as flow_list_command
 
 from globus_cli.reflect import iter_all_commands
 from globus_cli.types import JsonValue
@@ -29,6 +32,20 @@ _ALL_COMMANDS_TO_TEST: tuple[tuple[str, str], ...] = (
 )
 
 
+_OVERRIDES = {
+    flow_list_command: {"orderby":
+    tuple[
+        tuple[
+            t.Literal[ORDER_BY_FIELDS],
+            t.Literal["ASC", "DESC"],
+        ],
+        ...,
+    ]
+
+        }
+}
+
+
 def _command_id_fn(val):
     assert isinstance(val, click.Command)
     return val.callback.__module__
@@ -36,6 +53,9 @@ def _command_id_fn(val):
 
 @pytest.mark.parametrize("command", _ALL_COMMANDS_TO_TEST, ids=_command_id_fn)
 def test_annotations_match_click_params(command):
+    overrides = _OVERRIDES.get(command, {})
     click_type_test.check_param_annotations(
-        command, known_type_names={JsonValue: "globus_cli.types.JsonValue"}
+        command,
+        known_type_names={JsonValue: "globus_cli.types.JsonValue"},
+        overrides=overrides,
     )
