@@ -122,7 +122,7 @@ def _register_responses(mock_user_data):
     timer_id = str(uuid.uuid1())
     collection_id = str(uuid.uuid1())
     transfer_scope = globus_sdk.TransferClient.scopes.all
-    timers_scope = globus_sdk.TimerClient.scopes.timer
+    timers_scope = globus_sdk.TimersClient.scopes.timer
     transfer_ap_scope = _urlscope("actions.globus.org/transfer", "transfer")
     data_access_scope = _urlscope(collection_id, "data_access")
     full_data_access_scope = (

@@ -64,7 +64,7 @@ DELETE_RESPONSE = RegisteredResponse(
 
 
 def test_show_timer(run_line):
-    meta = load_response_set(globus_sdk.TimerClient.get_job).metadata
+    meta = load_response_set(globus_sdk.TimersClient.get_job).metadata
     assert meta
     result = run_line(["globus", "timer", "show", meta["job_id"]])
     assert result.exit_code == 0
@@ -74,7 +74,7 @@ def test_show_timer(run_line):
 
 
 def test_list_timers(run_line):
-    meta = load_response_set(globus_sdk.TimerClient.list_jobs).metadata
+    meta = load_response_set(globus_sdk.TimersClient.list_jobs).metadata
     assert meta
     result = run_line(["globus", "timer", "list"])
     assert result.exit_code == 0
@@ -101,7 +101,7 @@ def test_delete_timer(run_line, out_format):
 
 
 def test_pause_timer(run_line):
-    meta = load_response_set(globus_sdk.TimerClient.pause_job).metadata
+    meta = load_response_set(globus_sdk.TimersClient.pause_job).metadata
     add_args = []
     run_line(
         ["globus", "timer", "pause", meta["job_id"]] + add_args,

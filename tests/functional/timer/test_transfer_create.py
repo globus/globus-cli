@@ -49,7 +49,7 @@ def setup_timer_consent_tree_response(identity_id, *data_access_collection_ids):
             json={
                 "consents": [
                     {
-                        "scope_name": str(globus_sdk.TimerClient.scopes.timer),
+                        "scope_name": str(globus_sdk.TimersClient.scopes.timer),
                         "scope": str(uuid.uuid1()),
                         "dependency_path": [100],
                         "id": 100,
@@ -129,7 +129,7 @@ def non_ha_mapped_collection():
 
 @pytest.fixture
 def ep_for_timer():
-    load_response(globus_sdk.TimerClient.create_timer)
+    load_response(globus_sdk.TimersClient.create_timer)
     load_response(globus_sdk.TransferClient.get_submission_id)
     ep_meta = load_response(globus_sdk.TransferClient.get_endpoint).metadata
     ep_id = ep_meta["endpoint_id"]

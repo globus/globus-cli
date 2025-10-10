@@ -229,7 +229,7 @@ def transfer_command(
 
         # Otherwise, add requirements to the LoginManager
         login_manager.add_requirement(
-            globus_sdk.TimerClient.scopes.resource_server,
+            globus_sdk.TimersClient.scopes.resource_server,
             scopes=list(scopes_needed.values()),
         )
 
@@ -279,7 +279,7 @@ def _derive_needed_scopes(
     for target in needs_data_access:
         # FIXME: the target scope should be made optional (atomically revocable)
         target_scope = GCSCollectionScopes(target).data_access
-        timers_scope = globus_sdk.TimerClient.scopes.timer
+        timers_scope = globus_sdk.TimersClient.scopes.timer
         transfer_scope = globus_sdk.TransferClient.scopes.all
 
         scopes_needed[target] = timers_scope.with_dependency(

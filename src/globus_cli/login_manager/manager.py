@@ -377,7 +377,7 @@ class LoginManager:
 
     def get_timer_client(
         self, *, flow_id: uuid.UUID | None = None
-    ) -> globus_sdk.TimerClient:
+    ) -> globus_sdk.TimersClient:
         """
         :param flow_id: If provided, the requester must have (or be able to
             programmatically supply) a dependent user-consent for this flow.
@@ -386,7 +386,7 @@ class LoginManager:
             self._assert_requester_has_timer_flow_consent(flow_id)
 
         authorizer = self._get_client_authorizer(TimersScopes.resource_server)
-        return globus_sdk.TimerClient(authorizer=authorizer, app_name=version.app_name)
+        return globus_sdk.TimersClient(authorizer=authorizer, app_name=version.app_name)
 
     def _assert_requester_has_timer_flow_consent(self, flow_id: uuid.UUID) -> None:
         flow_scope = SpecificFlowScopes(flow_id).user

@@ -137,7 +137,7 @@ def _get_resource_server(service_name: str) -> str:
         "groups": globus_sdk.GroupsClient.resource_server,
         "search": globus_sdk.SearchClient.resource_server,
         "transfer": globus_sdk.TransferClient.resource_server,
-        "timers": globus_sdk.TimerClient.resource_server,
+        "timers": globus_sdk.TimersClient.resource_server,
     }.get(service_name)
     if _resource_server is None:
         raise NotImplementedError(f"unrecognized service: {service_name}")
