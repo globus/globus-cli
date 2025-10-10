@@ -282,7 +282,7 @@ def _execute_service_command(
 
     client.app_name = version.app_name + " raw-api-command"
     if no_retry:
-        client.transport.max_retries = 0
+        client.retry_config.max_retries = 0
 
     # Prepare Query Params
     query_params_d = defaultdict(list)
@@ -316,9 +316,17 @@ def _execute_service_command(
     for header_name, header_value in header:
         headers_d[header_name] = header_value
 
-    # Strip `/v2` from Groups paths, which are auto-added by `GroupsClient`.
-    if isinstance(client, globus_sdk.GroupsClient) and path.startswith("/v2"):
-        path = path[3:]
+    # Legacy Behavior: add '/v2/' and '/v0.10/' base paths to Groups and Transfer
+    # this was inherited from globus-sdk v3
+    # removing it should be done in a controlled manner
+    if isinstance(client, globus_sdk.GroupsClient) and not path.startswith("/v2/"):
+        if path.startswith("/"):
+            path = path[1:]
+        path = f"/v2/{path}"
+    if isinstance(client, globus_sdk.TransferClient) and not path.startswith("/v0.10/"):
+        if path.startswith("/"):
+            path = path[1:]
+        path = f"/v0.10/{path}"
 
     # try sending and handle any error
     try:
