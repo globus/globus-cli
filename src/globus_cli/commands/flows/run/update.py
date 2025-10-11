@@ -6,7 +6,7 @@ import click
 import globus_sdk
 
 from globus_cli.login_manager import LoginManager
-from globus_cli.parsing import CommaDelimitedList, command, run_id_arg
+from globus_cli.parsing import OMITTABLE_STRING, CommaDelimitedList, command, run_id_arg
 from globus_cli.termio import Field, display, formatters
 
 
@@ -14,14 +14,14 @@ from globus_cli.termio import Field, display, formatters
 @run_id_arg
 @click.option(
     "--label",
-    type=str,
     help="A label to give the run.",
     default=globus_sdk.MISSING,
+    type=OMITTABLE_STRING,
 )
 @click.option(
     "--managers",
     "run_managers",
-    type=CommaDelimitedList(),
+    type=CommaDelimitedList(omittable=True),
     help="""
         A comma-separated list of principals that may manage the execution of the run.
 
@@ -32,7 +32,7 @@ from globus_cli.termio import Field, display, formatters
 @click.option(
     "--monitors",
     "run_monitors",
-    type=CommaDelimitedList(),
+    type=CommaDelimitedList(omittable=True),
     help="""
         A comma-separated list of principals that may monitor the execution of the run.
 
@@ -43,7 +43,7 @@ from globus_cli.termio import Field, display, formatters
 @click.option(
     "--tags",
     "tags",
-    type=CommaDelimitedList(),
+    type=CommaDelimitedList(omittable=True),
     help="""
         A comma-separated list of tags to associate with the run.
 

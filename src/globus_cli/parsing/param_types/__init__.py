@@ -13,6 +13,13 @@ from .json_strorfile import JSONStringOrFile, ParsedJSONData
 from .location import LocationType
 from .notify_param import NotificationParamType
 from .nullable import StringOrNull, UrlOrNull
+from .omittable import (
+    OMITTABLE_INT,
+    OMITTABLE_STRING,
+    OMITTABLE_UUID,
+    OmittableChoice,
+    OmittableDateTime,
+)
 from .task_path import TaskPath
 from .timedelta import TimedeltaType
 
@@ -34,4 +41,9 @@ __all__ = (
     "TimedeltaType",
     "TransferGuestActivityNotificationParamType",
     "UrlOrNull",
+    "OmittableChoice",
+    "OmittableDateTime",
+    "OMITTABLE_INT",
+    "OMITTABLE_STRING",
+    "OMITTABLE_UUID",
 )

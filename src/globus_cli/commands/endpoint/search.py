@@ -7,7 +7,7 @@ import globus_sdk
 from globus_sdk.paging import Paginator
 
 from globus_cli.login_manager import LoginManager
-from globus_cli.parsing import command
+from globus_cli.parsing import OMITTABLE_STRING, OmittableChoice, command
 from globus_cli.termio import display
 from globus_cli.utils import PagingWrapper
 
@@ -72,7 +72,7 @@ $ globus endpoint search --filter-scope my-endpoints
 @click.option(
     "--filter-entity-type",
     default=globus_sdk.MISSING,
-    type=click.Choice(
+    type=OmittableChoice(
         (
             "GCP_mapped_collection",
             "GCP_guest_collection",
@@ -84,7 +84,9 @@ $ globus endpoint search --filter-scope my-endpoints
     ),
     help="Filter search results to endpoints of a specific entity type.",
 )
-@click.argument("filter_fulltext", required=False, default=globus_sdk.MISSING)
+@click.argument(
+    "filter_fulltext", required=False, default=globus_sdk.MISSING, type=OMITTABLE_STRING
+)
 @LoginManager.requires_login("auth", "transfer")
 def endpoint_search(
     login_manager: LoginManager,

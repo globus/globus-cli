@@ -21,6 +21,8 @@ from globus_cli.parsing.param_types import (
     GCSManagerGuestActivityNotificationParamType,
     NotificationParamType,
     TransferGuestActivityNotificationParamType,
+    OMITTABLE_STRING,
+    OmittableDateTime,
 )
 from globus_cli.types import AnyCommand
 
@@ -110,14 +112,18 @@ def task_submission_options(f: C) -> C:
             "presence of network failures."
         ),
         default=globus_sdk.MISSING,
+        type=OMITTABLE_STRING,
     )(f)
     f = click.option(
-        "--label", default=globus_sdk.MISSING, help="Set a label for this task."
+        "--label",
+        help="Set a label for this task.",
+        default=globus_sdk.MISSING,
+        type=OMITTABLE_STRING,
     )(f)
     f = click.option(
         "--deadline",
         default=globus_sdk.MISSING,
-        type=click.DateTime(),
+        type=OmittableDateTime(),
         callback=format_deadline_callback,
         help="Set a deadline for this to be canceled if not completed by.",
     )(f)
@@ -136,6 +142,13 @@ def delete_and_rm_options(
     """
     Options which apply both to `globus delete` and `globus rm`.
     """
+    def none_to_missing(
+        ctx: click.Context, param: click.Parameter, value: bool | None
+    ) -> bool | globus_sdk.MissingType:
+        if value is None:
+            return globus_sdk.MISSING
+        return value
+
 
     def decorator(f: C) -> C:
         f = click.option(
@@ -143,7 +156,8 @@ def delete_and_rm_options(
             "-r",
             is_flag=True,
             help="Recursively delete dirs",
-            default=globus_sdk.MISSING,
+            default=None,
+            callback=none_to_missing,
         )(f)
         f = click.option(
             "--ignore-missing",
@@ -389,6 +403,7 @@ def local_user_option(f: C) -> C:
             "collections."
         ),
         default=globus_sdk.MISSING,
+        type=OMITTABLE_STRING,
     )(f)
 
 

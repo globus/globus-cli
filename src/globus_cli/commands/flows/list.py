@@ -7,7 +7,7 @@ import globus_sdk
 from globus_sdk.paging import Paginator
 
 from globus_cli.login_manager import LoginManager
-from globus_cli.parsing import ColonDelimitedChoiceTuple, command
+from globus_cli.parsing import ColonDelimitedChoiceTuple, command, OMITTABLE_STRING
 from globus_cli.termio import Field, display, formatters
 from globus_cli.utils import PagingWrapper
 
@@ -44,11 +44,11 @@ ORDER_BY_FIELDS = (
 )
 @click.option(
     "--filter-fulltext",
-    type=str,
     help=(
         "Filter results based on pattern matching within a subset of fields: "
         "[id, title, subtitle, description, flow_owner, flow_administrators]"
     ),
+    type=OMITTABLE_STRING,
     default=globus_sdk.MISSING,
 )
 @click.option(

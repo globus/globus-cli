@@ -16,6 +16,7 @@ from globus_cli.parsing import (
     command,
     flow_id_arg,
     flow_input_document_option,
+    OMITTABLE_STRING,
 )
 from globus_cli.termio import Field, display, formatters
 from globus_cli.types import JsonValue
@@ -148,9 +149,9 @@ class ActivityNotificationPolicyType(JSONStringOrFile):
 @flow_input_document_option
 @click.option(
     "--label",
-    type=str,
     help="A label to give the run.",
     default=globus_sdk.MISSING,
+    type=OMITTABLE_STRING,
 )
 @click.option(
     "--manager",

@@ -6,7 +6,7 @@ import uuid
 import click
 import globus_sdk
 
-from globus_cli.parsing import JSONStringOrFile
+from globus_cli.parsing import OMITTABLE_STRING, JSONStringOrFile
 
 _input_schema_helptext = """
         The JSON input schema that governs the parameters
@@ -42,7 +42,7 @@ input_schema_option_with_default = click.option(
 
 subtitle_option = click.option(
     "--subtitle",
-    type=str,
+    type=OMITTABLE_STRING,
     help="A concise summary of the flow's purpose.",
     default=globus_sdk.MISSING,
 )
@@ -50,7 +50,7 @@ subtitle_option = click.option(
 
 description_option = click.option(
     "--description",
-    type=str,
+    type=OMITTABLE_STRING,
     help="A detailed description of the flow's purpose.",
     default=globus_sdk.MISSING,
 )
@@ -122,9 +122,15 @@ keywords_option = click.option(
 class SubscriptionIdType(click.ParamType):
     name = "SUBSCRIPTION_ID"
 
+    def __init__(self, *, omittable: bool = False) -> None:
+        self._omittable = omittable
+
     def convert(
-        self, value: str, param: click.Parameter | None, ctx: click.Context | None
-    ) -> uuid.UUID | t.Literal["DEFAULT"]:
+        self, value: t.Any, param: click.Parameter | None, ctx: click.Context | None
+    ) -> uuid.UUID | t.Literal["DEFAULT"] | globus_sdk.MissingType:
+        if self._omittable and value is globus_sdk.MISSING:
+            return globus_sdk.MISSING
+
         if value.upper() == "DEFAULT":
             return "DEFAULT"
         try:
@@ -132,11 +138,18 @@ class SubscriptionIdType(click.ParamType):
         except ValueError:
             self.fail(f"{value} must be either a UUID or 'DEFAULT'", param, ctx)
 
+    def get_type_annotation(self, param: click.Parameter) -> type:
+        if self._omittable:
+            return t.Union[  # type: ignore[return-value]
+                uuid.UUID, t.Literal["DEFAULT"], globus_sdk.MissingType
+            ]
+        return t.Union[uuid.UUID, t.Literal["DEFAULT"]]  # type: ignore[return-value]
+
 
 subscription_id_option = click.option(
     "--subscription-id",
     "subscription_id",
-    type=SubscriptionIdType(),
+    type=SubscriptionIdType(omittable=True),
     multiple=False,
     help="""
         A subscription ID to assign to the flow.

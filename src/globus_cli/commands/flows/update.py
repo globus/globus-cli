@@ -19,6 +19,7 @@ from globus_cli.parsing import (
     ParsedJSONData,
     command,
     flow_id_arg,
+    OMITTABLE_STRING,
 )
 from globus_cli.termio import Field, display, formatters
 from globus_cli.types import JsonValue
@@ -29,7 +30,10 @@ ROLE_TYPES = ("flow_viewer", "flow_starter", "flow_administrator", "flow_owner")
 @command("update", short_help="Update a flow.")
 @flow_id_arg
 @click.option(
-    "--title", type=str, help="The name of the flow.", default=globus_sdk.MISSING
+    "--title",
+    help="The name of the flow.",
+    default=globus_sdk.MISSING,
+    type=OMITTABLE_STRING,
 )
 @click.option(
     "--definition",
@@ -53,7 +57,6 @@ ROLE_TYPES = ("flow_viewer", "flow_starter", "flow_administrator", "flow_owner")
 )
 @click.option(
     "--owner",
-    type=str,
     help="""
         Assign ownership to your Globus Auth principal ID.
 
@@ -63,13 +66,14 @@ ROLE_TYPES = ("flow_viewer", "flow_starter", "flow_administrator", "flow_owner")
         This option cannot currently be used to assign ownership to an arbitrary user.
     """,
     default=globus_sdk.MISSING,
+    type=OMITTABLE_STRING,
 )
 @subtitle_option
 @description_option
 @input_schema_option_with_default
 @click.option(
     "--administrators",
-    type=CommaDelimitedList(),
+    type=CommaDelimitedList(omittable=True),
     help="""
         A comma-separated list of flow administrators.
 
@@ -80,7 +84,7 @@ ROLE_TYPES = ("flow_viewer", "flow_starter", "flow_administrator", "flow_owner")
 )
 @click.option(
     "--starters",
-    type=CommaDelimitedList(),
+    type=CommaDelimitedList(omittable=True),
     help="""
         A comma-separated list of flow starters.
 
@@ -93,7 +97,7 @@ ROLE_TYPES = ("flow_viewer", "flow_starter", "flow_administrator", "flow_owner")
 )
 @click.option(
     "--viewers",
-    type=CommaDelimitedList(),
+    type=CommaDelimitedList(omittable=True),
     help="""
         A comma-separated list of flow viewers.
 
@@ -106,7 +110,7 @@ ROLE_TYPES = ("flow_viewer", "flow_starter", "flow_administrator", "flow_owner")
 )
 @click.option(
     "--run-managers",
-    type=CommaDelimitedList(),
+    type=CommaDelimitedList(omittable=True),
     help="""
         A comma-separated list of flow run managers.
 
@@ -118,7 +122,7 @@ ROLE_TYPES = ("flow_viewer", "flow_starter", "flow_administrator", "flow_owner")
 )
 @click.option(
     "--run-monitors",
-    type=CommaDelimitedList(),
+    type=CommaDelimitedList(omittable=True),
     help="""
         A comma-separated list of flow run monitors.
 
@@ -130,7 +134,7 @@ ROLE_TYPES = ("flow_viewer", "flow_starter", "flow_administrator", "flow_owner")
 )
 @click.option(
     "--keywords",
-    type=CommaDelimitedList(),
+    type=CommaDelimitedList(omittable=True),
     help="""
         A comma-separated list of keywords.
 

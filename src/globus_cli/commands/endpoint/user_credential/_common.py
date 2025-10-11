@@ -4,6 +4,7 @@ import click
 import globus_sdk
 
 from globus_cli.types import AnyCommand
+from globus_cli.parsing import OMITTABLE_STRING
 
 C = t.TypeVar("C", bound=AnyCommand)
 
@@ -35,6 +36,7 @@ def user_credential_create_and_update_params(
             "--display-name",
             help="Display name for the credential.",
             default=globus_sdk.MISSING,
+            type=OMITTABLE_STRING,
         )(f)
 
         return f

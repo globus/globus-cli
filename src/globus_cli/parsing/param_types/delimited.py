@@ -3,6 +3,7 @@ from __future__ import annotations
 import typing as t
 
 import click
+import globus_sdk
 
 from globus_cli._click_compat import (
     OLDER_CLICK_API,
@@ -20,8 +21,10 @@ class CommaDelimitedList(click.ParamType):
         *,
         convert_values: t.Callable[[str], str] | None = None,
         choices: t.Iterable[str] | None = None,
+        omittable: bool = False,
     ) -> None:
         super().__init__()
+        self._omittable = omittable
         self.convert_values = convert_values
         self.choices = list(choices) if choices is not None else None
 
@@ -32,8 +35,11 @@ class CommaDelimitedList(click.ParamType):
         return "TEXT,TEXT,..."
 
     def convert(
-        self, value: str, param: click.Parameter | None, ctx: click.Context | None
-    ) -> list[str]:
+        self, value: t.Any, param: click.Parameter | None, ctx: click.Context | None
+    ) -> list[str] | globus_sdk.MissingType:
+        if self._omittable and value is globus_sdk.MISSING:
+            return globus_sdk.MISSING
+
         value = super().convert(value, param, ctx)
 
         # if `--foo` is a comma delimited list and someone passes
@@ -60,6 +66,13 @@ class CommaDelimitedList(click.ParamType):
                 )
 
         return resolved
+
+    def get_type_annotation(self, param: click.Parameter) -> type:
+        if self._omittable:
+            return t.Union[  # type: ignore[return-value]
+                list[str], globus_sdk.MissingType
+            ]
+        return list[str]
 
 
 class ColonDelimitedChoiceTuple(click.ParamType):

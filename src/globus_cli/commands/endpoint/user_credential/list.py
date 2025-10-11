@@ -6,7 +6,7 @@ import click
 import globus_sdk
 
 from globus_cli.login_manager import LoginManager
-from globus_cli.parsing import command, endpoint_id_arg
+from globus_cli.parsing import OMITTABLE_UUID, command, endpoint_id_arg
 from globus_cli.termio import Field, display, formatters
 
 
@@ -15,7 +15,7 @@ from globus_cli.termio import Field, display, formatters
 @click.option(
     "--storage-gateway",
     default=globus_sdk.MISSING,
-    type=click.UUID,
+    type=OMITTABLE_UUID,
     help=(
         "Filter results to User Credentials on a Storage Gateway specified by "
         "this UUID"

@@ -9,6 +9,8 @@ import globus_sdk
 from globus_cli.login_manager import LoginManager
 from globus_cli.parsing import (
     ENDPOINT_PLUS_OPTPATH,
+    OMITTABLE_INT,
+    OMITTABLE_STRING,
     command,
     encrypt_data_option,
     fail_on_quota_errors_option,
@@ -166,11 +168,13 @@ fi
         "--checksum-algorithm is not given."
     ),
     default=globus_sdk.MISSING,
+    type=OMITTABLE_STRING,
 )
 @click.option(
     "--checksum-algorithm",
-    default=globus_sdk.MISSING,
     help="Specify an algorithm for --external-checksum or --verify-checksum",
+    default=globus_sdk.MISSING,
+    type=OMITTABLE_STRING,
 )
 @click.option(
     "--source-local-user",
@@ -180,6 +184,7 @@ fi
         "collections."
     ),
     default=globus_sdk.MISSING,
+    type=OMITTABLE_STRING,
 )
 @click.option(
     "--destination-local-user",
@@ -189,11 +194,12 @@ fi
         "mapped collections."
     ),
     default=globus_sdk.MISSING,
+    type=OMITTABLE_STRING,
 )
-@click.option("--perf-cc", type=int, default=globus_sdk.MISSING, hidden=True)
-@click.option("--perf-p", type=int, default=globus_sdk.MISSING, hidden=True)
-@click.option("--perf-pp", type=int, default=globus_sdk.MISSING, hidden=True)
-@click.option("--perf-udt", is_flag=True, default=globus_sdk.MISSING, hidden=True)
+@click.option("--perf-cc", default=globus_sdk.MISSING, type=OMITTABLE_INT, hidden=True)
+@click.option("--perf-p", default=globus_sdk.MISSING, type=OMITTABLE_INT, hidden=True)
+@click.option("--perf-pp", default=globus_sdk.MISSING, type=OMITTABLE_INT, hidden=True)
+@click.option("--perf-udt", is_flag=True, hidden=True)
 @mutex_option_group("--recursive", "--external-checksum")
 @LoginManager.requires_login("transfer")
 def transfer_command(
@@ -225,7 +231,7 @@ def transfer_command(
     perf_cc: int | globus_sdk.MissingType,
     perf_p: int | globus_sdk.MissingType,
     perf_pp: int | globus_sdk.MissingType,
-    perf_udt: bool | globus_sdk.MissingType,
+    perf_udt: bool,
     source_local_user: str | globus_sdk.MissingType,
     destination_local_user: str | globus_sdk.MissingType,
 ) -> None:
@@ -355,7 +361,7 @@ def transfer_command(
             ("perf_cc", perf_cc),
             ("perf_p", perf_p),
             ("perf_pp", perf_pp),
-            ("perf_udt", perf_udt),
+            ("perf_udt", True if perf_udt else globus_sdk.MISSING),
         )
         if v is not None
     }
