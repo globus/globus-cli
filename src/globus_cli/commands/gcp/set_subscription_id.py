@@ -52,9 +52,8 @@ def set_endpoint_subscription_id(
     epish = Endpointish(endpoint_id, transfer_client=transfer_client)
     epish.assert_entity_type(expect_types=EntityType.GCP_MAPPED)
 
-    res = transfer_client.put(
-        f"/endpoint/{endpoint_id}/subscription",
-        data={"subscription_id": ExplicitNullType.nullify(subscription_id)},
+    res = transfer_client.set_subscription_id(
+        endpoint_id, ExplicitNullType.nullify(subscription_id)
     )
 
     display(res, text_mode=display.RAW, response_key="message")

@@ -50,11 +50,7 @@ def set_endpoint_subscription_id(
     """
     transfer_client = login_manager.get_transfer_client()
 
-    optional_subscription_id: str | None = (
-        None if subscription_id == "null" else subscription_id
-    )
-    res = transfer_client.put(
-        f"/endpoint/{endpoint_id}/subscription",
-        data={"subscription_id": optional_subscription_id},
+    res = transfer_client.set_subscription_id(
+        endpoint_id, None if subscription_id == "null" else subscription_id
     )
     display(res, text_mode=display.RAW, response_key="message")
