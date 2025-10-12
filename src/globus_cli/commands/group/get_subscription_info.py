@@ -20,7 +20,7 @@ def group_get_subscription_info(
     """Show data about a specific Subscription."""
     groups_client = login_manager.get_groups_client()
 
-    subscription_data = groups_client.get(f"/subscription_info/{subscription_id}")
+    subscription_data = groups_client.get_group_by_subscription_id(subscription_id)
     display(
         subscription_data,
         text_mode=display.RECORD,
