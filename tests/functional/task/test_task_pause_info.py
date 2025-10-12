@@ -1,7 +1,6 @@
 import uuid
 
-import pytest
-from globus_sdk.testing import load_response, register_response_set
+from globus_sdk.testing import RegisteredResponse
 
 TASK_ID = str(uuid.UUID(int=0))
 RULE_ID = str(uuid.UUID(int=1))
@@ -27,35 +26,19 @@ _pause_rule_data = {
 }
 
 
-@pytest.fixture(autouse=True, scope="session")
-def _register_pause_rule_responses():
-    register_response_set(
-        "task_pause_info",
-        {
-            "default": {
-                "service": "transfer",
-                "path": f"/task/{TASK_ID}/pause_info",
-                "json": {
-                    "endpoint_display_name": "ExamplePauseEndpoint",
-                    "message": "This task is like super paused",
-                    "source_pause_message": None,
-                    "source_pause_message_share": None,
-                    "destination_pause_message": None,
-                    "destination_pause_message_share": None,
-                    "pause_rules": [_pause_rule_data],
-                },
-            }
-        },
-        metadata={
-            "task_id": TASK_ID,
-            "rule_id": RULE_ID,
-            "endpoint_id": EP_ID,
-            "pause_rule_modified_by": USER_ID,
-        },
-    )
-
-
 def test_show_task_pause_info(run_line):
-    meta = load_response("task_pause_info").metadata
-    result = run_line(["globus", "task", "pause-info", meta["task_id"]])
+    RegisteredResponse(
+        service="transfer",
+        path=f"/v0.10/task/{TASK_ID}/pause_info",
+        json={
+            "endpoint_display_name": "ExamplePauseEndpoint",
+            "message": "This task is like super paused",
+            "source_pause_message": None,
+            "source_pause_message_share": None,
+            "destination_pause_message": None,
+            "destination_pause_message_share": None,
+            "pause_rules": [_pause_rule_data],
+        },
+    ).add()
+    result = run_line(["globus", "task", "pause-info", TASK_ID])
     assert "write/read/delete/rename/mkdir/ls" in result.output
