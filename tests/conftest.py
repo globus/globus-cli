@@ -15,7 +15,7 @@ import pytest
 import responses
 from click.testing import CliRunner
 from globus_sdk.testing import register_response_set
-from globus_sdk.scopes import TimersScopes
+from globus_sdk.scopes import TimersScopes, ScopeParser
 from globus_sdk.token_storage.legacy import SQLiteAdapter
 from ruamel.yaml import YAML
 
@@ -87,7 +87,7 @@ def _mock_token_response_data(rs_name, scope, token_blob=None):
     if isinstance(scope, list):
         # Serialize lists of scopes to a space delimited string to correctly mirror
         #   auth response structure.
-        scope = " ".join(scope)
+        scope = ScopeParser.serialize(scope)
     return {
         "scope": str(scope),
         "refresh_token": f"{token_blob}RT",
