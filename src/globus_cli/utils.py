@@ -4,6 +4,7 @@ import typing as t
 import uuid
 
 import click
+import globus_sdk
 
 from globus_cli.types import AnyCallable
 
@@ -25,6 +26,31 @@ def str2bool(v: str) -> bool | None:
         return False
     else:
         return None
+
+
+def make_dict_json_serializable(data: dict[str, t.Any]) -> dict[str, t.Any]:
+    return {
+        k: _make_json_serializable(v)
+        for k, v in data.items()
+        if v is not globus_sdk.MISSING
+    }
+
+
+def _make_json_serializable(data: t.Any) -> t.Any:
+    if isinstance(data, list):
+        return [
+            _make_json_serializable(item) for item in data if item is not globus_sdk.MISSING
+        ]
+    elif isinstance(data, dict):
+        return {
+            k: _make_json_serializable(v)
+            for k, v in data.items()
+            if v is not globus_sdk.MISSING
+        }
+    elif isinstance(data, uuid.UUID):
+        return str(data)
+    else:
+        return data
 
 
 def unquote_cmdprompt_single_quotes(arg: str) -> str:

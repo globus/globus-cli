@@ -15,6 +15,7 @@ from globus_cli.parsing import (
     task_submission_options,
 )
 from globus_cli.termio import Field, display, err_is_terminal, term_is_interactive
+from globus_cli.utils import make_dict_json_serializable
 
 from ._common import transfer_task_wait_with_io
 
@@ -109,7 +110,11 @@ def rm_command(
     delete_data.add_item(path)
 
     if dry_run:
-        display(delete_data, response_key="DATA", fields=[Field("Path", "path")])
+        display(
+            make_dict_json_serializable(delete_data),
+            response_key="DATA",
+            fields=[Field("Path", "path")],
+        )
         # exit safely
         return
 

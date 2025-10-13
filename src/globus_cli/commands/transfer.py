@@ -25,6 +25,7 @@ from globus_cli.parsing import (
     verify_checksum_option,
 )
 from globus_cli.termio import Field, display
+from globus_cli.utils import make_dict_json_serializable
 
 
 @command(
@@ -419,7 +420,7 @@ def transfer_command(
 
     if dry_run:
         display(
-            transfer_data,
+            make_dict_json_serializable(transfer_data),
             response_key="DATA",
             fields=[
                 Field("Source Path", "source_path"),
