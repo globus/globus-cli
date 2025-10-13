@@ -21,7 +21,7 @@ def _register_get_group_responses():
         {
             "default": {
                 "service": "groups",
-                "path": f"/groups/{group_id}",
+                "path": f"/v2/groups/{group_id}",
                 "json": {
                     "description": "Ipso facto",
                     "enforce_session": False,
@@ -161,7 +161,7 @@ def _register_group_action_responses():
         response_sets[action] = {
             "default": {
                 "service": "groups",
-                "path": f"/groups/{group_id}",
+                "path": f"/v2/groups/{group_id}",
                 "method": "POST",
                 "json": {
                     action: [
@@ -178,7 +178,7 @@ def _register_group_action_responses():
             },
             "error": {
                 "service": "groups",
-                "path": f"/groups/{group_id}",
+                "path": f"/v2/groups/{group_id}",
                 "method": "POST",
                 "json": {
                     "errors": {
@@ -195,7 +195,7 @@ def _register_group_action_responses():
             },
             "error_nodetail": {
                 "service": "groups",
-                "path": f"/groups/{group_id}",
+                "path": f"/v2/groups/{group_id}",
                 "method": "POST",
                 "json": {
                     "errors": {"foo": "bar"},

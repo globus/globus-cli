@@ -17,7 +17,7 @@ def _register_group_responses():
         {
             "get_group_policies": {
                 "service": "groups",
-                "path": f"/groups/{group_id}/policies",
+                "path": f"/v2/groups/{group_id}/policies",
                 "json": {
                     "is_high_assurance": False,
                     "authentication_assurance_timeout": 28800,
@@ -30,7 +30,7 @@ def _register_group_responses():
             "set_group_policies": {
                 "service": "groups",
                 "method": "PUT",
-                "path": f"/groups/{group_id}/policies",
+                "path": f"/v2/groups/{group_id}/policies",
                 "json": {"foo": "bar"},
             },
         },

@@ -25,7 +25,7 @@ def test_base_json_hook_when_no_body_is_present(run_line, output_format):
     """
     RegisteredResponse(
         service="transfer",
-        path="/foo",
+        path="/v0.10/foo",
         status=500,
         json=None,
     ).add()

@@ -179,7 +179,7 @@ def _register_responses(identity_info):
         {
             "default": {
                 "service": "transfer",
-                "path": f"/endpoint/{endpoint_id}",
+                "path": f"/v0.10/endpoint/{endpoint_id}",
                 "method": "GET",
                 "json": {
                     "DATA": [

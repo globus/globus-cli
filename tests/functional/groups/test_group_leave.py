@@ -44,7 +44,7 @@ def _register_invitation_responses():
         {
             "default": {
                 "service": "groups",
-                "path": f"/groups/{group_id}",
+                "path": f"/v2/groups/{group_id}",
                 "json": {
                     "my_memberships": [
                         {
@@ -62,7 +62,7 @@ def _register_invitation_responses():
             },
             "multiple": {
                 "service": "groups",
-                "path": f"/groups/{group_id}",
+                "path": f"/v2/groups/{group_id}",
                 "json": {
                     "my_memberships": [
                         {
@@ -88,7 +88,7 @@ def _register_invitation_responses():
             },
             "not_member": {
                 "service": "groups",
-                "path": f"/groups/{group_id}",
+                "path": f"/v2/groups/{group_id}",
                 "json": {
                     "my_memberships": [],
                     **_group_common,
@@ -105,7 +105,7 @@ def _register_invitation_responses():
             identities += add_ids
         return {
             "service": "groups",
-            "path": f"/groups/{group_id}",
+            "path": f"/v2/groups/{group_id}",
             "method": "POST",
             "json": (
                 {

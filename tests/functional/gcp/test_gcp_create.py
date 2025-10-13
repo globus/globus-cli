@@ -18,7 +18,7 @@ def _create_mapped_responses():
         {
             "default": {
                 "service": "transfer",
-                "path": "/endpoint",
+                "path": "/v0.10/endpoint",
                 "method": "POST",
                 "json": {
                     "DATA_TYPE": "endpoint_create_result",
@@ -41,15 +41,9 @@ def _create_guest_responses():
     register_response_set(
         "gcp_create_guest",
         {
-            "activate_host": {
+            "default": {
                 "service": "transfer",
-                "path": f"/endpoint/{host_id}/autoactivate",
-                "method": "POST",
-                "json": {"code": "AutoActivated.BogusCode"},
-            },
-            "share_create": {
-                "service": "transfer",
-                "path": "/shared_endpoint",
+                "path": "/v0.10/shared_endpoint",
                 "method": "POST",
                 "json": {
                     "DATA_TYPE": "endpoint_create_result",

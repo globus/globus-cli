@@ -17,7 +17,7 @@ def _update_mapped_responses():
         {
             "default": {
                 "service": "transfer",
-                "path": f"/endpoint/{ep_id}",
+                "path": f"/v0.10/endpoint/{ep_id}",
                 "method": "PUT",
                 "json": {
                     "DATA_TYPE": "endpoint_update_result",
@@ -40,7 +40,7 @@ def _update_guest_responses():
         {
             "default": {
                 "service": "transfer",
-                "path": f"/endpoint/{share_id}",
+                "path": f"/v0.10/endpoint/{share_id}",
                 "method": "PUT",
                 "json": {
                     "DATA_TYPE": "endpoint_update_result",
