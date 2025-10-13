@@ -125,10 +125,11 @@ def _register_responses(mock_user_data):
     timers_scope = globus_sdk.TimersClient.scopes.timer
     transfer_ap_scope = _urlscope("actions.globus.org/transfer", "transfer")
     data_access_scope = _urlscope(collection_id, "data_access")
-    full_data_access_scope = (
-        f"{transfer_ap_scope}[{transfer_scope}[*{data_access_scope}]]"
+    required_scope = timers_scope.with_dependency(
+        transfer_ap_scope.with_dependency(
+            transfer_scope.with_dependency(data_access_scope.with_optional(True))
+        )
     )
-    required_scope = f"{timers_scope}[{full_data_access_scope}]"
 
     metadata = {
         "user_id": user_id,
@@ -146,7 +147,7 @@ def _register_responses(mock_user_data):
                 "code": "ConsentRequired",
                 "authorization_parameters": {
                     "session_message": "Missing required data_access consent",
-                    "required_scopes": [required_scope],
+                    "required_scopes": [str(required_scope)],
                 },
             },
         },
@@ -200,7 +201,7 @@ def _register_responses(mock_user_data):
                 "json": {
                     "consents": [
                         {
-                            "scope_name": timers_scope,
+                            "scope_name": str(timers_scope),
                             "scope": str(uuid.uuid1()),
                             "dependency_path": [100],
                             "id": 100,
@@ -235,28 +236,28 @@ def _register_responses(mock_user_data):
                 "json": {
                     "consents": [
                         {
-                            "scope_name": timers_scope,
+                            "scope_name": str(timers_scope),
                             "scope": str(uuid.uuid1()),
                             "dependency_path": [100],
                             "id": 100,
                             **_dummy_consent_fields,
                         },
                         {
-                            "scope_name": transfer_ap_scope,
+                            "scope_name": str(transfer_ap_scope),
                             "scope": str(uuid.uuid1()),
                             "dependency_path": [100, 101],
                             "id": 101,
                             **_dummy_consent_fields,
                         },
                         {
-                            "scope_name": transfer_scope,
+                            "scope_name": str(transfer_scope),
                             "scope": str(uuid.uuid1()),
                             "dependency_path": [100, 101, 102],
                             "id": 102,
                             **_dummy_consent_fields,
                         },
                         {
-                            "scope_name": data_access_scope,
+                            "scope_name": str(data_access_scope),
                             "scope": str(uuid.uuid1()),
                             "dependency_path": [100, 101, 102, 103],
                             "id": 103,
@@ -292,4 +293,4 @@ def _register_responses(mock_user_data):
 
 
 def _urlscope(m: str, s: str) -> str:
-    return f"https://auth.globus.org/scopes/{m}/{s}"
+    return globus_sdk.Scope(f"https://auth.globus.org/scopes/{m}/{s}")
