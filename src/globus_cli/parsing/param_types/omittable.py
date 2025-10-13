@@ -1,10 +1,12 @@
 from __future__ import annotations
 
 import datetime
+import typing as t
 import uuid
+
 import click.types
 import globus_sdk
-import typing as t
+
 from globus_cli._click_compat import (
     OLDER_CLICK_API,
     shim_get_metavar,
@@ -57,9 +59,7 @@ class OmittableUUID(click.ParamType):
 class OmittableChoice(click.ParamType):
     name = "choice"
 
-    def __init__(
-        self, choices: t.Sequence[str], case_sensitive: bool = True
-    ) -> None:
+    def __init__(self, choices: t.Sequence[str], case_sensitive: bool = True) -> None:
         self._inner_choice = click.Choice(choices, case_sensitive=case_sensitive)
 
     @shim_get_metavar

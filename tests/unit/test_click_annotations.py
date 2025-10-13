@@ -4,8 +4,11 @@ import typing as t
 
 import click
 import pytest
-from globus_cli.commands.flows.list import ORDER_BY_FIELDS, list_command as flow_list_command
 
+from globus_cli.commands.flows.list import (
+    ORDER_BY_FIELDS,
+)
+from globus_cli.commands.flows.list import list_command as flow_list_command
 from globus_cli.reflect import iter_all_commands
 from globus_cli.types import JsonValue
 
@@ -33,16 +36,15 @@ _ALL_COMMANDS_TO_TEST: tuple[tuple[str, str], ...] = (
 
 
 _OVERRIDES = {
-    flow_list_command: {"orderby":
-    tuple[
-        tuple[
-            t.Literal[ORDER_BY_FIELDS],
-            t.Literal["ASC", "DESC"],
-        ],
-        ...,
-    ]
-
-        }
+    flow_list_command: {
+        "orderby": tuple[
+            tuple[
+                t.Literal[ORDER_BY_FIELDS],
+                t.Literal["ASC", "DESC"],
+            ],
+            ...,
+        ]
+    }
 }
 
 

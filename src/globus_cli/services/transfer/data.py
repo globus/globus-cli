@@ -7,9 +7,9 @@ import globus_sdk
 
 from globus_cli.constants import ExplicitNullType
 from globus_cli.parsing import (
+    OMITTABLE_STRING,
     TaskPath,
     mutex_option_group,
-    OMITTABLE_STRING,
 )
 from globus_cli.types import JsonValue
 from globus_cli.utils import shlex_process_stream
@@ -23,8 +23,9 @@ def add_batch_to_transfer_data(
     batch: t.TextIO,
 ) -> None:
     @click.command()
-    @click.option("--external-checksum", default=globus_sdk.MISSING,
-                  type=OMITTABLE_STRING)
+    @click.option(
+        "--external-checksum", default=globus_sdk.MISSING, type=OMITTABLE_STRING
+    )
     @click.option(
         "--recursive/--no-recursive",
         "-r",

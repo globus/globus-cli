@@ -1,8 +1,8 @@
 import uuid
 
 import globus_sdk
-from globus_sdk.testing import RegisteredResponse, load_response
 from globus_sdk.scopes import SpecificFlowScopes
+from globus_sdk.testing import RegisteredResponse, load_response
 
 
 def test_create_flow_timer(run_line, userinfo_mocker, logged_in_user_id):

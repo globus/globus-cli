@@ -11,12 +11,12 @@ import globus_sdk
 from globus_cli._click_compat import shim_get_metavar
 from globus_cli.login_manager import LoginManager
 from globus_cli.parsing import (
+    OMITTABLE_STRING,
     JSONStringOrFile,
     ParsedJSONData,
     command,
     flow_id_arg,
     flow_input_document_option,
-    OMITTABLE_STRING,
 )
 from globus_cli.termio import Field, display, formatters
 from globus_cli.types import JsonValue

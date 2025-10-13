@@ -6,7 +6,6 @@ import textwrap
 import typing as t
 
 import click
-
 import globus_sdk
 
 from globus_cli.parsing.command_state import (
@@ -18,11 +17,11 @@ from globus_cli.parsing.command_state import (
     verbose_option,
 )
 from globus_cli.parsing.param_types import (
+    OMITTABLE_STRING,
     GCSManagerGuestActivityNotificationParamType,
     NotificationParamType,
-    TransferGuestActivityNotificationParamType,
-    OMITTABLE_STRING,
     OmittableDateTime,
+    TransferGuestActivityNotificationParamType,
 )
 from globus_cli.types import AnyCommand
 
@@ -92,7 +91,9 @@ def task_submission_options(f: C) -> C:
     """
 
     def format_deadline_callback(
-        ctx: click.Context, param: click.Parameter, value: datetime.datetime | globus_sdk.MissingType
+        ctx: click.Context,
+        param: click.Parameter,
+        value: datetime.datetime | globus_sdk.MissingType,
     ) -> str | globus_sdk.MissingType:
         if value is globus_sdk.MISSING or not value:
             return globus_sdk.MISSING
@@ -142,13 +143,13 @@ def delete_and_rm_options(
     """
     Options which apply both to `globus delete` and `globus rm`.
     """
+
     def none_to_missing(
         ctx: click.Context, param: click.Parameter, value: bool | None
     ) -> bool | globus_sdk.MissingType:
         if value is None:
             return globus_sdk.MISSING
         return value
-
 
     def decorator(f: C) -> C:
         f = click.option(

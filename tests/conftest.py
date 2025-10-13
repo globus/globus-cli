@@ -14,8 +14,8 @@ import globus_sdk
 import pytest
 import responses
 from click.testing import CliRunner
+from globus_sdk.scopes import ScopeParser, TimersScopes
 from globus_sdk.testing import register_response_set
-from globus_sdk.scopes import TimersScopes, ScopeParser
 from globus_sdk.token_storage.legacy import SQLiteAdapter
 from ruamel.yaml import YAML
 

@@ -39,7 +39,9 @@ def make_dict_json_serializable(data: dict[str, t.Any]) -> dict[str, t.Any]:
 def _make_json_serializable(data: t.Any) -> t.Any:
     if isinstance(data, list):
         return [
-            _make_json_serializable(item) for item in data if item is not globus_sdk.MISSING
+            _make_json_serializable(item)
+            for item in data
+            if item is not globus_sdk.MISSING
         ]
     elif isinstance(data, dict):
         return {

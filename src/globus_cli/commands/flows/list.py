@@ -7,7 +7,7 @@ import globus_sdk
 from globus_sdk.paging import Paginator
 
 from globus_cli.login_manager import LoginManager
-from globus_cli.parsing import ColonDelimitedChoiceTuple, command, OMITTABLE_STRING
+from globus_cli.parsing import OMITTABLE_STRING, ColonDelimitedChoiceTuple, command
 from globus_cli.termio import Field, display, formatters
 from globus_cli.utils import PagingWrapper
 

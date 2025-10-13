@@ -3,8 +3,8 @@ import typing as t
 import click
 import globus_sdk
 
-from globus_cli.types import AnyCommand
 from globus_cli.parsing import OMITTABLE_STRING
+from globus_cli.types import AnyCommand
 
 C = t.TypeVar("C", bound=AnyCommand)
 

@@ -14,12 +14,12 @@ from globus_cli.commands.flows._common import (
 )
 from globus_cli.login_manager import LoginManager
 from globus_cli.parsing import (
+    OMITTABLE_STRING,
     CommaDelimitedList,
     JSONStringOrFile,
     ParsedJSONData,
     command,
     flow_id_arg,
-    OMITTABLE_STRING,
 )
 from globus_cli.termio import Field, display, formatters
 from globus_cli.types import JsonValue

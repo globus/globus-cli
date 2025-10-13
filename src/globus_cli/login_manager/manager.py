@@ -15,11 +15,11 @@ from globus_sdk.scopes import (
     GCSEndpointScopes,
     GroupsScopes,
     Scope,
+    ScopeParser,
     SearchScopes,
     SpecificFlowScopes,
     TimersScopes,
     TransferScopes,
-    ScopeParser,
 )
 from globus_sdk.scopes.consents import ConsentForest
 
