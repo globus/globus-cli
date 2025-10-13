@@ -167,7 +167,7 @@ def transfer_command(
         click.echo(click.style(msg, fg="yellow"), err=True)
 
     # avoid 'mutex_option_group', emit a custom error message
-    if recursive is not None and batch:
+    if recursive is not globus_sdk.MISSING and batch:
         option_name = "--recursive" if recursive else "--no-recursive"
         raise click.UsageError(
             f"You cannot use `{option_name}` in addition to `--batch`. "
