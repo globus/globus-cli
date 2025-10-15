@@ -2,6 +2,16 @@
 
 // scriv-insert-here
 
+== 3.39.0 (2025-10-15)
+
+Enhancements:
+
+* Text display of Timers via commands such as `globus timer show` now includes
+  an `Activity` field which summarizes the status of the Timer.
+
+* Added a new command: `globus timer create flow` to support scheduling recurring
+  flow runs.
+
 == 3.38.0 (2025-09-24)
 
 Enhancements:
