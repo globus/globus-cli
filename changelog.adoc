@@ -6,7 +6,7 @@
 
 Enhancements:
 
-* Text display of Timers via commands such as `globus timer show` now includes
+* Text display of timers via commands such as `globus timer show` now includes
   an `Activity` field which summarizes the status of the Timer.
 
 * Added a new command: `globus timer create flow` to support scheduling recurring
