@@ -14,9 +14,10 @@ from globus_cli.commands.flows._common import (
     subtitle_option,
     viewers_option,
 )
+from globus_cli.commands.flows._fields import flow_format_fields
 from globus_cli.login_manager import LoginManager
 from globus_cli.parsing import JSONStringOrFile, ParsedJSONData, command
-from globus_cli.termio import Field, display, formatters
+from globus_cli.termio import display
 from globus_cli.types import JsonValue
 
 ROLE_TYPES = ("flow_viewer", "flow_starter", "flow_administrator", "flow_owner")
@@ -138,48 +139,6 @@ def create_command(
         subscription_id=subscription_id,
     )
 
-    # Configure formatters for principals
-    principal_formatter = formatters.auth.PrincipalURNFormatter(auth_client)
-    for principal_set_name in ("flow_administrators", "flow_viewers", "flow_starters"):
-        for value in res.get(principal_set_name, ()):
-            principal_formatter.add_item(value)
-    principal_formatter.add_item(res.get("flow_owner"))
-
-    fields = [
-        Field("Flow ID", "id"),
-        Field("Title", "title"),
-        Field("Subtitle", "subtitle"),
-        Field("Description", "description"),
-        Field("Keywords", "keywords", formatter=formatters.ArrayFormatter()),
-        Field("Owner", "flow_owner", formatter=principal_formatter),
-        Field("Subscription ID", "subscription_id"),
-        Field("Created At", "created_at", formatter=formatters.Date),
-        Field("Updated At", "updated_at", formatter=formatters.Date),
-        Field(
-            "Administrators",
-            "flow_administrators",
-            formatter=formatters.ArrayFormatter(element_formatter=principal_formatter),
-        ),
-        Field(
-            "Viewers",
-            "flow_viewers",
-            formatter=formatters.ArrayFormatter(element_formatter=principal_formatter),
-        ),
-        Field(
-            "Starters",
-            "flow_starters",
-            formatter=formatters.ArrayFormatter(element_formatter=principal_formatter),
-        ),
-        Field(
-            "Run Managers",
-            "run_managers",
-            formatter=formatters.ArrayFormatter(element_formatter=principal_formatter),
-        ),
-        Field(
-            "Run Monitors",
-            "run_monitors",
-            formatter=formatters.ArrayFormatter(element_formatter=principal_formatter),
-        ),
-    ]
+    fields = flow_format_fields(auth_client, res.data)
 
     display(res, fields=fields, text_mode=display.RECORD)

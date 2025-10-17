@@ -51,6 +51,10 @@ class PrincipalFormatter(FieldFormatter[t.Tuple[str, str]]):
     def parse(self, value: t.Any) -> tuple[str, str]: ...
 
     def add_item(self, value: t.Any) -> None:
+        """
+        TODO - is this correct?
+        Register a principal on the formatter, making it eligible for resolution.
+        """
         try:
             principal, principal_type = self.parse(value)
         except ValueError:
