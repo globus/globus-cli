@@ -25,8 +25,7 @@ def resolved_principals_field(
 ) -> Field:
     formatter = formatters.auth.PrincipalURNFormatter(auth_client)
     if items is not None:
-        for item in items:
-            formatter.add_item(item)
+        formatter.add_items(*items)
 
     return Field("Principal", "principal", formatter=formatter)
 

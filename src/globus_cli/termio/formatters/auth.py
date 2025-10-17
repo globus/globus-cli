@@ -50,20 +50,22 @@ class PrincipalFormatter(FieldFormatter[t.Tuple[str, str]]):
     @abc.abstractmethod
     def parse(self, value: t.Any) -> tuple[str, str]: ...
 
-    def add_item(self, value: t.Any) -> None:
+    def add_items(self, *values: t.Any) -> None:
         """
-        Register a principal which will be used on the formatter to facilitate more
-        efficient batch-lookup of usernames.
+        Register some values which will be rendered later on by the formatter.
+        This pre-register approach facilitates more efficient batch-lookup of usernames.
 
-        :param value: A principal value matching the specific subclass's parse() method.
+        :param values: One or more principal value matching the specific subclass's
+            parse() expectations.
         """
-        try:
-            principal, principal_type = self.parse(value)
-        except ValueError:
-            pass
-        else:
-            if principal_type == "identity":
-                self.resolved_ids.add(principal)
+        for value in values:
+            try:
+                principal, principal_type = self.parse(value)
+            except ValueError:
+                pass
+            else:
+                if principal_type == "identity":
+                    self.resolved_ids.add(principal)
 
     def render(self, value: tuple[str, str]) -> str:
         principal, principal_type = value
