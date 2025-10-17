@@ -5,9 +5,10 @@ import uuid
 import click
 import globus_sdk
 
+from globus_cli.commands.flows._fields import flow_run_format_fields
 from globus_cli.login_manager import LoginManager
 from globus_cli.parsing import OMITTABLE_STRING, CommaDelimitedList, command, run_id_arg
-from globus_cli.termio import Field, display, formatters
+from globus_cli.termio import display
 
 
 @command("update")
@@ -64,8 +65,9 @@ def update_command(
     """
     Update a run.
     """
-
     flows_client = login_manager.get_flows_client()
+    auth_client = login_manager.get_auth_client()
+
     response = flows_client.update_run(
         run_id,
         label=label,
@@ -74,41 +76,6 @@ def update_command(
         tags=tags,
     )
 
-    auth_client = login_manager.get_auth_client()
-    principal_formatter = formatters.auth.PrincipalURNFormatter(auth_client)
-    for principal_set_name in ("run_managers", "run_monitors"):
-        for value in response.get(principal_set_name, ()):
-            principal_formatter.add_item(value)
-
-    fields = [
-        Field("Flow ID", "flow_id"),
-        Field("Flow Title", "flow_title"),
-        Field("Run ID", "run_id"),
-        Field("Run Label", "label"),
-        Field(
-            "Run Managers",
-            "run_managers",
-            formatter=formatters.ArrayFormatter(
-                delimiter=", ",
-                element_formatter=principal_formatter,
-            ),
-        ),
-        Field(
-            "Run Monitors",
-            "run_monitors",
-            formatter=formatters.ArrayFormatter(
-                delimiter=", ",
-                element_formatter=principal_formatter,
-            ),
-        ),
-        Field(
-            "Run Tags",
-            "tags",
-            formatter=formatters.ArrayFormatter(delimiter=", "),
-        ),
-        Field("Started At", "start_time", formatter=formatters.Date),
-        Field("Completed At", "completion_time", formatter=formatters.Date),
-        Field("Status", "status"),
-    ]
+    fields = flow_run_format_fields(auth_client, response.data)
 
     display(response, fields=fields, text_mode=display.RECORD)

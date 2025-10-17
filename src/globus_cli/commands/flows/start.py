@@ -9,6 +9,7 @@ import click
 import globus_sdk
 
 from globus_cli._click_compat import shim_get_metavar
+from globus_cli.commands.flows._fields import flow_run_format_fields
 from globus_cli.login_manager import LoginManager
 from globus_cli.parsing import (
     OMITTABLE_STRING,
@@ -18,7 +19,7 @@ from globus_cli.parsing import (
     flow_id_arg,
     flow_input_document_option,
 )
-from globus_cli.termio import Field, display, formatters
+from globus_cli.termio import display
 from globus_cli.types import JsonValue
 
 if t.TYPE_CHECKING:
@@ -248,6 +249,8 @@ def start_command(
         notify_policy = activity_notification_policy.data
 
     flow_client = login_manager.get_specific_flow_client(flow_id)
+    auth_client = login_manager.get_auth_client()
+
     response = flow_client.run_flow(
         body=input_document_json,
         label=label,
@@ -257,44 +260,6 @@ def start_command(
         activity_notification_policy=notify_policy,
     )
 
-    auth_client = login_manager.get_auth_client()
-    principal_formatter = formatters.auth.PrincipalURNFormatter(auth_client)
-    for principal_set_name in ("run_managers", "run_monitors"):
-        for value in response.get(principal_set_name, ()):
-            principal_formatter.add_item(value)
-    principal_formatter.add_item(response.get("run_owner"))
-
-    fields = [
-        Field("Flow ID", "flow_id"),
-        Field("Flow title", "flow_title"),
-        Field("Run ID", "run_id"),
-        Field("Run label", "label"),
-        Field(
-            "Run owner",
-            "run_owner",
-            formatter=principal_formatter,
-        ),
-        Field(
-            "Run managers",
-            "run_managers",
-            formatter=formatters.ArrayFormatter(
-                delimiter=", ",
-                element_formatter=principal_formatter,
-            ),
-        ),
-        Field(
-            "Run monitors",
-            "run_monitors",
-            formatter=formatters.ArrayFormatter(
-                delimiter=", ",
-                element_formatter=principal_formatter,
-            ),
-        ),
-        Field(
-            "Run tags",
-            "tags",
-            formatter=formatters.ArrayFormatter(delimiter=", "),
-        ),
-    ]
+    fields = flow_run_format_fields(auth_client, response.data)
 
     display(response, fields=fields, text_mode=display.RECORD)
