@@ -29,8 +29,7 @@ def list_command(login_manager: LoginManager, *, endpoint_id: uuid.UUID) -> None
     rules = transfer_client.endpoint_acl_list(endpoint_id)
 
     formatter = AclPrincipalFormatter(auth_client)
-    for r in rules:
-        formatter.add_item(r)
+    formatter.add_items(*rules)
 
     display(
         rules,

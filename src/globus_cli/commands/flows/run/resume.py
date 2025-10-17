@@ -7,9 +7,10 @@ import uuid
 import click
 import globus_sdk
 
+from globus_cli.commands.flows._fields import flow_run_format_fields
 from globus_cli.login_manager import LoginManager
 from globus_cli.parsing import command, run_id_arg
-from globus_cli.termio import Field, display, formatters
+from globus_cli.termio import display
 from globus_cli.utils import CLIAuthRequirementsError
 
 # NB: GARE parsing requires other SDK components and therefore needs to be deferred to
@@ -37,6 +38,7 @@ def resume_command(
     Resume a run.
     """
     flows_client = login_manager.get_flows_client()
+    auth_client = login_manager.get_auth_client()
     run_doc = flows_client.get_run(run_id)
     flow_id = run_doc["flow_id"]
 
@@ -46,17 +48,10 @@ def resume_command(
     if not skip_inactive_reason_check:
         check_inactive_reason(login_manager, run_id, gare)
 
-    fields = [
-        Field("Run ID", "run_id"),
-        Field("Flow ID", "flow_id"),
-        Field("Flow Title", "flow_title"),
-        Field("Status", "status"),
-        Field("Run Label", "label"),
-        Field("Run Tags", "tags", formatter=formatters.Array),
-        Field("Started At", "start_time", formatter=formatters.Date),
-    ]
-
     res = specific_flow_client.resume_run(run_id)
+
+    fields = flow_run_format_fields(auth_client, res.data)
+
     display(res, fields=fields, text_mode=display.RECORD)
 
 

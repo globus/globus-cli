@@ -41,8 +41,7 @@ def role_list(login_manager: LoginManager, *, endpoint_id: uuid.UUID) -> None:
     roles = transfer_client.endpoint_role_list(endpoint_id)
 
     formatter = RolePrincipalFormatter(login_manager.get_auth_client())
-    for r in roles:
-        formatter.add_item(r)
+    formatter.add_items(*roles)
 
     display(
         roles,

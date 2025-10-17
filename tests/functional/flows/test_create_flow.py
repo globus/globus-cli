@@ -1,134 +1,33 @@
 import json
 import re
 import uuid
-from random import shuffle
 
 import pytest
 import responses
-from globus_sdk.testing import RegisteredResponse, load_response
-
-FLOW_IDENTITIES = {
-    "pete": {
-        "username": "pete@kreb.star",
-        "name": "Pete Wrigley",
-    },
-    "nona": {
-        "username": "nona@wellsville.gov",
-        "name": "Nona F. Mecklenberg",
-    },
-    "artie": {
-        "username": "artie@super.hero",
-        "name": "The Strongest Man in the World",
-    },
-    "monica": {
-        "username": "monica@kreb.scouts",
-        "name": "Monica Perling",
-    },
-}
-
-SPECIAL_PRINCIPALS = ["public", "all_authenticated_users"]
+from globus_sdk.testing import load_response
 
 
-class IdentityPool:
-    IDENTITY_DATA = FLOW_IDENTITIES
-
-    def __init__(self) -> None:
-        self.identities = {}
-        self.assigned_sets = {}
-
-    def assign(self, set_name, principal_set):
-        """
-        Assign a list of identities for the provided principal set, updating the
-        stored identities dict with any new identities that are created so they can
-        be reused.
-
-        set_name is the name of the key to store the assigned identities under
-        principal_set is a list of principals in the request
-        """
-        self.assigned_sets[set_name] = identity_set = []
-        # Randomize the names for each principal set
-        available_identities = list(self.IDENTITY_DATA.keys())
-        shuffle(available_identities)
-
-        # Iterate over the principals in the request
-        for index, principal in enumerate(principal_set):
-            if principal in self.identities:
-                # Use the existing identity if it's already been assigned
-                identity_set.append(self.identities[principal])
-                continue
-
-            if principal not in SPECIAL_PRINCIPALS:
-                # Attempt to assign distinct identities to each principal
-                identity = self.create_identity(
-                    principal.split(":")[-1],
-                    available_identities[index % len(available_identities)],
-                )
-                identity_set.append(identity)
-                self.identities[principal] = identity
-
-        return identity_set
-
-    def get_assigned_usernames(self, set_name):
-        """
-        Return a list of usernames for the provided set_name.
-        """
-        return [identity["username"] for identity in self.assigned_sets[set_name]]
-
-    @classmethod
-    def create_identity(cls, id, name):
-        """
-        Return an identity dict using the provided id for the user corresponding
-        to the provided name.
-        """
-        identity = cls.IDENTITY_DATA[name].copy()
-        identity["id"] = id
-        return identity
-
-
-def value_for_field_from_output(name, output):
-    """
-    Return the value for a specified field from the output of a command.
-    """
-    match = re.search(rf"^{name}:[^\S\n\r]+(?P<value>.*)$", output, flags=re.M)
-    assert match is not None
-    return match.group("value")
-
-
-def test_create_flow_text_output(run_line, get_identities_mocker):
+def test_create_flow_text_output(run_line, load_identities_for_flow):
     # Load the response mock and extract metadata
-    response = load_response("flows.create_flow")
-    definition = response.metadata["params"]["definition"]
-    input_schema = response.metadata["params"]["input_schema"]
-    keywords = response.metadata["params"]["keywords"]
-    title = response.metadata["params"]["title"]
-    subtitle = response.metadata["params"]["subtitle"]
-    description = response.metadata["params"]["description"]
-    flow_administrators = response.metadata["params"]["flow_administrators"]
-    flow_starters = response.metadata["params"]["flow_starters"]
-    flow_viewers = response.metadata["params"]["flow_viewers"]
-    flow_run_managers = response.metadata["params"]["run_managers"]
-    flow_run_monitors = response.metadata["params"]["run_monitors"]
+    loaded_response = load_response("flows.create_flow")
+    response, meta = loaded_response.json, loaded_response.metadata
 
-    pool = IdentityPool()
+    definition = meta["params"]["definition"]
+    input_schema = meta["params"]["input_schema"]
+    keywords = meta["params"]["keywords"]
+    title = meta["params"]["title"]
+    subtitle = meta["params"]["subtitle"]
+    description = meta["params"]["description"]
+    flow_administrators = meta["params"]["flow_administrators"]
+    flow_starters = meta["params"]["flow_starters"]
+    flow_viewers = meta["params"]["flow_viewers"]
+    flow_run_managers = meta["params"]["run_managers"]
+    flow_run_monitors = meta["params"]["run_monitors"]
 
-    # Configure the identities for all roles
-    pool.assign("owner", [response.json["flow_owner"]])
-    pool.assign("administrators", flow_administrators)
-    pool.assign("starters", flow_starters)
-    pool.assign("viewers", flow_viewers)
-    pool.assign("run_managers", flow_run_managers)
-    pool.assign("run_monitors", flow_run_monitors)
-
-    get_identities_mocker.configure(pool.identities.values())
+    pool = load_identities_for_flow(response)
 
     # Construct the command line
-    command = [
-        "globus",
-        "flows",
-        "create",
-        title,
-        json.dumps(definition),
-    ]
+    command = ["globus", "flows", "create", title, json.dumps(definition)]
     for flow_administrator in flow_administrators:
         command.extend(("--administrator", flow_administrator))
     for flow_starter in flow_starters:
@@ -171,65 +70,34 @@ def test_create_flow_text_output(run_line, get_identities_mocker):
     actual_fields = set(re.findall(r"^[\w ]+(?=:)", result.output, flags=re.M))
     assert expected_fields == actual_fields, "Expected and actual field sets differ"
 
-    # Check values for simple fields
-    simple_fields = {
-        "Owner": pool.get_assigned_usernames("owner")[0],
-        "Title": title or "",
-        "Subtitle": subtitle or "",
-        "Description": description or "",
-    }
+    assert _get_output_value("Title", result.output) == title or ""
+    assert _get_output_value("Subtitle", result.output) == subtitle or ""
+    assert _get_output_value("Description", result.output) == description or ""
+    assert _get_output_value("Keywords", result.output) == ", ".join(keywords)
 
-    for name, value in simple_fields.items():
-        assert value_for_field_from_output(name, result.output) == value
+    assert_usernames(result, pool, "Owner", [response["flow_owner"]])
+    assert_usernames(result, pool, "Administrators", response["flow_administrators"])
+    assert_usernames(result, pool, "Starters", response["flow_starters"])
+    assert_usernames(result, pool, "Viewers", response["flow_viewers"])
+    assert_usernames(result, pool, "Run Managers", response["run_managers"])
+    assert_usernames(result, pool, "Run Monitors", response["run_monitors"])
 
-    # Check all multi-value fields
-    expected_sets = {
-        "Keywords": set(keywords),
-        "Administrators": {
-            *[
-                principal
-                for principal in SPECIAL_PRINCIPALS
-                if principal in flow_administrators
-            ],
-            *pool.get_assigned_usernames("administrators"),
-        },
-        "Starters": {
-            *[
-                principal
-                for principal in SPECIAL_PRINCIPALS
-                if principal in flow_starters
-            ],
-            *pool.get_assigned_usernames("starters"),
-        },
-        "Viewers": {
-            *[
-                principal
-                for principal in SPECIAL_PRINCIPALS
-                if principal in flow_viewers
-            ],
-            *pool.get_assigned_usernames("viewers"),
-        },
-        "Run Managers": {
-            *[
-                principal
-                for principal in SPECIAL_PRINCIPALS
-                if principal in flow_run_managers
-            ],
-            *pool.get_assigned_usernames("run_managers"),
-        },
-        "Run Monitors": {
-            *[
-                principal
-                for principal in SPECIAL_PRINCIPALS
-                if principal in flow_run_monitors
-            ],
-            *pool.get_assigned_usernames("run_monitors"),
-        },
-    }
 
-    for name, expected_values in expected_sets.items():
-        match_list = set(value_for_field_from_output(name, result.output).split(","))
-        assert match_list == expected_values
+def assert_usernames(result, pool, field_name, principals):
+    expected_usernames = {pool.get_username(principal) for principal in principals}
+
+    output_value = _get_output_value(field_name, result.output)
+    output_usernames = [x.strip() for x in output_value.split(",")]
+    assert expected_usernames == set(output_usernames)
+
+
+def _get_output_value(name, output):
+    """
+    Return the value for a specified field from the output of a command.
+    """
+    match = re.search(rf"^{name}:[^\S\n\r]+(?P<value>.*)$", output, flags=re.M)
+    assert match is not None
+    return match.group("value")
 
 
 @pytest.mark.parametrize(
@@ -239,9 +107,12 @@ def test_create_flow_text_output(run_line, get_identities_mocker):
         (str(uuid.UUID(int=1)), True),
     ),
 )
-def test_create_flow_with_subscription_id(run_line, subscription_id, valid):
+def test_create_flow_with_subscription_id(
+    run_line, load_identities_for_flow, subscription_id, valid
+):
     # Load the response mock and extract metadata
     response = load_response("flows.create_flow")
+    response_data = response.json
 
     definition = response.metadata["params"]["definition"]
     input_schema = response.metadata["params"]["input_schema"]
@@ -256,25 +127,7 @@ def test_create_flow_with_subscription_id(run_line, subscription_id, valid):
     run_managers = response.metadata["params"]["run_managers"]
     run_monitors = response.metadata["params"]["run_monitors"]
 
-    pool = IdentityPool()
-
-    # Configure the identities for all roles
-    pool.assign("owner", [response.json["flow_owner"]])
-    pool.assign("administrators", flow_administrators)
-    pool.assign("starters", flow_starters)
-    pool.assign("viewers", flow_viewers)
-    pool.assign("run_managers", run_managers)
-    pool.assign("run_monitors", run_monitors)
-
-    load_response(
-        RegisteredResponse(
-            service="auth",
-            path="/v2/api/identities",
-            json={
-                "identities": list(pool.identities.values()),
-            },
-        )
-    )
+    load_identities_for_flow(response_data)
 
     # Construct the command line
     command = [

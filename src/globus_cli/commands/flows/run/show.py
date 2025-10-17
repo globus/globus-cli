@@ -5,9 +5,10 @@ import uuid
 import click
 import globus_sdk
 
+from globus_cli.commands.flows._fields import flow_run_format_fields
 from globus_cli.login_manager import LoginManager
 from globus_cli.parsing import command, run_id_arg
-from globus_cli.termio import Field, display, formatters
+from globus_cli.termio import display
 
 
 def _none_to_missing(
@@ -41,47 +42,6 @@ def show_command(
         run_id, include_flow_description=include_flow_description
     )
 
-    principal_formatter = formatters.auth.PrincipalURNFormatter(auth_client)
-    for principal_set_name in ("run_managers", "run_monitors"):
-        for value in response.get(principal_set_name, ()):
-            principal_formatter.add_item(value)
-    principal_formatter.add_item(response.get("run_owner"))
-
-    additional_fields = [
-        Field("Flow Subtitle", "flow_description.subtitle"),
-        Field("Flow Description", "flow_description.description"),
-        Field(
-            "Flow Keywords",
-            "flow_description.keywords",
-            formatter=formatters.ArrayFormatter(delimiter=", "),
-        ),
-    ]
-
-    fields = [
-        Field("Flow ID", "flow_id"),
-        Field("Flow Title", "flow_title"),
-        *(additional_fields if include_flow_description else []),
-        Field("Run ID", "run_id"),
-        Field("Run Label", "label"),
-        Field("Run Owner", "run_owner", formatter=principal_formatter),
-        Field(
-            "Run Managers",
-            "run_managers",
-            formatter=formatters.ArrayFormatter(
-                delimiter=", ", element_formatter=principal_formatter
-            ),
-        ),
-        Field(
-            "Run Monitors",
-            "run_monitors",
-            formatter=formatters.ArrayFormatter(
-                delimiter=", ", element_formatter=principal_formatter
-            ),
-        ),
-        Field("Run Tags", "tags", formatter=formatters.ArrayFormatter(delimiter=", ")),
-        Field("Started At", "start_time", formatter=formatters.Date),
-        Field("Completed At", "completion_time", formatter=formatters.Date),
-        Field("Status", "status"),
-    ]
+    fields = flow_run_format_fields(auth_client, response.data)
 
     display(response, fields=fields, text_mode=display.RECORD)

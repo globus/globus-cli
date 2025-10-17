@@ -24,14 +24,19 @@ def test_resume_inactive_run_missing_consent(run_line, add_flow_login):
     assert f"globus session consent '{required_scope}'" in result.output
 
 
-def test_resume_inactive_run_consent_present(run_line, add_flow_login):
+def test_resume_inactive_run_consent_present(
+    run_line, add_flow_login, load_identities_for_flow_run
+):
     # setup the response scenario
-    meta = load_response_set("cli.resume_run.inactive_consents_present").metadata
-    flow_id = meta["flow_id"]
-    run_id = meta["run_id"]
+    response_set = load_response_set("cli.resume_run.inactive_consents_present")
+    run_response = response_set.lookup("get_run").json
+
+    flow_id = response_set.metadata["flow_id"]
+    run_id = response_set.metadata["run_id"]
 
     # setup the login mock for the flow_id as well
     add_flow_login(flow_id)
+    load_identities_for_flow_run(run_response)
 
     run_line(
         ["globus", "flows", "run", "resume", run_id],
@@ -39,14 +44,19 @@ def test_resume_inactive_run_consent_present(run_line, add_flow_login):
     )
 
 
-def test_resume_inactive_run_consent_missing_but_skip_check(run_line, add_flow_login):
+def test_resume_inactive_run_consent_missing_but_skip_check(
+    run_line, add_flow_login, load_identities_for_flow_run
+):
     # setup the response scenario
-    meta = load_response_set("cli.resume_run.inactive_consents_missing").metadata
-    flow_id = meta["flow_id"]
-    run_id = meta["run_id"]
+    response_set = load_response_set("cli.resume_run.inactive_consents_missing")
+    run_response = response_set.lookup("get_run").json
+
+    flow_id = response_set.metadata["flow_id"]
+    run_id = response_set.metadata["run_id"]
 
     # setup the login mock for the flow_id as well
     add_flow_login(flow_id)
+    load_identities_for_flow_run(run_response)
 
     run_line(
         ["globus", "flows", "run", "resume", run_id, "--skip-inactive-reason-check"],
@@ -54,15 +64,20 @@ def test_resume_inactive_run_consent_missing_but_skip_check(run_line, add_flow_l
     )
 
 
-def test_resume_inactive_run_session_identities(run_line, add_flow_login):
+def test_resume_inactive_run_session_identities(
+    run_line, add_flow_login, load_identities_for_flow_run
+):
     # setup the response scenario
-    meta = load_response_set("cli.resume_run.inactive_session_identities").metadata
-    flow_id = meta["flow_id"]
-    run_id = meta["run_id"]
-    username = meta["username"]
+    response_set = load_response_set("cli.resume_run.inactive_session_identities")
+    run_response = response_set.lookup("get_run").json
+
+    flow_id = response_set.metadata["flow_id"]
+    run_id = response_set.metadata["run_id"]
+    username = response_set.metadata["username"]
 
     # setup the login mock for the flow_id as well
     add_flow_login(flow_id)
+    load_identities_for_flow_run(run_response)
 
     run_line(
         ["globus", "flows", "run", "resume", run_id],
@@ -72,15 +87,18 @@ def test_resume_inactive_run_session_identities(run_line, add_flow_login):
 
 
 def test_resume_inactive_run_session_identities_but_skip_check(
-    run_line, add_flow_login
+    run_line, add_flow_login, load_identities_for_flow_run
 ):
     # setup the response scenario
-    meta = load_response_set("cli.resume_run.inactive_session_identities").metadata
-    flow_id = meta["flow_id"]
-    run_id = meta["run_id"]
+    response_set = load_response_set("cli.resume_run.inactive_session_identities")
+    run_response = response_set.lookup("get_run").json
+
+    flow_id = response_set.metadata["flow_id"]
+    run_id = response_set.metadata["run_id"]
 
     # setup the login mock for the flow_id as well
     add_flow_login(flow_id)
+    load_identities_for_flow_run(run_response)
 
     run_line(
         ["globus", "flows", "run", "resume", run_id, "--skip-inactive-reason-check"],
@@ -341,11 +359,12 @@ def _register_responses(mock_user_data):
     )
 
 
-def test_resume_run_text_output(run_line, add_flow_login):
+def test_resume_run_text_output(run_line, add_flow_login, load_identities_for_flow_run):
     # get fields for resume_run
     response = load_response("flows.resume_run")
     meta = response.metadata
     response_payload = response.json
+
     flow_id = meta["flow_id"]
     run_id = meta["run_id"]
     tags = response_payload["tags"]
@@ -361,9 +380,7 @@ def test_resume_run_text_output(run_line, add_flow_login):
             service="flows",
             method="get",
             path=f"/runs/{run_id}",
-            json={
-                "flow_id": flow_id,
-            },
+            json={"flow_id": flow_id},
         )
     )
 
@@ -371,12 +388,14 @@ def test_resume_run_text_output(run_line, add_flow_login):
     # get a SpecificFlowClient for this flow
     add_flow_login(flow_id)
 
+    load_identities_for_flow_run(response_payload)
+
     run_line(
         ["globus", "flows", "run", "resume", run_id],
         search_stdout=[
             ("Flow ID", flow_id),
             ("Run ID", run_id),
-            ("Run Tags", ",".join(tags)),
+            ("Run Tags", ", ".join(tags)),
             ("Run Label", label),
             ("Status", status),
             ("Flow Title", flow_title),

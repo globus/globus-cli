@@ -4,51 +4,29 @@ import uuid
 from itertools import chain
 
 import pytest
-from globus_sdk.testing import RegisteredResponse, get_last_request, load_response
-
-from tests.functional.flows.test_create_flow import (
-    SPECIAL_PRINCIPALS,
-    IdentityPool,
-    value_for_field_from_output,
-)
+from globus_sdk.testing import get_last_request, load_response
 
 
-def test_update_flow_text_output(run_line):
+def test_update_flow_text_output(run_line, load_identities_for_flow):
     # Load the response mock and extract metadata
-    response = load_response("flows.update_flow")
-    flow_id = response.metadata["flow_id"]
-    definition = response.json["definition"]
-    input_schema = response.json["input_schema"]
-    keywords = response.json["keywords"]
-    title = response.json["title"]
-    subtitle = response.json["subtitle"]
-    description = response.json["description"]
-    flow_owner = response.json["flow_owner"]
-    flow_administrators = response.json["flow_administrators"]
-    flow_starters = response.json["flow_starters"]
-    flow_viewers = response.json["flow_viewers"]
-    run_managers = response.json["run_managers"]
-    run_monitors = response.json["run_monitors"]
+    loaded_response = load_response("flows.update_flow")
+    response, meta = loaded_response.json, loaded_response.metadata
 
-    pool = IdentityPool()
+    flow_id = meta["flow_id"]
+    definition = response["definition"]
+    input_schema = response["input_schema"]
+    keywords = response["keywords"]
+    title = response["title"]
+    subtitle = response["subtitle"]
+    description = response["description"]
+    flow_owner = response["flow_owner"]
+    flow_administrators = response["flow_administrators"]
+    flow_starters = response["flow_starters"]
+    flow_viewers = response["flow_viewers"]
+    run_managers = response["run_managers"]
+    run_monitors = response["run_monitors"]
 
-    # Configure the identities for all roles
-    pool.assign("owner", [flow_owner])
-    pool.assign("administrators", flow_administrators)
-    pool.assign("starters", flow_starters)
-    pool.assign("viewers", flow_viewers)
-    pool.assign("run_managers", run_managers)
-    pool.assign("run_monitors", run_monitors)
-
-    load_response(
-        RegisteredResponse(
-            service="auth",
-            path="/v2/api/identities",
-            json={
-                "identities": list(pool.identities.values()),
-            },
-        )
-    )
+    pool = load_identities_for_flow(response)
 
     # Construct the command line
     options = [
@@ -91,65 +69,34 @@ def test_update_flow_text_output(run_line):
     actual_fields = set(re.findall(r"^[\w ]+(?=:)", result.output, flags=re.M))
     assert expected_fields == actual_fields, "Expected and actual field sets differ"
 
-    # Check values for simple fields
-    simple_fields = {
-        "Owner": pool.get_assigned_usernames("owner")[0],
-        "Title": title or "",
-        "Subtitle": subtitle or "",
-        "Description": description or "",
-    }
+    assert _get_output_value("Title", result.output) == title or ""
+    assert _get_output_value("Subtitle", result.output) == subtitle or ""
+    assert _get_output_value("Description", result.output) == description or ""
+    assert _get_output_value("Keywords", result.output) == ", ".join(keywords)
 
-    for name, value in simple_fields.items():
-        assert value_for_field_from_output(name, result.output) == value
+    assert_usernames(result, pool, "Owner", [response["flow_owner"]])
+    assert_usernames(result, pool, "Administrators", response["flow_administrators"])
+    assert_usernames(result, pool, "Starters", response["flow_starters"])
+    assert_usernames(result, pool, "Viewers", response["flow_viewers"])
+    assert_usernames(result, pool, "Run Managers", response["run_managers"])
+    assert_usernames(result, pool, "Run Monitors", response["run_monitors"])
 
-    # Check all multi-value fields
-    expected_sets = {
-        "Keywords": set(keywords),
-        "Administrators": {
-            *[
-                principal
-                for principal in SPECIAL_PRINCIPALS
-                if principal in flow_administrators
-            ],
-            *pool.get_assigned_usernames("administrators"),
-        },
-        "Starters": {
-            *[
-                principal
-                for principal in SPECIAL_PRINCIPALS
-                if principal in flow_starters
-            ],
-            *pool.get_assigned_usernames("starters"),
-        },
-        "Viewers": {
-            *[
-                principal
-                for principal in SPECIAL_PRINCIPALS
-                if principal in flow_viewers
-            ],
-            *pool.get_assigned_usernames("viewers"),
-        },
-        "Run Managers": {
-            *[
-                principal
-                for principal in SPECIAL_PRINCIPALS
-                if principal in run_managers
-            ],
-            *pool.get_assigned_usernames("run_managers"),
-        },
-        "Run Monitors": {
-            *[
-                principal
-                for principal in SPECIAL_PRINCIPALS
-                if principal in run_monitors
-            ],
-            *pool.get_assigned_usernames("run_monitors"),
-        },
-    }
 
-    for name, expected_values in expected_sets.items():
-        match_list = set(value_for_field_from_output(name, result.output).split(","))
-        assert match_list == expected_values
+def assert_usernames(result, pool, field_name, principals):
+    expected_usernames = {pool.get_username(principal) for principal in principals}
+
+    output_value = _get_output_value(field_name, result.output)
+    output_usernames = [x.strip() for x in output_value.split(",")]
+    assert expected_usernames == set(output_usernames)
+
+
+def _get_output_value(name, output):
+    """
+    Return the value for a specified field from the output of a command.
+    """
+    match = re.search(rf"^{name}:[^\S\n\r]+(?P<value>.*)$", output, flags=re.M)
+    assert match is not None
+    return match.group("value")
 
 
 @pytest.mark.parametrize("name", ("administrators", "starters", "viewers", "keywords"))
