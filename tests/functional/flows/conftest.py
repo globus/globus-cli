@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import datetime
+import random
 import typing as t
 import uuid
 
@@ -137,6 +138,113 @@ def setup_paginated_responses() -> None:
             "total_items": 60,
         },
     )
+
+
+# A list of usernames to assign to new pool identities.
+_FLOWS_USERNAMES = (
+    "pete@kreb.star",
+    "nona@wellsville.gov",
+    "artie@super.hero",
+    "monica@kreb.scouts",
+    "ellen@astro.camp",
+    "larry@donkey.king",
+    "louise@forest.zone",
+    "simon@hover.board",
+    "judy@cosmo.club",
+    "manny@neon.city",
+)
+_FLOWS_SPECIAL_PRINCIPALS = ("public", "all_authenticated_users")
+
+
+class FlowsIdentityPool:
+    """
+    A pool of identities for use in a particular flow test.
+
+    The class is designed to be instantiated using the `load_identities_for_flow` and
+    `load_identities_for_flow_run` fixtures.
+    It accepts in a set of principal identities or URNs, assigning each a random unique
+    username and exposing this data for fixture-responses patching as well
+    as test verification (`get_username`).
+    """
+
+    def __init__(self, principals: set[str]) -> None:
+        username_iter = iter(random.sample(_FLOWS_USERNAMES, k=len(principals)))
+
+        # Mapping of identity-urn to username
+        self._usernames = {
+            principal: next(username_iter)
+            for principal in principals
+            if principal not in _FLOWS_SPECIAL_PRINCIPALS
+        }
+
+    def get_username(self, principal: str) -> str:
+        """
+        Return the username assigned to the given principal (or the principal itself it
+        if it "public" or "all_authenticated_users").
+        """
+        if principal in _FLOWS_SPECIAL_PRINCIPALS:
+            return principal
+        return self._usernames[principal]
+
+    def create_get_identities_documents(self) -> list[dict[str, str]]:
+        """
+        Render a partial identities document list for use in mocking Auth responses.
+        """
+        return [
+            {"id": principal.split(":")[-1], "username": username}
+            for principal, username in self._usernames.items()
+        ]
+
+
+@pytest.fixture
+def load_identities_for_flow(get_identities_mocker):
+    """
+    Callable fixture.
+    Load identities for a provided flow response object, configuring auth.get_identities
+    to return unique usernames for each identity associated with the flow.
+
+    Returns an identity pool object to facilitate lookup of username by principal urn.
+    """
+
+    flow_principal_keys = ("flow_administrators", "flow_starters", "flow_viewers")
+    flow_run_principal_keys = ("run_managers", "run_monitors")
+
+    def _load_identities_for_flow(flow: dict[str, t.Any]) -> FlowsIdentityPool:
+        principals: set[str] = {flow.get("flow_owner")} or set()
+        for key in flow_principal_keys + flow_run_principal_keys:
+            principals.update(set(flow.get(key, [])))
+
+        pool = FlowsIdentityPool(principals)
+
+        get_identities_mocker.configure(pool.create_get_identities_documents())
+        return pool
+
+    return _load_identities_for_flow
+
+
+@pytest.fixture
+def load_identities_for_flow_run(get_identities_mocker):
+    """
+    Callable fixture.
+    Load identities for a provided flow run response object, configuring
+    auth.get_identities to return unique usernames for each identity associated with the
+    flow.
+
+    Returns an identity pool object to facilitate lookup of username by principal urn.
+    """
+    run_principal_keys = ("run_managers", "run_monitors")
+
+    def _load_identities_for_run(flow_run: dict[str, t.Any]) -> FlowsIdentityPool:
+        principals: set[str] = {flow_run.get("run_owner")} or set()
+        for key in run_principal_keys:
+            principals.update(set(flow_run.get(key, [])))
+
+        pool = FlowsIdentityPool(principals)
+
+        get_identities_mocker.configure(pool.create_get_identities_documents())
+        return pool
+
+    return _load_identities_for_run
 
 
 @pytest.fixture(autouse=True, scope="session")
