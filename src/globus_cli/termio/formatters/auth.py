@@ -52,8 +52,10 @@ class PrincipalFormatter(FieldFormatter[t.Tuple[str, str]]):
 
     def add_item(self, value: t.Any) -> None:
         """
-        TODO - is this correct?
-        Register a principal on the formatter, making it eligible for resolution.
+        Register a principal which will be used on the formatter to facilitate more
+        efficient batch-lookup of usernames.
+
+        :param value: A principal value matching the specific subclass's parse() method.
         """
         try:
             principal, principal_type = self.parse(value)

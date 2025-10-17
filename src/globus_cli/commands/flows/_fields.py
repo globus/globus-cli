@@ -14,10 +14,10 @@ class FlowPrincipalFormatter(PrincipalURNFormatter):
     ) -> None:
         super().__init__(auth_client)
         self.add_item(flow.get("flow_owner"))
-        self.add_item(flow.get("flow_administrators", ()))
-        self.add_item(flow.get("flow_viewers", ()))
-        self.add_item(flow.get("run_managers", ()))
-        self.add_item(flow.get("run_monitors", ()))
+        [self.add_item(admin) for admin in flow.get("flow_administrators", ())]
+        [self.add_item(viewer) for viewer in flow.get("flow_viewers", ())]
+        [self.add_item(manager) for manager in flow.get("run_managers", ())]
+        [self.add_item(monitor) for monitor in flow.get("run_monitors", ())]
 
 
 def flow_format_fields(
@@ -63,8 +63,8 @@ class FlowRunPrincipalFormatter(PrincipalURNFormatter):
     ) -> None:
         super().__init__(auth_client)
         self.add_item(flow_run.get("run_owner"))
-        self.add_item(flow_run.get("run_managers", ()))
-        self.add_item(flow_run.get("run_monitors", ()))
+        [self.add_item(manager) for manager in flow_run.get("run_managers", ())]
+        [self.add_item(monitor) for monitor in flow_run.get("run_monitors", ())]
 
 
 def flow_run_format_fields(
