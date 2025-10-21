@@ -214,6 +214,8 @@ def login_command(
             manager.add_requirement(rs_name, [scope])
 
     for flow_id in flow_ids:
+        # TODO - evaluate flow authorization requirements dynamically once
+        #  `validate_run` has been updated to properly expose session requirements.
         # Rely on the SpecificFlowClient's scope builder.
         flow_scopes = SpecificFlowClient(flow_id).scopes
         assert flow_scopes is not None
