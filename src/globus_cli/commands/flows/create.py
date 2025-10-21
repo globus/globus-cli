@@ -16,7 +16,7 @@ from globus_cli.commands.flows._common import (
 )
 from globus_cli.commands.flows._fields import flow_format_fields
 from globus_cli.login_manager import LoginManager
-from globus_cli.parsing import JSONStringOrFile, ParsedJSONData, command
+from globus_cli.parsing import OMITTABLE_UUID, JSONStringOrFile, ParsedJSONData, command
 from globus_cli.termio import display
 from globus_cli.types import JsonValue
 
@@ -65,6 +65,20 @@ ROLE_TYPES = ("flow_viewer", "flow_starter", "flow_administrator", "flow_owner")
     """,
 )
 @click.option(
+    "--authentication-policy-id",
+    help="""
+        A GlobusAuth-registered authentication policy id.
+        A policy can enforce additional authentication requirements, e.g.
+        requiring an MFA or recent login, on any api interaction with the flow.
+
+        Flow policies are only semi-mutable.
+        Attempting to either remove a policy or add one where none exists, will fail.
+        Modifying an existing policy (changing the ID), however, is allowed.
+    """,
+    type=OMITTABLE_UUID,
+    default=globus_sdk.MISSING,
+)
+@click.option(
     "--subscription-id",
     help="Set a subscription_id for the flow, marking it as subscription tier.",
     type=click.UUID,
@@ -84,6 +98,7 @@ def create_command(
     keywords: tuple[str, ...],
     run_managers: tuple[str, ...],
     run_monitors: tuple[str, ...],
+    authentication_policy_id: uuid.UUID | globus_sdk.MissingType,
     subscription_id: uuid.UUID | None,
 ) -> None:
     """
@@ -136,6 +151,7 @@ def create_command(
         keywords=list(keywords),
         run_managers=list(run_managers),
         run_monitors=list(run_monitors),
+        authentication_policy_id=authentication_policy_id,
         subscription_id=subscription_id,
     )
 

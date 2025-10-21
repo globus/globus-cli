@@ -16,6 +16,7 @@ from globus_cli.commands.flows._fields import flow_format_fields
 from globus_cli.login_manager import LoginManager
 from globus_cli.parsing import (
     OMITTABLE_STRING,
+    OMITTABLE_UUID,
     CommaDelimitedList,
     JSONStringOrFile,
     ParsedJSONData,
@@ -143,6 +144,20 @@ ROLE_TYPES = ("flow_viewer", "flow_starter", "flow_administrator", "flow_owner")
     """,
     default=globus_sdk.MISSING,
 )
+@click.option(
+    "--authentication-policy-id",
+    help="""
+        A GlobusAuth-registered authentication policy id.
+        A policy can enforce additional authentication requirements, e.g.
+        requiring an MFA or recent login, on any api interaction with the flow.
+
+        Flow policies are only semi-mutable.
+        Attempting to either remove a policy or add one where none exists, will fail.
+        Attempting to modify the policy by changing its ID, however, is possible.
+    """,
+    type=OMITTABLE_UUID,
+    default=globus_sdk.MISSING,
+)
 @subscription_id_option
 @LoginManager.requires_login("flows")
 def update_command(
@@ -162,6 +177,7 @@ def update_command(
     run_monitors: list[str] | globus_sdk.MissingType,
     keywords: list[str] | globus_sdk.MissingType,
     subscription_id: uuid.UUID | t.Literal["DEFAULT"] | globus_sdk.MissingType,
+    authentication_policy_id: uuid.UUID | globus_sdk.MissingType,
 ) -> None:
     """
     Update a flow.
@@ -200,6 +216,7 @@ def update_command(
         run_monitors=run_monitors,
         keywords=keywords,
         subscription_id=subscription_id or globus_sdk.MISSING,
+        authentication_policy_id=authentication_policy_id,
     )
 
     fields = flow_format_fields(auth_client, res.data)

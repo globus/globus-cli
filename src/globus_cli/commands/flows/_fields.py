@@ -36,6 +36,7 @@ def flow_format_fields(
         delimiter=", ",
     )
     csv_list = formatters.ArrayFormatter(delimiter=", ")
+    fuzzy_bool = formatters.FuzzyBool
 
     return [
         Field("Flow ID", "id"),
@@ -44,6 +45,8 @@ def flow_format_fields(
         Field("Description", "description"),
         Field("Keywords", "keywords", formatter=csv_list),
         Field("Owner", "flow_owner", formatter=principal),
+        Field("High Assurance", "authentication_policy_id", formatter=fuzzy_bool),
+        Field("Authentication Policy ID", "authentication_policy_id"),
         Field("Subscription ID", "subscription_id"),
         Field("Created At", "created_at", formatter=formatters.Date),
         Field("Updated At", "updated_at", formatter=formatters.Date),
