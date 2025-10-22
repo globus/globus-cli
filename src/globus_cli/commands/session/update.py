@@ -86,6 +86,13 @@ def _update_session_params_identities_case(
     "identities", type=IdentityType(allow_domains=True), nargs=-1, required=False
 )
 @click.option(
+    "--scope",
+    "scopes",
+    multiple=True,
+    type=str,
+    help="One or more additional scope strings to request during authentication",
+)
+@click.option(
     "--policy",
     "policies",
     help="Comma separated list of authentication policy UUIDs",
@@ -101,6 +108,7 @@ def session_update(
     login_manager: LoginManager,
     *,
     identities: tuple[ParsedIdentity, ...],
+    scopes: tuple[str, ...],
     no_local_server: bool,
     policies: list[str] | None,
     all: bool,
@@ -156,5 +164,6 @@ def session_update(
             "\nYou have successfully updated your CLI session.\n"
             "Use 'globus session show' to see the updated session."
         ),
+        scopes=list(scopes),
         session_params=session_params,
     )

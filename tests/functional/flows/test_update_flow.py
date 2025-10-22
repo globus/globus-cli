@@ -58,6 +58,8 @@ def test_update_flow_text_output(run_line, load_identities_for_flow):
         "Keywords",
         "Owner",
         "Subscription ID",
+        "High Assurance",
+        "Authentication Policy ID",
         "Created At",
         "Updated At",
         "Administrators",

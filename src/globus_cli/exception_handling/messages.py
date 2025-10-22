@@ -8,7 +8,7 @@ import json
 import os
 
 import click
-import globus_sdk
+import globus_sdk.gare
 
 from globus_cli.login_manager import is_client_login
 from globus_cli.types import JsonValue
@@ -107,9 +107,11 @@ def emit_session_update_message(
     policies: list[str] | None,
     identities: list[str] | None,
     domains: list[str] | None,
+    scopes: list[str] | None = None,
     message: str = DEFAULT_SESSION_REAUTH_MESSAGE,
 ) -> None:
     click.echo(message)
+    scope_args = "".join(f" --scope '{s}'" for s in scopes or ())
 
     if identities or domains:
         # check both values in this assignment to convince mypy of correctness
@@ -119,18 +121,18 @@ def emit_session_update_message(
         update_target = " ".join(target_list)
         click.echo(
             "\nPlease run:\n\n"
-            f"    globus session update {update_target}\n\n"
+            f"    globus session update {update_target}{scope_args}\n\n"
             "to re-authenticate with the required identities."
         )
     elif policies:
         click.echo(
             "\nPlease run:\n\n"
-            f"    globus session update --policy '{','.join(policies)}'\n\n"
+            f"    globus session update --policy '{','.join(policies)}'{scope_args}\n\n"
             "to re-authenticate with the required identities."
         )
     else:
         click.echo(
-            '\nPlease use "globus session update" to re-authenticate '
+            f'\nPlease use "globus session update {scope_args}" to re-authenticate '
             "with specific identities."
         )
 
@@ -155,21 +157,24 @@ def emit_message_for_gare(
     gare: globus_sdk.gare.GARE, message: str | None = None
 ) -> None:
     required_scopes = gare.authorization_parameters.required_scopes
-    if required_scopes:
-        emit_consent_required_message(
-            required_scopes=required_scopes,
-            message=message or DEFAULT_CONSENT_REAUTH_MESSAGE,
-        )
-
     session_policies = gare.authorization_parameters.session_required_policies
     session_identities = gare.authorization_parameters.session_required_identities
     session_domains = gare.authorization_parameters.session_required_single_domain
-    if session_policies or session_identities or session_domains:
+
+    requires_update = bool(session_policies or session_identities or session_domains)
+
+    if requires_update:
         emit_session_update_message(
             policies=session_policies,
             identities=session_identities,
             domains=session_domains,
+            scopes=required_scopes,
             message=message or DEFAULT_SESSION_REAUTH_MESSAGE,
+        )
+    elif required_scopes:
+        emit_consent_required_message(
+            required_scopes=required_scopes,
+            message=message or DEFAULT_CONSENT_REAUTH_MESSAGE,
         )
 
 

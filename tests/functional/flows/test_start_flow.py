@@ -6,6 +6,7 @@ import uuid
 
 import pytest
 import responses
+from globus_sdk.scopes import SpecificFlowScopes
 from globus_sdk.testing import RegisteredResponse, load_response
 
 
@@ -84,7 +85,8 @@ def test_start_flow_prompts_session_reconsent_on_gare(run_line, add_flow_login):
     instruct the user to update their session based on the supplied GARE.
     """
     flow_id = str(uuid.uuid4())
-    required_policy_id = str(uuid.uuid4())
+    flow_scope = SpecificFlowScopes(flow_id).user
+    policy_id = str(uuid.uuid4())
 
     add_flow_login(flow_id)
 
@@ -100,7 +102,7 @@ def test_start_flow_prompts_session_reconsent_on_gare(run_line, add_flow_login):
                     "Globus Flows detected an unsatisfied session policy for this "
                     "resource."
                 ),
-                "session_required_policies": [required_policy_id],
+                "session_required_policies": [policy_id],
             },
             "error": {
                 "code": "AUTHENTICATION_POLICY_REQUIRED",
@@ -116,7 +118,8 @@ def test_start_flow_prompts_session_reconsent_on_gare(run_line, add_flow_login):
 
     result = run_line(f"globus flows start {flow_id} --input {{}}", assert_exit_code=4)
 
-    assert f"globus session update --policy '{required_policy_id}'" in result.stdout
+    login_cmd = f"globus session update --policy '{policy_id}' --scope '{flow_scope}'"
+    assert login_cmd in result.stdout
 
 
 def test_start_flow_rejects_non_object_input(run_line, add_flow_login):

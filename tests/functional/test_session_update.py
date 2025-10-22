@@ -55,11 +55,18 @@ def test_username_flow(run_line, userinfo_mocker, mock_remote_session, mock_link
     assert call_kwargs["session_params"]["session_required_identities"] == user_id
 
 
-def test_domain_flow(run_line, userinfo_mocker, mock_remote_session, mock_link_flow):
+@pytest.mark.parametrize("with_scopes", [True, False])
+def test_domain_flow(
+    run_line, userinfo_mocker, mock_remote_session, mock_link_flow, with_scopes
+):
     mock_remote_session.return_value = True
     userinfo_mocker.configure_unlinked()
 
-    result = run_line("globus session update uchicago.edu")
+    scopes_args = ""
+    if with_scopes:
+        scopes_args = " --scope urn:globus:auth:scope:example.api:all --scope foo"
+
+    result = run_line(f"globus session update uchicago.edu{scopes_args}")
 
     assert "You have successfully updated your CLI session." in result.output
 
@@ -73,8 +80,9 @@ def test_domain_flow(run_line, userinfo_mocker, mock_remote_session, mock_link_f
     )
 
 
+@pytest.mark.parametrize("with_scopes", [True, False])
 def test_all_flow(
-    run_line, userinfo_mocker, mock_remote_session, mock_local_server_flow
+    run_line, userinfo_mocker, mock_remote_session, mock_local_server_flow, with_scopes
 ):
     mock_remote_session.return_value = False
     meta = userinfo_mocker.configure(
@@ -84,7 +92,11 @@ def test_all_flow(
 
     ids = [x["sub"] for x in meta["identity_set"]]
 
-    result = run_line("globus session update --all")
+    scopes_args = ""
+    if with_scopes:
+        scopes_args = " --scope urn:globus:auth:scope:example.api:all --scope foo"
+
+    result = run_line(f"globus session update --all{scopes_args}")
 
     assert "You have successfully updated your CLI session." in result.output
 
@@ -97,11 +109,18 @@ def test_all_flow(
     ) == set(ids)
 
 
-def test_policy_flow(run_line, userinfo_mocker, mock_remote_session, mock_link_flow):
+@pytest.mark.parametrize("with_scopes", [True, False])
+def test_policy_flow(
+    run_line, userinfo_mocker, mock_remote_session, mock_link_flow, with_scopes
+):
     mock_remote_session.return_value = True
     userinfo_mocker.configure_unlinked()
 
-    result = run_line("globus session update --policy foo,bar")
+    scopes_args = ""
+    if with_scopes:
+        scopes_args = " --scope urn:globus:auth:scope:example.api:all --scope foo"
+
+    result = run_line(f"globus session update --policy foo,bar{scopes_args}")
 
     assert "You have successfully updated your CLI session." in result.output
 

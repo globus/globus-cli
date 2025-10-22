@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import contextlib
 import os
 import string
 import typing as t
@@ -7,6 +8,7 @@ import uuid
 
 import click
 import globus_sdk
+from globus_sdk.gare import to_gare
 
 from globus_cli._click_compat import shim_get_metavar
 from globus_cli.commands.flows._fields import flow_run_format_fields
@@ -21,6 +23,7 @@ from globus_cli.parsing import (
 )
 from globus_cli.termio import display
 from globus_cli.types import JsonValue
+from globus_cli.utils import CLIAuthRequirementsError
 
 if t.TYPE_CHECKING:
     from click.shell_completion import CompletionItem
@@ -250,16 +253,46 @@ def start_command(
 
     flow_client = login_manager.get_specific_flow_client(flow_id)
     auth_client = login_manager.get_auth_client()
+    flow_scope = flow_client.scopes.user.scope_string
 
-    response = flow_client.run_flow(
-        body=input_document_json,
-        label=label,
-        tags=list(tags),
-        run_managers=list(managers),
-        run_monitors=list(monitors),
-        activity_notification_policy=notify_policy,
-    )
+    with scope_injected_into_raised_gares(flow_scope):
+        response = flow_client.run_flow(
+            body=input_document_json,
+            label=label,
+            tags=list(tags),
+            run_managers=list(managers),
+            run_monitors=list(monitors),
+            activity_notification_policy=notify_policy,
+        )
 
     fields = flow_run_format_fields(auth_client, response.data)
 
     display(response, fields=fields, text_mode=display.RECORD)
+
+
+@contextlib.contextmanager
+def scope_injected_into_raised_gares(scope: str) -> t.Iterator[None]:
+    """
+    A context manager which catches GARE-convertible GlobusAPIErrors and reraises
+    as an exact copy of the original GARE but with the supplied scope injected.
+
+    Due to SDK Error mutability limitations, these GAREs are raised as
+    CLIAuthRequirementsErrors. All other categories of errors raise as normal.
+
+    :param scope: The scope to inject into any caught GAREs.
+    :raises CLIAuthRequirementsError: with modified GARE if a GARE-compatible
+        GlobusAPIError is caught.
+    """
+
+    try:
+        yield
+    except globus_sdk.GlobusAPIError as e:
+        gare = to_gare(e)
+        if gare:
+            scopes = gare.authorization_parameters.required_scopes or []
+            if scope not in scopes:
+                scopes.append(scope)
+
+            gare.authorization_parameters.required_scopes = scopes
+            raise CLIAuthRequirementsError("", gare=gare)
+        raise

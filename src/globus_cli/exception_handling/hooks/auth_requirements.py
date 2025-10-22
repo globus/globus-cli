@@ -40,7 +40,7 @@ def handle_internal_auth_requirements(
 )
 def session_hook(exception: globus_sdk.GlobusAPIError) -> None:
     """
-    Expects an exception with a valid authorization_paramaters info field.
+    Expects an exception with a valid authorization_parameters info field.
     """
     message = exception.info.authorization_parameters.session_message
     if message:
