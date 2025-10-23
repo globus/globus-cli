@@ -7,5 +7,5 @@
     * Note that a policy must be set at flow creation time in order to create a high
       assurance flow**.**
       A policy cannot be added to an existing non-high assurance flow.
-      A policy can, however, be replaced with a different high assurance policy if it
+      A policy can, however, be replaced with a different high assurance policy if one
       was already associated with the flow.
