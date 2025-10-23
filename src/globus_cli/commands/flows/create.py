@@ -67,13 +67,16 @@ ROLE_TYPES = ("flow_viewer", "flow_starter", "flow_administrator", "flow_owner")
 @click.option(
     "--authentication-policy-id",
     help="""
-        A GlobusAuth-registered authentication policy id.
-        A policy can enforce additional authentication requirements, e.g.
-        requiring an MFA or recent login, on any api interaction with the flow.
+        A Globus Auth authentication policy ID.
+        The provided policy must require high-assurance.
+        Assigning an authentication policy enforces additional
+        authentication requirements, e.g., requiring an MFA or recent login,
+        on most API interactions with a flow and its runs.
 
         Flow policies are only semi-mutable.
-        Attempting to either remove a policy or add one where none exists, will fail.
-        Modifying an existing policy (changing the ID), however, is allowed.
+        Attempting to either remove a policy or add one when previously unset
+        will fail. Replacing an existing authentication policy with a new one,
+        however, is allowed.
     """,
     type=OMITTABLE_UUID,
     default=globus_sdk.MISSING,
