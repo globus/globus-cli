@@ -132,7 +132,7 @@ def emit_session_update_message(
         )
     else:
         click.echo(
-            f'\nPlease use "globus session update {scope_args}" to re-authenticate '
+            f'\nPlease use "globus session update{scope_args}" to re-authenticate '
             "with specific identities."
         )
 

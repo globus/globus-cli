@@ -227,25 +227,20 @@ class LoginManager:
         self,
         scopes: list[str | Scope] | None,
         additional_scopes: list[str | Scope] | None,
-    ) -> list[Scope]:
+    ) -> list[str | Scope]:
         if scopes and additional_scopes:
             raise RuntimeError("Cannot specify both 'scopes' and 'additional_scopes'")
 
-        elif additional_scopes:
-            defaults = [s for _, scopes in self.login_requirements for s in scopes]
-            normalized = [s if isinstance(s, Scope) else Scope.parse(s) for s in scopes]
+        computed_scopes: list[str | Scope] = []
 
-            return defaults + normalized
-
-        elif scopes:
-            normalized = [s if isinstance(s, Scope) else Scope.parse(s) for s in scopes]
-            for s in self.always_required_scopes:
-                if s not in normalized:
-                    normalized.append(s)
-            return normalized
-
+        if scopes:
+            computed_scopes.extend(scopes)
         else:
-            return [s for _, scopes in self.login_requirements for s in scopes]
+            defaults = [s for _, scopes in self.login_requirements for s in scopes]
+            computed_scopes.extend(defaults)
+            if additional_scopes:
+                computed_scopes.extend(additional_scopes)
+        return computed_scopes
 
     def assert_logins(
         self,

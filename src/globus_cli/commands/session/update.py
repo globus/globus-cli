@@ -164,6 +164,6 @@ def session_update(
             "\nYou have successfully updated your CLI session.\n"
             "Use 'globus session show' to see the updated session."
         ),
-        scopes=list(scopes),
+        additional_scopes=list(scopes),
         session_params=session_params,
     )
