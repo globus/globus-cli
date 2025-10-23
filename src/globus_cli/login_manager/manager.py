@@ -197,6 +197,7 @@ class LoginManager:
         epilog: str | None = None,
         session_params: dict[str, str] | None = None,
         scopes: list[str | Scope] | None = None,
+        additional_scopes: list[str | Scope] | None = None,
     ) -> None:
         if is_client_login():
             click.echo(
@@ -206,15 +207,8 @@ class LoginManager:
             )
             click.get_current_context().exit(1)
 
-        if scopes is None:  # flatten scopes to list of strings if none provided
-            scopes = [
-                s for _rs_name, rs_scopes in self.login_requirements for s in rs_scopes
-            ]
-        # ensure that the requested scope list contains the scopes which are listed as
-        # "always required"
-        for s in self.always_required_scopes:
-            if s not in scopes:
-                scopes.append(s)
+        scopes = self._compute_login_scopes(scopes, additional_scopes)
+
         # use a link login if remote session or user requested
         if no_local_server or is_remote_session():
             do_link_auth_flow(self.storage, scopes, session_params=session_params)
@@ -228,6 +222,30 @@ class LoginManager:
 
         if epilog is not None:
             click.echo(epilog)
+
+    def _compute_login_scopes(
+        self,
+        scopes: list[str | Scope] | None,
+        additional_scopes: list[str | Scope] | None,
+    ) -> list[Scope]:
+        if scopes and additional_scopes:
+            raise RuntimeError("Cannot specify both 'scopes' and 'additional_scopes'")
+
+        elif additional_scopes:
+            defaults = [s for _, scopes in self.login_requirements for s in scopes]
+            normalized = [s if isinstance(s, Scope) else Scope.parse(s) for s in scopes]
+
+            return defaults + normalized
+
+        elif scopes:
+            normalized = [s if isinstance(s, Scope) else Scope.parse(s) for s in scopes]
+            for s in self.always_required_scopes:
+                if s not in normalized:
+                    normalized.append(s)
+            return normalized
+
+        else:
+            return [s for _, scopes in self.login_requirements for s in scopes]
 
     def assert_logins(
         self,
