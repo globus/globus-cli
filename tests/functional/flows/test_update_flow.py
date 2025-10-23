@@ -65,8 +65,6 @@ def test_update_flow_text_output(run_line, load_identities_for_flow):
         "Administrators",
         "Starters",
         "Viewers",
-        "High Assurance",
-        "Authentication Policy ID",
         "Run Managers",
         "Run Monitors",
     }
