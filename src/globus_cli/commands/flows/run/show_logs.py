@@ -55,7 +55,7 @@ def show_logs_command(
     with flow_scope_injector.for_run(run_id):
         run_doc = flows_client.get_run(run_id)
 
-    def wrapped_get_run_logs(*args, **kwargs):
+    def wrapped_get_run_logs(*args, **kwargs):  # type:ignore[no-untyped-def]
         """Thin wrapper to inject flow scope into paginated get_run_logs calls."""
         with flow_scope_injector.for_run(run_id):
             return flows_client.get_run_logs(*args, **kwargs)

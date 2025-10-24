@@ -235,7 +235,7 @@ class FlowScopeInjector:
 
         required_scopes = gare.authorization_parameters.required_scopes or []
         # Make sure that no root scopes match the one we want to inject.
-        if not any(s.starts_with(flow_scope) for s in required_scopes):
+        if not any(s.startswith(flow_scope) for s in required_scopes):
             required_scopes.insert(0, flow_scope)
         gare.authorization_parameters.required_scopes = required_scopes
 
