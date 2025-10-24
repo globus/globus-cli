@@ -5,6 +5,7 @@ import uuid
 import click
 import globus_sdk
 
+from globus_cli.commands.flows._common import FlowScopeInjector
 from globus_cli.commands.flows._fields import flow_run_format_fields
 from globus_cli.login_manager import LoginManager
 from globus_cli.parsing import OMITTABLE_STRING, CommaDelimitedList, command, run_id_arg
@@ -52,7 +53,7 @@ from globus_cli.termio import display
     """,
     default=globus_sdk.MISSING,
 )
-@LoginManager.requires_login("flows")
+@LoginManager.requires_login("auth", "flows", "search")
 def update_command(
     login_manager: LoginManager,
     *,
@@ -68,13 +69,14 @@ def update_command(
     flows_client = login_manager.get_flows_client()
     auth_client = login_manager.get_auth_client()
 
-    response = flows_client.update_run(
-        run_id,
-        label=label,
-        run_monitors=run_monitors,
-        run_managers=run_managers,
-        tags=tags,
-    )
+    with FlowScopeInjector(login_manager).for_run(run_id):
+        response = flows_client.update_run(
+            run_id,
+            label=label,
+            run_monitors=run_monitors,
+            run_managers=run_managers,
+            tags=tags,
+        )
 
     fields = flow_run_format_fields(auth_client, response.data)
 

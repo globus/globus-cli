@@ -7,6 +7,7 @@ import click
 import globus_sdk
 
 from globus_cli.commands.flows._common import (
+    FlowScopeInjector,
     description_option,
     input_schema_option_with_default,
     subscription_id_option,
@@ -162,7 +163,7 @@ ROLE_TYPES = ("flow_viewer", "flow_starter", "flow_administrator", "flow_owner")
     default=globus_sdk.MISSING,
 )
 @subscription_id_option
-@LoginManager.requires_login("flows")
+@LoginManager.requires_login("auth", "flows", "search")
 def update_command(
     login_manager: LoginManager,
     *,
@@ -204,23 +205,24 @@ def update_command(
     flows_client = login_manager.get_flows_client()
     auth_client = login_manager.get_auth_client()
 
-    res = flows_client.update_flow(
-        flow_id,
-        title=title,
-        definition=definition_doc,
-        input_schema=input_schema_doc,
-        subtitle=subtitle,
-        description=description,
-        flow_owner=owner,
-        flow_administrators=administrators,
-        flow_starters=starters,
-        flow_viewers=viewers,
-        run_managers=run_managers,
-        run_monitors=run_monitors,
-        keywords=keywords,
-        subscription_id=subscription_id or globus_sdk.MISSING,
-        authentication_policy_id=authentication_policy_id,
-    )
+    with FlowScopeInjector(login_manager).for_flow(flow_id):
+        res = flows_client.update_flow(
+            flow_id,
+            title=title,
+            definition=definition_doc,
+            input_schema=input_schema_doc,
+            subtitle=subtitle,
+            description=description,
+            flow_owner=owner,
+            flow_administrators=administrators,
+            flow_starters=starters,
+            flow_viewers=viewers,
+            run_managers=run_managers,
+            run_monitors=run_monitors,
+            keywords=keywords,
+            subscription_id=subscription_id or globus_sdk.MISSING,
+            authentication_policy_id=authentication_policy_id,
+        )
 
     fields = flow_format_fields(auth_client, res.data)
 

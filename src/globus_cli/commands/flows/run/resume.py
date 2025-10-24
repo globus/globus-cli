@@ -7,6 +7,7 @@ import uuid
 import click
 import globus_sdk
 
+from globus_cli.commands.flows._common import FlowScopeInjector
 from globus_cli.commands.flows._fields import flow_run_format_fields
 from globus_cli.login_manager import LoginManager
 from globus_cli.parsing import command, run_id_arg
@@ -30,7 +31,7 @@ if t.TYPE_CHECKING:
         "which is used to determine what action is required to resume the run."
     ),
 )
-@LoginManager.requires_login("auth", "flows")
+@LoginManager.requires_login("auth", "flows", "search")
 def resume_command(
     login_manager: LoginManager, *, run_id: uuid.UUID, skip_inactive_reason_check: bool
 ) -> None:
@@ -39,8 +40,11 @@ def resume_command(
     """
     flows_client = login_manager.get_flows_client()
     auth_client = login_manager.get_auth_client()
-    run_doc = flows_client.get_run(run_id)
-    flow_id = run_doc["flow_id"]
+    flow_scope_injector = FlowScopeInjector(login_manager)
+
+    with flow_scope_injector.for_run(run_id):
+        run_doc = flows_client.get_run(run_id)
+        flow_id = run_doc["flow_id"]
 
     specific_flow_client = login_manager.get_specific_flow_client(flow_id)
 
@@ -48,7 +52,8 @@ def resume_command(
     if not skip_inactive_reason_check:
         check_inactive_reason(login_manager, run_id, gare)
 
-    res = specific_flow_client.resume_run(run_id)
+    with flow_scope_injector.for_flow(flow_id):
+        res = specific_flow_client.resume_run(run_id)
 
     fields = flow_run_format_fields(auth_client, res.data)
 
