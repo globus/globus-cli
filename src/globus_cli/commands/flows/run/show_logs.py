@@ -49,23 +49,16 @@ def show_logs_command(
     """
 
     flows_client = login_manager.get_flows_client()
-    flow_scope_injector = FlowScopeInjector(login_manager)
 
-    # get the Flow, to check INACTIVE status below
-    with flow_scope_injector.for_run(run_id):
-        run_doc = flows_client.get_run(run_id)
-
-    def wrapped_get_run_logs(*args, **kwargs):  # type:ignore[no-untyped-def]
-        """Thin wrapper to inject flow scope into paginated get_run_logs calls."""
-        with flow_scope_injector.for_run(run_id):
-            return flows_client.get_run_logs(*args, **kwargs)
-
-    paginator = Paginator.wrap(wrapped_get_run_logs)
-    entry_iterator = PagingWrapper(
-        paginator(run_id=run_id, reverse_order=reverse).items(),
-        limit=limit,
-        json_conversion_key="entries",
-    )
+    paginator = Paginator.wrap(flows_client.get_run_logs)
+    with FlowScopeInjector(login_manager).for_run(run_id):
+        # Note: `PagingWrapper.__init__` calls `_step` which is why we wrap this block
+        #   with the flow scope injector, not later usages of it.
+        entry_iterator = PagingWrapper(
+            paginator(run_id=run_id, reverse_order=reverse).items(),
+            limit=limit,
+            json_conversion_key="entries",
+        )
 
     fields = [
         Field("Time", "time"),
@@ -88,9 +81,13 @@ def show_logs_command(
         )
         # Display the log entries in a table.
         display(
-            entry_iterator, fields=fields, json_converter=entry_iterator.json_converter
+            entry_iterator,
+            fields=fields,
+            json_converter=entry_iterator.json_converter,
         )
 
+    # Fetch the run to check its status
+    run_doc = flows_client.get_run(run_id)
     if run_doc["status"] == "INACTIVE":
         print_command_hint(
             (
