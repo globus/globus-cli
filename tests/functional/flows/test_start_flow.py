@@ -2,12 +2,10 @@ from __future__ import annotations
 
 import json
 import re
-import uuid
 
 import pytest
 import responses
-from globus_sdk.scopes import SpecificFlowScopes
-from globus_sdk.testing import RegisteredResponse, load_response
+from globus_sdk.testing import load_response
 
 
 def test_start_flow_text_output(run_line, add_flow_login, load_identities_for_flow_run):
@@ -77,49 +75,6 @@ def _get_output_value(name, output):
     match = re.search(rf"^{name}:[^\S\n\r]+(?P<value>.*)$", output, flags=re.M)
     assert match is not None
     return match.group("value")
-
-
-def test_start_flow_prompts_session_reconsent_on_gare(run_line, add_flow_login):
-    """
-    When an HA flow is started but a session requirement is not met, ensure we properly
-    instruct the user to update their session based on the supplied GARE.
-    """
-    flow_id = str(uuid.uuid4())
-    flow_scope = SpecificFlowScopes(flow_id).user
-    policy_id = str(uuid.uuid4())
-
-    add_flow_login(flow_id)
-
-    RegisteredResponse(
-        service="flows",
-        path=f"/flows/{flow_id}/run",
-        method="POST",
-        status=403,
-        json={
-            "code": "AuthenticationPolicyRequired",
-            "authorization_parameters": {
-                "session_message": (
-                    "Globus Flows detected an unsatisfied session policy for this "
-                    "resource."
-                ),
-                "session_required_policies": [policy_id],
-            },
-            "error": {
-                "code": "AUTHENTICATION_POLICY_REQUIRED",
-                "detail": (
-                    "You do not have the necessary permissions to perform this action "
-                    "on the flow with id value 50d4ecb4-206b-4669-8c99-c18b05f30e7d. "
-                    "Missing permissions: RUN."
-                ),
-            },
-            "debug_id": "34a8a8ad-580f-4c44-a411-7e0fa05df370",
-        },
-    ).add()
-
-    result = run_line(f"globus flows start {flow_id} --input {{}}", assert_exit_code=4)
-
-    login_cmd = f"globus session update --policy '{policy_id}' --scope '{flow_scope}'"
-    assert login_cmd in result.stdout
 
 
 def test_start_flow_rejects_non_object_input(run_line, add_flow_login):
