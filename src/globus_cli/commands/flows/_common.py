@@ -216,7 +216,9 @@ class FlowScopeInjector:
         try:
             yield
         except globus_sdk.GlobusAPIError as api_error:
-            flow_id = self._query_flow_id(run_id)
+            resolver = FlowIdResolver(self._login_manager)
+            flow_id = resolver.resolve(run_id)
+
             self._inject_and_raise(api_error, flow_id)
 
     @staticmethod
@@ -241,19 +243,24 @@ class FlowScopeInjector:
 
         raise CLIAuthRequirementsError("", gare=gare)
 
-    def _query_flow_id(self, run_id: uuid.UUID) -> uuid.UUID | None:
+
+class FlowIdResolver:
+    RUN_INDEX = "2a318659-a547-4b48-a0fc-e0c19081a960"
+
+    def __init__(self, login_manager: LoginManager) -> None:
+        self._search_client = login_manager.get_search_client()
+
+    def resolve(self, run_id: uuid.UUID) -> uuid.UUID | None:
         """
         Lookup a run's associated flow ID from search (best-effort).
 
         :return: The flow ID as a UUID, or None if the lookup fails or is unparsable
             for any reason.
         """
-        search_run_index = "2a318659-a547-4b48-a0fc-e0c19081a960"
-        search_client = self._login_manager.get_search_client()
 
         try:
-            flow_id = search_client.post_search(
-                search_run_index,
+            flow_id = self._search_client.post_search(
+                self.RUN_INDEX,
                 {
                     "filters": [
                         {
@@ -266,7 +273,7 @@ class FlowScopeInjector:
                 },
             )["gmeta"][0]["entries"][0]["content"]["flow_id"]
             return uuid.UUID(flow_id)
-        except (globus_sdk.GlobusError, IndexError, KeyError):
+        except (globus_sdk.GlobusError, LookupError):
             # This search is a best-effort flows-operation.
             # To avoid mis-categorizing a flows error as a search one, silence any
             #   predictable error arising from a failed lookup.
