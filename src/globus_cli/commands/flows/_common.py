@@ -245,7 +245,7 @@ class FlowScopeInjector:
             required_scopes.insert(0, flow_scope)
         gare.authorization_parameters.required_scopes = required_scopes
 
-        raise CLIAuthRequirementsError("", gare=gare)
+        raise CLIAuthRequirementsError("", gare=gare, origin=api_error)
 
 
 class FlowIdResolver:

@@ -222,10 +222,12 @@ class CLIAuthRequirementsError(Exception):
         *,
         gare: GARE | None = None,
         epilog: str | None = None,
+        origin: Exception | None = None,
     ) -> None:
         self.message = message
         self.epilog = epilog
         self.gare = gare
+        self.origin = origin
 
 
 def resolve_principal_urn(

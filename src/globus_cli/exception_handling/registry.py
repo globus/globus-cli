@@ -8,6 +8,7 @@ import click
 import globus_sdk
 
 from globus_cli.parsing.command_state import CommandState
+from globus_cli.utils import CLIAuthRequirementsError
 
 E = t.TypeVar("E", bound=Exception)
 E_Globus = t.TypeVar("E_Globus", bound="globus_sdk.GlobusAPIError")
@@ -52,12 +53,25 @@ def error_handler(
     )
 
 
-def find_handler(exception: Exception) -> HOOK_TYPE[E] | None:
+def invoke_exception_handler(exception: Exception) -> None:
+    """
+    Find and invoke a registered exception handler for the given exception.
+
+    The first handler with a matching condition for either the exception or the
+    origin exception (if applicable) is invoked and no further handlers are checked.
+
+    Has no effect if no handlers match.
+    """
+
     for hook in _REGISTERED_HOOKS:
-        if not hook.condition(exception):
-            continue
-        return hook.hook_func
-    return None
+        if hook.condition(exception):
+            hook.hook_func(exception)
+
+        elif isinstance(exception, CLIAuthRequirementsError):
+            # Special case the CLIAuthRequirementsError to allow hooks to
+            # match on the original, unmodified, exception.
+            if exception.origin and hook.condition(exception.origin):
+                hook.hook_func(exception.origin)
 
 
 def _error_handler(

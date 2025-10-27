@@ -20,7 +20,7 @@ import click.exceptions
 from globus_cli.parsing.command_state import CommandState
 
 from .hooks import register_all_hooks
-from .registry import find_handler
+from .registry import invoke_exception_handler
 
 E = t.TypeVar("E", bound=Exception)
 
@@ -45,9 +45,7 @@ def custom_except_hook(exc_info: tuple[type[E], E, types.TracebackType]) -> t.No
     # we're not in debug mode, do custom handling
 
     # look for a relevant registered handler
-    handler: t.Callable[[E], t.NoReturn] | None = find_handler(exception)
-    if handler:
-        handler(exception)
+    invoke_exception_handler(exception)
 
     # if it's a click exception, re-raise as original -- Click's main
     # execution context will handle pretty-printing
