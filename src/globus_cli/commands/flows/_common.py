@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import contextlib
+import functools
 import typing as t
 import uuid
 
@@ -201,7 +202,7 @@ class FlowScopeInjector:
         try:
             yield
         except globus_sdk.GlobusAPIError as api_error:
-            self._inject_and_raise(api_error, flow_id)
+            self._inject_and_raise(api_error, lambda: flow_id)
 
     @contextlib.contextmanager
     def for_run(self, run_id: uuid.UUID) -> t.Iterator[None]:
@@ -217,20 +218,23 @@ class FlowScopeInjector:
             yield
         except globus_sdk.GlobusAPIError as api_error:
             resolver = FlowIdResolver(self._login_manager)
-            flow_id = resolver.resolve(run_id)
+            resolve_flow_id = functools.partial(resolver.resolve, run_id)
 
-            self._inject_and_raise(api_error, flow_id)
+            self._inject_and_raise(api_error, resolve_flow_id)
 
     @staticmethod
     def _inject_and_raise(
-        api_error: globus_sdk.GlobusAPIError, flow_id: uuid.UUID | None
+        api_error: globus_sdk.GlobusAPIError,
+        resolve_flow_id: t.Callable[[], uuid.UUID | None],
     ) -> None:
         """
         :raises GlobusAPIError: if the supplied api error is not GARE-compatible
         :raises CLIAuthRequirementsError: otherwise with the flow-scope injected into
             the required scopes (assuming it wasn't already there).
         """
-        if flow_id is None or not (gare := globus_sdk.gare.to_gare(api_error)):
+        if (gare := globus_sdk.gare.to_gare(api_error)) is None or (
+            (flow_id := resolve_flow_id()) is None
+        ):
             raise api_error
 
         flow_scope = globus_sdk.scopes.SpecificFlowScopes(flow_id).user.scope_string
