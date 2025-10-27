@@ -87,7 +87,8 @@ def show_logs_command(
         )
 
     # Fetch the run to check its status
-    run_doc = flows_client.get_run(run_id)
+    with FlowScopeInjector(login_manager).for_run(run_id):
+        run_doc = flows_client.get_run(run_id)
     if run_doc["status"] == "INACTIVE":
         print_command_hint(
             (

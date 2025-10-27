@@ -8,4 +8,4 @@
      * `globus flows ...`: `delete`, `show`, `start`, and `update`
      * `globus flows run ...`: `delete`, `resume`, `show`, `show-definition`,
        `show-logs`, and `update`
-        * In these commands, a flow id isn't user-supplied, so it's queried from search.
+        * In these, a flow ID isn't provided, so it's queried from Globus Search.

@@ -49,7 +49,7 @@ def test_flow_route_gare_handling(run_line, add_flow_login, method, path, comman
         # update-run
         ("PUT", "/runs/{run_id}", "globus flows run update {run_id}"),
         # resume-run
-        # Note: this command  calls get-run first, so we patch that instead.
+        # Note: this command calls get-run first, so we patch that instead.
         ("GET", "/runs/{run_id}", "globus flows run resume {run_id}"),
         # show-run
         ("GET", "/runs/{run_id}", "globus flows run show {run_id}"),
