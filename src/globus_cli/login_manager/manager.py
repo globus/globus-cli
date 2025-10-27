@@ -240,6 +240,10 @@ class LoginManager:
             computed_scopes.extend(defaults)
             if additional_scopes:
                 computed_scopes.extend(additional_scopes)
+
+        for s in self.always_required_scopes:
+            if s not in computed_scopes:
+                computed_scopes.append(s)
         return computed_scopes
 
     def assert_logins(
