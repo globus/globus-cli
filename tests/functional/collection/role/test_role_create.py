@@ -1,23 +1,24 @@
-import uuid
-
-from globus_sdk.testing import RegisteredResponse, load_response_set
+from globus_sdk._testing import RegisteredResponse, load_response_set
 
 
-def test_successful_gcs_collection_role_list(
+def test_successful_gcs_collection_role_creation(
     run_line,
     add_gcs_login,
-    get_identities_mocker,
 ):
     # setup data for the collection_id -> endpoint_id lookup
     # and create dummy credentials for the test to run against that GCS
     meta = load_response_set("cli.collection_operations").metadata
-    endpoint_id = meta["endpoint_id"]
+
     collection_id = meta["mapped_collection_id"]
+    endpoint_id = meta["endpoint_id"]
+    role = meta["role"]
+    role_id = meta["role_id"]
+    user_id = meta["identity_id"]
     add_gcs_login(endpoint_id)
 
-    user_id = str(uuid.UUID(int=2))
+    role = "activity_monitor"
 
-    # mock the responses for the Get Role API (GCS)
+    # mock the responses for the [post] Role API (GCS)
     RegisteredResponse(
         service="gcs",
         path="/roles",
@@ -28,29 +29,22 @@ def test_successful_gcs_collection_role_list(
                 {
                     "DATA_TYPE": "role#1.0.0",
                     "collection": f"{collection_id}",
-                    "id": f"{user_id}",
+                    "id": f"{role_id}",
                     "principal": f"urn:globus:auth:identity:{user_id}",
-                    "role": "administrator",
+                    "role": "activity_monitor",
                 }
             ],
             "detail": "success",
             "has_next_page": False,
             "http_response_code": 200,
+            "message": f"Created new role {role_id}",
         },
     ).add()
 
-    # Mock the Get Identities API (Auth)
-    # so that CLI output rendering can show a username
-    user_meta = get_identities_mocker.configure_one(id=user_id).metadata
-    username = user_meta["username"]
-
-    # now test the command and confirm that output shows the role name and the
-    # username
+    # now test the command and confirm that a successful role creation is reported
     run_line(
-        ["globus", "collection", "role", "list", collection_id],
+        ["globus", "collection", "role", "create", collection_id, role, user_id],
         search_stdout=[
-            ("ID", user_id),
-            ("Role", "administrator"),
-            ("Principal", username),
+            ("ID", role_id),
         ],
     )
