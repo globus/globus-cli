@@ -21,6 +21,11 @@ class OneUseOption(click.Option):
         *args: t.Any,
         **kwargs: t.Any,
     ) -> None:
+        if "callback" in kwargs:
+            raise ValueError(
+                "Internal error. OneUseOption cannot be used with a callback function."
+            )
+        kwargs["callback"] = OneUseOption._conversion_callback
         super().__init__(*args, **kwargs)
 
     def has_explicit_annotation(self) -> bool:
@@ -40,27 +45,27 @@ class OneUseOption(click.Option):
             "OneUseOption requires a type annotation in this case."
         )
 
-    def type_cast_value(self, ctx: click.Context, value: t.Any) -> t.Any:
-        # get the result of a normal type_cast
-        converted_val = super().type_cast_value(ctx, value)
-
+    @classmethod
+    def _conversion_callback(
+        cls, ctx: click.Context, param: click.Parameter, value: t.Any
+    ) -> t.Any:
         # if the option takes arguments (multiple was set to true)
         # assert no more than one argument was gotten, and if an argument
         # was gotten, take it out of the tuple and return it
-        if self.multiple:
-            if len(converted_val) > 1:
+        if param.multiple:
+            if len(value) > 1:
                 raise click.BadParameter("Option used multiple times.", ctx=ctx)
-            if len(converted_val):
-                return converted_val[0]
+            if len(value):
+                return value[0]
             else:
                 return None
 
         # if the option was a flag (converted to a count) assert that the flag
         # count is no more than one, and type cast back to a bool
-        elif self.count:
-            if converted_val > 1:
+        elif isinstance(param, click.Option) and param.count:
+            if value > 1:
                 raise click.BadParameter("Option used multiple times.", ctx=ctx)
-            return bool(converted_val)
+            return bool(value)
 
         else:
             raise ValueError(
