@@ -249,8 +249,8 @@ def transfer_command(
     )
 
     for rule in filter_rules:
-        method, name = rule
-        transfer_data.add_filter_rule(method=method, name=name, type="file")
+        method, filter_name = rule
+        transfer_data.add_filter_rule(method=method, name=filter_name, type="file")
 
     if batch:
         add_batch_to_transfer_data(

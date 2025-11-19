@@ -570,6 +570,7 @@ def test_timer_creation_supports_filter_rules(run_line, ep_for_timer):
         }
         for opt in filter_opts
     ]
+    name = "Awesome Timer"
 
     run_line(
         [
@@ -577,6 +578,8 @@ def test_timer_creation_supports_filter_rules(run_line, ep_for_timer):
             "timer",
             "create",
             "transfer",
+            "--name",
+            name,
             "--stop-after-runs",
             "1",
             "--recursive",
@@ -587,5 +590,9 @@ def test_timer_creation_supports_filter_rules(run_line, ep_for_timer):
     )
 
     sent_data = json.loads(get_last_request().body)
-    transfer_body = sent_data["timer"]["body"]
+    timer_doc = sent_data["timer"]
+    transfer_body = timer_doc["body"]
+
+    # asserting the name is a regression test for #1206
+    assert timer_doc["name"] == name
     assert transfer_body["filter_rules"] == expected_filter_rules
