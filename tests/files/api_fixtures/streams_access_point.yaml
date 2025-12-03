@@ -1,0 +1,38 @@
+metadata:
+  stream_access_point_id: "c574170d-3690-4343-bd16-2c9e49bd1ab0"
+  display_name: "Test Stream Access Point"
+  contact_email: "streams@globus.org"
+
+transfer:
+  - path: /v2/stream_access_points/c574170d-3690-4343-bd16-2c9e49bd1ab0
+    method: get
+    json:
+      {
+        "data": {
+          "attributes": {
+            "advertised_owner": "john@globus.org",
+            "contact_email": "streams@globus.org",
+            "contact_info": null,
+            "department": "QA",
+            "description": null,
+            "display_name": "Test Stream Access Point",
+            "info_link": null,
+            "keywords": null,
+            "organization": null,
+            "tlsftp_server": "tlsftp://s-6572fd.437bd.bd7c.test3.zones.dnsteam.globuscs.info:443"
+          },
+          "id": "c574170d-3690-4343-bd16-2c9e49bd1ab0",
+          "relationships": {
+            "host_endpoint": {
+              "data": {
+                "id": "5defd655-241e-44fd-8d3b-89b6efd12920",
+                "type": "Endpoint"
+              }
+            }
+          },
+          "type": "StreamAccessPoint"
+        },
+        "meta": {
+          "request_id": "oyWyLS0zF"
+        }
+      }

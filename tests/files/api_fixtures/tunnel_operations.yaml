@@ -1,0 +1,149 @@
+metadata:
+  tunnel_id: "689dcb43-cdbe-46bb-9a59-dad71091a247"
+  display_name: "Test Stream Access Point"
+  contact_email: "streams@globus.org"
+  initiator_id: "3fc91c9a-d481-11f0-ae61-0affc202d2e9"
+  listener_id: "dd5fa993-749f-48fb-86cf-f07ad5797d7e"
+  submission_id: "3888888a-d481-11f0-ae61-0affc205d2e9"
+
+transfer:
+  - path: /v0.10/submission_id
+    json: { "value": "5902daab-ffea-4e83-84f6-f69e5f8b7bb3" }
+
+  - path: /v2/tunnels
+    method: POST
+    json:
+      {
+        "data": {
+          "attributes": {
+            "created_time": "2025-12-08T22:00:05.239465",
+            "initiator_ip_address": null,
+            "initiator_port": null,
+            "label": "Test Stream Access Point",
+            "lifetime_mins": 360,
+            "listener_ip_address": null,
+            "listener_port": null,
+            "restartable": false,
+            "state": "AWAITING_LISTENER",
+            "status": "The tunnel is waiting for listening contact detail setup.",
+            "submission_id": "3fc91c9a-d481-11f0-ae61-0affc202d2e9"
+          },
+          "id": "689dcb43-cdbe-46bb-9a59-dad71091a247",
+          "relationships": {
+            "initiator": {
+              "data": {
+                "id": "80583f05-75f3-4825-b8a5-6c3edf0bbc5c",
+                "type": "StreamAccessPoint"
+              }
+            },
+            "listener": {
+              "data": {
+                "id": "dd5fa993-749f-48fb-86cf-f07ad5797d7e",
+                "type": "StreamAccessPoint"
+              }
+            },
+            "owner": {
+              "data": {
+                "id": "4d443580-012d-4954-816f-e0592bd356e1",
+                "type": "Identity"
+              }
+            }
+          },
+          "type": "Tunnel"
+        },
+        "meta": {
+          "request_id": "yDZD2RwPk"
+        }
+      }
+
+  - path: /v2/tunnels/689dcb43-cdbe-46bb-9a59-dad71091a247
+    method: GET
+    json:
+      {
+        "data": {
+          "attributes": {
+            "created_time": "2025-12-08T22:00:05.239465",
+            "initiator_ip_address": null,
+            "initiator_port": null,
+            "label": "Test Stream Access Point",
+            "lifetime_mins": 360,
+            "listener_ip_address": null,
+            "listener_port": null,
+            "restartable": false,
+            "state": "AWAITING_LISTENER",
+            "status": "The tunnel is waiting for listening contact detail setup.",
+            "submission_id": "3fc91c9a-d481-11f0-ae61-0affc202d2e9"
+          },
+          "id": "689dcb43-cdbe-46bb-9a59-dad71091a247",
+          "relationships": {
+            "initiator": {
+              "data": {
+                "id": "80583f05-75f3-4825-b8a5-6c3edf0bbc5c",
+                "type": "StreamAccessPoint"
+              }
+            },
+            "listener": {
+              "data": {
+                "id": "dd5fa993-749f-48fb-86cf-f07ad5797d7e",
+                "type": "StreamAccessPoint"
+              }
+            },
+            "owner": {
+              "data": {
+                "id": "4d443580-012d-4954-816f-e0592bd356e1",
+                "type": "Identity"
+              }
+            }
+          },
+          "type": "Tunnel"
+        },
+        "meta": {
+          "request_id": "yDZD2RwPk"
+        }
+      }
+
+  - path: /v2/tunnels/689dcb43-cdbe-46bb-9a59-dad71091a247
+    method: PATCH
+    json:
+      {
+        "data": {
+          "attributes": {
+            "created_time": "2025-12-08T22:00:05.239465",
+            "initiator_ip_address": null,
+            "initiator_port": null,
+            "label": "Test Stream Access Point",
+            "lifetime_mins": 360,
+            "listener_ip_address": null,
+            "listener_port": null,
+            "restartable": false,
+            "state": "AWAITING_LISTENER",
+            "status": "The tunnel is waiting for listening contact detail setup.",
+            "submission_id": "3fc91c9a-d481-11f0-ae61-0affc202d2e9"
+          },
+          "id": "689dcb43-cdbe-46bb-9a59-dad71091a247",
+          "relationships": {
+            "initiator": {
+              "data": {
+                "id": "80583f05-75f3-4825-b8a5-6c3edf0bbc5c",
+                "type": "StreamAccessPoint"
+              }
+            },
+            "listener": {
+              "data": {
+                "id": "dd5fa993-749f-48fb-86cf-f07ad5797d7e",
+                "type": "StreamAccessPoint"
+              }
+            },
+            "owner": {
+              "data": {
+                "id": "4d443580-012d-4954-816f-e0592bd356e1",
+                "type": "Identity"
+              }
+            }
+          },
+          "type": "Tunnel"
+        },
+        "meta": {
+          "request_id": "yDZD2RwPk"
+        }
+      }
