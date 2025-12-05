@@ -15,13 +15,13 @@ def _make_mapped_collection_search_result(
     endpoint_id: str,
     display_name: str,
     owner_string: str,
+    manager_fqdn: str,
+    collection_fqdn: str,
 ) -> dict[str, t.Any]:
     # most of the fields are filled with dummy data
     # some of these values are pulled out here either to ensure their integrity
     # or to make them more visible to a reader
     username = "u_abcdefghijklmnop"  # not a real b32 username
-    manager_fqdn = "a0bc1.23de.data.globus.org"
-    collection_fqdn = f"m-f45678.{manager_fqdn}"
 
     data = {
         "DATA_TYPE": "endpoint",
@@ -123,6 +123,9 @@ def singular_search_response():
     endpoint_id = str(uuid.uuid4())
     display_name = "dummy result"
     owner_string = "globus@globus.org"
+    manager_fqdn = "a0bc1.23de.data.globus.org"
+    collection_fqdn = f"m-f45678.{manager_fqdn}"
+
     return RegisteredResponse(
         service="transfer",
         path="/v0.10/endpoint_search",
@@ -131,11 +134,17 @@ def singular_search_response():
             "endpoint_id": endpoint_id,
             "display_name": display_name,
             "owner_string": owner_string,
+            "collection_fqdn": collection_fqdn,
         },
         json={
             "DATA": [
                 _make_mapped_collection_search_result(
-                    collection_id, endpoint_id, display_name, owner_string
+                    collection_id,
+                    endpoint_id,
+                    display_name,
+                    owner_string,
+                    manager_fqdn,
+                    collection_fqdn,
                 )
             ],
             "DATA_TYPE": "endpoint_list",
@@ -162,20 +171,21 @@ def test_search_shows_collection_id(run_line, singular_search_response):
     header_line, separator_line, data_line = lines
 
     # the header line shows the field names in order
-    header_row = re.split(r"\s+\|\s+", header_line)
-    assert header_row == ["ID", "Owner", "Display Name"]
+    header_row = [header.strip() for header in re.split(r"\s+\|\s+", header_line)]
+    assert header_row == ["ID", "Owner", "Display Name", "Domain"]
     # the separator line is a series of dashes
     separator_row = re.split(r"\s+\|\s+", separator_line)
-    assert len(separator_row) == 3
+    assert len(separator_row) == 4
     for separator in separator_row:
         assert set(separator) == {"-"}  # exactly one character is used
 
-    # the data row should have the collection ID, Owner, and Display Name
+    # the data row should have the collection ID, Owner, Display Name, and Domain
     data_row = re.split(r"\s+\|\s+", data_line)
     assert data_row == [
         meta["collection_id"],
         meta["owner_string"],
         meta["display_name"],
+        meta["collection_fqdn"],
     ]
 
     # final sanity check -- the endpoint ID for a mapped collection doesn't

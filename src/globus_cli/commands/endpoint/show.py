@@ -5,12 +5,14 @@ import click
 from globus_cli.endpointish import Endpointish
 from globus_cli.login_manager import LoginManager
 from globus_cli.parsing import command, endpoint_id_arg
+from globus_cli.services.transfer import DOMAIN_FIELD
 from globus_cli.termio import Field, display, formatters
 
 STANDARD_FIELDS = [
     Field("Display Name", "display_name"),
     Field("ID", "id"),
     Field("Owner", "owner_string"),
+    DOMAIN_FIELD,
     Field("Description", "description", wrap_enabled=True),
     Field("Shareable", "shareable"),
     Field("Keywords", "keywords"),
