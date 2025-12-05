@@ -4,6 +4,7 @@ import typing as t
 import uuid
 from unittest import mock
 
+import click
 import globus_sdk
 import globus_sdk.scopes
 import jwt
@@ -428,3 +429,34 @@ def test_immature_signature_during_jwt_decode_skips_notice_if_date_cannot_parse(
 
     stderr = capsys.readouterr().err
     assert "This may indicate a clock skew problem." not in stderr
+
+
+def test_login_manager_closes_created_clients_after_context_exit(test_token_storage):
+    from globus_cli.commands import main
+
+    def add_close_spy(client):
+        real_close = client.close
+        spy = mock.Mock(side_effect=real_close)
+        client.close = spy
+        return spy
+
+    with click.Context(main):
+        spy1, spy2 = None, None
+
+        @LoginManager.requires_login("auth", "transfer")
+        def dummy_command(login_manager):
+            transfer_client = login_manager.get_transfer_client()
+            auth_client = login_manager.get_auth_client()
+
+            nonlocal spy1, spy2
+            spy1 = add_close_spy(transfer_client)
+            spy2 = add_close_spy(auth_client)
+            return True
+
+        assert dummy_command()
+
+        spy1.assert_not_called()
+        spy2.assert_not_called()
+
+    spy1.assert_called_once()
+    spy2.assert_called_once()
