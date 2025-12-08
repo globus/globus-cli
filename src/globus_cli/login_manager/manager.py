@@ -48,14 +48,22 @@ else:
 P = ParamSpec("P")
 R = t.TypeVar("R")
 
+# string-ized annotation to avoid triggering eager imports
+CLIENT_T = t.TypeVar("CLIENT_T", bound="globus_sdk.BaseClient")
+
 
 class LoginManager:
     def __init__(self) -> None:
         self.storage = CLIStorage()
         self._nonstatic_requirements: dict[str, list[Scope]] = {}
 
+        self._client_pool: set[globus_sdk.BaseClient] = set()
+
     def close(self) -> None:
         self.storage.close()
+        for c in self._client_pool:
+            c.close()
+        self._client_pool.clear()
 
     def add_requirement(self, rs_name: str, scopes: t.Sequence[Scope]) -> None:
         self._nonstatic_requirements[rs_name] = list(scopes)
@@ -373,25 +381,41 @@ class LoginManager:
         from ..services.transfer import CustomTransferClient
 
         authorizer = self._get_client_authorizer(TransferScopes.resource_server)
-        return CustomTransferClient(authorizer=authorizer, app_name=version.app_name)
+        client = CustomTransferClient(authorizer=authorizer, app_name=version.app_name)
+        self._client_pool.add(client)
+        return client
 
     def get_auth_client(self) -> CustomAuthClient:
         from ..services.auth import CustomAuthClient
 
         authorizer = self._get_client_authorizer(AuthScopes.resource_server)
-        return CustomAuthClient(authorizer=authorizer, app_name=version.app_name)
+        client = CustomAuthClient(authorizer=authorizer, app_name=version.app_name)
+        self._client_pool.add(client)
+        return client
 
     def get_groups_client(self) -> globus_sdk.GroupsClient:
         authorizer = self._get_client_authorizer(GroupsScopes.resource_server)
-        return globus_sdk.GroupsClient(authorizer=authorizer, app_name=version.app_name)
+        client = globus_sdk.GroupsClient(
+            authorizer=authorizer, app_name=version.app_name
+        )
+        self._client_pool.add(client)
+        return client
 
     def get_flows_client(self) -> globus_sdk.FlowsClient:
         authorizer = self._get_client_authorizer(FlowsScopes.resource_server)
-        return globus_sdk.FlowsClient(authorizer=authorizer, app_name=version.app_name)
+        client = globus_sdk.FlowsClient(
+            authorizer=authorizer, app_name=version.app_name
+        )
+        self._client_pool.add(client)
+        return client
 
     def get_search_client(self) -> globus_sdk.SearchClient:
         authorizer = self._get_client_authorizer(SearchScopes.resource_server)
-        return globus_sdk.SearchClient(authorizer=authorizer, app_name=version.app_name)
+        client = globus_sdk.SearchClient(
+            authorizer=authorizer, app_name=version.app_name
+        )
+        self._client_pool.add(client)
+        return client
 
     def get_timer_client(
         self, *, flow_id: uuid.UUID | None = None
@@ -404,7 +428,11 @@ class LoginManager:
             self._assert_requester_has_timer_flow_consent(flow_id)
 
         authorizer = self._get_client_authorizer(TimersScopes.resource_server)
-        return globus_sdk.TimersClient(authorizer=authorizer, app_name=version.app_name)
+        client = globus_sdk.TimersClient(
+            authorizer=authorizer, app_name=version.app_name
+        )
+        self._client_pool.add(client)
+        return client
 
     def _assert_requester_has_timer_flow_consent(self, flow_id: uuid.UUID) -> None:
         flow_scope = SpecificFlowScopes(flow_id).user
@@ -446,6 +474,7 @@ class LoginManager:
         # Create a SpecificFlowClient without an authorizer
         # to take advantage of its scope creation code.
         client = globus_sdk.SpecificFlowClient(flow_id, app_name=version.app_name)
+        self._client_pool.add(client)
         assert client.scopes is not None
         self.add_requirement(client.scopes.resource_server, [client.scopes.user])
 
@@ -531,12 +560,14 @@ class LoginManager:
                 f"Please run:\n\n  {login_context.login_command}\n"
             ),
         )
-        return CustomGCSClient(
+        client = CustomGCSClient(
             epish.get_gcs_address(),
             source_epish=epish,
             authorizer=authorizer,
             app_name=version.app_name,
         )
+        self._client_pool.add(client)
+        return client
 
     def get_current_identity_id(self) -> str:
         """
