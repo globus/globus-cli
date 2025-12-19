@@ -27,6 +27,7 @@ from globus_cli.parsing import main_group
         "task": ("task", "task_command"),
         "timer": ("timer", "timer_command"),
         "transfer": ("transfer", "transfer_command"),
+        "streams": ("streams", "stream_command"),
         "update": ("update", "update_command"),
         "version": ("version", "version_command"),
         "whoami": ("whoami", "whoami_command"),
