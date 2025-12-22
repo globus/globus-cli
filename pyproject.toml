@@ -49,7 +49,7 @@ globus = "globus_cli:main"
 coverage = [
     "coverage[toml]>=7.10"
 ]
-yaml = ["ruamel.yaml==0.18.16"]
+yaml = ["ruamel.yaml==0.18.17"]
 test = [
     {include-group = "coverage"},
     {include-group = "yaml"},  # loading test fixture data
