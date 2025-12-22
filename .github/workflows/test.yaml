@@ -25,7 +25,7 @@ jobs:
               - "3.13"
             tox-post-environments:
               - "py3.9-mindeps"
-              - "cov-report"
+              - "cov-report-ci"
             cache-key-prefix: "linux"
             cache-key-hash-files:
               - "pyproject.toml"
@@ -35,7 +35,7 @@ jobs:
             cpythons:
               - "3.13"
             tox-post-environments:
-              - "cov-report"
+              - "cov-report-ci"
             tox-environments-from-pythons: true
             cache-key-prefix: "macos"
             cache-key-hash-files:
@@ -46,7 +46,7 @@ jobs:
             cpythons:
               - "3.13"
             tox-post-environments:
-              - "cov-report"
+              - "cov-report-ci"
             tox-environments-from-pythons: true
             cache-key-prefix: "windows"
             cache-key-hash-files:
