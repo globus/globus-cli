@@ -10,11 +10,9 @@ class EndpointIdToNameFormatter(formatters.StrFormatter):
         self.client = client
 
     def render(self, value: str) -> str:
-        from globus_cli.services.transfer import display_name_or_cname
-
         try:
             ep_doc = self.client.get_endpoint(value)
-            return display_name_or_cname(ep_doc)
+            return str(ep_doc["display_name"] or ep_doc["canonical_name"])
         except globus_sdk.TransferAPIError as err:
             if err.code == "EndpointDeleted":
                 return "[DELETED ENDPOINT]"
