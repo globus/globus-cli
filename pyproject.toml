@@ -113,7 +113,7 @@ source = [
 [tool.coverage.report]
 show_missing = true
 skip_covered = true
-fail_under = 90
+fail_under = 92
 exclude_lines =[
     # the pragma to disable coverage
     "pragma: no cover",
