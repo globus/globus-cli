@@ -48,10 +48,15 @@ def contact_lookup(
         )
 
     tm_now = int(time.time())
-    if (
+
+    if not skip_update and (
         conf_obj.connector_contact_string is None
-        or tm_now > conf_obj.update_time + conf_obj.connector_contact_string_ttl
-    ) and not skip_update:
+        or (
+            conf_obj.update_time is not None
+            and conf_obj.connector_contact_string_ttl is not None
+            and tm_now > conf_obj.update_time + conf_obj.connector_contact_string_ttl
+        )
+    ):
         login_mgr = gt_utils.LoginMgr()
         xfer_client = login_mgr.get_transfer_client()
         xfer_mgr = gt_utils.TransferMgr(tunnel_id, xfer_client)

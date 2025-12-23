@@ -113,6 +113,12 @@ class TunnelConf:
         return out
 
 
+# This class is needed to manage the login requirements for the
+# `globus streams environment` commands. These operate differently
+# than the other globus commands in that we know they will need to
+# log into both GCS and Transfer only, and we know they will be
+# running these in an application environment for establishing
+# connections through a tunnel
 class LoginMgr:
     def __init__(self, endpoint_id: uuid.UUID | None = None) -> None:
         self.login_manager = globus_lm.LoginManager()
@@ -147,6 +153,7 @@ class TransferMgr:
         self.contact_string = None
         self.transfer_client = transfer_client
         self.tunnel_doc = self.transfer_client.get_tunnel(tunnel_id)
+        pass
 
     def update_listener(self, cs: str) -> None:
         host, _, port = cs.rpartition(":")

@@ -72,6 +72,6 @@ def update_command(
         cs = xfer_mgr.get_contact_string()
         if cs:
             conf_obj.connector_contact_string = cs
-        if cs_ttl is not None:
+        if cs_ttl != globus_sdk.MISSING:
             conf_obj.connector_contact_string_ttl = cs_ttl
         conf_obj.update_keyfile()
