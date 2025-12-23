@@ -102,6 +102,9 @@ filterwarnings = [
 parallel = true
 patch = ["subprocess"]
 source = ["globus_cli"]
+omit = [
+  "globus_cli_flake8.py",
+]
 [tool.coverage.paths]
 source = [
     "src/",
