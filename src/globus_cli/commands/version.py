@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import importlib.metadata
 import platform
 import site
 import sys
@@ -45,6 +46,10 @@ def _get_package_data() -> list[list[str]]:
             # if loading failed, be sure to pad with error messages
             if loaded_mod is None:
                 cur.append("[import failed]")
+                continue
+            elif attr == "__version__":
+                version = importlib.metadata.distribution(mod).version
+                cur.append(version)
                 continue
 
             try:

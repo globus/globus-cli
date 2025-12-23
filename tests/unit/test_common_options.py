@@ -1,7 +1,10 @@
 import click
+import globus_sdk
+import globus_sdk.testing
 import pytest
 
 from globus_cli.parsing.command_state import CommandState
+from globus_cli.parsing.commands import TopLevelGroup
 from globus_cli.parsing.shared_options import common_options
 
 
@@ -49,3 +52,39 @@ def test_verbosity_control(runner, add_args, expect_verbosity):
     result = runner.invoke(foo, add_args)
     assert result.exit_code == 0
     assert int(result.output) == expect_verbosity
+
+
+@pytest.mark.parametrize(
+    "map_arg, response_status, exit_code",
+    (
+        ("404=0", 200, 0),
+        ("404=0", 404, 0),
+        ("404=50", 404, 50),
+        ("422=0", 422, 0),
+    ),
+)
+def test_map_http_status(runner, map_arg, response_status, exit_code):
+    globus_sdk.testing.RegisteredResponse(
+        service="transfer",
+        path="/foo",
+        status=response_status,
+        json={},
+    ).add()
+
+    # NOTE: the command used to test `--map-http-status`
+    # must be under a group of type `TopLevelGroup` in order to invoke the CLI's
+    # custom except hooks and trigger the interpretation of the `--map-http-status`
+    # option
+    @common_options()
+    @click.group(cls=TopLevelGroup)
+    def foo():
+        pass
+
+    @common_options()
+    @foo.command
+    def bar():
+        tc = globus_sdk.TransferClient()
+        tc.get("/foo")
+
+    result = runner.invoke(foo, ["bar", "--map-http-status", map_arg])
+    assert result.exit_code == exit_code, result.output

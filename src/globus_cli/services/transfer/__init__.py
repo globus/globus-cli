@@ -6,7 +6,6 @@ from .client import CustomTransferClient
 from .data import (
     add_batch_to_transfer_data,
     assemble_generic_doc,
-    display_name_or_cname,
     iterable_response_to_dict,
 )
 from .recursive_ls import RecursiveLsResponse
@@ -30,7 +29,6 @@ __all__ = (
     "ENDPOINT_LIST_FIELDS",
     "CustomTransferClient",
     "RecursiveLsResponse",
-    "display_name_or_cname",
     "iterable_response_to_dict",
     "assemble_generic_doc",
     "add_batch_to_transfer_data",
