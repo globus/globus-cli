@@ -55,6 +55,7 @@ jobs:
           - name: "Quality"
             runner: "ubuntu-latest"
             cpythons:
+              - "3.10"
               - "3.13"
             tox-environments:
               - "mypy-minpython"
@@ -62,6 +63,7 @@ jobs:
               - "reference"
               - "check-min-python-is-tested"
               - "check-package-data"
+              - "check-package-data-minimum"
             cache-key-prefix: "quality"
             cache-files:
               - ".mypy_cache/"
