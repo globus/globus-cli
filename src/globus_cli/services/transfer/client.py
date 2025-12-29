@@ -1,11 +1,9 @@
 from __future__ import annotations
 
 import logging
-import textwrap
 import typing as t
 import uuid
 
-import click
 import globus_sdk
 from globus_sdk.transport import (
     RetryCheckFlags,
@@ -16,7 +14,6 @@ from globus_sdk.transport import (
 
 from globus_cli.login_manager import get_client_login, is_client_login
 
-from .data import display_name_or_cname
 from .recursive_ls import RecursiveLsResponse
 
 log = logging.getLogger(__name__)
@@ -81,40 +78,3 @@ class CustomTransferClient(globus_sdk.TransferClient):
             params,
         )
         return RecursiveLsResponse(self, endpoint_id, params, max_depth=depth)
-
-    def get_endpoint_w_server_list(
-        self, endpoint_id: str | uuid.UUID
-    ) -> tuple[
-        globus_sdk.GlobusHTTPResponse, str | globus_sdk.IterableTransferResponse
-    ]:
-        """
-        A helper for handling endpoint server list lookups correctly accounting
-        for various endpoint types.
-
-        - Raises click.UsageError when used on Shares
-        - Returns (<get_endpoint_response>, "S3") for S3 endpoints
-        - Returns (<get_endpoint_response>, <server_list_response>) for all other
-          Endpoints
-        """
-        endpoint = self.get_endpoint(endpoint_id)
-
-        if endpoint["host_endpoint_id"]:  # not GCS -- this is a share endpoint
-            raise click.UsageError(
-                textwrap.dedent(
-                    """\
-                {id} ({0}) is a share and does not have servers.
-
-                To see details of the share, use
-                    globus endpoint show {id}
-
-                To list the servers on the share's host endpoint, use
-                    globus endpoint server list {host_endpoint_id}
-            """
-                ).format(display_name_or_cname(endpoint), **endpoint.data)
-            )
-
-        if endpoint["s3_url"]:  # not GCS -- legacy S3 endpoint type
-            return (endpoint, "S3")
-
-        else:
-            return (endpoint, self.endpoint_server_list(endpoint_id))
