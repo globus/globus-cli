@@ -1,6 +1,7 @@
 import json
+import uuid
 
-from globus_sdk.testing import load_response_set
+from globus_sdk.testing import RegisteredResponse, load_response_set
 
 
 def test_bookmark_create(run_line, go_ep1_id):
@@ -110,11 +111,76 @@ def test_bookmark_list(run_line):
             if data["ep_name"] is not None:
                 assert data["ep_name"] in line
             else:
+                # TODO: remove deleted endpoints from the baseline list test
+                # this testing is redundant with the dedicated "deleted endpoint"
+                # test case below
                 assert "[DELETED ENDPOINT]" in line
             break
 
 
+def test_bookmark_list_deleted_endpoint(run_line):
+    bookmark_id = str(uuid.uuid4())
+    deleted_ep_id = str(uuid.uuid4())
+
+    RegisteredResponse(
+        service="transfer",
+        path="/v0.10/bookmark_list",
+        json={
+            "DATA": [
+                {
+                    "DATA_TYPE": "bookmark",
+                    "endpoint_id": deleted_ep_id,
+                    "id": bookmark_id,
+                    "name": "my-bookmark",
+                    "path": "/home/myuser/my-dir/",
+                    "pinned": False,
+                }
+            ]
+        },
+    ).add()
+    RegisteredResponse(
+        service="transfer",
+        path=f"/v0.10/endpoint/{deleted_ep_id}",
+        status=404,
+        json={
+            "code": "EndpointDeleted",
+            "message": f"Endpoint '{deleted_ep_id}' has been deleted",
+            "request_id": "TgFtEL2lG",
+        },
+    ).add()
+
+    result = run_line("globus bookmark list")
+    assert (
+        f"my-bookmark | {bookmark_id} | {deleted_ep_id} | "
+        "[DELETED ENDPOINT] | /home/myuser/my-dir/"
+    ) in result.stdout
+
+
 def test_bookmark_list_failure(run_line):
-    load_response_set("cli.bookmark_list_failure")
+    failing_ep_id = str(uuid.uuid4())
+
+    RegisteredResponse(
+        service="transfer",
+        path="/v0.10/bookmark_list",
+        json={
+            "DATA": [
+                {
+                    "DATA_TYPE": "bookmark",
+                    "endpoint_id": failing_ep_id,
+                    "id": str(uuid.uuid4()),
+                    "name": "my-bookmark",
+                    "path": "/home/myuser/my-dir/",
+                    "pinned": False,
+                }
+            ]
+        },
+    ).add()
+    RegisteredResponse(
+        service="transfer",
+        path=f"/v0.10/endpoint/{failing_ep_id}",
+        status=500,
+        json={"code": "InternalError", "request_id": "GtSgRY2yT"},
+    ).add()
+
     result = run_line("globus bookmark list", assert_exit_code=1)
     assert "InternalError" in result.stderr
