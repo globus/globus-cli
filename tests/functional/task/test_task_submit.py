@@ -2,7 +2,7 @@ import json
 
 import globus_sdk
 import pytest
-from globus_sdk.testing import get_last_request, load_response, load_response_set
+from globus_sdk.testing import get_last_request, load_response
 
 
 def test_filter_rules(run_line, go_ep1_id, go_ep2_id):
@@ -10,8 +10,7 @@ def test_filter_rules(run_line, go_ep1_id, go_ep2_id):
     Submits two --exclude and two --include options on a transfer, confirms
     they show up the correct order in --dry-run output
     """
-    # put a submission ID and autoactivate response in place
-    load_response_set("cli.get_submission_id")
+    load_response(globus_sdk.TransferClient.get_submission_id)
 
     result = run_line(
         "globus transfer -F json --dry-run -r "
@@ -55,9 +54,6 @@ def test_exclude_recursive(run_line, go_ep1_id, go_ep2_id):
     """
     Confirms using --exclude on non recursive transfers raises errors.
     """
-    # would be better if this could fail before we make any api calls, but
-    # we want to build the transfer_data object before we parse batch input
-    load_response_set("cli.get_submission_id")
     result = run_line(
         f"globus transfer --exclude *.txt {go_ep1_id}:/ {go_ep1_id}:/",
         assert_exit_code=2,
@@ -69,7 +65,6 @@ def test_exclude_recursive(run_line, go_ep1_id, go_ep2_id):
 
 
 def test_exclude_recursive_batch_stdin(run_line, go_ep1_id, go_ep2_id):
-    load_response_set("cli.get_submission_id")
     result = run_line(
         f"globus transfer --exclude *.txt --batch - {go_ep1_id}:/ {go_ep1_id}:/",
         stdin="abc /def\n",
@@ -82,7 +77,6 @@ def test_exclude_recursive_batch_stdin(run_line, go_ep1_id, go_ep2_id):
 
 
 def test_exclude_recursive_batch_file(run_line, go_ep1_id, go_ep2_id, tmp_path):
-    load_response_set("cli.get_submission_id")
     temp = tmp_path / "batch"
     temp.write_text("abc /def\n")
     result = run_line(
@@ -109,7 +103,7 @@ def test_transfer_local_user_opts(run_line, go_ep1_id, go_ep2_id):
     confirms --source-local-user and --destination-local-user are present in
     transfer dry-run output
     """
-    load_response_set("cli.get_submission_id")
+    load_response(globus_sdk.TransferClient.get_submission_id)
 
     result = run_line(
         "globus transfer -F json --dry-run -r "
@@ -126,7 +120,7 @@ def test_delete_local_user(run_line, go_ep1_id):
     """
     Confirms --local-user is present in delete dry-run output.
     """
-    load_response_set("cli.get_submission_id")
+    load_response(globus_sdk.TransferClient.get_submission_id)
 
     result = run_line(
         f"globus delete -F json --dry-run -r --local-user my-user {go_ep1_id}:/"
@@ -140,8 +134,6 @@ def test_rm_local_user(run_line, go_ep1_id):
     """
     Confirms --local-user is present in rm dry-run output.
     """
-    load_response_set("cli.get_submission_id")
-
     result = run_line(
         f"globus rm -F json --dry-run -r --local-user my-user {go_ep1_id}:/"
     )
@@ -155,7 +147,7 @@ def test_transfer_recursive_options(run_line, go_ep1_id, go_ep2_id, tmp_path):
     Confirm --recursive, --no-recursive, and omission of the --recursive option
     result in the expected values in the transfer item
     """
-    load_response_set("cli.get_submission_id")
+    load_response(globus_sdk.TransferClient.get_submission_id)
 
     # --recursive should set the value to True
     result = run_line(
