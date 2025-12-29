@@ -1,6 +1,6 @@
 [build-system]
-requires = ["setuptools>=77.0.1"]
-build-backend = "setuptools.build_meta"
+requires = ["flit-core>=3.11"]
+build-backend = "flit_core.buildapi"
 
 [project]
 name = "globus-cli"
@@ -79,6 +79,7 @@ check-project-metadata = [
     {include-group = "yaml"},
     "build",
     "twine",
+    "check-sdist",
 ]
 # `dev` is what's installed if you `make install`
 dev = [
@@ -86,8 +87,31 @@ dev = [
     {include-group = "typing"},
 ]
 
-[tool.setuptools.dynamic.version]
-attr = "globus_cli.version.__version__"
+[tool.flit.sdist]
+include = [
+    "changelog.adoc",
+]
+exclude = [".*", "src/**/.*", "tests/**/*"]
+
+[tool.check-sdist]
+git-only = [
+    # tests are not included
+    "tests/**/*",
+    # dev configs and tools
+    ".gitignore",
+    "tox.ini",
+    "toxfile.py",
+    ".flake8",
+    "Makefile",
+    "scripts/*",
+    # dev-facing documentation
+    "CONTRIBUTING.adoc",
+    "RELEASING.adoc",
+    "changelog.d/*",
+    # built docs (for docs.globus.org)
+    "reference/*",
+]
+
 
 [tool.isort]
 profile = "black"
