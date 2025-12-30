@@ -13,7 +13,6 @@ STANDARD_FIELDS = [
     Field("Owner", "owner_string"),
     Field("Description", "description", wrap_enabled=True),
     Field("Shareable", "shareable"),
-    Field("Department", "department"),
     Field("Keywords", "keywords"),
     Field("Endpoint Info Link", "info_link"),
     Field("Contact E-mail", "contact_email"),

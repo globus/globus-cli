@@ -18,6 +18,7 @@ CODEMAP = {
     "CLI005": "CLI005 command function short_help too long",
     "CLI006": "CLI006 command function implicit short_help does not end in '.'",
     "CLI007": "CLI007 command function missing expected docstring",
+    "CLI008": "CLI008 static field list contains duplicate fieldname",
 }
 
 
@@ -177,3 +178,69 @@ class CLIVisitor(ErrorRecordingVisitor):
         else:
             if not firstline.endswith("."):
                 self._record(node.body[0], "CLI006")
+
+    def visit_List(self, node):
+        if self._is_list_of_fields(node):
+            fieldname_map = {}
+            for subnode in node.elts:
+                # pull the first arg, and if we can't, skip this field
+                # it means something is odd, but most likely we're linting code
+                # in-progress, so we're seeing a list like the following:
+                #
+                #     [
+                #         Field(),               # <-- ignore this!
+                #         Field("foo", "foo"),
+                #         Field("bar", "bar"),
+                #         Field("baz", "baz"),
+                #         Field("foo", "uh-oh),  # <-- catch this!
+                #     ]
+                field_args = subnode.args
+                if not field_args:
+                    continue
+
+                # get arg0 for the field, but if it's not a constant, skip this field
+                # this means it's dynamically computed, so ignore it but check the rest
+                # of the fields
+                # e.g., Field(name_func(), "...")
+                arg0 = field_args[0]
+                if not isinstance(arg0, ast.Constant):
+                    continue
+
+                # if it's not a string but is constant, it's *probably* invalid
+                # just ignore it and check other fields
+                # e.g., Field(1, "...")
+                if not isinstance(arg0.value, str):
+                    continue
+
+                # for each discovered name, track a list of matching nodes
+                name = arg0.value
+                fieldname_map.setdefault(name, [])
+                fieldname_map[name].append(subnode)
+
+            # any name with multiple nodes is a failure
+            # if we have a failure, record that failure *on* the repeats, not on the
+            # parent list node
+            # doing it this way gets a diagnostic on the *first* node, not only the
+            # repeats
+            for subnode_list in fieldname_map.values():
+                if len(subnode_list) <= 1:
+                    continue
+                for subnode in subnode_list:
+                    self._record(subnode, "CLI008")
+        self.generic_visit(node)
+
+    def _is_list_of_fields(self, node):
+        # if the list is empty, say "no"
+        if not node.elts:
+            return False
+
+        # search for any disproving example
+        for elem in node.elts:
+            if not isinstance(elem, ast.Call):
+                return False
+            if not isinstance(elem.func, ast.Name):
+                return False
+            if elem.func.id != "Field":
+                return False
+
+        return True
