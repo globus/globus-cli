@@ -10,6 +10,7 @@ from .context import outformat_is_json, outformat_is_text, outformat_is_unix
 from .field import Field
 from .printers import (
     CustomPrinter,
+    FoldedTablePrinter,
     JsonPrinter,
     Printer,
     RecordListPrinter,
@@ -24,6 +25,7 @@ class TextMode(enum.Enum):
     silent = enum.auto()
     json = enum.auto()
     text_table = enum.auto()
+    text_folded_table = enum.auto()
     text_record = enum.auto()
     text_record_list = enum.auto()
     text_raw = enum.auto()
@@ -40,6 +42,7 @@ class Renderer:
     """
 
     TABLE = TextMode.text_table
+    FOLDED_TABLE = TextMode.text_folded_table
     SILENT = TextMode.silent
     JSON = TextMode.json
     RECORD = TextMode.text_record
@@ -165,7 +168,7 @@ class Renderer:
         if not isinstance(text_mode, TextMode):
             return CustomPrinter(custom_print=text_mode)
 
-        if text_mode in (self.TABLE, self.RECORD, self.RECORD_LIST):
+        if text_mode in (self.FOLDED_TABLE, self.TABLE, self.RECORD, self.RECORD_LIST):
             fields = _assert_fields(fields)
             if text_mode == self.RECORD:
                 return RecordPrinter(fields)
@@ -173,6 +176,8 @@ class Renderer:
             _assert_iterable(data)
             if text_mode == self.TABLE:
                 return TablePrinter(fields)
+            if text_mode == self.FOLDED_TABLE:
+                return FoldedTablePrinter(fields)
             if text_mode == self.RECORD_LIST:
                 return RecordListPrinter(fields)
 
