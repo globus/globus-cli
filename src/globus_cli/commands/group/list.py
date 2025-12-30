@@ -22,4 +22,5 @@ def group_list(login_manager: LoginManager) -> None:
             SESSION_ENFORCEMENT_FIELD,
             Field("Roles", "my_memberships[].role", formatter=formatters.SortedArray),
         ],
+        text_mode=display.FOLDED_TABLE,
     )
