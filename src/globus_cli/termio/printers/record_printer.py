@@ -78,7 +78,7 @@ class RecordPrinter(Printer[DataObject]):
             wrapped_lines.extend(self._item_wrapper.wrap(line))
 
         if len(wrapped_lines) > 5:
-            wrapped_lines = wrapped_lines[:5] + ["..."]
+            wrapped_lines = wrapped_lines[:5] + self._item_wrapper.wrap("...")
 
         wrapped_value = "\n".join(wrapped_lines)
         return wrapped_value[self._key_len :]
