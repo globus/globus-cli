@@ -3,7 +3,6 @@ from __future__ import annotations
 import functools
 import shutil
 import typing as t
-import warnings
 from textwrap import TextWrapper
 
 import click
@@ -42,17 +41,6 @@ class RecordPrinter(Printer[DataObject]):
             subsequent_indent=" " * self._key_len,
             width=max_width or _get_terminal_content_width(),
         )
-        self._warn_about_duplicate_fields()
-
-    def _warn_about_duplicate_fields(self):
-        fieldnames = set()
-        for field in self._fields:
-            if field.name in fieldnames:
-                warnings.warn(
-                    f"globus-cli detected a duplicate fieldname: {field.name!r}",
-                    stacklevel=3,
-                )
-            fieldnames.add(field.name)
 
     def echo(self, data: DataObject, stream: t.IO[str] | None = None) -> None:
         for field in self._fields:
