@@ -158,7 +158,6 @@ def endpoint_search(
         search_iterator,
         fields=ENDPOINT_LIST_FIELDS,
         json_converter=iterable_response_to_dict,
-        text_mode=display.FOLDED_TABLE,
     )
 
     if search_iterator.has_next():
