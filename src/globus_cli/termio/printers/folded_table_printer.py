@@ -42,9 +42,10 @@ class FoldedTablePrinter(Printer[t.Iterable[t.Any]]):
     :param fields: a list of Fields with load and render instructions; one per column.
     """
 
-    def __init__(self, fields: t.Iterable[Field]) -> None:
+    def __init__(self, fields: t.Iterable[Field], width: int | None = None) -> None:
         self._fields = tuple(fields)
-        self._width = _get_terminal_content_width()
+        self._width = width or _get_terminal_content_width()
+        self._folding_enabled = _detect_folding_enabled()
 
     def echo(self, data: t.Iterable[t.Any], stream: t.IO[str] | None = None) -> None:
         """
@@ -83,7 +84,7 @@ class FoldedTablePrinter(Printer[t.Iterable[t.Any]]):
             echo(_separator_line(col_widths, style=table_style | OutputStyle.bottom))
 
     def _fold_table(self, table: RowTable) -> RowTable:
-        if not _detect_folding_enabled():
+        if not self._folding_enabled:
             return table
 
         # if the table is initially narrow enough to fit, do not fold
@@ -208,7 +209,7 @@ class Row:
 
     def _split_level(
         self, level: tuple[str, ...], modulus: int
-    ) -> t.Iterator[tuple[str, ...], ...]:
+    ) -> t.Iterator[tuple[str, ...]]:
         bins = collections.defaultdict(list)
         for i, x in enumerate(level):
             bins[i % modulus].append(x)
