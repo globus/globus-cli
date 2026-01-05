@@ -72,6 +72,6 @@ jobs:
             cache-key-hash-files:
               - "pyproject.toml"
 
-    uses: "globus/workflows/.github/workflows/tox.yaml@d370cf87e31ead9ba566b6fa07f05f63918a9149" # v1.3
+    uses: "globus/workflows/.github/workflows/tox.yaml@9cb0a9d3c117062037aefaaa816116e9db1f241f" # v1.4
     with:
       config: "${{ toJSON(matrix) }}"
