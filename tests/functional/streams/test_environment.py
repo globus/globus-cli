@@ -5,10 +5,10 @@ import time
 import unittest.mock as mock
 import uuid
 
-import globus_cli.login_manager
 from globus_sdk.testing import load_response_set
 
 import globus_cli.commands.streams.environment._common as gtutils
+import globus_cli.login_manager
 
 _g_xfer_mgr = "gtutils.TransferMgr"
 _g_login_mgr = "gtutils.LoginMgr"
@@ -35,7 +35,9 @@ def test_initialize_happy(run_line, add_gcs_login):
 
     with (
         tempfile.TemporaryDirectory() as tmp_path,
-        mock.patch("globus_cli.login_manager.LoginManager.is_logged_in", return_value=True),
+        mock.patch(
+            "globus_cli.login_manager.LoginManager.is_logged_in", return_value=True
+        ),
     ):
 
         # lm.is_logged_in.return_value = True
