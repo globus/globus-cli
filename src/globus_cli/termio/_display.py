@@ -6,10 +6,16 @@ import typing as t
 import click
 import globus_sdk
 
-from .context import outformat_is_json, outformat_is_text, outformat_is_unix
+from .context import (
+    fold_tables,
+    outformat_is_json,
+    outformat_is_text,
+    outformat_is_unix,
+)
 from .field import Field
 from .printers import (
     CustomPrinter,
+    FoldedTablePrinter,
     JsonPrinter,
     Printer,
     RecordListPrinter,
@@ -172,7 +178,10 @@ class Renderer:
 
             _assert_iterable(data)
             if text_mode == self.TABLE:
-                return TablePrinter(fields)
+                if fold_tables():
+                    return FoldedTablePrinter(fields)
+                else:
+                    return TablePrinter(fields)
             if text_mode == self.RECORD_LIST:
                 return RecordListPrinter(fields)
 
