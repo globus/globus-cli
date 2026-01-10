@@ -127,14 +127,7 @@ def mock_login_token_response():
             TimersScopes.resource_server, TimersScopes.timer
         ),
         "flows.globus.org": _mock_token_response_data(
-            "flows.globus.org",
-            scope=(
-                "https://auth.globus.org/scopes/eec9b274-0c81-4334-bdc2-54e90e689b9a/manage_flows "  # noqa E501
-                "https://auth.globus.org/scopes/eec9b274-0c81-4334-bdc2-54e90e689b9a/view_flows "  # noqa E501
-                "https://auth.globus.org/scopes/eec9b274-0c81-4334-bdc2-54e90e689b9a/run "  # noqa E501
-                "https://auth.globus.org/scopes/eec9b274-0c81-4334-bdc2-54e90e689b9a/run_status "  # noqa E501
-                "https://auth.globus.org/scopes/eec9b274-0c81-4334-bdc2-54e90e689b9a/run_manage "  # noqa E501
-            ),
+            "flows.globus.org", globus_sdk.FlowsClient.scopes.all
         ),
     }
     return mock_token_res

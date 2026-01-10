@@ -85,14 +85,11 @@ class _CLIScopeRequirements(t.Dict[ServiceNameLiteral, _ServiceRequirement]):
             ],
         }
         self["flows"] = {
-            "min_contract_version": 0,
+            "min_contract_version": 3,
             "resource_server": FlowsScopes.resource_server,
             "nice_server_name": "Globus Flows",
             "scopes": [
-                FlowsScopes.manage_flows,
-                FlowsScopes.view_flows,
-                FlowsScopes.run_status,
-                FlowsScopes.run_manage,
+                FlowsScopes.all,
             ],
         }
 
@@ -114,4 +111,4 @@ CLI_SCOPE_REQUIREMENTS = _CLIScopeRequirements()
 # version we were at when we got a token
 # it should be the max of the version numbers required by the various different
 # services
-CURRENT_SCOPE_CONTRACT_VERSION: t.Final[int] = 2
+CURRENT_SCOPE_CONTRACT_VERSION: t.Final[int] = 3
