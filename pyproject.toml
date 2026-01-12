@@ -75,7 +75,7 @@ typing = [
     "types-jmespath",
 ]
 check-project-metadata = [
-    "mddj==0.2.0",
+    "mddj==0.4.2",
     {include-group = "yaml"},
     "build",
     "twine",

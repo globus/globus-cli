@@ -1,18 +1,16 @@
 # run via `tox r -e check-min-python-is-tested`
 import pathlib
-import subprocess
 import sys
 
+import mddj.api
 import ruamel.yaml
 
+dj = mddj.api.DJ()
 YAML = ruamel.yaml.YAML(typ="safe")
 REPO_ROOT = pathlib.Path(__file__).parent.parent
 
-requires_python_version = subprocess.check_output(
-    ["python", "-m", "mddj", "read", "requires-python", "--lower-bound"],
-    cwd=REPO_ROOT,
-    text=True,
-).strip()
+requires_python_version = dj.read.requires_python(lower_bound=True)
+print("requires-python:", requires_python_version)
 
 with open(REPO_ROOT / ".github/workflows/test.yaml") as f:
     workflow = YAML.load(f)
@@ -40,13 +38,7 @@ if python_version != f"py{requires_python_version}":
     sys.exit(1)
 
 
-proc = subprocess.run(
-    ["python", "-m", "mddj", "read", "tox", "min-version"],
-    check=True,
-    capture_output=True,
-    cwd=REPO_ROOT,
-)
-tox_min_python_version = proc.stdout.decode().strip()
+tox_min_python_version = dj.read.tox.min_python_version()
 if tox_min_python_version != requires_python_version:
     print("ERROR: ensure_min_python_is_tested.py failed!")
     print(
