@@ -2,6 +2,29 @@
 
 // scriv-insert-here
 
+== 3.41.0 (2026-01-14)
+
+Bugfixes:
+
+* Fixed a bug in `globus timer create transfer` which caused the timer name to
+  be set incorrectly when filter rules are used.
+
+* Improved internal resource cleanup for network connections.
+
+* Fixed an issue when displaying very long wrapped fields such as descriptions
+  in record-style output, which would print the trailing `...` unindented.
+
+* Fixed duplicate "Department" field in `globus endpoint show` output.
+
+Enhancements:
+
+* Added commands for managing Globus Stream tunnels.
+* Added a command to show details of a stream access point.
+
+Other:
+
+* The scopes used by the CLI for Flows service access have been updated to use the `all` scope.
+
 == 3.40.0 (2025-11-05)
 
 Bugfixes:
