@@ -65,14 +65,11 @@ def test_activity_notifications_opt_all(runner, arg):
         activity_notifications_cmd, ["--activity-notifications", arg]
     )
     assert result.exit_code == 0
-    assert (
-        result.output
-        == """\
+    assert result.output == """\
 len(activity_notifications)=2
 activity_notifications.status=['FAILED', 'SUCCEEDED']
 activity_notifications.transfer_use=['destination', 'source']
 """
-    )
 
 
 @pytest.mark.parametrize("arg", ("failed", "Failed", "FAILED"))
@@ -81,14 +78,11 @@ def test_activity_notifications_opt_failed(runner, arg):
         activity_notifications_cmd, ["--activity-notifications", arg]
     )
     assert result.exit_code == 0
-    assert (
-        result.output
-        == """\
+    assert result.output == """\
 len(activity_notifications)=2
 activity_notifications.status=['FAILED']
 activity_notifications.transfer_use=['destination', 'source']
 """
-    )
 
 
 @pytest.mark.parametrize("arg", ("succeeded", "Succeeded", "SUCCEEDED"))
@@ -97,14 +91,11 @@ def test_activity_notifications_opt_succeeded(runner, arg):
         activity_notifications_cmd, ["--activity-notifications", arg]
     )
     assert result.exit_code == 0
-    assert (
-        result.output
-        == """\
+    assert result.output == """\
 len(activity_notifications)=2
 activity_notifications.status=['SUCCEEDED']
 activity_notifications.transfer_use=['destination', 'source']
 """
-    )
 
 
 @pytest.mark.parametrize("arg", ("destination", "Destination", "DESTINATION"))
@@ -113,14 +104,11 @@ def test_activity_notifications_opt_destination(runner, arg):
         activity_notifications_cmd, ["--activity-notifications", arg]
     )
     assert result.exit_code == 0
-    assert (
-        result.output
-        == """\
+    assert result.output == """\
 len(activity_notifications)=2
 activity_notifications.status=['FAILED', 'SUCCEEDED']
 activity_notifications.transfer_use=['destination']
 """
-    )
 
 
 @pytest.mark.parametrize("arg", ("source", "Source", "SOURCE"))
@@ -129,14 +117,11 @@ def test_activity_notifications_opt_source(runner, arg):
         activity_notifications_cmd, ["--activity-notifications", arg]
     )
     assert result.exit_code == 0
-    assert (
-        result.output
-        == """\
+    assert result.output == """\
 len(activity_notifications)=2
 activity_notifications.status=['FAILED', 'SUCCEEDED']
 activity_notifications.transfer_use=['source']
 """
-    )
 
 
 @pytest.mark.parametrize(
@@ -180,14 +165,11 @@ def test_activity_notifications_opt_mixed(runner, arg, expected):
         activity_notifications_cmd, ["--activity-notifications", arg]
     )
     assert result.exit_code == 0
-    assert (
-        result.output
-        == f"""\
+    assert result.output == f"""\
 len(activity_notifications)=2
 activity_notifications.status={expected["status"]}
 activity_notifications.transfer_use={expected["transfer_use"]}
 """
-    )
 
 
 @pytest.mark.parametrize(

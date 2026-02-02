@@ -59,8 +59,7 @@ def transfer_batch_option(f: C) -> C:
     return click.option(
         "--batch",
         type=click.File("r"),
-        help=textwrap.dedent(
-            """\
+        help=textwrap.dedent("""\
             Accept a batch of source/dest path pairs from a file.
             Use `-` to read from stdin.
 
@@ -68,8 +67,7 @@ def transfer_batch_option(f: C) -> C:
             commandline.
 
             See documentation on "Batch Input" for more information.
-            """
-        ),
+            """),
     )(f)
 
 

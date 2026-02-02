@@ -89,13 +89,10 @@ def test_shlex_process_stream_error_handling(capsys):
 
     assert excinfo.value.exit_code == 2
     captured = capsys.readouterr()
-    assert (
-        """\
+    assert """\
 error encountered processing 'data' in alphabet.txt at line 0:
   Got unexpected extra argument (beta)
-"""
-        in captured.err
-    )
+""" in captured.err
 
 
 @pytest.mark.parametrize(

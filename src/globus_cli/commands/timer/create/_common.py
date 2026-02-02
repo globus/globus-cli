@@ -67,13 +67,11 @@ def timer_schedule_options(f: t.Callable[..., R]) -> t.Callable[..., R]:
     @click.option(
         "--interval",
         type=TimedeltaType(),
-        help=(
-            """\
+        help=("""\
             Interval at which the timer should run. Expressed in weeks, days, hours,
             minutes, and seconds. Use 'w', 'd', 'h', 'm', and 's' as suffixes to
             specify. e.g. '1h30m', '500s', '10d'
-            """
-        ),
+            """),
     )
     @click.option(
         "--stop-after-date",

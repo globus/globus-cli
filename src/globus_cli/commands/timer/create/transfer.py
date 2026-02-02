@@ -215,16 +215,14 @@ def transfer_command(
                 scope_request_opts = " ".join(
                     f"--timer-data-access '{target}'" for target in request_data_access
                 )
-                click.echo(
-                    f"""\
+                click.echo(f"""\
     A collection you are trying to use in this timer requires you to grant consent
     for the Globus CLI to access it.
     Please run
 
     globus session consent {scope_request_opts}
 
-    to login with the required scopes."""
-                )
+    to login with the required scopes.""")
                 click.get_current_context().exit(4)
 
         # Otherwise, add requirements to the LoginManager

@@ -106,8 +106,7 @@ def start_local_server(
     server.shutdown()
 
 
-HTML_TEMPLATE = Template(
-    """
+HTML_TEMPLATE = Template("""
 <!DOCTYPE html>
 <html lang="en-US">
 <head>
@@ -146,8 +145,7 @@ HTML_TEMPLATE = Template(
   </main>
 </body>
 </html>
-"""
-)
+""")
 
 DOC_URL = """
 <a href="https://docs.globus.org/cli/">CLI Documentation</a>
