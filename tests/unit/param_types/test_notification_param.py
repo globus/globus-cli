@@ -28,15 +28,12 @@ def test_notify_no_opts(runner):
 def test_notify_opt_off(runner, arg):
     result = runner.invoke(notify_cmd, ["--notify", arg])
     assert result.exit_code == 0
-    assert (
-        result.output
-        == """\
+    assert result.output == """\
 len(notify)=3
 notify.notify_on_failed=False
 notify.notify_on_inactive=False
 notify.notify_on_succeeded=False
 """
-    )
 
 
 @pytest.mark.parametrize("arg", ("on", "ON", "On", "on,failed", "succeeded , on"))
@@ -67,15 +64,12 @@ def test_notify_opt_on(runner, arg):
 def test_notify_single_opt(runner, arg, failed_val, inactive_val, succeeded_val):
     result = runner.invoke(notify_cmd, ["--notify", arg])
     assert result.exit_code == 0
-    assert (
-        result.output
-        == f"""\
+    assert result.output == f"""\
 len(notify)=3
 notify.notify_on_failed={failed_val}
 notify.notify_on_inactive={inactive_val}
 notify.notify_on_succeeded={succeeded_val}
 """
-    )
 
 
 def test_notify_unrecognized_opt(runner):

@@ -3,6 +3,7 @@
 
 based originally on click-man, but significantly specialized for the globus-cli
 """
+
 import argparse
 import logging
 import os
@@ -42,21 +43,15 @@ on an endpoint.
 as in ConsentRequired errors or missing logins.
 """
 
-EXIT_STATUS_TEXT = (
-    """0 on success.
+EXIT_STATUS_TEXT = """0 on success.
 
 1 if a network or server error occurred, unless --map-http-status has been
 used to change exit behavior on http error codes.
-"""
-    + _EXIT_STATUS_TEXT_COMMON
-)
-EXIT_STATUS_NOHTTP_TEXT = (
-    """0 on success.
+""" + _EXIT_STATUS_TEXT_COMMON
+EXIT_STATUS_NOHTTP_TEXT = """0 on success.
 
 1 if an error occurred.
-"""
-    + _EXIT_STATUS_TEXT_COMMON
-)
+""" + _EXIT_STATUS_TEXT_COMMON
 
 
 def _format_option(optstr):

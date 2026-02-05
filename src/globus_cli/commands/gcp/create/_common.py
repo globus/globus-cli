@@ -35,10 +35,8 @@ def _deprecated_verify_warning_callback(
     ctx: click.Context, param: click.Parameter, value: bool | None
 ) -> bool | None:
     if value is not None:
-        print_command_hint(
-            """\
+        print_command_hint("""\
 '--disable-verify/--no-disable-verify' is deprecated
 
-Use the '--verify' option instead."""
-        )
+Use the '--verify' option instead.""")
     return value

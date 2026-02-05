@@ -191,16 +191,14 @@ def delete_and_rm_options(
             f = click.option(
                 "--batch",
                 type=click.File("r"),
-                help=textwrap.dedent(
-                    """\
+                help=textwrap.dedent("""\
                     Accept a batch of paths from a file.
                     Use `-` to read from stdin.
 
                     Uses ENDPOINT_ID as passed on the commandline.
 
                     See documentation on "Batch Input" for more information.
-                    """
-                ),
+                    """),
             )(f)
         return f
 

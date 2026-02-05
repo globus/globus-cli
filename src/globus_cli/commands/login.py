@@ -30,27 +30,17 @@ Logout of the Globus CLI with
   globus logout
 """
 
-_LOGIN_EPILOG = (
-    (
-        """\
+_LOGIN_EPILOG = ("""\
 
 You have successfully logged in to the Globus CLI!
-"""
-    )
-    + _SHARED_EPILOG
-)
+""") + _SHARED_EPILOG
 
-_LOGGED_IN_RESPONSE = (
-    (
-        """\
+_LOGGED_IN_RESPONSE = ("""\
 You are already logged in!
 
 You may force a new login with
   globus login --force
-"""
-    )
-    + _SHARED_EPILOG
-)
+""") + _SHARED_EPILOG
 
 _IS_CLIENT_ID_RESPONSE = """\
 GLOBUS_CLI_CLIENT_ID and GLOBUS_CLI_CLIENT_SECRET are both set.

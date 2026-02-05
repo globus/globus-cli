@@ -87,13 +87,11 @@ def check_inactive_reason(
             "This timer has additional authentication requirements that must be met "
             "in order to resume.",
             gare=gare,
-            epilog=textwrap.dedent(
-                f"""\
+            epilog=textwrap.dedent(f"""\
                 After updating your session, resume the timer with:
 
                     globus timer resume --skip-inactive-reason-check {timer_id}
-                """
-            ),
+                """),
         )
 
 

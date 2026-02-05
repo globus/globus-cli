@@ -10,14 +10,12 @@ def fmt_mod_info(modname):
     ver = importlib.metadata.distribution(modname).version
     filepath, syspath = mod.__file__, mod.__path__
 
-    return textwrap.dedent(
-        f"""\
+    return textwrap.dedent(f"""\
         {modname}:
           __version__: {ver}
           __file__: {filepath}
           __path__: {syspath}
-        """
-    )
+        """)
 
 
 @pytest.fixture(scope="session")
@@ -40,28 +38,24 @@ def test_version_command_on_latest(run_line, mock_pypi_version, installed_cli_ve
     mock_pypi_version(installed_cli_version)
 
     result = run_line("globus version")
-    assert result.output == textwrap.dedent(
-        f"""\
+    assert result.output == textwrap.dedent(f"""\
         Installed version:  {installed_cli_version}
         Latest version:     {installed_cli_version}
 
         You are running the latest version of the Globus CLI
-        """
-    )
+        """)
 
 
 def test_version_command_on_preview(run_line, mock_pypi_version, installed_cli_version):
     mock_pypi_version("1.0")
 
     result = run_line("globus version")
-    assert result.output == textwrap.dedent(
-        f"""\
+    assert result.output == textwrap.dedent(f"""\
         Installed version:  {installed_cli_version}
         Latest version:     1.0
 
         You are running a preview version of the Globus CLI
-        """
-    )
+        """)
 
 
 def test_version_command_newer_available(
@@ -72,15 +66,13 @@ def test_version_command_newer_available(
     mock_pypi_version(latest)
 
     result = run_line("globus version")
-    assert result.output == textwrap.dedent(
-        f"""\
+    assert result.output == textwrap.dedent(f"""\
         Installed version:  {installed_cli_version}
         Latest version:     {latest}
 
         You should update your version of the Globus CLI with
           globus update
-        """
-    )
+        """)
 
 
 def test_verbose_version_command_shows_related_package_versions(

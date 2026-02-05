@@ -63,18 +63,14 @@ def test_format_record_with_text_wrapping(capsys, monkeypatch):
     # based on info from wikipedia
     data = {
         "bird": "Franklin's Gull",
-        "description": textwrap.dedent(
-            """
+        "description": textwrap.dedent("""
             A migratory gull with a range spanning from Chile and
             Argentina up to Canada and Alaska.
             Named after the Arctic explorer Sir John Franklin, it
             has a white body, dark grey wings, and a black hood.
             The black hood plumage, developed in the breeding season,
             is lost in the winter.
-            """
-        )
-        .replace("\n", " ")
-        .strip(),
+            """).replace("\n", " ").strip(),
     }
     fields = [
         Field("Bird", "bird"),

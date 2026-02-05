@@ -125,12 +125,10 @@ def test_render_server_timing(capsys, monkeypatch):
 
     assert capsys.readouterr().err == ""
     render_metrics_onscreen(metrics)
-    assert capsys.readouterr().err == (
-        """\
+    assert capsys.readouterr().err == ("""\
 Server Timing Info
 +------------------+
 | a=1.0.......#    |
 | callout=2.2.#### |
 +------------------+
-"""
-    )
+""")

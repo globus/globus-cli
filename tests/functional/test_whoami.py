@@ -31,12 +31,10 @@ def test_linked_identities(run_line, userinfo_mocker):
     )
 
     result = run_line("globus whoami --linked-identities")
-    assert result.output == textwrap.dedent(
-        f"""\
+    assert result.output == textwrap.dedent(f"""\
         {usernames[0]}
         {usernames[1]}
-        """
-    )
+        """)
     for name in usernames:
         assert name in result.output
 

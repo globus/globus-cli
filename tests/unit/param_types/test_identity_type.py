@@ -37,12 +37,10 @@ def test_identity_type_default_allows_username(runner, make_print_command):
     result = runner.invoke(cmd, ["globus@globus.org"])
 
     assert result.exit_code == 0
-    assert result.output == textwrap.dedent(
-        """\
+    assert result.output == textwrap.dedent("""\
         value='globus@globus.org'
         idtype='username'
-        """
-    )
+        """)
 
 
 def test_identity_type_default_allows_id(runner, make_print_command):
@@ -51,12 +49,10 @@ def test_identity_type_default_allows_id(runner, make_print_command):
     result = runner.invoke(cmd, [user_id])
 
     assert result.exit_code == 0
-    assert result.output == textwrap.dedent(
-        f"""\
+    assert result.output == textwrap.dedent(f"""\
         value='{user_id}'
         idtype='identity'
-        """
-    )
+        """)
 
 
 def test_identity_type_default_rejects_domain(runner, make_print_command):
@@ -72,12 +68,10 @@ def test_identity_type_allows_domain_if_configured(runner, make_print_command):
     result = runner.invoke(cmd, ["uchicago.edu"])
 
     assert result.exit_code == 0
-    assert result.output == textwrap.dedent(
-        """\
+    assert result.output == textwrap.dedent("""\
         value='uchicago.edu'
         idtype='domain'
-        """
-    )
+        """)
 
 
 def test_identity_type_default_rejects_b32_encoded_ids(
@@ -99,12 +93,10 @@ def test_identity_type_allows_b32_encoded_ids_if_configured(
     result = runner.invoke(cmd, [b32_variant])
 
     assert result.exit_code == 0
-    assert result.output == textwrap.dedent(
-        f"""\
+    assert result.output == textwrap.dedent(f"""\
         value='{decoded}'
         idtype='identity'
-        """
-    )
+        """)
 
 
 @pytest.mark.parametrize(
