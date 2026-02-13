@@ -10,6 +10,7 @@ from globus_cli.parsing import group
         "list": (".list", "list_tunnel_command"),
         "show": (".show", "show_tunnel_command"),
         "stop": (".stop", "stop_tunnel_command"),
+        "events": (".events", "events_command"),
     },
 )
 def tunnel_command() -> None:

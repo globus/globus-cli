@@ -80,3 +80,24 @@ def test_tunnel_update(run_line, output_format):
 
     sent_data = json.loads(get_last_request().body)
     assert sent_data["data"]["attributes"]["label"] == meta["display_name"]
+
+
+@pytest.mark.parametrize("output_format", ["json", "text"])
+def test_tunnel_events(run_line, output_format):
+    meta = load_response_set("cli.tunnel_operations").metadata
+    result = run_line(
+        [
+            "globus",
+            "streams",
+            "tunnel",
+            "events",
+            meta["tunnel_id"],
+            "-F",
+            output_format,
+        ]
+    )
+    if output_format == "json":
+        res = json.loads(result.output)
+        assert res["data"][0]["type"] == "TunnelEvent"
+    else:
+        assert "Code" in result.output

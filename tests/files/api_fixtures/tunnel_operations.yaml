@@ -147,3 +147,48 @@ transfer:
           "request_id": "yDZD2RwPk"
         }
       }
+
+  - path: /v2/tunnels/689dcb43-cdbe-46bb-9a59-dad71091a247/events
+    method: GET
+    json:
+      {
+        "data": [
+          {
+            "type": "TunnelEvent",
+            "id": 2768,
+            "attributes": {
+              "code": "STARTED",
+              "is_error": false,
+              "description": "started",
+              "details": "Attempting tunnel establishment",
+              "time": "2026-02-12T21:59:01.857473"
+            }
+          },
+          {
+            "type": "TunnelEvent",
+            "id": 2769,
+            "attributes": {
+              "code": "TUNNEL_ACTIVE",
+              "is_error": false,
+              "description": "tunnel is active",
+              "details": "Tunnel has been established",
+              "time": "2026-02-12T21:59:02.876253"
+            }
+          },
+          {
+            "type": "TunnelEvent",
+            "id": 2777,
+            "attributes": {
+              "code": "TUNNEL_STOPPED",
+              "is_error": false,
+              "description": "tunnel has been stopped",
+              "details": "Tunnel stopped as requested.",
+              "time": "2026-02-12T22:12:03.655877"
+            }
+          }
+        ],
+        "links": null,
+        "meta": {
+          "request_id": "8eZwBInC5"
+        }
+      }
