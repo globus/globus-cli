@@ -325,7 +325,7 @@ def _execute_service_command(
             path = path[1:]
         path = f"/v2/{path}"
     if isinstance(client, globus_sdk.TransferClient) and not (
-        path.startswith("/v0.10/") or path.startswith("/v2/")
+        path.startswith(("/v0.10/", "/v2/"))
     ):
         if path.startswith("/"):
             path = path[1:]
