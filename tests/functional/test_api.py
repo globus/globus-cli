@@ -77,6 +77,20 @@ def test_api_command_get(run_line, service_name, add_gcs_login, is_error_respons
     assert result.output == '{"foo": "bar"}\n'
 
 
+def test_api_transfer_v2_command(run_line):
+    load_response(
+        RegisteredResponse(
+            service="transfer",
+            status=200,
+            path="/v2/foo",
+            json={"foo": "bar"},
+        )
+    )
+
+    result = run_line(["globus", "api", "transfer", "get", "/v2/foo"])
+    assert result.output == '{"foo": "bar"}\n'
+
+
 def test_api_groups_v2_path_stripping(run_line):
     load_response(
         RegisteredResponse(
