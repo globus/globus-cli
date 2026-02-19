@@ -37,6 +37,24 @@ def outformat_is_text() -> bool:
     return state.outformat_is_text()
 
 
+def outformat_is_record() -> bool:
+    """
+    Only safe to call within a click context.
+    """
+    ctx = click.get_current_context()
+    state = ctx.ensure_object(CommandState)
+    return state.outformat_is_record()
+
+
+def outformat_is_table() -> bool:
+    """
+    Only safe to call within a click context.
+    """
+    ctx = click.get_current_context()
+    state = ctx.ensure_object(CommandState)
+    return state.outformat_is_table()
+
+
 def get_jmespath_expression() -> t.Any:
     """
     Only safe to call within a click context.

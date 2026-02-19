@@ -193,6 +193,20 @@ def test_search_shows_collection_id(run_line, singular_search_response):
     assert meta["endpoint_id"] not in result.output
 
 
+def test_search_format_record(run_line, singular_search_response):
+    singular_search_response.add()
+    meta = singular_search_response.metadata
+
+    result = run_line("globus endpoint search mytestquery --format record")
+
+    assert result.output == (
+        f"ID:           {meta['collection_id']}\n"
+        f"Owner:        {meta['owner_string']}\n"
+        f"Display Name: {meta['display_name']}\n"
+        f"Domain:       {meta['collection_fqdn']}\n"
+    )
+
+
 @pytest.mark.parametrize(
     "entity_type",
     (

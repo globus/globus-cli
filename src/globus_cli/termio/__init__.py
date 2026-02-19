@@ -39,6 +39,8 @@ __all__ = [
     "outformat_is_json",
     "outformat_is_text",
     "outformat_is_unix",
+    "outformat_is_record",
+    "outformat_is_table",
     "get_jmespath_expression",
     "verbosity",
     "is_verbose",
