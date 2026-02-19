@@ -13,6 +13,8 @@ from globus_cli.types import AnyCommand
 JSON_FORMAT = "json"
 TEXT_FORMAT = "text"
 UNIX_FORMAT = "unix"
+RECORD_FORMAT = "record"
+TABLE_FORMAT = "table"
 
 F = t.TypeVar("F", bound=AnyCommand)
 
@@ -63,6 +65,12 @@ class CommandState:
 
     def outformat_is_unix(self) -> bool:
         return self.output_format == UNIX_FORMAT
+
+    def outformat_is_record(self) -> bool:
+        return self.output_format == RECORD_FORMAT
+
+    def outformat_is_table(self) -> bool:
+        return self.output_format == TABLE_FORMAT
 
     def is_verbose(self) -> bool:
         return self.verbosity > 0
@@ -128,7 +136,8 @@ def format_option(f: F) -> F:
         "-F",
         "--format",
         type=click.Choice(
-            [UNIX_FORMAT, JSON_FORMAT, TEXT_FORMAT], case_sensitive=False
+            [UNIX_FORMAT, JSON_FORMAT, TEXT_FORMAT, RECORD_FORMAT, TABLE_FORMAT],
+            case_sensitive=False,
         ),
         help="Output format for stdout. Defaults to text.",
         expose_value=False,

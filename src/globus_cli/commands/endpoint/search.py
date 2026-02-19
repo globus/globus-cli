@@ -27,7 +27,7 @@ from globus_cli.utils import PagingWrapper
 $ globus endpoint search Tutorial --filter-owner-id go@globusid.org
 ----
 
-Search for endpoints owned by the current user
+Search for endpoints owned by the current user.
 
 [source,bash]
 ----
@@ -122,6 +122,9 @@ def endpoint_search(
     If FILTER_FULLTEXT is given, endpoints which have attributes (display name,
     legacy name, description, organization, department, keywords) that match the
     search text will be returned. The result size limit is 100 endpoints.
+
+    If the default table output is too wide for your terminal consider using
+    --format record.
     """
     from globus_cli.services.transfer import (
         ENDPOINT_LIST_FIELDS,

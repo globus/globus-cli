@@ -6,7 +6,13 @@ import typing as t
 import click
 import globus_sdk
 
-from .context import outformat_is_json, outformat_is_text, outformat_is_unix
+from .context import (
+    outformat_is_json,
+    outformat_is_record,
+    outformat_is_table,
+    outformat_is_text,
+    outformat_is_unix,
+)
 from .field import Field
 from .printers import (
     CustomPrinter,
@@ -93,6 +99,31 @@ class Renderer:
         :param sort_json_keys: If True, JSON keys are rendered sorted. Default: True.
             (json output only)
         """
+
+        # if --format record was used, change table outputs into record_lists.
+        # no-op if output format is already record or record list. error on
+        # other output types.
+        if outformat_is_record():
+            if text_mode not in (
+                TextMode.text_table,
+                TextMode.text_record,
+                TextMode.text_record_list,
+            ):
+                raise click.UsageError(
+                    "This command does not support record output formatting"
+                )
+            if text_mode == TextMode.text_table:
+                text_mode = TextMode.text_record_list
+
+        # if --format table was used, change record list outputs into table
+        # outputs. no-op if output format is already table. error on other
+        # output types.
+        elif outformat_is_table():
+            if text_mode not in (TextMode.text_table, TextMode.text_record_list):
+                raise click.UsageError(
+                    "This command does not support table output formatting"
+                )
+            text_mode = TextMode.text_table
 
         if isinstance(response_data, globus_sdk.GlobusHTTPResponse):
             maybe_show_server_timing(response_data)
