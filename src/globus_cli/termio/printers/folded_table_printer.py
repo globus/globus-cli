@@ -75,11 +75,13 @@ class FoldedTablePrinter(Printer[t.Iterable[t.Any]]):
             )
         )
 
-        for row in table.rows[1:-1]:
-            echo(row.serialize(col_widths, style=table_style))
-            if table.folded:
-                echo(_separator_line(col_widths, style=table_style))
-        echo(table.rows[-1].serialize(col_widths, style=table_style))
+        # if the table is empty, print nothing, but normally there is more than one row
+        if len(table.rows) > 1:
+            for row in table.rows[1:-1]:
+                echo(row.serialize(col_widths, style=table_style))
+                if table.folded:
+                    echo(_separator_line(col_widths, style=table_style))
+            echo(table.rows[-1].serialize(col_widths, style=table_style))
         if table.folded:
             echo(_separator_line(col_widths, style=table_style | OutputStyle.bottom))
 

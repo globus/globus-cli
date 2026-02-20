@@ -112,4 +112,4 @@ def term_is_interactive() -> bool:
 
 def fold_tables() -> bool | None:
     val = os.getenv("GLOBUS_CLI_FOLD_TABLES")
-    return val is not None and utils.str2bool(val)
+    return val is None or utils.str2bool(val)
