@@ -16,7 +16,8 @@ from .base import Printer
 class OutputStyle(enum.Flag):
     none = enum.auto()
     decorated = enum.auto()
-    heavy = enum.auto()
+    double = enum.auto()
+    double_transition = enum.auto()
     top = enum.auto()
     bottom = enum.auto()
 
@@ -26,16 +27,19 @@ class FoldedTablePrinter(Printer[t.Iterable[t.Any]]):
     A printer to render an iterable of objects holding tabular data with cells folded
     together and stacked in the format:
 
-    .--------------------------------------------------.
-    | <field.name 1> | <field.name 3> | <field.name 5> |
-    | <field.name 2> | <field.name 4> |                |
-    +================+================+================+
-    | <obj.value 1>  | <obj.value 3>  | <obj.value 5>  |
-    | <obj.value 2>  | <obj.value 4>  |                |
-    +----------------+----------------+----------------+
-    | <obj.value 1>  | <obj.value 3>  | <obj.value 5>  |
-    | <obj.value 2>  | <obj.value 4>  |                |
-    '----------------+----------------+----------------'
+    ╒════════════════╤════════════════╤════════════════╕
+    │ <field.name 1> ╎ <field.name 3> ╎ <field.name 5> │
+    ├╴─ ─ ─ ─ ─ ─ ─ ╶┼╴─ ─ ─ ─ ─ ─ ─ ╶┼╴─ ─ ─ ─ ─ ─ ─ ╶┤
+    │ <field.name 2> ╎ <field.name 4> ╎                │
+    ╞════════════════╪════════════════╪════════════════╡
+    │ <obj.value 1>  ╎ <obj.value 3>  ╎ <obj.value 5>  │
+    ├╴─ ─ ─ ─ ─ ─ ─ ╶┼╴─ ─ ─ ─ ─ ─ ─ ╶┼╴─ ─ ─ ─ ─ ─ ─ ╶┤
+    │ <obj.value 2>  ╎ <obj.value 4>  ╎                │
+    ├────────────────┼────────────────┼────────────────┤
+    │ <obj.value 1>  ╎ <obj.value 3>  ╎ <obj.value 5>  │
+    ├╴─ ─ ─ ─ ─ ─ ─ ╶┼╴─ ─ ─ ─ ─ ─ ─ ╶┼╴─ ─ ─ ─ ─ ─ ─ ╶┤
+    │ <obj.value 2>  ╎ <obj.value 4>  ╎                │
+    └────────────────┴────────────────┴────────────────┘
 
     Rows are folded and stacked only if they won't fit in the output width.
 
@@ -61,16 +65,31 @@ class FoldedTablePrinter(Printer[t.Iterable[t.Any]]):
 
         # if folded, print a leading separator line
         table_style = OutputStyle.decorated if table.folded else OutputStyle.none
+
         if table.folded:
-            echo(_separator_line(col_widths, style=table_style | OutputStyle.top))
-        # print the header row and a separator (heavy if folded)
-        echo(table.header_row.serialize(col_widths, style=table_style))
+            echo(
+                _separator_line(
+                    col_widths, style=table_style | OutputStyle.double | OutputStyle.top
+                )
+            )
+        # print the header row and a separator (double if folded)
+        echo(
+            table.header_row.serialize(
+                col_widths,
+                style=table_style
+                | (OutputStyle.double if table.folded else OutputStyle.none),
+            )
+        )
         echo(
             _separator_line(
                 col_widths,
                 style=(
                     table_style
-                    | (OutputStyle.heavy if table.folded else OutputStyle.none)
+                    | (
+                        OutputStyle.double_transition
+                        if table.folded
+                        else OutputStyle.none
+                    )
                 ),
             )
         )
@@ -111,25 +130,39 @@ class FoldedTablePrinter(Printer[t.Iterable[t.Any]]):
 def _separator_line(
     col_widths: tuple[int, ...], style: OutputStyle = OutputStyle.none
 ) -> str:
-    fill = "=" if style & OutputStyle.heavy else "-"
+    fill = "=" if style & (OutputStyle.double | OutputStyle.double_transition) else "-"
 
     if style & OutputStyle.decorated:
-        decorator = "+"
-        if style & OutputStyle.top:
-            decorator = "."
-        elif style & OutputStyle.bottom:
-            decorator = "'"
+        # remap fill to a box drawing char
+        fill = {"=": "═", "-": "─"}[fill]
 
-        leader = f"{decorator}{fill}"
-        trailer = f"{fill}{decorator}"
+        before_decorator = "├"
+        after_decorator = "┤"
+        middle_decorator = "┼"
+        if style & OutputStyle.top:
+            before_decorator = "╒"
+            after_decorator = "╕"
+            middle_decorator = "╤"
+        elif style & OutputStyle.bottom:
+            before_decorator = "└"
+            after_decorator = "┘"
+            middle_decorator = "┴"
+        elif style & OutputStyle.double_transition:
+            before_decorator = "╞"
+            after_decorator = "╡"
+            middle_decorator = "╪"
+
+        leader = f"{before_decorator}{fill}"
+        trailer = f"{fill}{after_decorator}"
     else:
         leader = ""
         trailer = ""
+        middle_decorator = "+"
 
     line_parts = [leader]
     for col in col_widths[:-1]:
         line_parts.append(col * fill)
-        line_parts.append(f"{fill}+{fill}")
+        line_parts.append(f"{fill}{middle_decorator}{fill}")
     line_parts.append(col_widths[-1] * fill)
     line_parts.append(trailer)
     return "".join(line_parts)
@@ -248,19 +281,41 @@ class Row:
         self, use_col_widths: tuple[int, ...], style: OutputStyle = OutputStyle.none
     ) -> str:
         lines: list[str] = []
-        for subrow in self.grid:
+
+        separator_line: list[str] = []
+        if len(self.grid) > 1:
+            for width in use_col_widths:
+                separator_line.append(_make_row_separator(width))
+
+        for i, subrow in enumerate(self.grid):
             new_line: list[str] = []
             for idx, width in enumerate(use_col_widths):
                 new_line.append((subrow[idx] if idx < len(subrow) else "").ljust(width))
 
             if style & OutputStyle.decorated:
-                leader = "| "
-                trailer = " |"
+                separator = "╎"
+                leader = "│ "
+                trailer = " │"
+
+                if i > 0 and separator_line:
+                    lines.append("├╴" + "╶┼╴".join(separator_line) + "╶┤")
             else:
                 leader = ""
                 trailer = ""
-            lines.append(leader + " | ".join(new_line) + f"{trailer}")
+                separator = "|"
+            lines.append(leader + f" {separator} ".join(new_line) + trailer)
         return "\n".join(lines)
+
+
+_ROW_SEPARATOR_CHAR = "─"
+
+
+@functools.cache
+def _make_row_separator(width: int) -> str:
+    # repeat with whitespace
+    sep = (_ROW_SEPARATOR_CHAR + " ") * width
+    sep = sep[:width]  # trim to length
+    return sep
 
 
 def _get_terminal_content_width() -> int:
