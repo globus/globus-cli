@@ -29,15 +29,15 @@ class FoldedTablePrinter(Printer[t.Iterable[t.Any]]):
 
     ╒════════════════╤════════════════╤════════════════╕
     │ <field.name 1> ╎ <field.name 3> ╎ <field.name 5> │
-    ├╴─ ─ ─ ─ ─ ─ ─ ╶┼╴─ ─ ─ ─ ─ ─ ─ ╶┼╴─ ─ ─ ─ ─ ─ ─ ╶┤
+    ├─ ─ ─ ─ ─ ─ ─  ─┼─ ─ ─ ─ ─ ─ ─  ─┼─ ─ ─ ─ ─ ─ ─  ─┤
     │ <field.name 2> ╎ <field.name 4> ╎                │
     ╞════════════════╪════════════════╪════════════════╡
     │ <obj.value 1>  ╎ <obj.value 3>  ╎ <obj.value 5>  │
-    ├╴─ ─ ─ ─ ─ ─ ─ ╶┼╴─ ─ ─ ─ ─ ─ ─ ╶┼╴─ ─ ─ ─ ─ ─ ─ ╶┤
+    ├─ ─ ─ ─ ─ ─ ─  ─┼─ ─ ─ ─ ─ ─ ─  ─┼─ ─ ─ ─ ─ ─ ─  ─┤
     │ <obj.value 2>  ╎ <obj.value 4>  ╎                │
     ├────────────────┼────────────────┼────────────────┤
     │ <obj.value 1>  ╎ <obj.value 3>  ╎ <obj.value 5>  │
-    ├╴─ ─ ─ ─ ─ ─ ─ ╶┼╴─ ─ ─ ─ ─ ─ ─ ╶┼╴─ ─ ─ ─ ─ ─ ─ ╶┤
+    ├─ ─ ─ ─ ─ ─ ─  ─┼─ ─ ─ ─ ─ ─ ─  ─┼─ ─ ─ ─ ─ ─ ─  ─┤
     │ <obj.value 2>  ╎ <obj.value 4>  ╎                │
     └────────────────┴────────────────┴────────────────┘
 
@@ -298,7 +298,7 @@ class Row:
                 trailer = " │"
 
                 if i > 0 and separator_line:
-                    lines.append("├╴" + "╶┼╴".join(separator_line) + "╶┤")
+                    lines.append("├─" + "─┼─".join(separator_line) + "─┤")
             else:
                 leader = ""
                 trailer = ""
@@ -313,8 +313,10 @@ _ROW_SEPARATOR_CHAR = "─"
 @functools.cache
 def _make_row_separator(width: int) -> str:
     # repeat with whitespace
-    sep = (_ROW_SEPARATOR_CHAR + " ") * width
+    sep = (" " + _ROW_SEPARATOR_CHAR) * width
     sep = sep[:width]  # trim to length
+    if sep[-1] == _ROW_SEPARATOR_CHAR:  # ensure it ends in whitespace
+        sep = sep[:-1] + " "
     return sep
 
 
