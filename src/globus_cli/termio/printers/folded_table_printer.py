@@ -86,18 +86,19 @@ class FoldedTablePrinter(Printer[t.Iterable[t.Any]]):
             )
         )
 
-        # if the table is empty, print nothing, but normally there is more than one row
-        if len(table.rows) > 1:
-            for row in table.rows[1:-1]:
-                echo(row.serialize(col_widths))
-                if table.folded:
-                    echo(
-                        _separator_line(
-                            col_widths,
-                            row_type=SeparatorRowType.box_row_separator,
-                        )
+        for row in table.content_rows[:-1]:
+            echo(row.serialize(col_widths))
+            if table.folded:
+                echo(
+                    _separator_line(
+                        col_widths,
+                        row_type=SeparatorRowType.box_row_separator,
                     )
-            echo(table.rows[-1].serialize(col_widths))
+                )
+        # it is possible for a table to be empty, so check before attempting to
+        # serialize the last row
+        if table.content_rows:
+            echo(table.content_rows[-1].serialize(col_widths))
         if table.folded:
             echo(_separator_line(col_widths, row_type=SeparatorRowType.box_bottom))
 
@@ -142,6 +143,10 @@ class RowTable:
     @property
     def header_row(self) -> Row:
         return self.rows[0]
+
+    @property
+    def content_rows(self) -> tuple[Row, ...]:
+        return self.rows[1:]
 
     def fits_in_width(self, width: int) -> bool:
         return all(x.min_rendered_width <= width for x in self.rows)
