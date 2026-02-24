@@ -29,12 +29,6 @@ class SeparatorRowType(enum.Enum):
     box_bottom = enum.auto()
 
 
-class OutputStyle(enum.Flag):
-    none = enum.auto()
-    decorated = enum.auto()
-    double = enum.auto()
-
-
 class FoldedTablePrinter(Printer[t.Iterable[t.Any]]):
     """
     A printer to render an iterable of objects holding tabular data with cells folded
@@ -77,18 +71,10 @@ class FoldedTablePrinter(Printer[t.Iterable[t.Any]]):
         col_widths = table.calculate_column_widths()
 
         # if folded, print a leading separator line
-        table_style = OutputStyle.decorated if table.folded else OutputStyle.none
-
         if table.folded:
             echo(_separator_line(col_widths, row_type=SeparatorRowType.box_top))
-        # print the header row and a separator (double if folded)
-        echo(
-            table.header_row.serialize(
-                col_widths,
-                style=table_style
-                | (OutputStyle.double if table.folded else OutputStyle.none),
-            )
-        )
+        # print the header row and a separator
+        echo(table.header_row.serialize(col_widths))
         echo(
             _separator_line(
                 col_widths,
@@ -103,7 +89,7 @@ class FoldedTablePrinter(Printer[t.Iterable[t.Any]]):
         # if the table is empty, print nothing, but normally there is more than one row
         if len(table.rows) > 1:
             for row in table.rows[1:-1]:
-                echo(row.serialize(col_widths, style=table_style))
+                echo(row.serialize(col_widths))
                 if table.folded:
                     echo(
                         _separator_line(
@@ -111,7 +97,7 @@ class FoldedTablePrinter(Printer[t.Iterable[t.Any]]):
                             row_type=SeparatorRowType.box_row_separator,
                         )
                     )
-            echo(table.rows[-1].serialize(col_widths, style=table_style))
+            echo(table.rows[-1].serialize(col_widths))
         if table.folded:
             echo(_separator_line(col_widths, row_type=SeparatorRowType.box_bottom))
 
@@ -246,25 +232,13 @@ class Row:
             0, *(len(subrow[idx]) if idx < len(subrow) else 0 for subrow in self.grid)
         )
 
-    def serialize(
-        self, use_col_widths: tuple[int, ...], style: OutputStyle = OutputStyle.none
-    ) -> str:
-        if style & OutputStyle.decorated:
-            separator = "╎"
-            leader = "│ "
-            trailer = " │"
-        else:
-            leader = ""
-            trailer = ""
-            separator = "|"
-
+    def serialize(self, use_col_widths: tuple[int, ...]) -> str:
         if len(self.grid) < 1:
             raise ValueError("Invalid state. Cannot serialize an empty row.")
 
         if len(self.grid) == 1:
-            return _format_subrow(
-                self.grid[0], use_col_widths, separator, leader, trailer
-            )
+            # format using ASCII characters (not folded)
+            return _format_subrow(self.grid[0], use_col_widths, "|", "", "")
 
         lines: list[str] = []
 
@@ -274,9 +248,8 @@ class Row:
         for i, subrow in enumerate(self.grid):
             if i > 0:
                 lines.append(row_separator)
-            lines.append(
-                _format_subrow(subrow, use_col_widths, separator, leader, trailer)
-            )
+            # format using box drawing characters (part of folded output)
+            lines.append(_format_subrow(subrow, use_col_widths, "╎", "│ ", " │"))
         return "\n".join(lines)
 
 
