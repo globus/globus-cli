@@ -165,7 +165,7 @@ def test_search_shows_collection_id(run_line, singular_search_response):
     header_row = re.split(r"\s+\|\s+", header_line)
     assert header_row == ["ID", "Owner", "Display Name"]
     # the separator line is a series of dashes
-    separator_row = re.split(r"\s+\|\s+", separator_line)
+    separator_row = separator_line.split("-+-")
     assert len(separator_row) == 3
     for separator in separator_row:
         assert set(separator) == {"-"}  # exactly one character is used

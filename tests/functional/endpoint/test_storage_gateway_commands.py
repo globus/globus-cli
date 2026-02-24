@@ -17,7 +17,7 @@ def test_storage_gateway_list(add_gcs_login, run_line):
 
     expected = (
         "ID                                   | Display Name      | High Assurance | Allowed Domains\n"  # noqa: E501
-        "------------------------------------ | ----------------- | -------------- | ---------------\n"  # noqa: E501
+        "-------------------------------------+-------------------+----------------+----------------\n"  # noqa: E501
         "a0cbde58-0183-11ea-92bd-9cb6d0d9fd63 | example gateway 1 | False          | example.edu    \n"  # noqa: E501
         "6840c8ba-eb98-11e9-b89c-9cb6d0d9fd63 | example gateway 2 | False          | example.edu    \n"  # noqa: E501
     )

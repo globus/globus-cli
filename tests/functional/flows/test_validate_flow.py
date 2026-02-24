@@ -229,7 +229,7 @@ def _parse_table_content(output):
     Parse the output of a command, searching for tables in the output and returning
     a list of headers and a list of rows (which are lists of cell values).
 
-    Expects a table with divider lines of the form `--- | --- | ---` and rows of the
+    Expects a table with divider lines of the form `----+-----+----` and rows of the
     form `value | value | value`.
 
     Returns a list of tuples where each tuple represents a parsed table and is
@@ -240,7 +240,7 @@ def _parse_table_content(output):
     # Find the table divider
     lines = output.splitlines()
     divider_indices = [
-        i for i, line in enumerate(lines) if re.fullmatch(r"-+ \| [-| ]*", line)
+        i for i, line in enumerate(lines) if re.fullmatch(r"\-+\+[\-\+]*", line)
     ]
 
     if not divider_indices:

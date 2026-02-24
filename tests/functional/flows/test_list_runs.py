@@ -97,7 +97,7 @@ def test_list_runs_filter_role(run_line):
 
     expected = (
         "Run ID                               | Flow Title   | Run Label   | Status   \n"  # noqa: E501
-        "------------------------------------ | ------------ | ----------- | ---------\n"  # noqa: E501
+        "-------------------------------------+--------------+-------------+----------\n"  # noqa: E501
         f"{first_run_id} | My Cool Flow | My Cool Run | SUCCEEDED\n"  # noqa: E501
     )
     assert result.output == expected

@@ -19,7 +19,7 @@ def test_user_credential_list(add_gcs_login, run_line):
 
     expected = (
         "ID                                   | Display Name     | Globus Identity                      | Local Username | Invalid\n"  # noqa: E501
-        "------------------------------------ | ---------------- | ------------------------------------ | -------------- | -------\n"  # noqa: E501
+        "-------------------------------------+------------------+--------------------------------------+----------------+--------\n"  # noqa: E501
         "af43d884-64a1-4414-897a-680c32374439 | posix_credential | 948847d4-ffcc-4ae0-ba3a-a4c88d480159 | testuser       | False  \n"  # noqa: E501
         "c96b8f70-1448-46db-89af-292623c93ee4 | s3_credential    | 948847d4-ffcc-4ae0-ba3a-a4c88d480159 | testuser       | False  \n"  # noqa: E501
     )

@@ -108,3 +108,8 @@ def term_is_interactive() -> bool:
         return True
 
     return os.getenv("PS1") is not None
+
+
+def fold_tables() -> bool | None:
+    val = os.getenv("GLOBUS_CLI_FOLD_TABLES")
+    return val is None or utils.str2bool(val)
