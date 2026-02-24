@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import collections
+import dataclasses
 import enum
 import functools
 import shutil
@@ -27,6 +28,36 @@ class SeparatorRowType(enum.Enum):
     box_intra_row_separator = enum.auto()
     # bottom of a table
     box_bottom = enum.auto()
+
+
+@dataclasses.dataclass
+class SeparatorRowStyle:
+    fill: str
+    leader: str
+    trailer: str
+    middle: str
+
+
+SEPARATOR_ROW_STYLE_CHART: dict[SeparatorRowType, SeparatorRowStyle] = {
+    SeparatorRowType.ascii_header_separator: SeparatorRowStyle(
+        fill="-", leader="", trailer="", middle="+"
+    ),
+    SeparatorRowType.box_top: SeparatorRowStyle(
+        fill="═", leader="╒═", trailer="═╕", middle="╤"
+    ),
+    SeparatorRowType.box_header_separator: SeparatorRowStyle(
+        fill="═", leader="╞═", trailer="═╡", middle="╪"
+    ),
+    SeparatorRowType.box_row_separator: SeparatorRowStyle(
+        fill="─", leader="├─", trailer="─┤", middle="┼"
+    ),
+    SeparatorRowType.box_intra_row_separator: SeparatorRowStyle(
+        fill="─", leader="├─", trailer="─┤", middle="┼"
+    ),
+    SeparatorRowType.box_bottom: SeparatorRowStyle(
+        fill="─", leader="└─", trailer="─┘", middle="┴"
+    ),
+}
 
 
 class FoldedTablePrinter(Printer[t.Iterable[t.Any]]):
@@ -273,31 +304,7 @@ def _format_subrow(
 
 @functools.cache
 def _separator_line(col_widths: tuple[int, ...], row_type: SeparatorRowType) -> str:
-    if row_type is SeparatorRowType.ascii_header_separator:
-        fill = "-"
-        leader = ""
-        trailer = ""
-        middle_decorator = "+"
-    elif row_type is SeparatorRowType.box_top:
-        fill = "═"
-        leader = "╒═"
-        trailer = "═╕"
-        middle_decorator = "╤"
-    elif row_type is SeparatorRowType.box_header_separator:
-        fill = "═"
-        leader = "╞═"
-        trailer = "═╡"
-        middle_decorator = "╪"
-    elif row_type is SeparatorRowType.box_bottom:
-        fill = "─"
-        leader = "└─"
-        trailer = "─┘"
-        middle_decorator = "┴"
-    else:
-        fill = "─"
-        leader = "├─"
-        trailer = "─┤"
-        middle_decorator = "┼"
+    style = SEPARATOR_ROW_STYLE_CHART[row_type]
 
     # in intra-row separator lines, they are drawn as dashed box char lines
     if row_type is SeparatorRowType.box_intra_row_separator:
@@ -306,14 +313,14 @@ def _separator_line(col_widths: tuple[int, ...], row_type: SeparatorRowType) -> 
     else:
 
         def fill_column(width: int) -> str:
-            return width * fill
+            return width * style.fill
 
-    line_parts = [leader]
+    line_parts = [style.leader]
     for col in col_widths[:-1]:
         line_parts.append(fill_column(col))
-        line_parts.append(f"{fill}{middle_decorator}{fill}")
+        line_parts.append(f"{style.fill}{style.middle}{style.fill}")
     line_parts.append(fill_column(col_widths[-1]))
-    line_parts.append(trailer)
+    line_parts.append(style.trailer)
     return "".join(line_parts)
 
 
