@@ -2,10 +2,10 @@ import uuid
 
 import click
 
+from globus_cli.commands.collection.role._fields import collection_role_format_fields
 from globus_cli.login_manager import LoginManager
 from globus_cli.parsing import collection_id_arg, command
-from globus_cli.termio import Field, display
-from globus_cli.termio.formatters.auth import PrincipalURNFormatter
+from globus_cli.termio import display
 
 
 @command("show")
@@ -24,14 +24,10 @@ def show_command(
 
     res = gcs_client.get_role(role_id)
 
+    fields = collection_role_format_fields(auth_client, res.data)
+
     display(
         res,
         text_mode=display.RECORD,
-        fields=[
-            Field("ID", "id"),
-            Field("Role", "role"),
-            Field(
-                "Principal", "principal", formatter=PrincipalURNFormatter(auth_client)
-            ),
-        ],
+        fields=fields,
     )
