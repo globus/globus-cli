@@ -21,5 +21,6 @@ def group_list(login_manager: LoginManager) -> None:
             Field("Type", "group_type"),
             SESSION_ENFORCEMENT_FIELD,
             Field("Roles", "my_memberships[].role", formatter=formatters.SortedArray),
+            Field("Subscription ID", "subscription_id"),
         ],
     )
