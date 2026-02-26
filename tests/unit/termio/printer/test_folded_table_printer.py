@@ -4,7 +4,7 @@ import pytest
 
 from globus_cli.termio import Field
 from globus_cli.termio.printers import FoldedTablePrinter
-from globus_cli.termio.printers.folded_table_printer import Row
+from globus_cli.termio.printers.folded_table_printer import Row, RowTable
 
 
 @pytest.mark.parametrize(
@@ -197,3 +197,19 @@ def test_row_folding_with_remainder():
         ("2", "5"),
         ("3",),
     )
+
+
+def test_row_table_width_computation_is_pessimal():
+    """
+    Given a table with lopsided rows, such that each row could fit in a narrow width,
+    but when column-aligned they are wider, the table should find the width based on
+    the justification of text.
+    """
+    row1 = Row((("a" * 1000, "b"),))
+    row2 = Row((("c", "d" * 1000),))
+
+    table = RowTable((row1, row2))
+
+    # it should be the max width for each column (1000) + the width of separators (in
+    # this case, 3 for the center divider)
+    assert table.calculate_width() == 2003
