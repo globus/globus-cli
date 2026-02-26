@@ -180,7 +180,22 @@ class RowTable:
         return self.rows[1:]
 
     def fits_in_width(self, width: int) -> bool:
-        return all(x.min_rendered_width <= width for x in self.rows)
+        return self.calculate_width() <= width
+
+    def calculate_width(self) -> int:
+        """
+        For each column, find the row where that column is the max width.
+        Sum those widths + the width of the separators (3 * (ncols-1))
+        """
+        max_widths = []
+        for idx in range(self.num_columns):
+            max_widths.append(max(row.column_widths[idx] for row in self.rows))
+
+        decoration_length = 0
+        if self.folded:
+            decoration_length = 4
+
+        return sum(max_widths) + (3 * (self.num_columns - 1)) + decoration_length
 
     def fold_rows(self, n: int) -> RowTable:
         """Produce a new table with folded rows."""
@@ -246,13 +261,6 @@ class Row:
     @functools.cached_property
     def is_folded(self) -> bool:
         return len(self.grid) > 1
-
-    @functools.cached_property
-    def min_rendered_width(self) -> int:
-        decoration_length = 0
-        if self.is_folded:
-            decoration_length = 4
-        return sum(self.column_widths) + (3 * (self.num_cols - 1)) + decoration_length
 
     @functools.cached_property
     def num_cols(self) -> int:
