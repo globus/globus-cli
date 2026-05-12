@@ -5,6 +5,7 @@ from globus_cli.parsing import group
     "registered-api",
     lazy_subcommands={
         "show": (".show", "show_command"),
+        "list": (".list", "list_command"),
     },
 )
 def registered_api_command() -> None:
