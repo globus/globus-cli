@@ -45,14 +45,14 @@ def assert_usernames(result, pool, field_name, principals):
     expected_usernames = {pool.get_username(principal) for principal in principals}
 
     output_value = _get_output_value(field_name, result.output)
-    output_usernames = [x.strip() for x in output_value.split(",")]
-    assert expected_usernames == set(output_usernames)
+    output_usernames = {x.strip() for x in output_value.split(",")}
+    assert expected_usernames == output_usernames
 
 
 def _get_output_value(name, output):
     """
     Return the value for a specified field from the output of a command.
     """
-    match = re.search(rf"^{name}:[^\S\n\r]+(?P<value>.*)$", output, flags=re.M)
+    match = re.search(rf"^{re.escape(name)}:[^\S\n\r]+(?P<value>.*)$", output, flags=re.M)
     assert match is not None
     return match.group("value")
