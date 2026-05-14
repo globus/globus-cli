@@ -302,3 +302,151 @@ def load_identities_for_registered_api(get_identities_mocker):
         return pool
 
     return _load_identities_for_registered_api
+
+
+def generate_registered_api_summary(
+    n: int, *, name: str | None = None
+) -> dict[str, t.Any]:
+    """Generate a summary registered API object for list responses."""
+    api_id = str(uuid.UUID(int=n))
+    base_time = datetime.datetime.fromisoformat("2023-12-31T18:00:00")
+    created_timestamp = base_time + datetime.timedelta(days=n)
+    updated_timestamp = created_timestamp + datetime.timedelta(hours=n)
+
+    return {
+        "id": api_id,
+        "name": name or f"registered-api-{n}",
+        "description": f"Test registered API number {n}",
+        "created_timestamp": created_timestamp.isoformat(),
+        "updated_timestamp": updated_timestamp.isoformat(),
+    }
+
+
+@pytest.fixture(autouse=True, scope="session")
+def setup_registered_apis_list_responses() -> None:
+    register_response_set(
+        "cli.registered_apis_list",
+        {
+            "default": {
+                "service": "flows",
+                "path": "/registered_apis",
+                "json": {
+                    "registered_apis": [
+                        generate_registered_api_summary(1),
+                        generate_registered_api_summary(0),
+                    ],
+                    "limit": 25,
+                    "has_next_page": False,
+                    "marker": None,
+                },
+                "match": [
+                    matchers.query_param_matcher({"orderby": "created_timestamp DESC"})
+                ],
+            },
+        },
+    )
+
+    register_response_set(
+        "cli.registered_apis_list_filtered",
+        {
+            "default": {
+                "service": "flows",
+                "path": "/registered_apis",
+                "json": {
+                    "registered_apis": [
+                        generate_registered_api_summary(2),
+                        generate_registered_api_summary(1),
+                        generate_registered_api_summary(0),
+                    ],
+                    "limit": 25,
+                    "has_next_page": False,
+                    "marker": None,
+                },
+            },
+        },
+    )
+
+    register_response_set(
+        "registered_apis_list_paginated",
+        {
+            "page0": {
+                "service": "flows",
+                "path": "/registered_apis",
+                "json": {
+                    "registered_apis": [
+                        generate_registered_api_summary(i) for i in range(10)
+                    ],
+                    "limit": 10,
+                    "has_next_page": True,
+                    "marker": "fake_marker_0",
+                },
+                "match": [
+                    matchers.query_param_matcher({"orderby": "created_timestamp DESC"})
+                ],
+            },
+            "page1": {
+                "service": "flows",
+                "path": "/registered_apis",
+                "json": {
+                    "registered_apis": [
+                        generate_registered_api_summary(i) for i in range(10, 20)
+                    ],
+                    "limit": 10,
+                    "has_next_page": True,
+                    "marker": "fake_marker_1",
+                },
+                "match": [
+                    matchers.query_param_matcher(
+                        {"orderby": "created_timestamp DESC", "marker": "fake_marker_0"}
+                    )
+                ],
+            },
+            "page2": {
+                "service": "flows",
+                "path": "/registered_apis",
+                "json": {
+                    "registered_apis": [
+                        generate_registered_api_summary(i) for i in range(20, 25)
+                    ],
+                    "limit": 5,
+                    "has_next_page": False,
+                    "marker": None,
+                },
+                "match": [
+                    matchers.query_param_matcher(
+                        {"orderby": "created_timestamp DESC", "marker": "fake_marker_1"}
+                    )
+                ],
+            },
+        },
+        metadata={
+            "num_pages": 3,
+            "expect_markers": ["fake_marker_0", "fake_marker_1", None],
+            "total_items": 25,
+        },
+    )
+
+    register_response_set(
+        "registered_apis_list_orderby_name_asc",
+        {
+            "name_asc": {
+                "service": "flows",
+                "path": "/registered_apis",
+                "json": {
+                    "registered_apis": [
+                        # chr(65) = 'A', so this is A-Z
+                        generate_registered_api_summary(
+                            i, name=f"{chr(65 + i)}-Sorted-API"
+                        )
+                        for i in range(26)
+                    ],
+                    "limit": 100,
+                    "has_next_page": False,
+                },
+                "match": [matchers.query_param_matcher({"orderby": "name ASC"})],
+            },
+        },
+        metadata={
+            "total_items": 26,
+        },
+    )
