@@ -274,3 +274,31 @@ def setup_custom_orderby_response() -> None:
             "total_items": 26,
         },
     )
+
+
+@pytest.fixture
+def load_identities_for_registered_api(get_identities_mocker):
+    """
+    Callable fixture.
+    Load identities for a provided registered API response object, configuring
+    auth.get_identities to return unique usernames for each identity associated with the
+    registered API.
+
+    Returns an identity pool object to facilitate lookup of username by principal urn.
+    """
+
+    def _load_identities_for_registered_api(
+        registered_api: dict[str, t.Any],
+    ) -> FlowsIdentityPool:
+        principals: set[str] = set()
+        roles = registered_api.get("roles", {})
+        principals.update(set(roles.get("owners", [])))
+        principals.update(set(roles.get("administrators", [])))
+        principals.update(set(roles.get("viewers", [])))
+
+        pool = FlowsIdentityPool(principals)
+
+        get_identities_mocker.configure(pool.create_get_identities_documents())
+        return pool
+
+    return _load_identities_for_registered_api

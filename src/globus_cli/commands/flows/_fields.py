@@ -111,3 +111,57 @@ def flow_run_format_fields(
         Field("Run Managers", "run_managers", formatter=csv_principal_list),
         Field("Run Monitors", "run_monitors", formatter=csv_principal_list),
     ]
+
+
+class RegisteredAPIPrincipalFormatter(PrincipalURNFormatter):
+    """A principal formatter which pre-registers all principals for a registered API."""
+
+    def __init__(
+        self, auth_client: globus_sdk.AuthClient, registered_api: dict[str, t.Any]
+    ) -> None:
+        super().__init__(auth_client)
+        roles = registered_api.get("roles", {})
+        self.add_items(*roles.get("owners", ()))
+        self.add_items(*roles.get("administrators", ()))
+        self.add_items(*roles.get("viewers", ()))
+
+
+def registered_api_format_fields(
+    auth_client: globus_sdk.AuthClient,
+    registered_api: dict[str, t.Any],
+) -> list[Field]:
+    """
+    The standard list of fields to render for a registered API resource.
+
+    :param auth_client: An AuthClient, used to resolve principal URNs.
+    :param registered_api: The registered API resource, used to pre-register
+        principals.
+    """
+    principal = RegisteredAPIPrincipalFormatter(auth_client, registered_api)
+    csv_principal_list = formatters.ArrayFormatter(
+        element_formatter=principal,
+        delimiter=", ",
+    )
+
+    return [
+        Field("Registered API ID", "id"),
+        Field("Name", "name"),
+        Field("Description", "description"),
+        Field("Status", "status"),
+        Field("Subscription ID", "subscription_id"),
+        Field("Created At", "created_timestamp", formatter=formatters.Date),
+        Field("Updated At", "updated_timestamp", formatter=formatters.Date),
+        Field("Edited At", "edited_timestamp", formatter=formatters.Date),
+        Field(
+            "Scheduled Deletion",
+            "scheduled_deletion_timestamp",
+            formatter=formatters.Date,
+        ),
+        Field("Owners", "roles.owners", formatter=csv_principal_list),
+        Field("Administrators", "roles.administrators", formatter=csv_principal_list),
+        Field("Viewers", "roles.viewers", formatter=csv_principal_list),
+        Field("Target Type", "target.type"),
+        Field("OpenAPI Version", "target.openapi_version"),
+        Field("Destination Method", "target.destination.method"),
+        Field("Destination URL", "target.destination.url"),
+    ]

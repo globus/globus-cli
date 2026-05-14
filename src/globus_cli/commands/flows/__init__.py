@@ -13,6 +13,8 @@ from globus_cli.parsing import group
         "start": (".start", "start_command"),
         # "run" is a subgroup of commands.
         "run": (".run", "run_command"),
+        # "registered-api" is a subgroup of commands.
+        "registered-api": (".registered_api", "registered_api_command"),
     },
 )
 def flows_command() -> None:
