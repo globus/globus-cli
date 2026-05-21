@@ -2,8 +2,14 @@ from __future__ import annotations
 
 import datetime
 import re
+import typing as t
 
 import click
+
+if t.TYPE_CHECKING:
+    _TimedeltaBase = click.ParamType[datetime.timedelta | int]
+else:
+    _TimedeltaBase = click.ParamType
 
 _timedelta_regex = re.compile(
     r"""
@@ -25,7 +31,7 @@ _timedelta_regex = re.compile(
 )
 
 
-class TimedeltaType(click.ParamType):
+class TimedeltaType(_TimedeltaBase):
     """
     Parse a number of seconds, minutes, hours, days, and weeks from a string into a
     timedelta object

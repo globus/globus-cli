@@ -16,10 +16,15 @@ from globus_cli.parsing.param_types.nullable import IntOrNull
 from globus_cli.termio import display
 from globus_cli.types import AnyCallable
 
+if t.TYPE_CHECKING:
+    _SubscriptionIdTypeBase = click.ParamType["str | ExplicitNullType"]
+else:
+    _SubscriptionIdTypeBase = click.ParamType
+
 F = t.TypeVar("F", bound=AnyCallable)
 
 
-class SubscriptionIdType(click.ParamType):
+class SubscriptionIdType(_SubscriptionIdTypeBase):
     @shim_get_metavar
     def get_metavar(self, param: click.Parameter, ctx: click.Context) -> str:
         return "[<uuid>|DEFAULT|null]"

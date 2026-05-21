@@ -13,8 +13,19 @@ from globus_cli._click_compat import (
     shim_get_missing_message,
 )
 
+if t.TYPE_CHECKING:
+    _OmittableIntBase = click.ParamType[int | globus_sdk.MissingType]
+    _OmittableStrBase = click.ParamType[str | globus_sdk.MissingType]
+    _OmittableUUIDBase = click.ParamType[uuid.UUID | globus_sdk.MissingType]
+    _OmittableDateTimeBase = click.ParamType[datetime.datetime | globus_sdk.MissingType]
+else:
+    _OmittableIntBase = click.ParamType
+    _OmittableStrBase = click.ParamType
+    _OmittableUUIDBase = click.ParamType
+    _OmittableDateTimeBase = click.DateTime
 
-class OmittableInt(click.ParamType):
+
+class OmittableInt(_OmittableIntBase):
     name = "integer"
 
     def convert(
@@ -22,13 +33,13 @@ class OmittableInt(click.ParamType):
     ) -> int | globus_sdk.MissingType:
         if value is globus_sdk.MISSING:
             return globus_sdk.MISSING
-        return click.INT.convert(value, param, ctx)  # type: ignore[no-any-return]
+        return click.INT.convert(value, param, ctx)
 
     def get_type_annotation(self, param: click.Parameter) -> type:
         return t.Union[int, globus_sdk.MissingType]  # type: ignore[return-value]
 
 
-class OmittableString(click.ParamType):
+class OmittableString(_OmittableStrBase):
     name = "text"
 
     def convert(
@@ -36,13 +47,13 @@ class OmittableString(click.ParamType):
     ) -> str | globus_sdk.MissingType:
         if value is globus_sdk.MISSING:
             return globus_sdk.MISSING
-        return click.STRING.convert(value, param, ctx)  # type: ignore[no-any-return]
+        return click.STRING.convert(value, param, ctx)
 
     def get_type_annotation(self, param: click.Parameter) -> type:
         return t.Union[str, globus_sdk.MissingType]  # type: ignore[return-value]
 
 
-class OmittableUUID(click.ParamType):
+class OmittableUUID(_OmittableUUIDBase):
     name = "uuid"
 
     def convert(
@@ -50,13 +61,13 @@ class OmittableUUID(click.ParamType):
     ) -> uuid.UUID | globus_sdk.MissingType:
         if value is globus_sdk.MISSING:
             return globus_sdk.MISSING
-        return click.UUID.convert(value, param, ctx)  # type: ignore[no-any-return]
+        return click.UUID.convert(value, param, ctx)
 
     def get_type_annotation(self, param: click.Parameter) -> type:
         return t.Union[uuid.UUID, globus_sdk.MissingType]  # type: ignore[return-value]
 
 
-class OmittableChoice(click.ParamType):
+class OmittableChoice(_OmittableStrBase):
     name = "choice"
 
     def __init__(self, choices: t.Sequence[str], case_sensitive: bool = True) -> None:
@@ -92,7 +103,7 @@ class OmittableChoice(click.ParamType):
         return t.Union[literal, globus_sdk.MissingType]  # type: ignore[return-value]
 
 
-class OmittableDateTime(click.DateTime):
+class OmittableDateTime(_OmittableDateTimeBase):
     name = "datetime"
 
     def convert(
@@ -100,7 +111,7 @@ class OmittableDateTime(click.DateTime):
     ) -> datetime.datetime | globus_sdk.MissingType:
         if value is globus_sdk.MISSING:
             return globus_sdk.MISSING
-        return super().convert(value, param, ctx)  # type: ignore[no-any-return]
+        return super().convert(value, param, ctx)
 
     def get_type_annotation(self, param: click.Parameter) -> type:
         return t.Union[  # type: ignore[return-value]

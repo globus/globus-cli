@@ -14,6 +14,14 @@ from globus_cli.login_manager import LoginManager
 from globus_cli.parsing import OMITTABLE_STRING, JSONStringOrFile
 from globus_cli.utils import CLIAuthRequirementsError
 
+if t.TYPE_CHECKING:
+    _SubscriptionIdTypeBase = click.ParamType[
+        uuid.UUID | t.Literal["DEFAULT"] | globus_sdk.MissingType
+    ]
+else:
+    _SubscriptionIdTypeBase = click.ParamType
+
+
 _input_schema_helptext = """
         The JSON input schema that governs the parameters
         used to start the flow.
@@ -125,7 +133,7 @@ keywords_option = click.option(
 )
 
 
-class SubscriptionIdType(click.ParamType):
+class SubscriptionIdType(_SubscriptionIdTypeBase):
     name = "SUBSCRIPTION_ID"
 
     def __init__(self, *, omittable: bool = False) -> None:

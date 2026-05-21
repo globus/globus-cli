@@ -18,6 +18,14 @@ from globus_cli.login_manager import LoginManager, is_client_login
 from globus_cli.parsing import command, no_local_server_option
 from globus_cli.termio import verbosity
 
+if t.TYPE_CHECKING:
+    _GCSEndpointTypeBase = click.ParamType[uuid.UUID | tuple[uuid.UUID, uuid.UUID]]
+    _TimerResourceTypeBase = click.ParamType[tuple[t.Literal["flow"], uuid.UUID]]
+else:
+    _GCSEndpointTypeBase = click.ParamType
+    _TimerResourceTypeBase = click.ParamType
+
+
 _SHARED_EPILOG = """\
 
 You can check your primary identity with
@@ -50,7 +58,7 @@ Clients are always "logged in"
 """
 
 
-class GCSEndpointType(click.ParamType):
+class GCSEndpointType(_GCSEndpointTypeBase):
     name = "GCS Server"
 
     @shim_get_metavar
@@ -88,7 +96,7 @@ class GCSEndpointType(click.ParamType):
         return endpoint_id if not collection_id else (endpoint_id, collection_id)
 
 
-class TimerResourceType(click.ParamType):
+class TimerResourceType(_TimerResourceTypeBase):
     name = "TIMER_RESOURCE"
 
     @shim_get_metavar

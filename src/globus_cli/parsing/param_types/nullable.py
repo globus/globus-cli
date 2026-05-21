@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import typing as t
 from urllib.parse import urlparse
 
 import click
@@ -7,8 +8,15 @@ import click
 from globus_cli._click_compat import shim_get_metavar
 from globus_cli.constants import EXPLICIT_NULL, ExplicitNullType
 
+if t.TYPE_CHECKING:
+    _NullableStrBase = click.ParamType[str | ExplicitNullType]
+    _NullableIntBase = click.ParamType[int | ExplicitNullType]
+else:
+    _NullableStrBase = click.ParamType
+    _NullableIntBase = click.ParamType
 
-class StringOrNull(click.ParamType):
+
+class StringOrNull(_NullableStrBase):
     """
     Very similar to a basic string type, but one in which the empty string will
     be converted into an EXPLICIT_NULL
@@ -53,7 +61,7 @@ class UrlOrNull(StringOrNull):
             return value
 
 
-class IntOrNull(click.ParamType):
+class IntOrNull(_NullableIntBase):
     """
     Very similar to a basic int type, but one in which the empty string will
     be converted into an EXPLICIT_NULL

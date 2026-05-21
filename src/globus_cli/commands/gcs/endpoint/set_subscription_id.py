@@ -10,8 +10,15 @@ from globus_cli.login_manager import LoginManager
 from globus_cli.parsing import command, endpoint_id_arg
 from globus_cli.termio import display
 
+if t.TYPE_CHECKING:
+    _SubscriptionIdTypeBase = click.ParamType[
+        uuid.UUID | t.Literal["DEFAULT"] | ExplicitNullType
+    ]
+else:
+    _SubscriptionIdTypeBase = click.ParamType
 
-class GCSSubscriptionIdType(click.ParamType):
+
+class GCSSubscriptionIdType(_SubscriptionIdTypeBase):
     def convert(
         self, value: str, param: click.Parameter | None, ctx: click.Context | None
     ) -> uuid.UUID | t.Literal["DEFAULT"] | ExplicitNullType:

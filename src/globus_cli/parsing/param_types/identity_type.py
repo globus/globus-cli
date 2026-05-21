@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import base64
+import typing as t
 import uuid
 from collections import namedtuple
 
@@ -9,6 +10,11 @@ import click
 from globus_cli._click_compat import shim_get_metavar
 
 ParsedIdentity = namedtuple("ParsedIdentity", ["value", "idtype"])
+
+if t.TYPE_CHECKING:
+    _IdentityTypeBase = click.ParamType[ParsedIdentity]
+else:
+    _IdentityTypeBase = click.ParamType
 
 
 class _B32DecodeError(ValueError):
@@ -35,7 +41,7 @@ def _b32decode(v: str) -> str:
         raise _B32DecodeError("decode and load as UUID failed")
 
 
-class IdentityType(click.ParamType):
+class IdentityType(_IdentityTypeBase):
     """
     Parameter type for handling identities. By default, just allows usernames or
     identity IDs. With options, it can be set to allow domain names as an "identity"

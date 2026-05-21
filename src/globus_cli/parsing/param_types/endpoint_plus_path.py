@@ -7,8 +7,13 @@ import click
 
 from globus_cli._click_compat import shim_get_metavar
 
+if t.TYPE_CHECKING:
+    _EndpointPlusPathBase = click.ParamType[tuple[uuid.UUID, str | None]]
+else:
+    _EndpointPlusPathBase = click.ParamType
 
-class EndpointPlusPath(click.ParamType):
+
+class EndpointPlusPath(_EndpointPlusPathBase):
     """
     Custom type for "<endpoint_id>:<path>"
     Supports path being required and path being optional.
@@ -67,7 +72,9 @@ class EndpointPlusPath(click.ParamType):
         # split the value on the first colon, leave the rest intact
         splitval = value.split(":", 1)
         # first element is the endpoint_id
-        endpoint_id = click.UUID(splitval[0])
+        # NOTE: for some reason, mypy thinks `click.UUID()` can return `None`, but that
+        #       does not match its annotation
+        endpoint_id: uuid.UUID = click.UUID(splitval[0])  # type: ignore[assignment]
 
         # get the second element, defaulting to `None` if there was no colon in
         # the original value

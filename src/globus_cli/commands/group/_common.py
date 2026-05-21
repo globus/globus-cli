@@ -9,6 +9,11 @@ from globus_cli.constants import EXPLICIT_NULL, ExplicitNullType
 from globus_cli.termio import Field, formatters
 from globus_cli.types import AnyCommand
 
+if t.TYPE_CHECKING:
+    _SubscriptionVerifiedTypeBase = click.ParamType["uuid.UUID | ExplicitNullType"]
+else:
+    _SubscriptionVerifiedTypeBase = click.ParamType
+
 C = t.TypeVar("C", bound=AnyCommand)
 
 # cannot do this because it causes immediate imports and ruins the lazy import
@@ -78,7 +83,7 @@ def group_id_arg(f: C) -> C:
     return click.argument("GROUP_ID", type=click.UUID)(f)
 
 
-class GroupSubscriptionVerifiedIdType(click.ParamType):
+class GroupSubscriptionVerifiedIdType(_SubscriptionVerifiedTypeBase):
     name = "TEXT"
 
     def convert(

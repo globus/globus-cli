@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import typing as t
 import uuid
 
 import click
@@ -8,8 +9,13 @@ from globus_cli.login_manager import LoginManager
 from globus_cli.parsing import command, endpoint_id_arg
 from globus_cli.termio import display
 
+if t.TYPE_CHECKING:
+    _SubscriptionIdTypeBase = click.ParamType[str]
+else:
+    _SubscriptionIdTypeBase = click.ParamType
 
-class SubscriptionIdType(click.ParamType):
+
+class SubscriptionIdType(_SubscriptionIdTypeBase):
     def convert(
         self, value: str, param: click.Parameter | None, ctx: click.Context | None
     ) -> str:

@@ -15,6 +15,10 @@ from globus_cli.types import JsonValue
 if t.TYPE_CHECKING:
     from click.shell_completion import CompletionItem
 
+    _JsonStrOrFileBase = click.ParamType["ExplicitNullType | ParsedJSONData"]
+else:
+    _JsonStrOrFileBase = click.ParamType
+
 
 @dataclasses.dataclass
 class ParsedJSONData:
@@ -26,7 +30,7 @@ class ParsedJSONData:
     data: JsonValue
 
 
-class JSONStringOrFile(click.ParamType):
+class JSONStringOrFile(_JsonStrOrFileBase):
     """
     Parse an input which could be a filename or could be a JSON blob being
     supplied on the commandline.
