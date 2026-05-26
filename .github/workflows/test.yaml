@@ -18,13 +18,13 @@ jobs:
           - name: "Linux"
             runner: "ubuntu-latest"
             cpythons:
-              - "3.9"
               - "3.10"
               - "3.11"
               - "3.12"
               - "3.13"
+              - "3.14"
             tox-post-environments:
-              - "py3.9-mindeps"
+              - "py3.10-mindeps"
               - "cov-report-ci"
             cache-key-prefix: "linux"
             cache-key-hash-files:
@@ -33,7 +33,7 @@ jobs:
           - name: "macOS"
             runner: "macos-latest"
             cpythons:
-              - "3.13"
+              - "3.14"
             tox-post-environments:
               - "cov-report-ci"
             tox-environments-from-pythons: true
@@ -44,7 +44,7 @@ jobs:
           - name: "Windows"
             runner: "windows-latest"
             cpythons:
-              - "3.13"
+              - "3.14"
             tox-post-environments:
               - "cov-report-ci"
             tox-environments-from-pythons: true
@@ -56,7 +56,7 @@ jobs:
             runner: "ubuntu-latest"
             cpythons:
               - "3.10"
-              - "3.13"
+              - "3.14"
             tox-environments:
               - "mypy-minpython"
               - "mypy-maxpython"
