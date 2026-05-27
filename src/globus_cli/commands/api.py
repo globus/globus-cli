@@ -31,12 +31,10 @@ class QueryParamType(click.ParamType[tuple[str, str] | None]):
 
     def convert(
         self,
-        value: str | None,
+        value: str,
         param: click.Parameter | None,
         ctx: click.Context | None,
     ) -> tuple[str, str] | None:
-        if value is None:
-            return None
         if "=" not in value:
             self.fail("invalid query param", param=param, ctx=ctx)
         left, right = value.split("=", 1)
@@ -55,12 +53,10 @@ class HeaderParamType(click.ParamType[tuple[str, str] | None]):
 
     def convert(
         self,
-        value: str | None,
+        value: str,
         param: click.Parameter | None,
         ctx: click.Context | None,
     ) -> tuple[str, str] | None:
-        if value is None:
-            return None
         if ":" not in value:
             self.fail("invalid header param", param=param, ctx=ctx)
         left, right = value.split(":", 1)

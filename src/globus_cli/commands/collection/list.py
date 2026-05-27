@@ -22,10 +22,8 @@ class ChoiceSlugified(click.Choice[str]):
         return t.cast(type, t.Literal[tuple(self._slugify(c) for c in self.choices)])
 
     def convert(
-        self, value: t.Any, param: click.Parameter | None, ctx: click.Context | None
+        self, value: str, param: click.Parameter | None, ctx: click.Context | None
     ) -> t.Any:
-        if value is None:
-            return None
         return self._slugify(super().convert(value.replace("_", "-"), param, ctx))
 
     def _slugify(self, value: str) -> str:
