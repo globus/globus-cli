@@ -8,7 +8,6 @@ import typing as t
 
 import click
 
-from globus_cli._click_compat import shim_get_metavar
 from globus_cli.constants import EXPLICIT_NULL, ExplicitNullType
 from globus_cli.types import JsonValue
 
@@ -58,7 +57,6 @@ class JSONStringOrFile(click.ParamType[ExplicitNullType | ParsedJSONData]):
         self.null = null
         super().__init__(*args, **kwargs)
 
-    @shim_get_metavar
     def get_metavar(self, param: click.Parameter, ctx: click.Context) -> str:
         return "[JSON_FILE|JSON|file:JSON_FILE]"
 

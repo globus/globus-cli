@@ -6,8 +6,6 @@ from collections import namedtuple
 
 import click
 
-from globus_cli._click_compat import shim_get_metavar
-
 ParsedIdentity = namedtuple("ParsedIdentity", ["value", "idtype"])
 
 
@@ -86,7 +84,6 @@ class IdentityType(click.ParamType[ParsedIdentity]):
 
         self.fail(f"'{value}' does not appear to be a valid identity", param=param)
 
-    @shim_get_metavar
     def get_metavar(self, param: click.Parameter, ctx: click.Context) -> str:
         return self.metavar
 

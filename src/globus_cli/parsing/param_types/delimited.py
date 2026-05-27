@@ -5,12 +5,6 @@ import typing as t
 import click
 import globus_sdk
 
-from globus_cli._click_compat import (
-    OLDER_CLICK_API,
-    shim_get_metavar,
-    shim_get_missing_message,
-)
-
 if t.TYPE_CHECKING:
     from click.shell_completion import CompletionItem
 
@@ -28,7 +22,6 @@ class CommaDelimitedList(click.ParamType[list[str] | globus_sdk.MissingType]):
         self.convert_values = convert_values
         self.choices = list(choices) if choices is not None else None
 
-    @shim_get_metavar
     def get_metavar(self, param: click.Parameter, ctx: click.Context) -> str:
         if self.choices is not None:
             return "{" + ",".join(self.choices) + "}"
@@ -105,22 +98,12 @@ class ColonDelimitedChoiceTuple(click.ParamType[tuple[str, ...]]):
     def to_info_dict(self) -> click.types.ParamTypeInfoDict:
         return self.inner_choice_param.to_info_dict()
 
-    @shim_get_metavar
     def get_metavar(self, param: click.Parameter, ctx: click.Context) -> str | None:
-        if OLDER_CLICK_API:
-            # type checking on newer click versions will flag this, but incorrectly so
-            return self.inner_choice_param.get_metavar(param)  # type: ignore[call-arg]
         return self.inner_choice_param.get_metavar(param, ctx)
 
-    @shim_get_missing_message
     def get_missing_message(
         self, param: click.Parameter, ctx: click.Context | None
     ) -> str:
-        if OLDER_CLICK_API:
-            # type checking on newer click versions will flag this, but incorrectly so
-            return self.inner_choice_param.get_missing_message(
-                param=param  # type: ignore[call-arg]
-            )
         return self.inner_choice_param.get_missing_message(param=param, ctx=ctx)
 
     def shell_complete(

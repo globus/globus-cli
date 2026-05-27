@@ -20,7 +20,6 @@ from globus_sdk.token_storage.legacy import SQLiteAdapter
 from ruamel.yaml import YAML
 
 import globus_cli
-from globus_cli._click_compat import NEWER_CLICK_API
 from globus_cli.login_manager.scopes import CURRENT_SCOPE_CONTRACT_VERSION
 
 yaml = YAML()
@@ -232,10 +231,7 @@ def test_file_dir():
 
 @pytest.fixture
 def cli_runner():
-    if NEWER_CLICK_API:
-        return CliRunner()
-    else:
-        return CliRunner(mix_stderr=False)
+    return CliRunner()
 
 
 @pytest.fixture

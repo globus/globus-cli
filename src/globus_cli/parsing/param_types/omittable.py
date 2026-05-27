@@ -7,12 +7,6 @@ import uuid
 import click.types
 import globus_sdk
 
-from globus_cli._click_compat import (
-    OLDER_CLICK_API,
-    shim_get_metavar,
-    shim_get_missing_message,
-)
-
 
 class OmittableInt(click.ParamType[int | globus_sdk.MissingType]):
     name = "integer"
@@ -62,20 +56,12 @@ class OmittableChoice(click.ParamType[str | globus_sdk.MissingType]):
     def __init__(self, choices: t.Sequence[str], case_sensitive: bool = True) -> None:
         self._inner_choice = click.Choice(choices, case_sensitive=case_sensitive)
 
-    @shim_get_metavar
     def get_metavar(self, param: click.Parameter, ctx: click.Context) -> str | None:
-        if OLDER_CLICK_API:
-            return self._inner_choice.get_metavar(param)  # type: ignore[call-arg]
         return self._inner_choice.get_metavar(param, ctx)
 
-    @shim_get_missing_message
     def get_missing_message(
         self, param: click.Parameter, ctx: click.Context | None
     ) -> str | None:
-        if OLDER_CLICK_API:
-            return self._inner_choice.get_missing_message(  # type: ignore[call-arg]
-                param
-            )
         return self._inner_choice.get_missing_message(param, ctx)
 
     def convert(

@@ -10,7 +10,6 @@ import globus_sdk
 from globus_sdk.scopes import ScopeParser
 
 from globus_cli import termio, version
-from globus_cli._click_compat import shim_get_metavar
 from globus_cli.login_manager import LoginManager, is_client_login
 from globus_cli.login_manager.scopes import CLI_SCOPE_REQUIREMENTS
 from globus_cli.parsing import command, endpoint_id_arg, group, mutex_option_group
@@ -21,7 +20,6 @@ C = t.TypeVar("C", bound=AnyCommand)
 
 
 class QueryParamType(click.ParamType[tuple[str, str] | None]):
-    @shim_get_metavar
     def get_metavar(self, param: click.Parameter, ctx: click.Context) -> str:
         return "Key=Value"
 
@@ -46,7 +44,6 @@ class QueryParamType(click.ParamType[tuple[str, str] | None]):
 
 
 class HeaderParamType(click.ParamType[tuple[str, str] | None]):
-    @shim_get_metavar
     def get_metavar(self, param: click.Parameter, ctx: click.Context) -> str:
         return "Key:Value"
 

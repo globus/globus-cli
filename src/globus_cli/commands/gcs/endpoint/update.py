@@ -7,7 +7,6 @@ import uuid
 import click
 import globus_sdk
 
-from globus_cli._click_compat import shim_get_metavar
 from globus_cli.commands.gcs.endpoint._common import GCS_ENDPOINT_FIELDS
 from globus_cli.constants import EXPLICIT_NULL, ExplicitNullType
 from globus_cli.login_manager import LoginManager
@@ -20,7 +19,6 @@ F = t.TypeVar("F", bound=AnyCallable)
 
 
 class SubscriptionIdType(click.ParamType[str | ExplicitNullType]):
-    @shim_get_metavar
     def get_metavar(self, param: click.Parameter, ctx: click.Context) -> str:
         return "[<uuid>|DEFAULT|null]"
 
