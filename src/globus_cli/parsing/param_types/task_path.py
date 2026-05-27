@@ -1,13 +1,6 @@
 from __future__ import annotations
 
-import typing as t
-
 import click
-
-if t.TYPE_CHECKING:
-    _TaskPathBase = click.ParamType["TaskPath"]
-else:
-    _TaskPathBase = click.ParamType
 
 
 def _normpath(path: str) -> str:
@@ -66,7 +59,7 @@ def _pathjoin(a: str, b: str) -> str:
         return a + "/" + b
 
 
-class TaskPath(_TaskPathBase):
+class TaskPath(click.ParamType["TaskPath"]):
     def __init__(
         self,
         base_dir: str | None = None,

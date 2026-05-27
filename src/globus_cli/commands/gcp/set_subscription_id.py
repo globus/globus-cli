@@ -1,6 +1,5 @@
 from __future__ import annotations
 
-import typing as t
 import uuid
 
 import click
@@ -11,13 +10,8 @@ from globus_cli.login_manager import LoginManager
 from globus_cli.parsing import command, endpoint_id_arg
 from globus_cli.termio import display
 
-if t.TYPE_CHECKING:
-    _SubscriptionIdTypeBase = click.ParamType["uuid.UUID | ExplicitNullType"]
-else:
-    _SubscriptionIdTypeBase = click.ParamType
 
-
-class GCPSubscriptionIdType(_SubscriptionIdTypeBase):
+class GCPSubscriptionIdType(click.ParamType[uuid.UUID | ExplicitNullType]):
     def convert(
         self, value: str, param: click.Parameter | None, ctx: click.Context | None
     ) -> uuid.UUID | ExplicitNullType:

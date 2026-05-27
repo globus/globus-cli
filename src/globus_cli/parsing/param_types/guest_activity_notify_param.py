@@ -1,20 +1,15 @@
 from __future__ import annotations
 
-import typing as t
-
 import click
 from click.shell_completion import CompletionItem
 
 from globus_cli._click_compat import shim_get_metavar
 from globus_cli.constants import ExplicitNullType
 
-if t.TYPE_CHECKING:
-    _ActivityNotificationBase = click.ParamType[dict[str, list[str]] | ExplicitNullType]
-else:
-    _ActivityNotificationBase = click.ParamType
 
-
-class GCSManagerGuestActivityNotificationParamType(_ActivityNotificationBase):
+class GCSManagerGuestActivityNotificationParamType(
+    click.ParamType[dict[str, list[str]] | ExplicitNullType]
+):
     """
     For the GCS Manager API:
 

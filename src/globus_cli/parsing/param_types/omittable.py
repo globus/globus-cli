@@ -13,19 +13,8 @@ from globus_cli._click_compat import (
     shim_get_missing_message,
 )
 
-if t.TYPE_CHECKING:
-    _OmittableIntBase = click.ParamType[int | globus_sdk.MissingType]
-    _OmittableStrBase = click.ParamType[str | globus_sdk.MissingType]
-    _OmittableUUIDBase = click.ParamType[uuid.UUID | globus_sdk.MissingType]
-    _OmittableDateTimeBase = click.ParamType[datetime.datetime | globus_sdk.MissingType]
-else:
-    _OmittableIntBase = click.ParamType
-    _OmittableStrBase = click.ParamType
-    _OmittableUUIDBase = click.ParamType
-    _OmittableDateTimeBase = click.DateTime
 
-
-class OmittableInt(_OmittableIntBase):
+class OmittableInt(click.ParamType[int | globus_sdk.MissingType]):
     name = "integer"
 
     def convert(
@@ -39,7 +28,7 @@ class OmittableInt(_OmittableIntBase):
         return t.Union[int, globus_sdk.MissingType]  # type: ignore[return-value]
 
 
-class OmittableString(_OmittableStrBase):
+class OmittableString(click.ParamType[str | globus_sdk.MissingType]):
     name = "text"
 
     def convert(
@@ -53,7 +42,7 @@ class OmittableString(_OmittableStrBase):
         return t.Union[str, globus_sdk.MissingType]  # type: ignore[return-value]
 
 
-class OmittableUUID(_OmittableUUIDBase):
+class OmittableUUID(click.ParamType[uuid.UUID | globus_sdk.MissingType]):
     name = "uuid"
 
     def convert(
@@ -67,7 +56,7 @@ class OmittableUUID(_OmittableUUIDBase):
         return t.Union[uuid.UUID, globus_sdk.MissingType]  # type: ignore[return-value]
 
 
-class OmittableChoice(_OmittableStrBase):
+class OmittableChoice(click.ParamType[str | globus_sdk.MissingType]):
     name = "choice"
 
     def __init__(self, choices: t.Sequence[str], case_sensitive: bool = True) -> None:
@@ -101,6 +90,16 @@ class OmittableChoice(_OmittableStrBase):
             tuple(self._inner_choice.choices)
         ]
         return t.Union[literal, globus_sdk.MissingType]  # type: ignore[return-value]
+
+
+# The converted type of a ParamType is signified by its type parameter, but we want to
+# inherit the runtime behavior of DateTime, which defines this as `datetime.datetime`.
+# To make type checking accurate but inherit behavior at runtime, define the base class
+# differently at runtime vs type-checking-time.
+if t.TYPE_CHECKING:
+    _OmittableDateTimeBase = click.ParamType[datetime.datetime | globus_sdk.MissingType]
+else:
+    _OmittableDateTimeBase = click.DateTime
 
 
 class OmittableDateTime(_OmittableDateTimeBase):

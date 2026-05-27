@@ -7,13 +7,8 @@ import click
 
 from globus_cli._click_compat import shim_get_metavar
 
-if t.TYPE_CHECKING:
-    _EndpointPlusPathBase = click.ParamType[tuple[uuid.UUID, str | None]]
-else:
-    _EndpointPlusPathBase = click.ParamType
 
-
-class EndpointPlusPath(_EndpointPlusPathBase):
+class EndpointPlusPath(click.ParamType[tuple[uuid.UUID, str | None]]):
     """
     Custom type for "<endpoint_id>:<path>"
     Supports path being required and path being optional.

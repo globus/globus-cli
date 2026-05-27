@@ -5,13 +5,8 @@ import typing as t
 
 import click
 
-if t.TYPE_CHECKING:
-    _LocTypeBase = click.ParamType[str]
-else:
-    _LocTypeBase = click.ParamType
 
-
-class LocationType(_LocTypeBase):
+class LocationType(click.ParamType[str]):
     """
     Validates that given location string is two comma separated floats
     """

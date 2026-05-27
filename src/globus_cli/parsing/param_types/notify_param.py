@@ -1,16 +1,9 @@
 from __future__ import annotations
 
-import typing as t
-
 import click
 from click.shell_completion import CompletionItem
 
 from globus_cli._click_compat import shim_get_metavar
-
-if t.TYPE_CHECKING:
-    _NotificationTypeBase = click.ParamType[dict[str, bool]]
-else:
-    _NotificationTypeBase = click.ParamType
 
 
 def _empty_dict_callback(
@@ -21,7 +14,7 @@ def _empty_dict_callback(
     return value
 
 
-class NotificationParamType(_NotificationTypeBase):
+class NotificationParamType(click.ParamType[dict[str, bool]]):
     STANDARD_CALLBACK = _empty_dict_callback
 
     @shim_get_metavar

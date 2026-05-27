@@ -14,14 +14,8 @@ from globus_cli._click_compat import (
 if t.TYPE_CHECKING:
     from click.shell_completion import CompletionItem
 
-    _CommaDelimitedListBase = click.ParamType[list[str] | globus_sdk.MissingType]
-    _ColonDelimitedChoiceBase = click.ParamType[tuple[str, ...]]
-else:
-    _CommaDelimitedListBase = click.ParamType
-    _ColonDelimitedChoiceBase = click.ParamType
 
-
-class CommaDelimitedList(_CommaDelimitedListBase):
+class CommaDelimitedList(click.ParamType[list[str] | globus_sdk.MissingType]):
     def __init__(
         self,
         *,
@@ -81,7 +75,7 @@ class CommaDelimitedList(_CommaDelimitedListBase):
         return list[str]
 
 
-class ColonDelimitedChoiceTuple(_ColonDelimitedChoiceBase):
+class ColonDelimitedChoiceTuple(click.ParamType[tuple[str, ...]]):
     """
     A colon-delimited choice type which wraps the existing click.Choice type.
 

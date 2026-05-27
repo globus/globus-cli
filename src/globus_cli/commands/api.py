@@ -17,17 +17,10 @@ from globus_cli.parsing import command, endpoint_id_arg, group, mutex_option_gro
 from globus_cli.termio import display
 from globus_cli.types import AnyCommand, ServiceNameLiteral
 
-if t.TYPE_CHECKING:
-    _QueryParamTypeBase = click.ParamType[tuple[str, str] | None]
-    _HeaderParamTypeBase = click.ParamType[tuple[str, str] | None]
-else:
-    _QueryParamTypeBase = click.ParamType
-    _HeaderParamTypeBase = click.ParamType
-
 C = t.TypeVar("C", bound=AnyCommand)
 
 
-class QueryParamType(_QueryParamTypeBase):
+class QueryParamType(click.ParamType[tuple[str, str] | None]):
     @shim_get_metavar
     def get_metavar(self, param: click.Parameter, ctx: click.Context) -> str:
         return "Key=Value"
@@ -52,7 +45,7 @@ class QueryParamType(_QueryParamTypeBase):
         return (left, right)
 
 
-class HeaderParamType(_HeaderParamTypeBase):
+class HeaderParamType(click.ParamType[tuple[str, str] | None]):
     @shim_get_metavar
     def get_metavar(self, param: click.Parameter, ctx: click.Context) -> str:
         return "Key:Value"
