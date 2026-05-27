@@ -64,9 +64,7 @@ class EndpointPlusPath(click.ParamType[tuple[uuid.UUID, str | None]]):
         # split the value on the first colon, leave the rest intact
         splitval = value.split(":", 1)
         # first element is the endpoint_id
-        # NOTE: for some reason, mypy thinks `click.UUID()` can return `None`, but that
-        #       does not match its annotation
-        endpoint_id: uuid.UUID = click.UUID(splitval[0])  # type: ignore[assignment]
+        endpoint_id: uuid.UUID = click.UUID.convert(splitval[0], param, ctx)
 
         # get the second element, defaulting to `None` if there was no colon in
         # the original value
