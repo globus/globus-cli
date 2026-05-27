@@ -29,7 +29,9 @@ classifiers = [
 requires-python = ">=3.10"
 dependencies = [
     "globus-sdk==4.6.0",
-    "click>=8.1.4,<8.5",
+    # NOTE: `click` does not use semver; minor releases are expected to contain
+    #       minor breaking changes
+    "click>=8.4,<8.5",
     "jmespath==1.1.0",
     "packaging>=17.0",
     "typing_extensions>=4.0;python_version<'3.11'",
@@ -61,7 +63,7 @@ test = [
 ]
 test-mindeps = [
     {include-group = "test"},
-    "click==8.1.8",
+    "click==8.4.0",
     "requests==2.32.4",
     "pyjwt==2.0.0",
     "cryptography==3.3.1",
