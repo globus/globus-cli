@@ -11,7 +11,7 @@ from globus_cli.parsing import command, endpoint_id_arg
 from globus_cli.termio import display
 
 
-class GCPSubscriptionIdType(click.ParamType):
+class GCPSubscriptionIdType(click.ParamType[uuid.UUID | ExplicitNullType]):
     def convert(
         self, value: str, param: click.Parameter | None, ctx: click.Context | None
     ) -> uuid.UUID | ExplicitNullType:

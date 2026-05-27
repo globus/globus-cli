@@ -13,7 +13,6 @@ from globus_sdk.scopes import (
 )
 from globus_sdk.services.flows import SpecificFlowClient
 
-from globus_cli._click_compat import shim_get_metavar
 from globus_cli.login_manager import LoginManager, is_client_login
 from globus_cli.parsing import command, no_local_server_option
 from globus_cli.termio import verbosity
@@ -50,10 +49,9 @@ Clients are always "logged in"
 """
 
 
-class GCSEndpointType(click.ParamType):
+class GCSEndpointType(click.ParamType[uuid.UUID | tuple[uuid.UUID, uuid.UUID]]):
     name = "GCS Server"
 
-    @shim_get_metavar
     def get_metavar(self, param: click.Parameter, ctx: click.Context) -> str:
         return "<endpoint_id>[:<collection_id>]"
 
@@ -88,10 +86,9 @@ class GCSEndpointType(click.ParamType):
         return endpoint_id if not collection_id else (endpoint_id, collection_id)
 
 
-class TimerResourceType(click.ParamType):
+class TimerResourceType(click.ParamType[tuple[t.Literal["flow"], uuid.UUID]]):
     name = "TIMER_RESOURCE"
 
-    @shim_get_metavar
     def get_metavar(self, param: click.Parameter, ctx: click.Context) -> str:
         return "flow:<flow_id>"
 

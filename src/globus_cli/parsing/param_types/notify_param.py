@@ -3,8 +3,6 @@ from __future__ import annotations
 import click
 from click.shell_completion import CompletionItem
 
-from globus_cli._click_compat import shim_get_metavar
-
 
 def _empty_dict_callback(
     ctx: click.Context, param: click.Parameter, value: dict[str, bool] | None
@@ -14,10 +12,9 @@ def _empty_dict_callback(
     return value
 
 
-class NotificationParamType(click.ParamType):
+class NotificationParamType(click.ParamType[dict[str, bool]]):
     STANDARD_CALLBACK = _empty_dict_callback
 
-    @shim_get_metavar
     def get_metavar(self, param: click.Parameter, ctx: click.Context) -> str:
         return "{on,off,succeeded,failed,inactive}"
 

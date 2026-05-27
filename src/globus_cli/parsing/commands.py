@@ -16,7 +16,6 @@ from shutil import get_terminal_size
 
 import click
 
-from globus_cli._click_compat import OLDER_CLICK_API
 from globus_cli.exception_handling import custom_except_hook
 from globus_cli.termio import env_interactive
 
@@ -175,23 +174,6 @@ class GlobusCommandGroup(click.Group):
                 "a non-command object"
             )
         return cmd_object
-
-    # only redefine `invoke()` if we're on click<8.2.0
-    # on newer versions, the behavior is improved upstream
-    if OLDER_CLICK_API:
-
-        def invoke(self, ctx: click.Context) -> t.Any:
-            # if no subcommand was given (but, potentially, flags were passed),
-            # ctx.protected_args will be empty
-            # improves upon the built-in detection given on click.Group by
-            # no_args_is_help , since that treats options (without a subcommand) as
-            # being arguments and blows up with a "Missing command" failure
-            # for reference to the original version (as of 2017-02-26):
-            # https://github.com/pallets/click/blob/02ea9ee7e864581258b4902d6e6c1264b0226b9f/click/core.py#L1039-L1052
-            if self.no_args_is_help and not ctx.protected_args:
-                click.echo(ctx.get_help())
-                ctx.exit()
-            return super().invoke(ctx)
 
 
 class TopLevelGroup(GlobusCommandGroup):

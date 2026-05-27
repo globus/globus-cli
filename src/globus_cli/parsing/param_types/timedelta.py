@@ -25,7 +25,7 @@ _timedelta_regex = re.compile(
 )
 
 
-class TimedeltaType(click.ParamType):
+class TimedeltaType(click.ParamType[datetime.timedelta | int]):
     """
     Parse a number of seconds, minutes, hours, days, and weeks from a string into a
     timedelta object

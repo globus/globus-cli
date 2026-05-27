@@ -5,10 +5,8 @@ import uuid
 
 import click
 
-from globus_cli._click_compat import shim_get_metavar
 
-
-class EndpointPlusPath(click.ParamType):
+class EndpointPlusPath(click.ParamType[tuple[uuid.UUID, str | None]]):
     """
     Custom type for "<endpoint_id>:<path>"
     Supports path being required and path being optional.
@@ -33,7 +31,6 @@ class EndpointPlusPath(click.ParamType):
         else:
             return t.Tuple[uuid.UUID, t.Union[str, None]]  # type: ignore[return-value]
 
-    @shim_get_metavar
     def get_metavar(self, param: click.Parameter, ctx: click.Context) -> str:
         """
         Default metavar for this instance of the type.
@@ -67,7 +64,7 @@ class EndpointPlusPath(click.ParamType):
         # split the value on the first colon, leave the rest intact
         splitval = value.split(":", 1)
         # first element is the endpoint_id
-        endpoint_id = click.UUID(splitval[0])
+        endpoint_id: uuid.UUID = click.UUID.convert(splitval[0], param, ctx)
 
         # get the second element, defaulting to `None` if there was no colon in
         # the original value

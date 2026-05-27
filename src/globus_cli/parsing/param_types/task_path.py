@@ -59,7 +59,7 @@ def _pathjoin(a: str, b: str) -> str:
         return a + "/" + b
 
 
-class TaskPath(click.ParamType):
+class TaskPath(click.ParamType["TaskPath"]):
     def __init__(
         self,
         base_dir: str | None = None,

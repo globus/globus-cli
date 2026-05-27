@@ -8,7 +8,6 @@ import uuid
 import click
 import globus_sdk
 
-from globus_cli._click_compat import shim_get_metavar
 from globus_cli.commands.flows._common import FlowScopeInjector
 from globus_cli.commands.flows._fields import flow_run_format_fields
 from globus_cli.login_manager import LoginManager
@@ -43,7 +42,6 @@ class ActivityNotificationPolicyType(JSONStringOrFile):
 
     choices = ("INACTIVE", "FAILED", "SUCCEEDED")
 
-    @shim_get_metavar
     def get_metavar(self, param: click.Parameter, ctx: click.Context) -> str:
         return f"[{{{','.join(self.choices)}}}|JSON_FILE|JSON]"
 

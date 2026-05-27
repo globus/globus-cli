@@ -9,7 +9,7 @@ from globus_cli.parsing import command, endpoint_id_arg
 from globus_cli.termio import display
 
 
-class SubscriptionIdType(click.ParamType):
+class SubscriptionIdType(click.ParamType[str]):
     def convert(
         self, value: str, param: click.Parameter | None, ctx: click.Context | None
     ) -> str:

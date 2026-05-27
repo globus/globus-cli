@@ -3,11 +3,12 @@ from __future__ import annotations
 import click
 from click.shell_completion import CompletionItem
 
-from globus_cli._click_compat import shim_get_metavar
 from globus_cli.constants import ExplicitNullType
 
 
-class GCSManagerGuestActivityNotificationParamType(click.ParamType):
+class GCSManagerGuestActivityNotificationParamType(
+    click.ParamType[dict[str, list[str]] | ExplicitNullType]
+):
     """
     For the GCS Manager API:
 
@@ -39,7 +40,6 @@ class GCSManagerGuestActivityNotificationParamType(click.ParamType):
 
     VALID_NOTIFICATION_VALUES = VALID_TRANSFER_USES | VALID_STATUSES
 
-    @shim_get_metavar
     def get_metavar(self, param: click.Parameter, ctx: click.Context) -> str:
         return "{all,succeeded,failed,source,destination}"
 

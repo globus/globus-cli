@@ -78,7 +78,7 @@ def group_id_arg(f: C) -> C:
     return click.argument("GROUP_ID", type=click.UUID)(f)
 
 
-class GroupSubscriptionVerifiedIdType(click.ParamType):
+class GroupSubscriptionVerifiedIdType(click.ParamType[uuid.UUID | ExplicitNullType]):
     name = "TEXT"
 
     def convert(

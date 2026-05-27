@@ -6,7 +6,7 @@ import typing as t
 import click
 
 
-class LocationType(click.ParamType):
+class LocationType(click.ParamType[str]):
     """
     Validates that given location string is two comma separated floats
     """

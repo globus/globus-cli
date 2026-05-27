@@ -6,8 +6,6 @@ from collections import namedtuple
 
 import click
 
-from globus_cli._click_compat import shim_get_metavar
-
 ParsedIdentity = namedtuple("ParsedIdentity", ["value", "idtype"])
 
 
@@ -35,7 +33,7 @@ def _b32decode(v: str) -> str:
         raise _B32DecodeError("decode and load as UUID failed")
 
 
-class IdentityType(click.ParamType):
+class IdentityType(click.ParamType[ParsedIdentity]):
     """
     Parameter type for handling identities. By default, just allows usernames or
     identity IDs. With options, it can be set to allow domain names as an "identity"
@@ -86,7 +84,6 @@ class IdentityType(click.ParamType):
 
         self.fail(f"'{value}' does not appear to be a valid identity", param=param)
 
-    @shim_get_metavar
     def get_metavar(self, param: click.Parameter, ctx: click.Context) -> str:
         return self.metavar
 

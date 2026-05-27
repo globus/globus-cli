@@ -125,7 +125,9 @@ keywords_option = click.option(
 )
 
 
-class SubscriptionIdType(click.ParamType):
+class SubscriptionIdType(
+    click.ParamType[uuid.UUID | t.Literal["DEFAULT"] | globus_sdk.MissingType]
+):
     name = "SUBSCRIPTION_ID"
 
     def __init__(self, *, omittable: bool = False) -> None:

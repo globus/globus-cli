@@ -11,7 +11,9 @@ from globus_cli.parsing import command, endpoint_id_arg
 from globus_cli.termio import display
 
 
-class GCSSubscriptionIdType(click.ParamType):
+class GCSSubscriptionIdType(
+    click.ParamType[uuid.UUID | t.Literal["DEFAULT"] | ExplicitNullType]
+):
     def convert(
         self, value: str, param: click.Parameter | None, ctx: click.Context | None
     ) -> uuid.UUID | t.Literal["DEFAULT"] | ExplicitNullType:
