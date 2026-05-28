@@ -163,7 +163,7 @@ def _get_url(service_name: str) -> str:
         "search": "https://search.api.globus.org/",
         "transfer": "https://transfer.api.globus.org/v0.10/",
         "timers": "https://timer.automate.globus.org/",
-        "gcs": "https://$GCS_MANAGER/",
+        "gcs": "https://GCS_MANAGER/",
     }[service_name]
 
 
@@ -372,16 +372,26 @@ def build_command(
     )
     hidden: bool = command_name == "timer"
 
+    example_command_name: str = command_name
+    helptext_epilog: str = ""
+    service_title: str = service_name.title()
+
+    if command_name == "gcs":
+        service_title = "GCS"
+        example_command_name = "gcs ENDPOINT_ID"
+        helptext_epilog = "\nWhere GCS_MANAGER is looked up from ENDPOINT_ID."
+
     helptext = f"""\
-Make API calls to Globus {service_name.title()}
+Make API calls to Globus {service_title}
 
 The arguments are an HTTP method name and a path within the service to which the request
 should be made. The path will be joined with the known service URL.
 For example, a call of
 
-    globus api {command_name} GET /foo/bar
+    globus api {example_command_name} GET /foo/bar
 
 sends a 'GET' request to `{_get_url(service_name)}foo/bar`
+{helptext_epilog}
 """
 
     if service_name != "gcs":
