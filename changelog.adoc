@@ -2,6 +2,33 @@
 
 // scriv-insert-here
 
+== 3.42.0 (2026-06-10)
+
+Bugfixes:
+
+* `globus api transfer` no longer prepends `/v0.10/` to `/v2/` paths
+
+Enhancements:
+
+* Added Domain field to default output of `globus endpoint search` and `globus endpoint show`
+
+* Added `globus streams tunnel events` command to show tunnel events
+
+* When using table output on narrow terminals, the Globus CLI will now stack
+  table elements in a new "folded table" layout. This behavior is only used
+  when the output device is a TTY. To disable the new output altogether, users
+  can set `GLOBUS_CLI_FOLD_TABLES=0`.
+
+* Added Subscription ID to the text output of `globus group list`
+
+* Added `globus flows registered-api show` command to display details of a registered API
+
+* Added `globus flows registered-api list` command to list registered APIs
+
+Other:
+
+* Removed support for Python 3.9 .
+
 == 3.41.0 (2026-01-14)
 
 Bugfixes:
