@@ -8,6 +8,31 @@ from globus_cli.termio.printers.folded_table_printer import Row, RowTable
 
 
 @pytest.mark.parametrize(
+    "init_setting, detection_result, expect_result",
+    (
+        pytest.param(True, False, True, id="override-true"),
+        pytest.param(False, True, False, id="override-false"),
+        pytest.param(None, True, True, id="detect-true"),
+        pytest.param(None, False, False, id="detect-true"),
+    ),
+)
+def test_folded_table_behavioral_flag_is_externally_controllable(
+    init_setting, detection_result, expect_result, monkeypatch
+):
+    monkeypatch.setattr(
+        "globus_cli.termio.printers.folded_table_printer._detect_folding_enabled",
+        lambda: detection_result,
+    )
+    fields = (
+        Field("Column A", "a"),
+        Field("Column B", "b"),
+    )
+
+    printer = FoldedTablePrinter(fields=fields, folding_enabled=init_setting)
+    assert printer._folding_enabled == expect_result
+
+
+@pytest.mark.parametrize(
     "folding_enabled, width",
     (
         (False, 10),
