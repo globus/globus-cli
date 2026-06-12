@@ -82,12 +82,24 @@ class FoldedTablePrinter(Printer[t.Iterable[t.Any]]):
     Rows are folded and stacked only if they won't fit in the output width.
 
     :param fields: a list of Fields with load and render instructions; one per column.
+    :param width: the width to use for display (defaults to terminal width)
+    :param folding_enabled: explicitly force output to be folded or un-folded (defaults
+        to interactive terminal detection)
     """
 
-    def __init__(self, fields: t.Iterable[Field], width: int | None = None) -> None:
+    def __init__(
+        self,
+        fields: t.Iterable[Field],
+        width: int | None = None,
+        folding_enabled: bool | None = None,
+    ) -> None:
         self._fields = tuple(fields)
         self._width = width or _get_terminal_content_width()
-        self._folding_enabled = _detect_folding_enabled()
+        self._folding_enabled: bool = (
+            folding_enabled
+            if folding_enabled is not None
+            else _detect_folding_enabled()
+        )
 
     def echo(self, data: t.Iterable[t.Any], stream: t.IO[str] | None = None) -> None:
         """

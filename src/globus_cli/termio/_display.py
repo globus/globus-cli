@@ -178,8 +178,8 @@ class Renderer:
 
             _assert_iterable(data)
             if text_mode == self.TABLE:
-                if fold_tables():
-                    return FoldedTablePrinter(fields)
+                if (folding_enabled := fold_tables()) is not False:
+                    return FoldedTablePrinter(fields, folding_enabled=folding_enabled)
                 else:
                     return TablePrinter(fields)
             if text_mode == self.RECORD_LIST:
