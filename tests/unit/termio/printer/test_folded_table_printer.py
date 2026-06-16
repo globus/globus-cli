@@ -238,3 +238,39 @@ def test_row_table_width_computation_is_pessimal():
     # it should be the max width for each column (1000) + the width of separators (in
     # this case, 3 for the center divider)
     assert table.calculate_width() == 2003
+
+
+@pytest.mark.parametrize("folding_enabled", (False, True))
+def test_folded_table_printer_bolds_headers(monkeypatch, folding_enabled):
+    fields = (
+        Field("Column A", "a"),
+        Field("Column B", "b"),
+        Field("Column C", "c"),
+    )
+    data = ({"a": 1, "b": 2, "c": 3},)
+    printer = FoldedTablePrinter(fields=fields, width=1000)
+    # override detection, set by test
+    printer._folding_enabled = folding_enabled
+
+    capture = []
+
+    def echo_capture(s, file=None):
+        capture.append(s)
+
+    monkeypatch.setattr("click.echo", echo_capture)
+    printer.echo(data, None)
+
+    start_bold = "\N{ESCAPE}[1m"
+    end_bold = "\N{ESCAPE}[0m"
+
+    assert capture == [
+        (
+            f"{start_bold}Column A{end_bold} | "
+            f"{start_bold}Column B{end_bold} | "
+            f"{start_bold}Column C{end_bold}"
+        ),
+        # point of comparison for alignment:
+        # Column A | Column B | Column C
+        "---------+----------+---------",
+        "1        | 2        | 3       ",
+    ]
