@@ -117,7 +117,7 @@ class FoldedTablePrinter(Printer[t.Iterable[t.Any]]):
         if table.folded:
             echo(_separator_line(col_widths, row_type=SeparatorRowType.box_top))
         # print the header row and a separator
-        echo(table.header_row.serialize(col_widths))
+        echo(table.header_row.serialize(col_widths, bold=True))
         echo(
             _separator_line(
                 col_widths,
@@ -288,13 +288,13 @@ class Row:
             0, *(len(subrow[idx]) if idx < len(subrow) else 0 for subrow in self.grid)
         )
 
-    def serialize(self, use_col_widths: tuple[int, ...]) -> str:
+    def serialize(self, use_col_widths: tuple[int, ...], *, bold: bool = False) -> str:
         if len(self.grid) < 1:
             raise ValueError("Invalid state. Cannot serialize an empty row.")
 
         if len(self.grid) == 1:
             # format using ASCII characters (not folded)
-            return _format_subrow(self.grid[0], use_col_widths, "|", "", "")
+            return _format_subrow(self.grid[0], use_col_widths, "|", "", "", bold=bold)
 
         lines: list[str] = []
 
@@ -305,7 +305,9 @@ class Row:
             if i > 0:
                 lines.append(row_separator)
             # format using box drawing characters (part of folded output)
-            lines.append(_format_subrow(subrow, use_col_widths, "╎", "│ ", " │"))
+            lines.append(
+                _format_subrow(subrow, use_col_widths, "╎", "│ ", " │", bold=bold)
+            )
         return "\n".join(lines)
 
 
@@ -315,11 +317,23 @@ def _format_subrow(
     separator: str,
     leader: str,
     trailer: str,
+    bold: bool,
 ) -> str:
     line: list[str] = []
     for idx, width in enumerate(use_col_widths):
-        line.append((subrow[idx] if idx < len(subrow) else "").ljust(width))
+        line.append(
+            _format_element(subrow[idx], width, bold)
+            if idx < len(subrow)
+            else " " * width
+        )
     return leader + f" {separator} ".join(line) + trailer
+
+
+def _format_element(element: str, width: int, bold: bool) -> str:
+    if bold:
+        return f"\033[1m{element.ljust(width)}\033[0m"
+    else:
+        return element.ljust(width)
 
 
 @functools.cache
