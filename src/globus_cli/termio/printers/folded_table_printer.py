@@ -331,7 +331,9 @@ def _format_subrow(
 
 def _format_element(element: str, width: int, bold: bool) -> str:
     if bold:
-        return f"\033[1m{element.ljust(width)}\033[0m"
+        start_bold = "\N{ESCAPE}[1m"
+        end_bold = "\N{ESCAPE}[0m"
+        return f"{start_bold}{element.ljust(width)}{end_bold}"
     else:
         return element.ljust(width)
 
