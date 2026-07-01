@@ -67,7 +67,7 @@ test-mindeps = [
     "requests==2.34.2",
     "pyjwt==2.0.0",
     "cryptography==3.3.1",
-    "packaging==17.0",
+    "packaging==26.2",
     "typing_extensions==4.0",
 ]
 typing = [
