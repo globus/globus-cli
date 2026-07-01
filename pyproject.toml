@@ -71,7 +71,7 @@ test-mindeps = [
     "typing_extensions==4.0",
 ]
 typing = [
-    "mypy==1.19.1",
+    "mypy==2.1.0",
     "types-jwt",
     "types-requests",
     "types-jmespath",
