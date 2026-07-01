@@ -6,6 +6,7 @@ from globus_cli.parsing import group
     lazy_subcommands={
         "list": (".list", "list_command"),
         "show": (".show", "show_command"),
+        "create": (".create", "create_command"),
         "delete": (".delete", "delete_command"),
     },
 )
