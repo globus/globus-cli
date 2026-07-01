@@ -37,7 +37,7 @@ dependencies = [
     "typing_extensions>=4.0;python_version<'3.11'",
     # these are dependencies of the SDK, but they are used directly in the CLI
     # declare them here in case the underlying lib ever changes
-    "requests>=2.32.3,<3.0.0",
+    "requests>=2.34.2,<3.0.0",
 ]
 dynamic = ["version"]
 
