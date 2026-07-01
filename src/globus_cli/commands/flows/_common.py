@@ -131,13 +131,21 @@ class SubscriptionIdType(
     name = "SUBSCRIPTION_ID"
 
     def __init__(self, *, omittable: bool = False) -> None:
-        self._omittable = omittable
+        self._omittable: bool = omittable
 
     def convert(
-        self, value: t.Any, param: click.Parameter | None, ctx: click.Context | None
+        self,
+        value: t.Any | globus_sdk.MissingType,
+        param: click.Parameter | None,
+        ctx: click.Context | None,
     ) -> uuid.UUID | t.Literal["DEFAULT"] | globus_sdk.MissingType:
-        if self._omittable and value is globus_sdk.MISSING:
-            return globus_sdk.MISSING
+        if value is globus_sdk.MISSING:
+            if self._omittable:
+                return globus_sdk.MISSING
+            else:
+                raise NotImplementedError(
+                    "Cannot pass MISSING to non-omittable SubscriptionidType."
+                )
 
         if value.upper() == "DEFAULT":
             return "DEFAULT"
