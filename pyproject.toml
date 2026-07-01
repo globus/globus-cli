@@ -63,7 +63,7 @@ test = [
 ]
 test-mindeps = [
     {include-group = "test"},
-    "click==8.4.0",
+    "click==8.4.1",
     "requests==2.34.2",
     "pyjwt==2.0.0",
     "cryptography==3.3.1",
