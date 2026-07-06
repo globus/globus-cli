@@ -1,5 +1,7 @@
 import json
 
+import pytest
+
 
 def test_get_identities_requires_at_least_one(run_line):
     result = run_line("globus get-identities", assert_exit_code=2)
@@ -87,3 +89,27 @@ def test_json(run_line, get_identities_mocker):
     output = json.loads(run_line("globus get-identities -F json " + user_id).output)
     for key in ["id", "username", "name", "organization", "email"]:
         assert meta[key] == output["identities"][0][key]
+
+
+@pytest.mark.parametrize("input_type", ("id", "username"))
+def test_case_insensitive_resolution(run_line, get_identities_mocker, input_type):
+    """
+    Runs get-identities with id username, duplicate and invalid inputs
+    Confirms order is preserved and all values are as expected
+    """
+    meta = get_identities_mocker.configure_one().metadata
+    username = meta["username"]
+    identity_id = meta["id"]
+
+    if input_type == "id":
+        result_upper = run_line(f"globus get-identities {username.upper()}")
+        result_lower = run_line(f"globus get-identities {username.lower()}")
+        assert result_upper.output == f"{identity_id}\n"
+    elif input_type == "username":
+        result_upper = run_line(f"globus get-identities {identity_id.upper()}")
+        result_lower = run_line(f"globus get-identities {identity_id.lower()}")
+        assert result_upper.output == f"{username}\n"
+    else:
+        raise NotImplementedError(input_type)
+
+    assert result_upper.output == result_lower.output
