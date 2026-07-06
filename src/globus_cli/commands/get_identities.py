@@ -80,15 +80,25 @@ def get_identities_command(
         Non-verbose text output is customized.
         """
 
-        def resolve_identity(value: dict[str, t.Any]) -> str:
+        def resolve_identity(value: str) -> str:
             """
-            Helper to deal with variable inputs and uncertain response order.
+            Given an input, resolve it to an output:
+
+            - IDs resolve to usernames
+            - Usernames resolve to IDs
+            - Missing values resolve to 'NO_SUCH_IDENTITY'
+            - Comparisons are all done lowercased
             """
+            value = value.lower()
             for identity in identities:
-                if identity["id"] == value:
-                    return t.cast(str, identity["username"])
-                if identity["username"] == value:
-                    return t.cast(str, identity["id"])
+                if identity["id"].lower() == value:
+                    username = identity["username"]
+                    if isinstance(username, str):
+                        return username
+                if identity["username"].lower() == value:
+                    identity_id = identity["id"]
+                    if isinstance(identity_id, str):
+                        return identity_id
             return "NO_SUCH_IDENTITY"
 
         # standard output is one resolved identity per line in the same order
