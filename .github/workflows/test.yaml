@@ -62,6 +62,7 @@ jobs:
               - "mypy-maxpython"
               - "reference"
               - "check-min-python-is-tested"
+              - "check-mindeps-lower-bounds"
               - "twine-check"
               - "twine-check-minimum"
               - "check-sdist"
