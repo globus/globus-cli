@@ -12,7 +12,10 @@ class OmittableInt(click.ParamType[int | globus_sdk.MissingType]):
     name = "integer"
 
     def convert(
-        self, value: t.Any, param: click.Parameter | None, ctx: click.Context | None
+        self,
+        value: t.Any | globus_sdk.MissingType,
+        param: click.Parameter | None,
+        ctx: click.Context | None,
     ) -> int | globus_sdk.MissingType:
         if value is globus_sdk.MISSING:
             return globus_sdk.MISSING
@@ -26,7 +29,10 @@ class OmittableString(click.ParamType[str | globus_sdk.MissingType]):
     name = "text"
 
     def convert(
-        self, value: t.Any, param: click.Parameter | None, ctx: click.Context | None
+        self,
+        value: t.Any | globus_sdk.MissingType,
+        param: click.Parameter | None,
+        ctx: click.Context | None,
     ) -> str | globus_sdk.MissingType:
         if value is globus_sdk.MISSING:
             return globus_sdk.MISSING
@@ -40,7 +46,10 @@ class OmittableUUID(click.ParamType[uuid.UUID | globus_sdk.MissingType]):
     name = "uuid"
 
     def convert(
-        self, value: t.Any, param: click.Parameter | None, ctx: click.Context | None
+        self,
+        value: t.Any | globus_sdk.MissingType,
+        param: click.Parameter | None,
+        ctx: click.Context | None,
     ) -> uuid.UUID | globus_sdk.MissingType:
         if value is globus_sdk.MISSING:
             return globus_sdk.MISSING
@@ -65,7 +74,10 @@ class OmittableChoice(click.ParamType[str | globus_sdk.MissingType]):
         return self._inner_choice.get_missing_message(param, ctx)
 
     def convert(
-        self, value: t.Any, param: click.Parameter | None, ctx: click.Context | None
+        self,
+        value: t.Any | globus_sdk.MissingType,
+        param: click.Parameter | None,
+        ctx: click.Context | None,
     ) -> str | globus_sdk.MissingType:
         if value is globus_sdk.MISSING:
             return globus_sdk.MISSING
@@ -92,7 +104,10 @@ class OmittableDateTime(_OmittableDateTimeBase):
     name = "datetime"
 
     def convert(
-        self, value: t.Any, param: click.Parameter | None, ctx: click.Context | None
+        self,
+        value: t.Any | globus_sdk.MissingType,
+        param: click.Parameter | None,
+        ctx: click.Context | None,
     ) -> datetime.datetime | globus_sdk.MissingType:
         if value is globus_sdk.MISSING:
             return globus_sdk.MISSING

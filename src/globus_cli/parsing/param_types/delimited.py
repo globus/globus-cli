@@ -28,12 +28,18 @@ class CommaDelimitedList(click.ParamType[list[str] | globus_sdk.MissingType]):
         return "TEXT,TEXT,..."
 
     def convert(
-        self, value: t.Any, param: click.Parameter | None, ctx: click.Context | None
+        self,
+        value: t.Any | globus_sdk.MissingType,
+        param: click.Parameter | None,
+        ctx: click.Context | None,
     ) -> list[str] | globus_sdk.MissingType:
-        if self._omittable and value is globus_sdk.MISSING:
-            return globus_sdk.MISSING
-
-        value = super().convert(value, param, ctx)
+        if value is globus_sdk.MISSING:
+            if self._omittable:
+                return globus_sdk.MISSING
+            else:
+                raise NotImplementedError(
+                    "Cannot pass MISSING to non-omittable CommaDelimitedList."
+                )
 
         # if `--foo` is a comma delimited list and someone passes
         # `--foo ""`, take that as `foo=[]` rather than foo=[""]
