@@ -304,6 +304,35 @@ def load_identities_for_registered_api(get_identities_mocker):
     return _load_identities_for_registered_api
 
 
+@pytest.fixture
+def load_identities_for_web_input(get_identities_mocker):
+    """
+    Callable fixture.
+    Load identities for a provided web input response object, configuring
+    auth.get_identities to return unique usernames for each identity associated with the
+    web input.
+
+    Returns an identity pool object to facilitate lookup of username by principal urn.
+    """
+
+    def _load_identities_for_web_input(
+        web_input: dict[str, t.Any],
+    ) -> FlowsIdentityPool:
+        principals: set[str] = set()
+        if (creator_urn := web_input.get("creator_urn")) is not None:
+            principals.add(creator_urn)
+        roles = web_input.get("roles", {})
+        principals.update(set(roles.get("viewer_urns", [])))
+        principals.update(set(roles.get("respondent_urns", [])))
+
+        pool = FlowsIdentityPool(principals)
+
+        get_identities_mocker.configure(pool.create_get_identities_documents())
+        return pool
+
+    return _load_identities_for_web_input
+
+
 def generate_registered_api_summary(
     n: int, *, name: str | None = None
 ) -> dict[str, t.Any]:

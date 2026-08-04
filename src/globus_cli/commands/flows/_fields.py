@@ -165,3 +165,52 @@ def registered_api_format_fields(
         Field("Destination Method", "target.destination.method"),
         Field("Destination URL", "target.destination.url"),
     ]
+
+
+class WebInputPrincipalFormatter(PrincipalURNFormatter):
+    """A principal formatter which pre-registers all principals for a web input."""
+
+    def __init__(
+        self, auth_client: globus_sdk.AuthClient, web_input: dict[str, t.Any]
+    ) -> None:
+        super().__init__(auth_client)
+        self.add_items(web_input.get("creator_urn"))
+        roles = web_input.get("roles", {})
+        self.add_items(*roles.get("viewer_urns", ()))
+        self.add_items(*roles.get("respondent_urns", ()))
+
+
+def web_input_format_fields(
+    auth_client: globus_sdk.AuthClient,
+    web_input: dict[str, t.Any],
+) -> list[Field]:
+    """
+    The standard list of fields to render for a web input resource.
+
+    :param auth_client: An AuthClient, used to resolve principal URNs.
+    :param web_input: The web input resource, used to pre-register principals.
+    """
+    principal = WebInputPrincipalFormatter(auth_client, web_input)
+    csv_principal_list = formatters.ArrayFormatter(
+        element_formatter=principal,
+        delimiter=", ",
+    )
+    csv_list = formatters.ArrayFormatter(delimiter=", ")
+
+    return [
+        Field("Web Input ID", "id"),
+        Field("Status", "status"),
+        Field("Input Type", "input_type"),
+        Field("Title", "context.title"),
+        Field("Your Roles", "user_roles", formatter=csv_list),
+        Field("Flow ID", "flow.id"),
+        Field("Flow Title", "flow.title"),
+        Field("Run ID", "run.id"),
+        Field("Run Label", "run.label"),
+        Field("Creator", "creator_urn", formatter=principal),
+        Field("Viewers", "roles.viewer_urns", formatter=csv_principal_list),
+        Field("Respondents", "roles.respondent_urns", formatter=csv_principal_list),
+        Field("Created At", "created_timestamp", formatter=formatters.Date),
+        Field("Edited At", "edited_timestamp", formatter=formatters.Date),
+        Field("Closed At", "closed_timestamp", formatter=formatters.Date),
+    ]

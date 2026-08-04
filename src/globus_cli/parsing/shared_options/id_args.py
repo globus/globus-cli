@@ -29,3 +29,7 @@ def flow_id_arg(f: C) -> C:
 
 def run_id_arg(f: C) -> C:
     return click.argument("run_id", metavar="RUN_ID", type=click.UUID)(f)
+
+
+def web_input_id_arg(f: C) -> C:
+    return click.argument("web_input_id", metavar="WEB_INPUT_ID", type=click.UUID)(f)
