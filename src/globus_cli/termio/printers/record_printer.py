@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import functools
 import shutil
+import textwrap
 import typing as t
 from textwrap import TextWrapper
 
@@ -44,8 +45,25 @@ class RecordPrinter(Printer[DataObject]):
 
     def echo(self, data: DataObject, stream: t.IO[str] | None = None) -> None:
         for field in self._fields:
-            item = self._format_item(data, field)
-            click.echo(item, file=stream)
+            if field.section:
+                self._echo_section(data, field, stream)
+            else:
+                item = self._format_item(data, field)
+                click.echo(item, file=stream)
+
+    def _echo_section(
+        self, data: DataObject, field: Field, stream: t.IO[str] | None
+    ) -> None:
+        """
+        Print a field as a standalone header followed by an indented block,
+        preceded by a blank line, e.g.:
+
+        Context:
+          Email:  jondoe@university.edu
+        """
+        click.echo("", file=stream)
+        click.echo(f"{field.name}:", file=stream)
+        click.echo(textwrap.indent(field.serialize(data), "  "), file=stream)
 
     def _format_item(self, data: DataObject, field: Field) -> str:
         """Format a single key-value pair into a string."""
@@ -86,7 +104,7 @@ class RecordPrinter(Printer[DataObject]):
     @functools.cached_property
     def _key_len(self) -> int:
         """The number of chars in the key column."""
-        return max(len(f.name) for f in self._fields) + 2
+        return max(len(f.name) for f in self._fields if not f.section) + 2
 
 
 class RecordListPrinter(Printer[t.Iterable[DataObject]]):

@@ -40,6 +40,7 @@ from .shared_options.id_args import (
     endpoint_id_arg,
     flow_id_arg,
     run_id_arg,
+    web_input_id_arg,
 )
 from .shared_options.transfer_task_options import (
     encrypt_data_option,
@@ -86,6 +87,7 @@ __all__ = [
     "endpoint_id_arg",
     "flow_id_arg",
     "run_id_arg",
+    "web_input_id_arg",
     "flow_input_document_option",
     "task_submission_options",
     "delete_and_rm_options",

@@ -15,6 +15,8 @@ from globus_cli.parsing import group
         "run": (".run", "run_command"),
         # "registered-api" is a subgroup of commands.
         "registered-api": (".registered_api", "registered_api_command"),
+        # "web-input" is a subgroup of commands.
+        "web-input": (".web_input", "web_input_command"),
     },
 )
 def flows_command() -> None:
