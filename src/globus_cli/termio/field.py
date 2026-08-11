@@ -13,6 +13,8 @@ class Field:
         name for table output
     :param key: a jmespath expression for indexing into print data
     :param wrap_enabled: in record output, is this field allowed to wrap
+    :param section: in record output, render this field as a standalone,
+        indented block rather than an inline 'key: value' pair
     """
 
     def __init__(
@@ -21,11 +23,13 @@ class Field:
         key: str,
         *,
         wrap_enabled: bool = False,
+        section: bool = False,
         formatter: formatters.FieldFormatter[t.Any] = formatters.Str,
     ) -> None:
         self.name = name
         self.key = key
         self.wrap_enabled = wrap_enabled
+        self.section = section
         self.formatter = formatter
 
     def get_value(self, data: t.Any) -> t.Any:

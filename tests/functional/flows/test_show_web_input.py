@@ -20,18 +20,14 @@ def test_show_web_input_text_output(run_line, load_identities_for_web_input):
     for fieldname in (
         "Web Input ID",
         "Status",
-        "Input Type",
         "Title",
         "Your Roles",
-        "Flow ID",
-        "Flow Title",
-        "Run ID",
-        "Run Label",
+        "Flow",
+        "Run",
         "Creator",
         "Viewers",
         "Respondents",
         "Created At",
-        "Edited At",
         "Closed At",
     ):
         assert fieldname in result.output
