@@ -3,6 +3,10 @@ import typing as t
 import globus_sdk
 
 from globus_cli.termio import Field, formatters
+from globus_cli.termio.formatters import (
+    ArrayFormatter,
+    FieldFormatter,
+)
 from globus_cli.termio.formatters.auth import PrincipalURNFormatter
 
 
@@ -180,6 +184,49 @@ class WebInputPrincipalFormatter(PrincipalURNFormatter):
         self.add_items(*roles.get("respondent_urns", ()))
 
 
+class IdentifiedResourceFormatter(FieldFormatter[str]):
+    def parse(self, value: t.Any) -> str:
+        if not isinstance(value, list) or len(value) != 2:
+            raise ValueError("cannot format parenthetical from data of wrong shape")
+        name, resource_id = value[0], value[1]
+        if not isinstance(resource_id, str):
+            raise ValueError("cannot format parenthetical non-str id")
+        if isinstance(name, str):
+            # If the name can be parsed, render it alongside the resource id
+            return f"{name} ({resource_id})"
+        # If the name can't be parsed, just render the resource id
+        return resource_id
+
+    def render(self, value: str) -> str:
+        return value
+
+
+class _FieldValueFormatter(FieldFormatter[tuple[t.Any, t.Any]]):
+    def parse(self, value: t.Any) -> tuple[t.Any, t.Any]:
+        if not isinstance(value, dict):
+            raise ValueError("non-dict field value")
+        elif "field" not in value or "value" not in value:
+            raise ValueError("missing key 'field' and/or 'value'")
+        return value["field"], value["value"]
+
+    def render(self, value: tuple[t.Any, t.Any]) -> str:
+        field, val = value
+        return f"{field}: {val}"
+
+
+class _OptionFormatter(FieldFormatter[tuple[t.Any, t.Any]]):
+    def parse(self, value: t.Any) -> tuple[t.Any, t.Any]:
+        if not isinstance(value, dict):
+            raise ValueError("non-dict field value")
+        elif "option_id" not in value or "label" not in value:
+            raise ValueError("missing key 'option_id' and/or 'label'")
+        return value["option_id"], value["label"]
+
+    def render(self, value: tuple[t.Any, t.Any]) -> str:
+        option_id, label = value
+        return f"{label} ({option_id})"
+
+
 def web_input_format_fields(
     auth_client: globus_sdk.AuthClient,
     web_input: dict[str, t.Any],
@@ -196,21 +243,34 @@ def web_input_format_fields(
         delimiter=", ",
     )
     csv_list = formatters.ArrayFormatter(delimiter=", ")
+    flow_run_formatter = IdentifiedResourceFormatter()
 
-    return [
+    fields = [
         Field("Web Input ID", "id"),
         Field("Status", "status"),
-        Field("Input Type", "input_type"),
         Field("Title", "context.title"),
         Field("Your Roles", "user_roles", formatter=csv_list),
-        Field("Flow ID", "flow.id"),
-        Field("Flow Title", "flow.title"),
-        Field("Run ID", "run.id"),
-        Field("Run Label", "run.label"),
+        Field("Flow", "[flow.title, flow.id]", formatter=flow_run_formatter),
+        Field("Run", "[run.label, run.id]", formatter=flow_run_formatter),
         Field("Creator", "creator_urn", formatter=principal),
         Field("Viewers", "roles.viewer_urns", formatter=csv_principal_list),
         Field("Respondents", "roles.respondent_urns", formatter=csv_principal_list),
         Field("Created At", "created_timestamp", formatter=formatters.Date),
-        Field("Edited At", "edited_timestamp", formatter=formatters.Date),
         Field("Closed At", "closed_timestamp", formatter=formatters.Date),
     ]
+
+    if web_input.get("context", {}).get("presentation_style") == "table":
+        formatter = ArrayFormatter(
+            delimiter="\n", element_formatter=_FieldValueFormatter()
+        )
+        fields += [
+            Field("Context", "context.rows", wrap_enabled=True, formatter=formatter)
+        ]
+    else:
+        fields += [Field("Context", "context.text", wrap_enabled=True)]
+
+    if web_input.get("options"):
+        formatter = ArrayFormatter(delimiter="\n", element_formatter=_OptionFormatter())
+        fields += [Field("Options", "options", wrap_enabled=True, formatter=formatter)]
+
+    return fields
