@@ -2,6 +2,25 @@
 
 // scriv-insert-here
 
+== 3.43.0 (2026-08-12)
+
+Bugfixes:
+
+* Fixed a bug in which terminal device (TTY) detection ran even when
+  `GLOBUS_CLI_FOLD_TABLES=1` is set.
+  Setting the variable to true now forces use of folded tables.
+  Non-TTY output devices will be detected as having a fixed width of 80
+  characters.
+
+* Fixed `globus get-identities` to lowercase usernames and IDs before
+  comparisons for normal text output.
+
+Enhancements:
+
+* Folded table output will now have bolded headers in interactive terminals.
+
+* Add `globus flows web-input` subcommands to interact with Web Inputs.
+
 == 3.42.0 (2026-06-10)
 
 Bugfixes:
