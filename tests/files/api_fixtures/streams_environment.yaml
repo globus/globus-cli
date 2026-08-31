@@ -1,0 +1,108 @@
+metadata:
+  tunnel_id: "689dcb43-cdbe-46bb-9a59-dad71091a247"
+  lankey_id: "13fb1936-c8dd-4c6b-9af3-394075c08424"
+  lankey: "93333879ea95"
+  endpoint_id: "a98f60bd-98bf-47bd-9a1d-6a0a3b70eef9"
+
+
+gcs:
+  - path: /api/lan_secrets
+    method: POST
+    json:
+      {
+        "DATA": [
+          {
+              "secret": "93333879ea95",
+              "id":  "13fb1936-c8dd-4c6b-9af3-394075c08424"
+          }
+        ]
+      }
+
+  - path: /api/lan_secrets
+    method: DELETE
+
+transfer:
+  - path: /v0.10/endpoint/a98f60bd-98bf-47bd-9a1d-6a0a3b70eef9
+    method: GET
+    json:
+     {
+        "DATA": [
+          {
+            "DATA_TYPE": "server",
+            "hostname": "abc.xyz.data.globus.org"
+          }
+        ],
+        "DATA_TYPE": "endpoint",
+        "activated": false,
+        "canonical_name": "a98f60bd-98bf-47bd-9a1d-6a0a3b70eef9#myserver",
+        "contact_email": null,
+        "contact_info": null,
+        "default_directory": null,
+        "description": "example gcsv5 endpoint streaming",
+        "department": null,
+        "display_name": "myserver",
+        "entity_type": "GCSv5_endpoint",
+        "force_encryption": false,
+        "gcs_manager_url": "https://abc.xyz.data.globus.org",
+        "gcs_version": "5.4.10",
+        "high_assurance": false,
+        "host_endpoint_id": null,
+        "id": "a98f60bd-98bf-47bd-9a1d-6a0a3b70eef9",
+        "is_globus_connect": false,
+        "info_link": null,
+        "keywords": null,
+        "local_user_info_available": false,
+        "non_functional": true,
+        "organization": "My Org",
+        "owner_id": "a98f60bd-98bf-47bd-9a1d-6a0a3b70eef9",
+        "owner_string": "a98f60bd-98bf-47bd-9a1d-6a0a3b70eef9@clients.auth.globus.org",
+        "public": false,
+        "shareable": false,
+        "subscription_id": null
+      }
+
+  - path: /v2/tunnels/689dcb43-cdbe-46bb-9a59-dad71091a247
+    method: GET
+    json:
+      {
+        "data": {
+          "attributes": {
+            "created_time": "2025-12-08T22:00:05.239465",
+            "initiator_ip_address": null,
+            "initiator_port": null,
+            "label": "Test Stream Access Point",
+            "lifetime_mins": 360,
+            "listener_ip_address": null,
+            "listener_port": null,
+            "restartable": false,
+            "state": "AWAITING_LISTENER",
+            "status": "The tunnel is waiting for listening contact detail setup.",
+            "submission_id": "3fc91c9a-d481-11f0-ae61-0affc202d2e9"
+          },
+          "id": "689dcb43-cdbe-46bb-9a59-dad71091a247",
+          "relationships": {
+            "initiator": {
+              "data": {
+                "id": "80583f05-75f3-4825-b8a5-6c3edf0bbc5c",
+                "type": "StreamAccessPoint"
+              }
+            },
+            "listener": {
+              "data": {
+                "id": "dd5fa993-749f-48fb-86cf-f07ad5797d7e",
+                "type": "StreamAccessPoint"
+              }
+            },
+            "owner": {
+              "data": {
+                "id": "4d443580-012d-4954-816f-e0592bd356e1",
+                "type": "Identity"
+              }
+            }
+          },
+          "type": "Tunnel"
+        },
+        "meta": {
+          "request_id": "yDZD2RwPk"
+        }
+      }
