@@ -39,6 +39,27 @@ _globus_completion_setup() {
 _globus_completion_setup;
 """  # noqa: E501
 
+# Output collected by running `_GLOBUS_COMPLETE=fish_source globus`
+FISH_SHELL_COMPLETER = r"""
+function _globus_completion;
+    set -l response (env _GLOBUS_COMPLETE=fish_complete COMP_WORDS=(commandline -cp) COMP_CWORD=(commandline -t) globus);
+
+    for completion in $response;
+        set -l metadata (string split "," $completion);
+
+        if test $metadata[1] = "dir";
+            __fish_complete_directories $metadata[2];
+        else if test $metadata[1] = "file";
+            __fish_complete_path $metadata[2];
+        else if test $metadata[1] = "plain";
+            echo $metadata[2];
+        end;
+    end;
+end;
+
+complete --no-files --command globus --arguments "(_globus_completion)";
+"""  # noqa: E501
+
 # Output collected by running `_GLOBUS_COMPLETE=zsh_source globus`
 ZSH_SHELL_COMPLETER = r"""
 #compdef globus
@@ -93,6 +114,8 @@ def print_completer_option(f: C) -> C:
 
         if value == "BASH":
             detected = "bash"
+        elif value == "FISH":
+            detected = "fish"
         elif value == "ZSH":
             detected = "zsh"
         else:  # auto
@@ -100,9 +123,13 @@ def print_completer_option(f: C) -> C:
             if "SHELL" in os.environ:  # see if shell matches, e.g. `/bin/zsh`
                 if os.environ["SHELL"].endswith("zsh"):
                     detected = "zsh"
+            elif "FISH_VERSION" in os.environ:
+                detected = "fish"
 
         if detected == "bash":
             click.echo(BASH_SHELL_COMPLETER)
+        elif detected == "fish":
+            click.echo(FISH_SHELL_COMPLETER)
         elif detected == "zsh":
             click.echo(ZSH_SHELL_COMPLETER)
         else:
@@ -122,5 +149,6 @@ def print_completer_option(f: C) -> C:
 
     f = _compopt("--completer", "auto")(f)
     f = _compopt("--bash-completer", "BASH")(f)
+    f = _compopt("--fish-completer", "FISH")(f)
     f = _compopt("--zsh-completer", "ZSH")(f)
     return f
