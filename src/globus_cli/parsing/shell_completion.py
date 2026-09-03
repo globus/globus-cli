@@ -5,6 +5,7 @@ import typing as t
 
 import click
 
+# Tag: click-updates-note
 # When click versions are updated, re-run the CLI-completion generator commands for:
 #
 # BASH_SHELL_COMPLETER
