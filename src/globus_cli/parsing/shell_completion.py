@@ -5,6 +5,13 @@ import typing as t
 
 import click
 
+# When click versions are updated, re-run the CLI-completion generator commands for:
+#
+# BASH_SHELL_COMPLETER
+# FISH_SHELL_COMPLETER
+# ZSH_SHELL_COMPLETER
+#
+
 C = t.TypeVar("C", bound=t.Union[t.Callable[..., t.Any], click.Command])
 
 # Output collected by running `_GLOBUS_COMPLETE=bash_source globus`
