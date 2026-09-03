@@ -31,8 +31,6 @@ dependencies = [
     "globus-sdk==4.9.0",
     # NOTE: `click` does not use semver; minor releases are expected to contain
     #       minor breaking changes.
-    # When updating the `click` version, you MUST update `shell_completions.py`.
-    # Find the 'click-updates-note' tag in that file for instructions.
     "click>=8.4,<8.5",
     "jmespath==1.1.0",
     "packaging>=17.0",
