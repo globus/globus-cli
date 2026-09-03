@@ -7,7 +7,7 @@ import click
 
 C = t.TypeVar("C", bound=t.Union[t.Callable[..., t.Any], click.Command])
 
-# pulled by running `_GLOBUS_COMPLETE=source globus` in a bash shell
+# Output collected by running `_GLOBUS_COMPLETE=bash_source globus`
 BASH_SHELL_COMPLETER = r"""
 _globus_completion() {
     local IFS=$'\n'
@@ -19,10 +19,10 @@ _globus_completion() {
         IFS=',' read type value <<< "$completion"
 
         if [[ $type == 'dir' ]]; then
-            COMREPLY=()
+            COMPREPLY=()
             compopt -o dirnames
         elif [[ $type == 'file' ]]; then
-            COMREPLY=()
+            COMPREPLY=()
             compopt -o default
         elif [[ $type == 'plain' ]]; then
             COMPREPLY+=($value)
@@ -39,7 +39,7 @@ _globus_completion_setup() {
 _globus_completion_setup;
 """  # noqa: E501
 
-# pulled by running `_GLOBUS_COMPLETE=source_zsh globus` in a zsh shell
+# Output collected by running `_GLOBUS_COMPLETE=zsh_source globus`
 ZSH_SHELL_COMPLETER = r"""
 #compdef globus
 
@@ -74,7 +74,13 @@ _globus_completion() {
     fi
 }
 
-compdef _globus_completion globus;
+if [[ $zsh_eval_context[-1] == loadautofunc ]]; then
+    # autoload from fpath, call function directly
+    _globus_completion "$@"
+else
+    # eval/source/. command, register function for later
+    compdef _globus_completion globus
+fi
 """  # noqa: E501
 
 
