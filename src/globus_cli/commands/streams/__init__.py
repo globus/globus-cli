@@ -6,6 +6,7 @@ from globus_cli.parsing import group
     lazy_subcommands={
         "tunnel": (".tunnel", "tunnel_command"),
         "access-point": (".access_point", "access_point_command"),
+        "environment": (".environment", "environment_command"),
     },
 )
 def stream_command() -> None:
