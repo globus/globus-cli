@@ -2,7 +2,6 @@ from __future__ import annotations
 
 import functools
 import os
-import sys
 import typing as t
 import uuid
 
@@ -40,12 +39,7 @@ if t.TYPE_CHECKING:
     from ..services.gcs import CustomGCSClient
     from ..services.transfer import CustomTransferClient
 
-if sys.version_info >= (3, 10):
-    from typing import Concatenate, ParamSpec
-else:
-    from typing_extensions import Concatenate, ParamSpec
-
-P = ParamSpec("P")
+P = t.ParamSpec("P")
 R = t.TypeVar("R")
 
 # string-ized annotation to avoid triggering eager imports
@@ -282,7 +276,7 @@ class LoginManager:
     @classmethod
     def requires_login(
         cls, *services: ServiceNameLiteral
-    ) -> t.Callable[[t.Callable[Concatenate[LoginManager, P], R]], t.Callable[P, R]]:
+    ) -> t.Callable[[t.Callable[t.Concatenate[LoginManager, P], R]], t.Callable[P, R]]:
         """
         Command decorator for specifying a resource server that the user must have
         tokens for in order to run the command.
@@ -312,7 +306,7 @@ class LoginManager:
         ]
 
         def inner(
-            func: t.Callable[Concatenate[LoginManager, P], R],
+            func: t.Callable[t.Concatenate[LoginManager, P], R],
         ) -> t.Callable[P, R]:
             @functools.wraps(func)
             def wrapper(*args: P.args, **kwargs: P.kwargs) -> R:

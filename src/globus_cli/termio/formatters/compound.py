@@ -21,7 +21,7 @@ class SortedJsonFormatter(FieldFormatter[JsonValue]):
         return json.dumps(value, sort_keys=True)
 
 
-class ArrayFormatter(FieldFormatter[t.List[str]]):
+class ArrayFormatter(FieldFormatter[list[str]]):
     def __init__(
         self,
         *,
@@ -48,7 +48,7 @@ class ArrayFormatter(FieldFormatter[t.List[str]]):
         return self.delimiter.join(value)
 
 
-class ParentheticalDescriptionFormatter(FieldFormatter[t.Tuple[str, str]]):
+class ParentheticalDescriptionFormatter(FieldFormatter[tuple[str, str]]):
     def parse(self, value: t.Any) -> tuple[str, str]:
         if not isinstance(value, list) or len(value) != 2:
             raise ValueError(

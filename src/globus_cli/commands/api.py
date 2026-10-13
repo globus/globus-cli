@@ -24,10 +24,7 @@ class QueryParamType(click.ParamType[tuple[str, str] | None]):
         return "Key=Value"
 
     def get_type_annotation(self, param: click.Parameter) -> type:
-        # this is a "<typing special form>" vs "type" issue, so type ignore for now
-        # click-type-test has an issue for improving this, with details, see:
-        #   https://github.com/sirosen/click-type-test/issues/14
-        return t.Tuple[str, str]  # type: ignore[return-value]
+        return tuple[str, str]
 
     def convert(
         self,
@@ -46,10 +43,7 @@ class HeaderParamType(click.ParamType[tuple[str, str] | None]):
         return "Key:Value"
 
     def get_type_annotation(self, param: click.Parameter) -> type:
-        # this is a "<typing special form>" vs "type" issue, so type ignore for now
-        # click-type-test has an issue for improving this, with details, see:
-        #   https://github.com/sirosen/click-type-test/issues/14
-        return t.Tuple[str, str]  # type: ignore[return-value]
+        return tuple[str, str]
 
     def convert(
         self,

@@ -214,7 +214,7 @@ class _OptionFormatter(FieldFormatter[tuple[t.Any, t.Any]]):
         return f"*  {option_id}  {label}"
 
 
-class _WebInputContextRowsFormatter(FieldFormatter[t.List[t.Tuple[str, str]]]):
+class _WebInputContextRowsFormatter(FieldFormatter[list[tuple[str, str]]]):
     """Renders a list of {field, value} rows as an aligned 'field: value' block."""
 
     def parse(self, value: t.Any) -> list[tuple[str, str]]:

@@ -216,7 +216,7 @@ class CLIAuthRequirementsError(Exception):
     A class for internally generated auth requirements
     """
 
-    def __init__(
+    def __init__(  # noqa: B042
         self,
         message: str,
         *,

@@ -15,7 +15,7 @@ from globus_cli.utils import PagingWrapper
 from ._common import task_id_arg
 
 
-class SquashedJsonFormatter(formatters.FieldFormatter[t.Tuple[t.Any, bool]]):
+class SquashedJsonFormatter(formatters.FieldFormatter[tuple[t.Any, bool]]):
     def parse(self, value: t.Any) -> tuple[t.Any, bool]:
         if not isinstance(value, str):
             raise ValueError("bad input data")

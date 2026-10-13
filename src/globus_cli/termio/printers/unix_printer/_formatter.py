@@ -1,17 +1,10 @@
 from __future__ import annotations
 
-import sys
 import typing as t
 from itertools import chain
 
-if sys.version_info >= (3, 10):
-    from typing import TypeAlias
-else:
-    from typing_extensions import TypeAlias
-
-
-Scalar: TypeAlias = "str | int | float | bool | None"
-NonScalar: TypeAlias = "list[Scalar | NonScalar] | dict[str, Scalar | NonScalar]"
+Scalar: t.TypeAlias = "str | int | float | bool | None"
+NonScalar: t.TypeAlias = "list[Scalar | NonScalar] | dict[str, Scalar | NonScalar]"
 
 
 class UnixFormattingError(ValueError):

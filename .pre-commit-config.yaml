@@ -14,12 +14,12 @@ repos:
     - id: check-github-workflows
     - id: check-dependabot
 - repo: https://github.com/asottile/pyupgrade
-  rev: v3.21.2
+  rev: v3.22.0
   hooks:
     - id: pyupgrade
-      args: ["--py39-plus"]
+      args: ["--py310-plus"]
 - repo: https://github.com/psf/black-pre-commit-mirror
-  rev: 26.10.0
+  rev: 26.10.1
   hooks:
     - id: black
 - repo: https://github.com/pycqa/flake8
@@ -27,9 +27,9 @@ repos:
   hooks:
     - id: flake8
       additional_dependencies:
-        - 'flake8-bugbear==24.12.12'
+        - 'flake8-bugbear==26.9.30'
         - 'flake8-comprehensions==3.17.0'
-        - 'flake8-typing-as-t==1.0.0'
+        - 'flake8-typing-as-t==1.2.0'
 - repo: https://github.com/PyCQA/isort
   rev: 9.0.2
   hooks:

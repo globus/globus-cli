@@ -48,7 +48,7 @@ class TimedeltaFormatter(formatters.FieldFormatter[datetime.timedelta]):
         return str(value)
 
 
-class ScheduleFormatter(formatters.FieldFormatter[t.Dict[str, t.Any]]):
+class ScheduleFormatter(formatters.FieldFormatter[dict[str, t.Any]]):
     def parse(self, value: t.Any) -> dict[str, t.Any]:
         if not isinstance(value, dict):
             raise ValueError("bad schedule value")

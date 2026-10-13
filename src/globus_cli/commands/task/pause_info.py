@@ -20,7 +20,7 @@ EXPLICIT_PAUSE_MSG_FIELDS = [
 ]
 
 
-class RuleOperationsFormatter(formatters.FieldFormatter[t.List[str]]):
+class RuleOperationsFormatter(formatters.FieldFormatter[list[str]]):
     def parse(self, value: t.Any) -> list[str]:
         if not isinstance(value, dict):
             raise ValueError("cannot format rule operations from non-dict value")
