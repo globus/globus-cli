@@ -38,6 +38,7 @@ dependencies = [
     # these are dependencies of the SDK, but they are used directly in the CLI
     # declare them here in case the underlying lib ever changes
     "requests>=2.34.2,<3.0.0",
+    "certifi>=2026.10.19",
 ]
 dynamic = ["version"]
 
