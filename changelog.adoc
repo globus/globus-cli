@@ -2,6 +2,17 @@
 
 // scriv-insert-here
 
+== 3.44.0 (2026-10-22)
+
+Security:
+
+* Pinned certifi to 2023.7.22 to avoid a compromised CA.
+
+Other:
+
+* Updated CLI completions for bash and zsh shells.
+* Added a CLI completion for fish shell.
+
 == 3.43.0 (2026-08-12)
 
 Bugfixes:
