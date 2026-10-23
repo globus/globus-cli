@@ -46,6 +46,19 @@ def test_version_command_on_latest(run_line, mock_pypi_version, installed_cli_ve
         """)
 
 
+def test_version_flag_alias(run_line, mock_pypi_version, installed_cli_version):
+    mock_pypi_version(installed_cli_version)
+
+    version_result = run_line("globus version")
+    flag_result = run_line("globus --version")
+    assert flag_result.output == version_result.output
+
+
+def test_version_flag_is_not_valid_on_subcommands(run_line):
+    result = run_line("globus version --version", assert_exit_code=2)
+    assert "No such option" in result.output
+
+
 def test_version_command_on_preview(run_line, mock_pypi_version, installed_cli_version):
     mock_pypi_version("1.0")
 

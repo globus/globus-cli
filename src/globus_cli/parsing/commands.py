@@ -196,11 +196,31 @@ class TopLevelGroup(GlobusCommandGroup):
             custom_except_hook(sys.exc_info())  # type: ignore[arg-type,type-var]
 
 
+def _print_version_callback(
+    ctx: click.Context, param: click.Parameter, value: bool
+) -> None:
+    if not value or ctx.resilient_parsing:
+        return
+    # imported here to avoid a circular import with `globus_cli.commands`
+    from globus_cli.commands.version import version_command
+
+    ctx.invoke(version_command)
+    ctx.exit()
+
+
 def main_group(**kwargs: t.Any) -> t.Callable[[C], TopLevelGroup]:
     def decorator(f: C) -> TopLevelGroup:
         grp = click.group("globus", cls=TopLevelGroup, **kwargs)(f)
         grp = common_options()(grp)
         grp = print_completer_option(grp)
+        grp = click.option(
+            "--version",
+            is_flag=True,
+            expose_value=False,
+            is_eager=True,
+            callback=_print_version_callback,
+            help="Show the version and exit.",
+        )(grp)
         return grp
 
     return decorator
