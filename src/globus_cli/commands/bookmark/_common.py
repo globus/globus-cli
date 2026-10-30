@@ -32,14 +32,11 @@ def resolve_id_or_name(
     try:
         # n.b. case matters to the Transfer service for bookmark names, so
         # two bookmarks can exist whose names vary only by their case
-        return t.cast(
-            t.Dict[str, t.Any],
-            next(
-                bookmark_row
-                for bookmark_row in client.bookmark_list()
-                if bookmark_row["name"] == bookmark_id_or_name
-            ),
-        )
+        return next(
+            bookmark_row
+            for bookmark_row in client.bookmark_list()
+            if bookmark_row["name"] == bookmark_id_or_name
+        )  # type: ignore[return-value]
 
     except StopIteration:
         click.echo(f'No bookmark found for "{bookmark_id_or_name}"', err=True)

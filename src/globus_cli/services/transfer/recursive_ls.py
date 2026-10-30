@@ -11,8 +11,8 @@ import globus_sdk
 
 log = logging.getLogger(__name__)
 
-ITEM_T = t.Dict[str, t.Any]
-QUEUE_T = t.Deque[t.Tuple[t.Optional[str], str, int]]
+ITEM_T: t.TypeAlias = dict[str, t.Any]
+QUEUE_T: t.TypeAlias = deque[tuple[str | None, str, int]]
 
 # constants for controlling client-side rate limiting
 SLEEP_FREQUENCY = 25

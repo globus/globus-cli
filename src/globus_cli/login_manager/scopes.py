@@ -39,7 +39,7 @@ class _ServiceRequirement(t.TypedDict):
     scopes: list[Scope]
 
 
-class _CLIScopeRequirements(t.Dict[ServiceNameLiteral, _ServiceRequirement]):
+class _CLIScopeRequirements(dict[ServiceNameLiteral, _ServiceRequirement]):
     def __init__(self) -> None:
         self["auth"] = {
             "min_contract_version": 0,

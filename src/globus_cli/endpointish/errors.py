@@ -65,7 +65,7 @@ SHOULD_USE_MAPPINGS = (
 
 
 class WrongEntityTypeError(ValueError):
-    def __init__(
+    def __init__(  # noqa: B042
         self,
         from_command: str,
         endpoint_id: str,

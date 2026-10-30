@@ -114,9 +114,9 @@ def query_command(
         if bypass_visible_to:
             doc["bypass_visible_to"] = bypass_visible_to
         if filter_principal_sets is not None:
-            # because list is invariant, it needs a widening cast here
-            doc["filter_principal_sets"] = t.cast(
-                t.List[JsonValue], filter_principal_sets
+            # because list is invariant, it needs a type ignore here
+            doc["filter_principal_sets"] = (
+                filter_principal_sets  # type: ignore[assignment]
             )
 
         data = search_client.post_search(index_id, doc)

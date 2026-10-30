@@ -12,12 +12,11 @@ class MissingLoginError(ValueError):
         missing_servers: t.Sequence[str],
         context: LoginContext,
     ) -> None:
+        super().__init__(missing_servers, context)
+
         self.missing_servers = missing_servers
-
         error_message = context.error_message or self._default_error_message()
-
         self.message = f"{error_message}\nPlease run:\n\n  {context.login_command}\n"
-        super().__init__(self.message)
 
     def __str__(self) -> str:
         return self.message

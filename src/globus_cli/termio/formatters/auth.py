@@ -11,7 +11,7 @@ _IDENTITY_URN_PREFIX = "urn:globus:auth:identity:"
 _GROUP_URN_PREFIX = "urn:globus:groups:id:"
 
 
-class PrincipalFormatter(FieldFormatter[t.Tuple[str, str]]):
+class PrincipalFormatter(FieldFormatter[tuple[str, str]]):
     """
     PrincipalFormatters work over (principal, type) tuples.
 

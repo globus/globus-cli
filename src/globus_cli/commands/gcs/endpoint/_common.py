@@ -6,7 +6,7 @@ from globus_cli.termio import Field, formatters
 from globus_cli.termio.formatters import FieldFormatter
 
 
-class NetworkUseFormatter(FieldFormatter[t.Union[str, t.Tuple[int, int]]]):
+class NetworkUseFormatter(FieldFormatter[str | tuple[int, int]]):
     """
     Custom Formatter to make network use associated fields better grouped.
 
