@@ -57,3 +57,14 @@ def test_index_delete(run_line):
 def test_index_delete_rejects_empty_str(run_line):
     result = run_line(["globus", "search", "index", "delete", ""], assert_exit_code=2)
     assert "Invalid value for 'INDEX_ID'" in result.stderr
+
+
+def test_index_update(run_line):
+    meta = load_response("search.update_index").metadata
+    index_id = meta["index_id"]
+    display_name = meta["display_name"]
+
+    run_line(
+        ["globus", "search", "index", "update", index_id, "--display-name", "foo"],
+        search_stdout=[("Index ID", index_id), ("Display Name", display_name)],
+    )
