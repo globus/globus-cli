@@ -9,6 +9,7 @@ from globus_cli.parsing import group
         "list": (".list", "list_command"),
         "role": (".role", "role_command"),
         "show": (".show", "show_command"),
+        "update": (".update", "update_command"),
     },
 )
 def index_command() -> None:
